@@ -16,15 +16,19 @@ const VERBS = {
 export default function QuickGermanTool({ onClose }) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState(null);
+  const [recentSearches, setRecentSearches] = useState(['machen', 'gehen', 'haben']);
+  const verbOfDay = { verb: 'lernen', meaning: 'to learn', example: 'Ich lerne Deutsch jeden Tag.' };
 
   function handleSearch(e) {
     e.preventDefault();
     const v = query.trim().toLowerCase();
-    if (VERBS[v]) setResult({ verb: v, ...VERBS[v] });
-    else setResult(null);
+    if (VERBS[v]) {
+      setResult({ verb: v, ...VERBS[v] });
+      setRecentSearches(prev => [v, ...prev.filter(x => x !== v)].slice(0, 10));
+    } else setResult(null);
   }
 
-  function handleSelect(v) { setQuery(v); setResult({ verb: v, ...VERBS[v] }); }
+  function handleSelect(v) { setQuery(v); setResult({ verb: v, ...VERBS[v] }); setRecentSearches(prev => [v, ...prev.filter(x => x !== v)].slice(0, 10)); }
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4" onClick={onClose}>
@@ -45,15 +49,42 @@ export default function QuickGermanTool({ onClose }) {
 
         {!result && (
           <div className="px-5 pb-5">
+            {/* Verb of the Day */}
+            <div className="rounded-2xl p-4 mb-4" style={{ background: 'linear-gradient(135deg, #FFF8E1, #E0F2F1)', border: '1px solid #E8E0D4' }}>
+              <p className="text-[10px] font-bold text-[#B8860B] mb-2 uppercase" style={{ letterSpacing: '0.5px' }}>✨ Verb of the Day</p>
+              <p className="text-lg font-bold text-[#1A1A2E]">{verbOfDay.verb}</p>
+              <p className="text-[13px] text-[#4A4A5A]">{verbOfDay.meaning}</p>
+              <button onClick={() => handleSelect(verbOfDay.verb)} className="text-[12px] text-[#2D8B7A] font-semibold mt-1 hover:underline">View conjugation →</button>
+            </div>
+
+            {/* Quick Select */}
             <p className="text-[11px] font-bold text-[#8A8A9A] mb-2 uppercase" style={{ letterSpacing: '0.5px' }}>Quick select:</p>
-            <div className="flex flex-wrap gap-2">
-              {Object.keys(VERBS).map(v => (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {Object.keys(VERBS).slice(0, 8).map(v => (
                 <button key={v} onClick={() => handleSelect(v)}
                   className="px-4 py-2 bg-[#F5F5F5] border border-[#E8E0D4] rounded-xl text-[13px] font-medium text-[#4A4A5A] hover:bg-[#E8E0D4] transition">
                   {v}
                 </button>
               ))}
             </div>
+
+            {/* Recent Searches */}
+            {recentSearches.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[11px] font-bold text-[#8A8A9A] uppercase" style={{ letterSpacing: '0.5px' }}>Recent</p>
+                  <button onClick={() => setRecentSearches([])} className="text-[11px] text-[#8A8A9A] hover:text-[#4A4A5A]">Clear</button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {recentSearches.map(v => (
+                    <button key={v} onClick={() => handleSelect(v)}
+                      className="px-3 py-1.5 bg-[#FAF6F0] border border-[#E8E0D4] rounded-lg text-[12px] text-[#8A8A9A] hover:text-[#4A4A5A] hover:bg-[#E8E0D4] transition">
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
