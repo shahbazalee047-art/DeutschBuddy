@@ -73,11 +73,11 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)' }}>
         <div className="flex flex-col items-center gap-4 scale-in">
           <div className="text-5xl animate-float">🇩🇪</div>
-          <div className="w-10 h-10 border-3 border-zinc-700 border-t-lime-400 rounded-full animate-spin" />
-          <p className="text-zinc-500 text-sm font-medium">Loading DeutschBuddy...</p>
+          <div className="w-10 h-10 border-3 border-slate-600 border-t-lime-400 rounded-full animate-spin" />
+          <p className="text-slate-400 text-sm font-medium">Loading DeutschBuddy...</p>
         </div>
       </div>
     );
@@ -95,16 +95,16 @@ function Dashboard() {
     if (selectedTask) {
       return (
         <div className="fade-in">
-          <button onClick={() => setSelectedTask(null)} className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 mb-4 transition">
+          <button onClick={() => setSelectedTask(null)} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 mb-4 transition">
             <span>&larr;</span> Back to Day {selectedDay.day}
           </button>
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
+          <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] font-bold text-lime-400 bg-lime-400/10 border border-lime-400/20 px-2 py-0.5 rounded-full uppercase tracking-wider">{selectedTask.type}</span>
+              <span className="text-[10px] font-bold text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-2 py-0.5 rounded-full uppercase tracking-wider">{selectedTask.type}</span>
               <span className="text-xs font-bold text-lime-400">+{selectedTask.xp} XP</span>
             </div>
-            <h2 className="text-lg font-bold text-zinc-100 mb-1">{selectedTask.title}</h2>
-            <p className="text-sm text-zinc-400 mb-5">{selectedTask.description}</p>
+            <h2 className="text-lg font-bold text-slate-100 mb-1">{selectedTask.title}</h2>
+            <p className="text-sm text-slate-300 mb-5">{selectedTask.description}</p>
             <TaskRenderer task={selectedTask} onComplete={handleCompleteTask} />
           </div>
         </div>
@@ -122,7 +122,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950">
+    <div className="min-h-screen" style={{ background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)' }}>
       {showQuickTool && <QuickGermanTool onClose={() => setShowQuickTool(false)} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
       <Navbar activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} activeLevel={activeLevel} onLevelChange={(l) => { setActiveLevel(l); setSelectedDay(null); setSelectedTask(null); setActiveView('dashboard'); }} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} />
@@ -131,33 +131,31 @@ function Dashboard() {
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
           <>
             <div className="mb-5 slide-up text-center max-lg:space-y-3">
-              <h1 className="text-xl font-bold text-zinc-100">Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! 👋</h1>
-              <p className="text-sm text-zinc-400">Ready to continue learning?</p>
+              <h1 className="text-xl font-bold text-slate-100">Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! 👋</h1>
+              <p className="text-sm text-slate-300">Ready to continue learning?</p>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
                 {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
-                {activeLevel === 'A2' && <span className="text-xs text-zinc-500 font-medium px-3 py-1.5 bg-zinc-900 border border-zinc-800 rounded-xl">A2: Fixed 8-week track</span>}
+                {activeLevel === 'A2' && <span className="text-xs text-slate-400 font-medium px-3 py-1.5 bg-slate-800 border border-slate-700/50 rounded-xl">A2: Fixed 8-week track</span>}
               </div>
             </div>
 
             {nextDay && (
               <button onClick={() => handleSelectDay(nextDay.weekId, nextDay.day)}
-                className="w-full mb-5 bg-zinc-900 border border-zinc-800 rounded-2xl p-4 flex items-center gap-4 text-left hover:border-lime-400/30 transition-all group">
-                <div className="w-12 h-12 bg-lime-400 rounded-xl flex items-center justify-center text-zinc-950 text-lg font-bold">▶</div>
+                className="w-full mb-5 bg-slate-800 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4 text-left hover:border-lime-400/50 transition-all group">
+                <div className="w-12 h-12 bg-lime-400 rounded-xl flex items-center justify-center text-slate-900 text-lg font-bold animate-pulse-lime">▶</div>
                 <div className="flex-1">
                   <div className="text-[10px] font-bold text-lime-400 uppercase tracking-wider">Continue where you left off</div>
-                  <div className="text-sm font-semibold text-zinc-200">Week {nextDay.weekId}, Day {nextDay.day}</div>
+                  <div className="text-sm font-semibold text-slate-200">Week {nextDay.weekId}, Day {nextDay.day}</div>
                 </div>
-                <span className="text-zinc-600 group-hover:text-lime-400 transition text-lg">→</span>
+                <span className="text-slate-500 group-hover:text-lime-400 transition text-lg">→</span>
               </button>
             )}
 
-            <div className={`rounded-2xl p-5 mb-5 text-white ${
-              activeLevel === 'A1'
-                ? 'bg-gradient-to-r from-lime-400/10 to-lime-400/5 border border-lime-400/20 text-lime-100'
-                : 'bg-gradient-to-r from-purple-950/40 to-purple-900/20 border border-purple-800/50 text-purple-300'
+            <div className={`rounded-2xl p-5 mb-5 text-white border-l-4 ${
+              activeLevel === 'A1' ? 'bg-slate-800 border-lime-400' : 'bg-slate-800 border-purple-400'
             }`}>
               <h2 className="text-lg font-bold">{levelData.title}</h2>
-              <p className="text-sm opacity-70 mt-0.5">{levelData.description}</p>
+              <p className="text-slate-300 text-sm mt-0.5">{levelData.description}</p>
             </div>
           </>
         )}
@@ -165,9 +163,7 @@ function Dashboard() {
         {isFullWidth ? renderMainContent() : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">{renderMainContent()}</div>
-            <div className="lg:col-span-1">
-              <RightPanel progress={progress} streak={progress.streak} />
-            </div>
+            <div className="lg:col-span-1"><RightPanel progress={progress} streak={progress.streak} /></div>
           </div>
         )}
       </main>

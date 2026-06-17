@@ -3,10 +3,7 @@ import BadgeGallery from './BadgeGallery';
 
 export default function ProgressDashboard({ progress, levelData, visibleWeeks }) {
   const levelWeeks = visibleWeeks || levelData.weeks;
-  const weeklyStats = levelWeeks.map(week => ({
-    week: week.id,
-    completion: getWeekCompletion(week.days, progress.completedTasks),
-  }));
+  const weeklyStats = levelWeeks.map(week => ({ week: week.id, completion: getWeekCompletion(week.days, progress.completedTasks) }));
   const unlocked = weeklyStats.filter(w => w.completion > 0 || weeklyStats.indexOf(w) < (progress.unlockedWeeks?.length || 1));
   const avgCompletion = unlocked.length > 0 ? Math.round(unlocked.reduce((a, w) => a + w.completion, 0) / unlocked.length) : 0;
 
@@ -19,31 +16,23 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
           { icon: '📊', value: `${avgCompletion}%`, label: 'Progress', color: 'text-cyan-400' },
           { icon: '✅', value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: 'text-green-400' },
         ].map((stat, i) => (
-          <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center">
+          <div key={i} className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 text-center">
             <div className="text-2xl mb-1">{stat.icon}</div>
             <div className={`text-xl font-bold ${stat.color} tabular-nums`}>{stat.value}</div>
-            <div className="text-[11px] text-zinc-500 font-medium mt-0.5">{stat.label}</div>
+            <div className="text-[11px] text-slate-400 font-medium mt-0.5">{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Visual Weekly Progress Chart */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-zinc-200 mb-4">Weekly Progress</h3>
+      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5">
+        <h3 className="text-sm font-bold text-slate-200 mb-4">Weekly Progress</h3>
         <div className="space-y-3">
           {weeklyStats.map(stat => (
             <div key={stat.week} className="flex items-center gap-3">
-              <span className="text-xs text-zinc-500 w-8 font-medium tabular-nums">W{stat.week}</span>
-              <div className="flex-1 h-6 bg-zinc-800 rounded-lg overflow-hidden relative">
-                <div className="h-full rounded-lg transition-all duration-700" style={{
-                  width: `${stat.completion}%`,
-                  background: stat.completion === 100 ? '#a3e635' : stat.completion > 0 ? '#22d3ee' : '#27272a',
-                }} />
-                {stat.completion > 0 && (
-                  <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-zinc-300">
-                    {stat.completion}%
-                  </span>
-                )}
+              <span className="text-xs text-slate-400 w-8 font-medium tabular-nums">W{stat.week}</span>
+              <div className="flex-1 h-6 bg-slate-700 rounded-lg overflow-hidden relative">
+                <div className="h-full bg-gradient-to-r from-lime-400 to-lime-300 rounded-lg transition-all duration-700 shadow-lg shadow-lime-400/20" style={{ width: `${stat.completion}%` }} />
+                {stat.completion > 0 && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-300">{stat.completion}%</span>}
               </div>
             </div>
           ))}
@@ -52,9 +41,8 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
 
       <BadgeGallery badges={progress.badges || []} />
 
-      {/* External Resources */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-zinc-200 mb-4">Resources</h3>
+      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5">
+        <h3 className="text-sm font-bold text-slate-200 mb-4">Resources</h3>
         <div className="space-y-2">
           {[
             { icon: '📺', title: 'Nicos Weg (DW)', desc: 'Free video course', href: 'https://learngerman.dw.com/en/overview' },
@@ -63,12 +51,9 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
             { icon: '🏛️', title: 'Goethe-Institut', desc: 'Official exam materials', href: 'https://goethe.de' },
           ].map((r, i) => (
             <a key={i} href={r.href} target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-3 p-3 bg-zinc-800 border border-zinc-700/50 rounded-xl hover:border-zinc-600 transition">
+               className="flex items-center gap-3 p-3 bg-slate-900/50 border border-slate-700/50 rounded-xl hover:border-cyan-400/50 hover:bg-slate-800 transition">
               <span className="text-lg">{r.icon}</span>
-              <div>
-                <div className="font-medium text-sm text-zinc-300">{r.title}</div>
-                <div className="text-xs text-zinc-500">{r.desc}</div>
-              </div>
+              <div><div className="font-medium text-sm text-slate-200">{r.title}</div><div className="text-xs text-slate-400">{r.desc}</div></div>
             </a>
           ))}
         </div>
