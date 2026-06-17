@@ -42,7 +42,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
           </button>
 
           {/* Logo + Brand */}
-          <div className="flex items-center justify-center gap-2 flex-1 lg:flex-none">
+          <button onClick={() => onViewChange('dashboard')} className="flex items-center justify-center gap-2 flex-1 lg:flex-none select-none">
             <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-lg shadow-blue-500/20 flex-shrink-0">
               🇩🇪
             </div>
@@ -50,7 +50,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
               <span className="text-base md:text-xl font-extrabold text-slate-100 tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
               <span className="text-base md:text-xl font-extrabold text-blue-400 tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
             </div>
-          </div>
+          </button>
 
           {/* Desktop nav links */}
           <nav className="hidden lg:flex items-center gap-1">
