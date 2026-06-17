@@ -16,7 +16,6 @@ import ResourceLibrary from './components/ResourceLibrary';
 import TrackToggle from './components/TrackToggle';
 import QuickGermanTool from './components/QuickGermanTool';
 import ProtectedRoute from './components/ProtectedRoute';
-import JourneyMap from './components/JourneyMap';
 import { DayCompleteCelebration } from './components/ConfettiEffect';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
@@ -113,7 +112,6 @@ function Dashboard() {
     if (selectedDay && currentWeek) return <DailyTasks week={currentWeek} day={selectedDay.day} completedTasks={progress.completedTasks} onSelectTask={handleSelectTask} onBack={handleBackToWeek} />;
     return (
       <div className="space-y-3">
-        <JourneyMap weeks={visibleWeeks} completedTasks={progress.completedTasks} currentWeek={unlockedWeeks[unlockedWeeks.length - 1] || 1} onSelectWeek={(w) => handleSelectDay(w, 1)} unlockedWeeks={unlockedWeeks} />
         {visibleWeeks.map(week => (
           <WeeklyModule key={week.id} week={week} completedTasks={progress.completedTasks} onSelectDay={handleSelectDay} selectedDay={selectedDay} isUnlocked={unlockedWeeks.includes(week.id)} />
         ))}
