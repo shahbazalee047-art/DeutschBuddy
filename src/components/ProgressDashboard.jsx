@@ -16,7 +16,7 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
           { icon: '📊', value: `${avgCompletion}%`, label: 'Progress', color: '#5B8C7A' },
           { icon: '✅', value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: '#8B6914' },
         ].map((stat, i) => (
-          <div key={i} className="bg-white border border-[#E8DFD4] rounded-2xl p-4 text-center shadow-sm">
+          <div key={i} className="paper-card p-4 text-center">
             <div className="text-2xl mb-1">{stat.icon}</div>
             <div className="text-xl font-bold tabular-nums" style={{ color: stat.color }}>{stat.value}</div>
             <div className="text-[11px] text-[#9ca3af] font-medium mt-0.5">{stat.label}</div>
@@ -24,7 +24,7 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
         ))}
       </div>
 
-      <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 shadow-sm">
+      <div className="paper-card p-5">
         <h3 className="text-sm font-bold text-[#1a1a2e] mb-4">Weekly Progress</h3>
         <div className="space-y-3">
           {weeklyStats.map(stat => (

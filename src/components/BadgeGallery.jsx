@@ -18,7 +18,7 @@ const ALL_BADGES = [
 
 export default function BadgeGallery({ badges }) {
   return (
-    <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 shadow-sm border-t-2 border-t-[#C4956A]">
+    <div className="paper-card p-5 border-t-2 border-t-[#C4956A]">
       <h4 className="text-sm font-bold text-[#1a1a2e] mb-4">🏆 Badges</h4>
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
         {ALL_BADGES.map(badge => {

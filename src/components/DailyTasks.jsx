@@ -15,7 +15,7 @@ export default function DailyTasks({ week, day, completedTasks, onSelectTask, on
         <span>&larr;</span> Back to Week {week.id}
       </button>
 
-      <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 mb-5 shadow-sm">
+      <div className="paper-card p-5 mb-5">
         <div className="flex items-center justify-between mb-4">
           <div>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(139,105,20,0.1)', color: '#8B6914' }}>Week {week.id} · Day {day}</span>
@@ -38,7 +38,7 @@ export default function DailyTasks({ week, day, completedTasks, onSelectTask, on
           return (
             <button key={task.id} onClick={() => onSelectTask(task)}
               className={`w-full text-left rounded-xl border p-4 transition-all duration-200 ${
-                done ? 'border-[#8B6914]/20' : 'bg-white border-[#E8DFD4] hover:border-[#d4c9b8] hover:shadow-sm'
+                done ? 'border-[#8B6914]/20' : 'paper-card hover:shadow-md'
               }`}
               style={done ? { background: 'rgba(139,105,20,0.05)' } : {}}>
               <div className="flex items-center gap-3">

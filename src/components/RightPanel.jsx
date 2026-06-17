@@ -31,12 +31,12 @@ export default function RightPanel({ progress, streak }) {
   return (
     <div className="space-y-4">
       {/* Verb Lookup */}
-      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#5B8C7A]">
+      <div className="paper-card p-4 border-t-2 border-t-[#5B8C7A]">
         <InlineVerbLookup />
       </div>
 
       {/* Stats */}
-      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#8B6914]">
+      <div className="paper-card p-4 border-t-2 border-t-[#8B6914]">
         <h4 className="text-sm font-bold text-[#1a1a2e] mb-3">⚡ Your Stats</h4>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-[#FAF5ED] rounded-xl p-3 text-center border border-[#E8DFD4]">
@@ -60,7 +60,7 @@ export default function RightPanel({ progress, streak }) {
       </div>
 
       {/* Tip of the Day */}
-      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#8B6914]">
+      <div className="paper-card p-4 border-t-2 border-t-[#8B6914]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm">💡</span>
           <h4 className="text-sm font-bold text-[#1a1a2e]">Tip of the Day</h4>
@@ -70,7 +70,7 @@ export default function RightPanel({ progress, streak }) {
       </div>
 
       {/* Did You Know */}
-      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#C4956A]">
+      <div className="paper-card p-4 border-t-2 border-t-[#C4956A]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm">🇩🇪</span>
           <h4 className="text-sm font-bold text-[#1a1a2e]">Did You Know?</h4>

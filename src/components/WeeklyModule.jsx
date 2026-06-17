@@ -5,10 +5,8 @@ export default function WeeklyModule({ week, completedTasks, onSelectDay, select
   const isComplete = completion === 100;
 
   return (
-    <div className={`rounded-2xl border transition-all duration-300 ease-in-out ${
-      isUnlocked
-        ? 'bg-white border-[#E8DFD4] shadow-sm hover:shadow-md'
-        : 'bg-white/60 border-[#E8DFD4]/50 opacity-60 hover:opacity-80 hover:bg-white/80 hover:border-[#E8DFD4]'
+    <div className={`${isUnlocked ? 'paper-card' : 'paper-card-flat'} transition-all duration-300 ease-in-out ${
+      isUnlocked ? '' : 'opacity-60 hover:opacity-80'
     }`}>
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
