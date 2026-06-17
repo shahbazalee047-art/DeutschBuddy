@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 
 export default function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool }) {
   const { user, profile, signOut } = useAuth();
@@ -33,11 +33,11 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
             {mobileMenuOpen ? '✕' : '☰'}
           </button>
 
-          <button onClick={() => onViewChange('dashboard')} className="flex items-center gap-2 select-none">
+          <Link to="/dashboard" className="flex items-center gap-2 select-none cursor-pointer hover:opacity-90 active:scale-95 transition-all">
             <span className="text-xl">🇩🇪</span>
             <span className="text-base md:text-lg font-extrabold text-slate-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-base md:text-lg font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
-          </button>
+          </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map(link => (
