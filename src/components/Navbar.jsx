@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-export default function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool }) {
+export default function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool, onNotifications }) {
   const { user, profile, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
     { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
     { id: 'progress', label: 'Progress', icon: '📊' },
     { id: 'badges', label: 'Badges', icon: '🏆' },
+    { id: 'community', label: 'Community', icon: '💬' },
     { id: 'resources', label: 'Resources', icon: '📚' },
   ];
 
@@ -48,6 +49,13 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
               <span className="text-sm font-bold text-[#B8860B] tabular-nums">{xp}</span>
             </div>
 
+            {/* Notification Bell */}
+            <button onClick={onNotifications}
+              className="hidden sm:flex items-center justify-center w-10 h-10 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-[#F5F5F5] transition relative">
+              <span className="text-lg">🔔</span>
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F44336]" />
+            </button>
+
             {/* Verb Lookup */}
             <button onClick={onQuickTool}
               className="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium text-[#2D8B7A] hover:bg-[#E0F2F1] border border-[#2D8B7A20] transition">
@@ -66,6 +74,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
                     <p className="text-sm font-semibold text-[#1A1A2E] truncate">{profile?.full_name || 'Learner'}</p>
                     <p className="text-[11px] text-[#8A8A9A] truncate">{user?.email}</p>
                   </div>
+                  <button onClick={() => { onViewChange('profile'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-[#4A4A5A] hover:bg-[#FAF6F0] transition">👤 Profile</button>
                   <button onClick={handleSignOut} className="w-full text-left px-4 py-2.5 text-sm text-[#F44336] hover:bg-red-50 transition">Sign Out</button>
                 </div>
               )}

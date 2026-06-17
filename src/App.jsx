@@ -13,6 +13,9 @@ import TaskRenderer from './components/TaskRenderer';
 import ProgressDashboard from './components/ProgressDashboard';
 import BadgeGallery from './components/BadgeGallery';
 import ResourceLibrary from './components/ResourceLibrary';
+import CommunitySection from './components/CommunitySection';
+import NotificationPanel from './components/NotificationPanel';
+import ProfilePage from './components/ProfilePage';
 import TrackToggle from './components/TrackToggle';
 import QuickGermanTool from './components/QuickGermanTool';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -32,6 +35,7 @@ function Dashboard() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [todayXP, setTodayXP] = useState(0);
   const [showQuickTool, setShowQuickTool] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
   const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
@@ -82,9 +86,11 @@ function Dashboard() {
     );
   }
 
-  const isFullWidth = activeView === 'progress' || activeView === 'badges' || activeView === 'resources';
+  const isFullWidth = activeView === 'progress' || activeView === 'badges' || activeView === 'resources' || activeView === 'community' || activeView === 'profile';
 
   function renderMainContent() {
+    if (activeView === 'community') return <CommunitySection />;
+    if (activeView === 'profile') return <ProfilePage />;
     if (activeView === 'progress') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />;
     if (activeView === 'badges') return <BadgeGallery badges={progress.badges || []} />;
     if (activeView === 'resources') {
@@ -122,8 +128,9 @@ function Dashboard() {
   return (
     <div className="min-h-screen bg-[#FAF6F0]">
       {showQuickTool && <QuickGermanTool onClose={() => setShowQuickTool(false)} />}
+      {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
-      <Navbar activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} activeLevel={activeLevel} onLevelChange={(l) => { setActiveLevel(l); setSelectedDay(null); setSelectedTask(null); setActiveView('dashboard'); }} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} />
+      <Navbar activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} activeLevel={activeLevel} onLevelChange={(l) => { setActiveLevel(l); setSelectedDay(null); setSelectedTask(null); setActiveView('dashboard'); }} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
