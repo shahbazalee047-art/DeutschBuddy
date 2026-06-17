@@ -29,7 +29,6 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function Dashboard() {
   const { profile } = useAuth();
-  const navigate = useNavigate();
   const [activeLevel, setActiveLevel] = useState('A1');
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
