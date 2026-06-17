@@ -33,11 +33,11 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
             {mobileMenuOpen ? '✕' : '☰'}
           </button>
 
-          <Link to="/dashboard" className="flex items-center gap-2 select-none cursor-pointer hover:opacity-90 active:scale-95 transition-all">
+          <button onClick={() => { setMobileMenuOpen(false); navigate('/dashboard'); }} className="flex items-center gap-2 cursor-pointer hover:opacity-80 active:scale-95 transition-all duration-200 shrink-0">
             <span className="text-xl">🇩🇪</span>
             <span className="text-base md:text-lg font-extrabold text-slate-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-base md:text-lg font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
-          </Link>
+          </button>
 
           <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map(link => (
