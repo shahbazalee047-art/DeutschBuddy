@@ -6,6 +6,7 @@ import a1Data from './data/a1Data';
 import a1FastTrackData from './data/a1FastTrackData';
 import a2Data from './data/a2Data';
 import Navbar from './components/Navbar';
+import BottomNav from './components/BottomNav';
 import RightPanel from './components/RightPanel';
 import WeeklyModule from './components/WeeklyModule';
 import DailyTasks from './components/DailyTasks';
@@ -86,17 +87,12 @@ function Dashboard() {
     );
   }
 
-  const isFullWidth = activeView === 'progress' || activeView === 'badges' || activeView === 'resources' || activeView === 'community' || activeView === 'profile';
-
   function renderMainContent() {
     if (activeView === 'community') return <CommunitySection />;
     if (activeView === 'profile') return <ProfilePage />;
     if (activeView === 'progress') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />;
     if (activeView === 'badges') return <BadgeGallery badges={progress.badges || []} />;
-    if (activeView === 'resources') {
-      const allResources = levelData.weeks.flatMap(w => w.resources || []);
-      return <ResourceLibrary resources={[...new Map(allResources.map(r => [r.name, r])).values()]} />;
-    }
+    if (activeView === 'resources') return <ResourceLibrary resources={levelData.weeks.flatMap(w => w.resources || [])} />;
     if (selectedTask) {
       return (
         <div className="fade-in">
@@ -116,6 +112,8 @@ function Dashboard() {
       );
     }
     if (selectedDay && currentWeek) return <DailyTasks week={currentWeek} day={selectedDay.day} completedTasks={progress.completedTasks} onSelectTask={handleSelectTask} onBack={handleBackToWeek} />;
+
+    // Dashboard view with weeks
     return (
       <div className="space-y-4">
         {visibleWeeks.map(week => (
@@ -130,36 +128,53 @@ function Dashboard() {
       {showQuickTool && <QuickGermanTool onClose={() => setShowQuickTool(false)} />}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
-      <Navbar activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} activeLevel={activeLevel} onLevelChange={(l) => { setActiveLevel(l); setSelectedDay(null); setSelectedTask(null); setActiveView('dashboard'); }} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} />
 
+      {/* Desktop Navbar (hidden on mobile) */}
+      <div className="hidden lg:block">
+        <Navbar activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} activeLevel={activeLevel} onLevelChange={(l) => { setActiveLevel(l); setSelectedDay(null); setSelectedTask(null); setActiveView('dashboard'); }} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} />
+      </div>
+
+      {/* Mobile Header (compact) */}
+      <div className="lg:hidden sticky top-0 z-40 bg-white border-b border-[#E8E0D4]">
+        <div className="flex items-center justify-between h-14 px-4">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-[#B8860B] to-[#D4A843] rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm">🇩🇪</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowNotifications(true)}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-200 transition relative">
+              🔔<span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F44336]" />
+            </button>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#B8860B] to-[#D4A843] flex items-center justify-center text-white text-xs font-bold">
+              {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+        {/* Dashboard greeting */}
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
           <>
-            {/* Greeting */}
-            <div className="mb-6 slide-up">
+            <div className="mb-6 slide-up text-center lg:text-left">
               <h1 className="text-3xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>
                 Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! 👋
               </h1>
               <p className="text-[#8A8A9A] mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
             </div>
 
-            {/* Track Toggle */}
-            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6">
               {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
               {activeLevel === 'A2' && (
-                <span className="text-xs font-semibold px-4 py-2 rounded-full" style={{ background: '#FFF8E1', color: '#B8860B', border: '1px solid #B8860B20' }}>
-                  A2: Fixed 8-week track
-                </span>
+                <span className="text-xs font-semibold px-4 py-2 rounded-full" style={{ background: '#FFF8E1', color: '#B8860B', border: '1px solid #B8860B20' }}>A2: Fixed 8-week track</span>
               )}
             </div>
 
-            {/* Continue Card */}
             {nextDay && (
               <button onClick={() => handleSelectDay(nextDay.weekId, nextDay.day)}
                 className="w-full mb-6 paper-card p-5 flex items-center gap-4 text-left hover:shadow-lg transition-all group">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #B8860B, #D4A843)', boxShadow: '0 4px 12px rgba(184, 134, 11, 0.3)' }}>
-                  ▶
-                </div>
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #B8860B, #D4A843)', boxShadow: '0 4px 12px rgba(184, 134, 11, 0.3)' }}>▶</div>
                 <div className="flex-1">
                   <div className="text-[10px] font-bold text-[#B8860B] uppercase tracking-widest">Continue where you left off</div>
                   <div className="text-sm font-semibold text-[#1A1A2E] mt-1">Week {nextDay.weekId}, Day {nextDay.day}</div>
@@ -168,7 +183,6 @@ function Dashboard() {
               </button>
             )}
 
-            {/* Level Info */}
             <div className="paper-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? '#4CAF50' : '#2196F3'}`, paddingLeft: '20px' }}>
               <h2 className="text-xl font-bold text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif' }}>{levelData.title}</h2>
               <p className="text-sm text-[#8A8A9A] mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
@@ -176,15 +190,33 @@ function Dashboard() {
           </>
         )}
 
-        {isFullWidth ? renderMainContent() : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">{renderMainContent()}</div>
-            <div className="lg:col-span-1"><RightPanel progress={progress} streak={progress.streak} /></div>
-          </div>
-        )}
+        {/* Desktop: Two-column layout */}
+        <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">{renderMainContent()}</div>
+          <div className="lg:col-span-1"><RightPanel progress={progress} streak={progress.streak} /></div>
+        </div>
+
+        {/* Mobile: Single column with sidebar content below */}
+        <div className="lg:hidden">
+          {renderMainContent()}
+          {/* Show sidebar content on mobile below main content */}
+          {!selectedTask && !selectedDay && activeView === 'dashboard' && (
+            <div className="mt-6 space-y-4">
+              <RightPanel progress={progress} streak={progress.streak} />
+            </div>
+          )}
+        </div>
       </main>
 
-      <Footer />
+      {/* Mobile Bottom Nav */}
+      <div className="lg:hidden pb-16">
+        <BottomNav activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} />
+      </div>
+
+      {/* Desktop Footer */}
+      <div className="hidden lg:block">
+        <Footer />
+      </div>
     </div>
   );
 }
