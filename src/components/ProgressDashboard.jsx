@@ -40,24 +40,6 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
       </div>
 
       <BadgeGallery badges={progress.badges || []} />
-
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5">
-        <h3 className="text-sm font-bold text-slate-200 mb-4">Resources</h3>
-        <div className="space-y-2">
-          {[
-            { icon: '📺', title: 'Nicos Weg (DW)', desc: 'Free video course', href: 'https://learngerman.dw.com/en/overview' },
-            { icon: '🎬', title: 'Easy German', desc: 'YouTube street interviews', href: 'https://www.youtube.com/@EasyGerman' },
-            { icon: '📖', title: 'Verbformen', desc: 'Verb conjugations', href: 'https://www.verbformen.de/' },
-            { icon: '🏛️', title: 'Goethe-Institut', desc: 'Official exam materials', href: 'https://goethe.de' },
-          ].map((r, i) => (
-            <a key={i} href={r.href} target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-3 p-3 bg-slate-900/50 border border-slate-700/50 rounded-xl hover:border-cyan-400/50 hover:bg-slate-800 transition">
-              <span className="text-lg">{r.icon}</span>
-              <div><div className="font-medium text-sm text-slate-200">{r.title}</div><div className="text-xs text-slate-400">{r.desc}</div></div>
-            </a>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
