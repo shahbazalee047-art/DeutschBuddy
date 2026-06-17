@@ -15,7 +15,6 @@ import QuickWin from './QuickWin';
 
 export default function TaskRenderer({ task, onComplete }) {
   const props = { content: task.content, onComplete };
-
   switch (task.type) {
     case 'vocabulary': return <Vocabulary {...props} />;
     case 'grammar': return <Grammar {...props} />;
@@ -31,15 +30,6 @@ export default function TaskRenderer({ task, onComplete }) {
     case 'fun': return <Fun {...props} />;
     case 'listening': return <ListeningTask {...props} />;
     case 'quickwin': return <QuickWin onComplete={onComplete} />;
-    default:
-      return (
-        <div className="text-center py-12">
-          <div className="text-4xl mb-4">🚧</div>
-          <p className="text-slate-500">Content coming soon!</p>
-          <button onClick={onComplete} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">
-            Skip & Complete
-          </button>
-        </div>
-      );
+    default: return <div className="text-center py-12"><p className="text-[#8A8A9A] mb-4">Content coming soon!</p><button onClick={onComplete} className="btn-primary px-6">Mark Complete</button></div>;
   }
 }

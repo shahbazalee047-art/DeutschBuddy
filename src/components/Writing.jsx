@@ -1,46 +1,17 @@
 import { useState } from 'react';
-
 export default function Writing({ content, onComplete }) {
-  const [userText, setUserText] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  function handleSubmit() { if (userText.trim().length > 0) { setSubmitted(true); onComplete(); } }
-
+  const [text, setText] = useState(''); const [done, setDone] = useState(false);
+  function submit() { if (text.trim().length > 0) { setDone(true); onComplete(); } }
   return (
     <div className="fade-in">
-      <h3 className="font-bold text-slate-200 text-lg mb-5">✍️ Writing Exercise</h3>
-      <div className="glass-card p-5">
-        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 mb-4">
-          <p className="text-xs text-indigo-400 font-medium mb-1">📝 Task:</p>
-          <p className="text-sm text-indigo-300">{content.prompt}</p>
-        </div>
-        {content.example && (
-          <div className="bg-slate-800/30 rounded-lg p-3 mb-4">
-            <p className="text-[10px] text-slate-500 mb-1">Example:</p>
-            <p className="text-xs text-slate-400 italic">"{content.example}"</p>
-          </div>
-        )}
-        <textarea value={userText} onChange={(e) => setUserText(e.target.value)} disabled={submitted}
-          placeholder="Write your German text here..." rows={4}
-          className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition text-sm resize-none" />
-        {content.tips && !submitted && (
-          <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-            <p className="text-xs font-bold text-amber-400 mb-1">💡 Tips:</p>
-            <ul className="text-xs text-amber-300/70 space-y-0.5">{content.tips.map((t, i) => <li key={i}>• {t}</li>)}</ul>
-          </div>
-        )}
-        {!submitted && (
-          <button onClick={handleSubmit} disabled={userText.trim().length === 0}
-            className="mt-4 px-5 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-500 transition disabled:opacity-40 shadow-lg shadow-indigo-500/20">
-            Submit Writing
-          </button>
-        )}
+      <h3 className="font-bold text-[#1A1A2E] text-lg mb-5">✍️ Writing Exercise</h3>
+      <div className="paper-card p-5">
+        <div className="rounded-2xl p-4 mb-4" style={{ background: '#FFF8E1', border: '1px solid #B8860B20' }}><p className="text-[11px] font-bold text-[#B8860B] mb-1 uppercase" style={{ letterSpacing: '0.5px' }}>📝 Task:</p><p className="text-[14px] text-[#4A4A5A]">{content.prompt}</p></div>
+        {content.example && <div className="bg-[#F5F5F5] rounded-xl p-3 mb-4"><p className="text-[10px] text-[#8A8A9A] mb-1">Example:</p><p className="text-[12px] text-[#8A8A9A] italic">"{content.example}"</p></div>}
+        <textarea value={text} onChange={e => setText(e.target.value)} disabled={done} placeholder="Write your German text here..." rows={4} className="w-full px-4 py-3 paper-input resize-none" />
+        {!done && <button onClick={submit} disabled={text.trim().length === 0} className="mt-4 btn-primary px-6 disabled:opacity-40">Submit Writing</button>}
       </div>
-      {submitted && (
-        <div className="text-center p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-sm font-medium text-green-400 mt-4">
-          ✍️ Gut geschrieben! Great writing! Practice makes perfect, keep going!
-        </div>
-      )}
+      {done && <div className="text-center p-3 rounded-2xl text-sm font-semibold text-white mt-4" style={{ background: 'linear-gradient(135deg, #B8860B, #D4A843)' }}>✍️ Gut geschrieben! Keep practicing!</div>}
     </div>
   );
 }
