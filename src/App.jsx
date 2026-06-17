@@ -105,7 +105,7 @@ function Dashboard() {
               <span className="text-xs font-bold text-amber-400">+{selectedTask.xp} XP</span>
             </div>
             <h2 className="text-lg font-bold text-slate-100 mb-1">{selectedTask.title}</h2>
-            <p className="text-sm text-slate-500 mb-5">{selectedTask.description}</p>
+            <p className="text-sm text-slate-300 mb-5">{selectedTask.description}</p>
             <TaskRenderer task={selectedTask} onComplete={handleCompleteTask} />
           </div>
         </div>
@@ -135,10 +135,10 @@ function Dashboard() {
               <h1 className="text-xl font-bold text-slate-100">
                 Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! 👋
               </h1>
-              <p className="text-sm text-slate-500">Ready to continue learning?</p>
+              <p className="text-sm text-slate-300">Ready to continue learning?</p>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
                 {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
-                {activeLevel === 'A2' && <span className="text-xs text-slate-500 font-medium px-3 py-1.5 glass-card-sm">A2: Fixed 8-week track</span>}
+                {activeLevel === 'A2' && <span className="text-xs text-slate-300 font-medium px-3 py-1.5 glass-card-sm">A2: Fixed 8-week track</span>}
               </div>
             </div>
 
