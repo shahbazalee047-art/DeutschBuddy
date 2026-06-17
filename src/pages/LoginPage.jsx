@@ -47,31 +47,31 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 to-slate-900">
+    <div className="min-h-screen flex flex-col bg-zinc-950">
       <div className="flex-1 flex">
         {/* Left: Branding */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden items-center justify-center">
           <div className="absolute inset-0" aria-hidden="true">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.04] via-transparent to-indigo-500/[0.03]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-lime-400/[0.03] via-transparent to-cyan-400/[0.03]" />
           </div>
-          <div className="absolute top-16 left-16 text-[100px] font-black text-slate-800/50 select-none" aria-hidden="true">A1</div>
-          <div className="absolute bottom-16 right-16 text-[100px] font-black text-slate-800/50 select-none" aria-hidden="true">A2</div>
+          <div className="absolute top-16 left-16 text-[100px] font-black text-zinc-800/50 select-none" aria-hidden="true">A1</div>
+          <div className="absolute bottom-16 right-16 text-[100px] font-black text-zinc-800/50 select-none" aria-hidden="true">A2</div>
 
           <div className="relative z-10 px-16 max-w-lg">
             <div className="flex items-center gap-3 mb-8">
-              <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-center justify-center text-2xl" aria-hidden="true">🇩🇪</div>
+              <div className="w-12 h-12 bg-lime-400/10 border border-lime-400/20 rounded-2xl flex items-center justify-center text-2xl" aria-hidden="true">🇩🇪</div>
               <div>
                 <span className="text-3xl font-extrabold text-white tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-                <span className="text-3xl font-extrabold text-blue-400 tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+                <span className="text-3xl font-extrabold text-lime-400 tracking-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
               </div>
             </div>
 
             <h1 className="text-4xl font-bold text-white mb-4 leading-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>
               Learn German.<br />
-              <span className="text-blue-400">Your way.</span>
+              <span className="text-lime-400">Your way.</span>
             </h1>
 
-            <p className="text-lg text-slate-300 leading-relaxed mb-10">
+            <p className="text-lg text-zinc-400 leading-relaxed mb-10">
               A gamified, interactive course from A1 to A2. Track your progress, earn XP, and master German with daily practice.
             </p>
 
@@ -81,9 +81,9 @@ export default function LoginPage() {
                 { value: '200+', label: 'Exercises' },
                 { value: '4', label: 'Skill areas' },
               ].map((stat, i) => (
-                <div key={i} className="bg-slate-800/50 border border-slate-700/50 rounded-2xl px-4 py-4 text-center">
+                <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-2xl px-4 py-4 text-center">
                   <div className="text-2xl font-bold text-white">{stat.value}</div>
-                  <div className="text-xs text-slate-400 mt-0.5">{stat.label}</div>
+                  <div className="text-xs text-zinc-500 mt-0.5">{stat.label}</div>
                 </div>
               ))}
             </div>
@@ -95,14 +95,14 @@ export default function LoginPage() {
           <div className="w-full max-w-md">
             <div className="lg:hidden mb-8">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center text-lg" aria-hidden="true">🇩🇪</div>
+                <div className="w-10 h-10 bg-lime-400/10 border border-lime-400/20 rounded-xl flex items-center justify-center text-lg" aria-hidden="true">🇩🇪</div>
                 <span className="text-2xl font-extrabold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-                <span className="text-2xl font-extrabold text-blue-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+                <span className="text-2xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
               </div>
             </div>
 
             <h2 className="text-2xl font-bold text-white mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>Welcome!</h2>
-            <p className="text-slate-400 mb-8 text-sm">Sign in to continue your German journey</p>
+            <p className="text-zinc-400 mb-8 text-sm">Sign in to continue your German journey</p>
 
             {error && (
               <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400" role="alert">
@@ -112,20 +112,20 @@ export default function LoginPage() {
 
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label htmlFor="login-email" className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+                <label htmlFor="login-email" className="block text-sm font-medium text-zinc-400 mb-1.5">Email</label>
                 <input
                   id="login-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-sm"
+                  className="w-full px-4 py-3 bg-zinc-900 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all duration-200 text-sm"
                   placeholder="name@example.com"
                 />
               </div>
 
               <div>
-                <label htmlFor="login-password" className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
+                <label htmlFor="login-password" className="block text-sm font-medium text-zinc-400 mb-1.5">Password</label>
                 <div className="relative">
                   <input
                     id="login-password"
@@ -133,13 +133,13 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="w-full px-4 py-3 pr-12 bg-slate-800/50 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-200 text-sm"
+                    className="w-full px-4 py-3 pr-12 bg-zinc-900 border border-zinc-800 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-lime-400 focus:border-transparent transition-all duration-200 text-sm"
                     placeholder="••••••••"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-500 hover:text-slate-300 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
                     <EyeIcon open={showPassword} />
@@ -148,11 +148,11 @@ export default function LoginPage() {
               </div>
 
               <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 text-sm text-slate-400 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-slate-600 bg-slate-800/50 text-blue-500 focus:ring-blue-400/50 focus:ring-offset-0" />
+                <label className="flex items-center gap-2 text-sm text-zinc-500 cursor-pointer">
+                  <input type="checkbox" className="w-4 h-4 rounded border-zinc-700 bg-zinc-900 text-lime-400 focus:ring-lime-400/50" />
                   Remember me
                 </label>
-                <Link to="/forgot-password" className="text-sm text-sky-400 hover:text-sky-300 font-medium transition-colors">
+                <Link to="/forgot-password" className="text-sm text-cyan-400 hover:text-cyan-300 font-medium transition-colors">
                   Forgot password?
                 </Link>
               </div>
@@ -160,15 +160,15 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-lime-400 hover:bg-lime-300 text-zinc-950 font-semibold rounded-xl transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-lime-400/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none flex items-center justify-center gap-2"
               >
                 {loading ? (<><Spinner /> Signing in...</>) : 'Sign In'}
               </button>
             </form>
 
-            <p className="mt-8 text-center text-sm text-slate-400">
+            <p className="mt-8 text-center text-sm text-zinc-400">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-sky-400 hover:text-sky-300 font-semibold transition-colors">Sign up free</Link>
+              <Link to="/signup" className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">Sign up free</Link>
             </p>
           </div>
         </div>
