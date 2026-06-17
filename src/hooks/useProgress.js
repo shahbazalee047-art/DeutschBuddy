@@ -26,7 +26,6 @@ function checkBadges(xp, streak, completedCount, existingBadges) {
     { id: 'xp-500', name: 'XP Champion', icon: '🏅', condition: xp >= 500 },
     { id: 'xp-1000', name: 'XP Legend', icon: '💎', condition: xp >= 1000 },
   ];
-
   const newBadges = [...existingBadges];
   badgeDefs.forEach(badge => {
     if (badge.condition && !existingIds.includes(badge.id)) {
@@ -36,16 +35,30 @@ function checkBadges(xp, streak, completedCount, existingBadges) {
   return newBadges;
 }
 
+function getDefaultProgress() {
+  return {
+    xp: 0, streak: 0, lastStudyDate: null, completedTasks: [], badges: [],
+    unlockedWeeks: [1], weeklyXP: {},
+  };
+}
+
+function loadLocalProgress(level) {
+  try {
+    const data = localStorage.getItem(`db_progress_${level}`);
+    return data ? JSON.parse(data) : null;
+  } catch { return null; }
+}
+
+function saveLocalProgress(level, progress) {
+  try { localStorage.setItem(`db_progress_${level}`, JSON.stringify(progress)); } catch {}
+}
+
 export function useProgress(level) {
   const { user } = useAuth();
-  const [progress, setProgress] = useState({
-    xp: 0,
-    streak: 0,
-    lastStudyDate: null,
-    completedTasks: [],
-    badges: [],
-    unlockedWeeks: [1],
-    weeklyXP: {},
+  const [progress, setProgress] = useState(() => {
+    if (!user) return getDefaultProgress();
+    const local = loadLocalProgress(level);
+    return local || getDefaultProgress();
   });
   const [loading, setLoading] = useState(true);
 
@@ -66,9 +79,10 @@ export function useProgress(level) {
         .eq('level', level)
         .single();
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('fetchProgress error:', error);
       }
+
       if (data) {
         setProgress({
           xp: data.xp || 0,
@@ -79,9 +93,14 @@ export function useProgress(level) {
           unlockedWeeks: data.unlocked_weeks || [1],
           weeklyXP: data.weekly_xp || {},
         });
+      } else {
+        const local = loadLocalProgress(level);
+        if (local) setProgress(local);
       }
     } catch (err) {
       console.error('fetchProgress exception:', err);
+      const local = loadLocalProgress(level);
+      if (local) setProgress(local);
     } finally {
       setLoading(false);
     }
@@ -113,6 +132,7 @@ export function useProgress(level) {
     };
 
     setProgress(prev => ({ ...prev, ...newState }));
+    saveLocalProgress(level, { ...progress, ...newState });
 
     try {
       await supabase
@@ -130,61 +150,25 @@ export function useProgress(level) {
     } catch (err) {
       console.error('Progress save error:', err);
     }
-
-    try {
-      await supabase.from('exercise_results').insert({
-        user_id: user.id,
-        level,
-        week_id: weekId,
-        day_number: 0,
-        task_id: taskId,
-        task_type: 'task',
-        score: xpAmount,
-        max_score: xpAmount,
-        completed: true,
-      });
-    } catch (err) {
-      console.error('Exercise result save error:', err);
-    }
   }, [user, level, progress]);
 
   const unlockWeek = useCallback(async (weekId) => {
     if (!user || !level) return;
     if (progress.unlockedWeeks.includes(weekId)) return;
-
     const newUnlocked = [...progress.unlockedWeeks, weekId];
     setProgress(prev => ({ ...prev, unlockedWeeks: newUnlocked }));
-
+    saveLocalProgress(level, { ...progress, unlockedWeeks: newUnlocked });
     try {
-      await supabase
-        .from('progress')
-        .upsert({
-          user_id: user.id,
-          level,
-          unlocked_weeks: newUnlocked,
-        }, { onConflict: 'user_id,level' });
-    } catch (err) {
-      console.error('Unlock week error:', err);
-    }
+      await supabase.from('progress').upsert({ user_id: user.id, level, unlocked_weeks: newUnlocked }, { onConflict: 'user_id,level' });
+    } catch (err) { console.error('Unlock week error:', err); }
   }, [user, level, progress.unlockedWeeks]);
 
   const setTrackMode = useCallback(async (mode) => {
     if (!user) return;
     try {
-      await supabase
-        .from('profiles')
-        .upsert({ id: user.id, selected_pacing: mode }, { onConflict: 'id' });
-    } catch (err) {
-      console.error('Set track mode error:', err);
-    }
+      await supabase.from('profiles').upsert({ id: user.id, selected_pacing: mode }, { onConflict: 'id' });
+    } catch (err) { console.error('Set track mode error:', err); }
   }, [user]);
 
-  return {
-    progress,
-    loading,
-    completeTask,
-    unlockWeek,
-    setTrackMode,
-    refetch: fetchProgress,
-  };
+  return { progress, loading, completeTask, unlockWeek, setTrackMode, refetch: fetchProgress };
 }

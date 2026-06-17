@@ -1,9 +1,13 @@
 import { useAuth } from '../contexts/AuthContext';
-import { useProgress } from '../hooks/useProgress';
 
 export default function ProfilePage() {
   const { profile, user, signOut } = useAuth();
-  const { progress } = useProgress('A1');
+
+  // Simple stats from localStorage or default
+  const xp = parseInt(localStorage.getItem('db_xp') || '0');
+  const streak = parseInt(localStorage.getItem('db_streak') || '0');
+  const completedCount = (JSON.parse(localStorage.getItem('db_completedTasks') || '[]')).length;
+  const badgeCount = (JSON.parse(localStorage.getItem('db_badges') || '[]')).length;
 
   return (
     <div className="fade-in space-y-5">
@@ -21,10 +25,10 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-4 gap-3">
         {[
-          { icon: '⚡', value: progress?.xp || 0, label: 'XP', color: '#B8860B' },
-          { icon: '🔥', value: progress?.streak || 0, label: 'Streak', color: '#FF9800' },
-          { icon: '✅', value: progress?.completedTasks?.length || 0, label: 'Tasks', color: '#4CAF50' },
-          { icon: '🏆', value: progress?.badges?.length || 0, label: 'Badges', color: '#2196F3' },
+          { icon: '⚡', value: xp, label: 'XP', color: '#B8860B' },
+          { icon: '🔥', value: streak, label: 'Streak', color: '#FF9800' },
+          { icon: '✅', value: completedCount, label: 'Tasks', color: '#4CAF50' },
+          { icon: '🏆', value: badgeCount, label: 'Badges', color: '#2196F3' },
         ].map((s, i) => (
           <div key={i} className="glass-card p-3 text-center">
             <div className="text-xl">{s.icon}</div>
