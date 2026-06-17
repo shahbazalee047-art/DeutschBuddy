@@ -3,23 +3,30 @@ import { getWeekCompletion } from '../utils/progress';
 import BadgeGallery from './BadgeGallery';
 
 export default function ProgressDashboard({ progress, levelData, visibleWeeks }) {
+  const [activeTab, setActiveTab] = useState('statistics');
   const levelWeeks = visibleWeeks || levelData.weeks;
   const weeklyStats = levelWeeks.map(week => ({ week: week.id, title: week.title, completion: getWeekCompletion(week.days, progress.completedTasks) }));
   const unlocked = weeklyStats.filter(w => w.completion > 0 || weeklyStats.indexOf(w) < (progress.unlockedWeeks?.length || 1));
   const avgCompletion = unlocked.length > 0 ? Math.round(unlocked.reduce((a, w) => a + w.completion, 0) / unlocked.length) : 0;
 
+  const tabs = [
+    { id: 'statistics', label: 'Learning Statistics', icon: '📊' },
+    { id: 'skills', label: 'Skill Breakdown', icon: '🎯' },
+    { id: 'calendar', label: 'Activity Calendar', icon: '📅' },
+  ];
+
   const skillData = [
-    { name: 'Reading', icon: '📖', level: 45 },
-    { name: 'Writing', icon: '✍️', level: 30 },
-    { name: 'Listening', icon: '🎧', level: 55 },
-    { name: 'Speaking', icon: '🗣️', level: 25 },
-    { name: 'Grammar', icon: '📝', level: 60 },
-    { name: 'Vocabulary', icon: '📚', level: 40 },
+    { name: 'Reading', icon: '📖', level: Math.min(45 + Math.floor(progress.xp / 20), 100) },
+    { name: 'Writing', icon: '✍️', level: Math.min(30 + Math.floor(progress.xp / 30), 100) },
+    { name: 'Listening', icon: '🎧', level: Math.min(55 + Math.floor(progress.xp / 25), 100) },
+    { name: 'Speaking', icon: '🗣️', level: Math.min(25 + Math.floor(progress.xp / 35), 100) },
+    { name: 'Grammar', icon: '📝', level: Math.min(60 + Math.floor(progress.xp / 15), 100) },
+    { name: 'Vocabulary', icon: '📚', level: Math.min(40 + Math.floor(progress.xp / 25), 100) },
   ];
 
   const calendarDays = Array.from({ length: 30 }, (_, i) => ({
     day: i + 1,
-    studied: Math.random() > 0.6,
+    studied: i < (progress.completedTasks?.length || 0) && Math.random() > 0.3,
     today: i === new Date().getDate() - 1,
   }));
 
@@ -33,85 +40,100 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
           { icon: '📊', value: `${avgCompletion}%`, label: 'Progress', color: '#2D8B7A' },
           { icon: '✅', value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: '#4CAF50' },
         ].map((stat, i) => (
-          <div key={i} className="paper-card p-5 text-center">
+          <div key={i} className="glass-card p-5 text-center">
             <div className="text-3xl mb-2">{stat.icon}</div>
             <div className="text-2xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: 'Poppins, sans-serif' }}>{stat.value}</div>
-            <div className="text-[11px] text-[#8A8A9A] font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
+            <div className="text-[11px] text-slate-400 font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Weekly Progress */}
-      <div className="paper-card p-5">
-        <h3 className="text-lg font-bold text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Weekly Progress</h3>
-        <div className="space-y-3">
-          {weeklyStats.map(stat => (
-            <div key={stat.week} className="flex items-center gap-3">
-              <span className="text-[12px] font-bold text-[#8A8A9A] w-8 tabular-nums">W{stat.week}</span>
-              <div className="flex-1 h-3 bg-[#E8E0D4] rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'linear-gradient(90deg, #B8860B, #D4A843)' }} />
-              </div>
-              <span className="text-[12px] font-bold text-[#B8860B] w-10 text-right tabular-nums">{stat.completion}%</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Activity Calendar */}
-      <div className="paper-card p-5">
-        <h3 className="text-lg font-bold text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Activity Calendar</h3>
-        <div className="grid grid-cols-7 gap-2">
-          {calendarDays.map((d, i) => (
-            <div key={i} className={`aspect-square rounded-xl flex items-center justify-center text-[11px] font-medium transition-all ${
-              d.today ? 'bg-[#B8860B] text-white ring-2 ring-[#B8860B]/30' :
-              d.studied ? 'bg-[#E8F5E9] text-[#4CAF50] border border-[#4CAF50]/20' :
-              'bg-[#F5F5F5] text-[#C0C0C0]'
+      {/* Tabs */}
+      <div className="flex gap-1 p-1 bg-[#1A2744]/50 rounded-2xl border border-slate-700/30">
+        {tabs.map(tab => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all ${
+              activeTab === tab.id ? 'bg-[#B8860B] text-white shadow-md shadow-[#B8860B]/20' : 'text-slate-400 hover:text-slate-200'
             }`}>
-              {d.day}
-            </div>
-          ))}
-        </div>
+            <span>{tab.icon}</span>{tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Skill Breakdown */}
-      <div className="paper-card p-5">
-        <h3 className="text-lg font-bold text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Skill Breakdown</h3>
-        <div className="space-y-3">
-          {skillData.map((skill, i) => (
-            <div key={i} className="flex items-center gap-3">
-              <span className="text-xl w-8">{skill.icon}</span>
-              <span className="text-[13px] font-semibold text-[#1A1A2E] w-24">{skill.name}</span>
-              <div className="flex-1 h-2 bg-[#E8E0D4] rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${skill.level}%`, background: 'linear-gradient(90deg, #B8860B, #D4A843)' }} />
-              </div>
-              <span className="text-[12px] font-bold text-[#B8860B] w-10 text-right tabular-nums">{skill.level}%</span>
+      {/* Tab Content */}
+      {activeTab === 'statistics' && (
+        <div className="space-y-5">
+          <div className="glass-card p-5">
+            <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Weekly Progress</h3>
+            <div className="space-y-3">
+              {weeklyStats.map(stat => (
+                <div key={stat.week} className="flex items-center gap-3">
+                  <span className="text-[12px] font-bold text-slate-400 w-8 tabular-nums">W{stat.week}</span>
+                  <div className="flex-1 h-3 bg-slate-700/50 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'linear-gradient(90deg, #B8860B, #D4A843)' }} />
+                  </div>
+                  <span className="text-[12px] font-bold text-[#B8860B] w-10 text-right tabular-nums">{stat.completion}%</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Learning Stats */}
-      <div className="paper-card p-5">
-        <h3 className="text-lg font-bold text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Learning Statistics</h3>
-        <div className="space-y-3">
-          {[
-            { icon: '⏱️', label: 'Total Learning Time', value: '2h 15m' },
-            { icon: '✅', label: 'Lessons Completed', value: progress.completedTasks?.length || 0 },
-            { icon: '🎯', label: 'Average Score', value: '85%' },
-            { icon: '📚', label: 'Vocabulary Mastered', value: '47 words' },
-            { icon: '🎓', label: 'Proficiency Level', value: 'A1.1' },
-            { icon: '🏆', label: 'Next Goal', value: 'A1.2 - 150 XP needed' },
-          ].map((stat, i) => (
-            <div key={i} className="flex items-center justify-between py-2 border-b border-[#E8E0D4] last:border-0">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">{stat.icon}</span>
-                <span className="text-[14px] text-[#4A4A5A]">{stat.label}</span>
-              </div>
-              <span className="text-[14px] font-semibold text-[#1A1A2E]">{stat.value}</span>
+          <div className="glass-card p-5">
+            <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Learning Statistics</h3>
+            <div className="space-y-3">
+              {[
+                { icon: '⏱️', label: 'Total Learning Time', value: `${Math.floor(progress.completedTasks?.length * 5 / 60)}h ${Math.floor((progress.completedTasks?.length * 5) % 60)}m` },
+                { icon: '✅', label: 'Lessons Completed', value: progress.completedTasks?.length || 0 },
+                { icon: '🎯', label: 'Average Score', value: '85%' },
+                { icon: '📚', label: 'Vocabulary Mastered', value: `${(progress.completedTasks?.length || 0) * 5} words` },
+                { icon: '🎓', label: 'Proficiency Level', value: 'A1.1' },
+                { icon: '🏆', label: 'Next Goal', value: `A1.2 - ${100 - (progress.xp || 0)} XP needed` },
+              ].map((stat, i) => (
+                <div key={i} className="flex items-center justify-between py-2 border-b border-slate-700/30 last:border-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg">{stat.icon}</span>
+                    <span className="text-[14px] text-slate-300">{stat.label}</span>
+                  </div>
+                  <span className="text-[14px] font-semibold text-slate-200">{stat.value}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === 'skills' && (
+        <div className="glass-card p-5">
+          <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Skill Breakdown</h3>
+          <div className="space-y-3">
+            {skillData.map((skill, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <span className="text-xl w-8">{skill.icon}</span>
+                <span className="text-[13px] font-semibold text-slate-200 w-24">{skill.name}</span>
+                <div className="flex-1 h-2 bg-slate-700/50 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${skill.level}%`, background: 'linear-gradient(90deg, #B8860B, #D4A843)' }} />
+                </div>
+                <span className="text-[12px] font-bold text-[#B8860B] w-10 text-right tabular-nums">{skill.level}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'calendar' && (
+        <div className="glass-card p-5">
+          <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Activity Calendar</h3>
+          <div className="grid grid-cols-7 gap-2">
+            {calendarDays.map((d, i) => (
+              <div key={i} className={`aspect-square rounded-xl flex items-center justify-center text-[11px] font-medium transition-all ${
+                d.today ? 'bg-[#B8860B] text-white ring-2 ring-[#B8860B]/30' :
+                d.studied ? 'bg-[#4CAF50]/20 text-[#4CAF50] border border-[#4CAF50]/20' :
+                'bg-slate-800/50 text-slate-600'
+              }`}>{d.day}</div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <BadgeGallery badges={progress.badges || []} />
     </div>
