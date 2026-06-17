@@ -23,32 +23,37 @@ export default function BadgeGallery({ badges }) {
   const earnedCount = badges.length;
 
   return (
-    <div className="paper-card p-5">
+    <div className="fade-in space-y-5">
+      <div>
+        <h1 className="text-3xl font-bold text-zinc-100 mb-2" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>🏆 Badge Gallery</h1>
+        <p className="text-zinc-500" style={{ fontSize: '16px', lineHeight: '1.5' }}>Track your achievements and milestones</p>
+      </div>
+
       {/* Stats Summary */}
-      <div className="rounded-2xl p-5 mb-5 text-white" style={{ background: 'linear-gradient(135deg, #B8860B, #D4A843)' }}>
-        <h3 className="text-lg font-bold mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>Your Achievements</h3>
-        <div className="text-3xl font-bold mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>{earnedCount}/{ALL_BADGES.length} Earned</div>
-        <div className="w-full h-2 bg-white/30 rounded-full overflow-hidden mb-2">
-          <div className="h-full bg-white rounded-full transition-all duration-500" style={{ width: `${(earnedCount / ALL_BADGES.length) * 100}%` }} />
+      <div className="rounded-2xl p-6 text-zinc-900" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }}>
+        <h3 className="text-lg font-bold mb-1 text-zinc-900" style={{ fontFamily: 'Poppins, sans-serif' }}>Your Achievements</h3>
+        <div className="text-3xl font-bold mb-2 text-zinc-900" style={{ fontFamily: 'Poppins, sans-serif' }}>{earnedCount}/{ALL_BADGES.length} Earned</div>
+        <div className="w-full h-2 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(24, 24, 27, 0.3)' }}>
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(earnedCount / ALL_BADGES.length) * 100}%`, background: '#18181B' }} />
         </div>
-        <p className="text-[12px] text-white/70">Keep learning to unlock more!</p>
+        <p className="text-[12px] text-zinc-800/70">Keep learning to unlock more!</p>
       </div>
 
       {/* Badge Grid */}
-      <h4 className="text-sm font-bold text-[#1A1A2E] mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>🏆 All Badges</h4>
+      <h4 className="text-sm font-bold text-zinc-200 mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>🏆 All Badges</h4>
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
         {ALL_BADGES.map(badge => {
           const earned = badges.find(b => b.id === badge.id);
           return (
             <button key={badge.id} onClick={() => setSelectedBadge({ ...badge, earned })}
-              className={`relative group text-center p-4 rounded-2xl transition-all duration-300 ${
-                earned ? 'paper-card hover:shadow-lg cursor-pointer' : 'bg-[#F5F5F5] border border-[#E8E0D4] opacity-50'
+              className={`relative group text-center p-4 rounded-2xl transition-all duration-300 active:scale-95 ${
+                earned ? 'glass-card hover:shadow-lg hover:border-lime-500/30 cursor-pointer' : 'bg-zinc-800/50 border border-zinc-700/50 opacity-50'
               }`}>
-              <div className={`text-3xl mb-2 ${earned ? '' : 'grayscale opacity-50'}`}>{badge.icon}</div>
-              <div className="text-[11px] font-medium text-[#4A4A5A] leading-tight">{badge.name}</div>
+              <div className={`text-3xl mb-2 transition-all duration-300 ${earned ? 'group-hover:scale-110' : 'grayscale opacity-50'}`}>{badge.icon}</div>
+              <div className="text-[11px] font-medium text-zinc-300 leading-tight">{badge.name}</div>
               {earned && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#4CAF50' }}>
-                  <span className="text-white text-[8px] font-bold">✓</span>
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#A3E635' }}>
+                  <span className="text-zinc-900 text-[8px] font-bold">✓</span>
                 </div>
               )}
             </button>
@@ -59,18 +64,19 @@ export default function BadgeGallery({ badges }) {
       {/* Badge Detail Modal */}
       {selectedBadge && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6" onClick={() => setSelectedBadge(null)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
-          <div className="relative paper-card max-w-sm w-full p-8 text-center scale-in shadow-2xl" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelectedBadge(null)} className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-[#F5F5F5] hover:bg-[#E8E0D4] flex items-center justify-center text-[#8A8A9A] transition text-sm">✕</button>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative max-w-sm w-full p-8 text-center scale-in shadow-2xl rounded-3xl border border-zinc-700" onClick={e => e.stopPropagation()}
+            style={{ background: '#20202A' }}>
+            <button onClick={() => setSelectedBadge(null)} className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 transition text-sm">✕</button>
             <div className={`text-6xl mb-4 ${selectedBadge.earned ? 'animate-bounce-in' : 'grayscale opacity-50'}`}>{selectedBadge.icon}</div>
-            <h3 className="text-xl font-bold text-[#1A1A2E] mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>{selectedBadge.name}</h3>
-            <p className="text-[14px] text-[#8A8A9A] mb-4">{selectedBadge.condition}</p>
+            <h3 className="text-xl font-bold text-zinc-100 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>{selectedBadge.name}</h3>
+            <p className="text-[14px] text-zinc-400 mb-4">{selectedBadge.condition}</p>
             {selectedBadge.earned ? (
-              <div className="text-[12px] text-[#4CAF50] font-semibold">
+              <div className="text-[12px] text-lime-400 font-semibold">
                 ✓ Earned {new Date(selectedBadge.earned.earnedAt).toLocaleDateString()}
               </div>
             ) : (
-              <div className="text-[12px] text-[#FF9800] font-semibold">🔒 Not yet unlocked</div>
+              <div className="text-[12px] text-warning font-semibold">🔒 Not yet unlocked</div>
             )}
           </div>
         </div>

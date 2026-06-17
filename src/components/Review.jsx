@@ -2,9 +2,9 @@ import Quiz from './Quiz';
 export default function Review({ content, onComplete }) {
   return (
     <div className="fade-in">
-      <div className="rounded-2xl p-5 mb-5" style={{ background: 'linear-gradient(135deg, #FFF8E1, #E0F2F1)', border: '1px solid #E8E0D4' }}>
-        <h3 className="text-lg font-bold text-[#1A1A2E]" style={{ fontFamily: 'Poppins, sans-serif' }}>📋 Week Review</h3>
-        <p className="text-sm text-[#8A8A9A]">Test everything you learned this week!</p>
+      <div className="rounded-2xl p-5 mb-5 border border-lime-500/20" style={{ background: 'linear-gradient(135deg, rgba(163, 230, 53, 0.1), rgba(6, 182, 212, 0.05))' }}>
+        <h3 className="text-lg font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>📋 Week Review</h3>
+        <p className="text-sm text-zinc-400">Test everything you learned this week!</p>
       </div>
       <Quiz content={content} onComplete={onComplete} />
     </div>

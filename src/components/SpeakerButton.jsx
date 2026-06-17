@@ -16,7 +16,7 @@ export default function SpeakerButton({ text, size = 'md', className = '' }) {
   return (
     <button onClick={handleClick}
       className={`${sizes[size]} inline-flex items-center justify-center rounded-xl transition-all duration-200 ${
-        playing ? 'bg-[#B8860B] text-white scale-110 shadow-md' : 'bg-[#F5EFE6] text-[#8A8A9A] hover:bg-[#E8E0D4] hover:text-[#4A4A5A]'
+        playing ? 'bg-lime-500 text-zinc-900 scale-110 shadow-md shadow-lime-500/30' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700'
       } ${className}`} title={`Pronounce "${text}"`}>
       {playing ? '🔊' : '🔈'}
     </button>

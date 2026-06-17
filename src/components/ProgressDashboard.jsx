@@ -35,25 +35,25 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { icon: '⚡', value: progress.xp, label: 'Total XP', color: '#B8860B' },
-          { icon: '🔥', value: progress.streak, label: 'Day Streak', color: '#FF9800' },
-          { icon: '📊', value: `${avgCompletion}%`, label: 'Progress', color: '#2D8B7A' },
-          { icon: '✅', value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: '#4CAF50' },
+          { icon: '⚡', value: progress.xp, label: 'Total XP', color: '#A3E635' },
+          { icon: '🔥', value: progress.streak, label: 'Day Streak', color: '#F59E0B' },
+          { icon: '📊', value: `${avgCompletion}%`, label: 'Progress', color: '#06B6D4' },
+          { icon: '✅', value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: '#22C55E' },
         ].map((stat, i) => (
           <div key={i} className="glass-card p-5 text-center">
             <div className="text-3xl mb-2">{stat.icon}</div>
             <div className="text-2xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: 'Poppins, sans-serif' }}>{stat.value}</div>
-            <div className="text-[11px] text-slate-400 font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
+            <div className="text-[11px] text-zinc-500 font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
           </div>
         ))}
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 bg-[#1A2744]/50 rounded-2xl border border-slate-700/30">
+      <div className="flex gap-1 p-1 rounded-2xl border border-zinc-700/50" style={{ background: '#1E1E24' }}>
         {tabs.map(tab => (
           <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all ${
-              activeTab === tab.id ? 'bg-[#B8860B] text-white shadow-md shadow-[#B8860B]/20' : 'text-slate-400 hover:text-slate-200'
+            className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-[12px] font-semibold transition-all active:scale-95 ${
+              activeTab === tab.id ? 'bg-lime-500 text-[#18181B] shadow-md shadow-lime-500/20' : 'text-zinc-400 hover:text-zinc-200'
             }`}>
             <span>{tab.icon}</span>{tab.label}
           </button>
@@ -64,22 +64,22 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
       {activeTab === 'statistics' && (
         <div className="space-y-5">
           <div className="glass-card p-5">
-            <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Weekly Progress</h3>
+            <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Weekly Progress</h3>
             <div className="space-y-3">
               {weeklyStats.map(stat => (
                 <div key={stat.week} className="flex items-center gap-3">
-                  <span className="text-[12px] font-bold text-slate-400 w-8 tabular-nums">W{stat.week}</span>
-                  <div className="flex-1 h-3 bg-slate-700/50 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'linear-gradient(90deg, #B8860B, #D4A843)' }} />
+                  <span className="text-[12px] font-bold text-zinc-500 w-8 tabular-nums">W{stat.week}</span>
+                  <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: '#3F3F46' }}>
+                    <div className="h-full rounded-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'linear-gradient(90deg, #A3E635, #06B6D4)' }} />
                   </div>
-                  <span className="text-[12px] font-bold text-[#B8860B] w-10 text-right tabular-nums">{stat.completion}%</span>
+                  <span className="text-[12px] font-bold text-lime-400 w-10 text-right tabular-nums">{stat.completion}%</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="glass-card p-5">
-            <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Learning Statistics</h3>
+            <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Learning Statistics</h3>
             <div className="space-y-3">
               {[
                 { icon: '⏱️', label: 'Total Learning Time', value: `${Math.floor(progress.completedTasks?.length * 5 / 60)}h ${Math.floor((progress.completedTasks?.length * 5) % 60)}m` },
@@ -89,12 +89,12 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
                 { icon: '🎓', label: 'Proficiency Level', value: 'A1.1' },
                 { icon: '🏆', label: 'Next Goal', value: `A1.2 - ${100 - (progress.xp || 0)} XP needed` },
               ].map((stat, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-slate-700/30 last:border-0">
+                <div key={i} className="flex items-center justify-between py-2 border-b border-zinc-700/30 last:border-0">
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{stat.icon}</span>
-                    <span className="text-[14px] text-slate-300">{stat.label}</span>
+                    <span className="text-[14px] text-zinc-300">{stat.label}</span>
                   </div>
-                  <span className="text-[14px] font-semibold text-slate-200">{stat.value}</span>
+                  <span className="text-[14px] font-semibold text-zinc-200">{stat.value}</span>
                 </div>
               ))}
             </div>
@@ -104,16 +104,16 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
 
       {activeTab === 'skills' && (
         <div className="glass-card p-5">
-          <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Skill Breakdown</h3>
+          <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Skill Breakdown</h3>
           <div className="space-y-3">
             {skillData.map((skill, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-xl w-8">{skill.icon}</span>
-                <span className="text-[13px] font-semibold text-slate-200 w-24">{skill.name}</span>
-                <div className="flex-1 h-2 bg-slate-700/50 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${skill.level}%`, background: 'linear-gradient(90deg, #B8860B, #D4A843)' }} />
+                <span className="text-[13px] font-semibold text-zinc-200 w-24">{skill.name}</span>
+                <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#3F3F46' }}>
+                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${skill.level}%`, background: 'linear-gradient(90deg, #A3E635, #06B6D4)' }} />
                 </div>
-                <span className="text-[12px] font-bold text-[#B8860B] w-10 text-right tabular-nums">{skill.level}%</span>
+                <span className="text-[12px] font-bold text-lime-400 w-10 text-right tabular-nums">{skill.level}%</span>
               </div>
             ))}
           </div>
@@ -122,13 +122,13 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks })
 
       {activeTab === 'calendar' && (
         <div className="glass-card p-5">
-          <h3 className="text-lg font-bold text-white mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Activity Calendar</h3>
+          <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Activity Calendar</h3>
           <div className="grid grid-cols-7 gap-2">
             {calendarDays.map((d, i) => (
               <div key={i} className={`aspect-square rounded-xl flex items-center justify-center text-[11px] font-medium transition-all ${
-                d.today ? 'bg-[#B8860B] text-white ring-2 ring-[#B8860B]/30' :
-                d.studied ? 'bg-[#4CAF50]/20 text-[#4CAF50] border border-[#4CAF50]/20' :
-                'bg-slate-800/50 text-slate-600'
+                d.today ? 'bg-lime-500 text-zinc-900 ring-2 ring-lime-500/30' :
+                d.studied ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/20' :
+                'bg-zinc-800/50 text-zinc-600'
               }`}>{d.day}</div>
             ))}
           </div>

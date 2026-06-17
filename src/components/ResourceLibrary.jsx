@@ -32,7 +32,6 @@ const TYPE_COLORS = {
 
 export default function ResourceLibrary({ resources }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
-
   const allResources = resources && resources.length > 0 ? resources : FALLBACK_RESOURCES;
   const categories = ['All', ...new Set(allResources.map(r => r.type))];
   const filtered = selectedCategory === 'All' ? allResources : allResources.filter(r => r.type === selectedCategory);
@@ -40,15 +39,15 @@ export default function ResourceLibrary({ resources }) {
   return (
     <div className="fade-in space-y-5">
       <div>
-        <h1 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>📚 Resource Library</h1>
-        <p className="text-slate-400" style={{ fontSize: '16px', lineHeight: '1.5' }}>Curated external resources to accelerate your German learning</p>
+        <h1 className="text-3xl font-bold text-zinc-100 mb-2" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>📚 Resource Library</h1>
+        <p className="text-zinc-500" style={{ fontSize: '16px', lineHeight: '1.5' }}>Curated external resources to accelerate your German learning</p>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
         {categories.map(cat => (
           <button key={cat} onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all ${
-              selectedCategory === cat ? 'text-white bg-[#B8860B] shadow-md shadow-[#B8860B]/20' : 'bg-[#1A2744] text-slate-400 border border-slate-700/50'
+            className={`px-4 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all active:scale-95 ${
+              selectedCategory === cat ? 'text-zinc-900 bg-lime-500 shadow-md shadow-lime-500/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200'
             }`}>
             {cat}
           </button>
@@ -58,15 +57,15 @@ export default function ResourceLibrary({ resources }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((r, i) => (
           <a key={i} href={r.url} target="_blank" rel="noopener noreferrer"
-            className="glass-card p-5 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group block">
+            className="glass-card p-5 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group block active:scale-[0.98]">
             <div className="flex items-start justify-between mb-3">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl" style={{ background: 'rgba(184, 134, 11, 0.05)', border: '1px solid rgba(184, 134, 11, 0.1)' }}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border border-lime-500/10" style={{ background: 'rgba(163, 230, 53, 0.05)' }}>
                 {TYPE_ICONS[r.type] || '🔗'}
               </div>
-              <span className="text-slate-500 group-hover:text-[#B8860B] transition">↗</span>
+              <span className="text-zinc-600 group-hover:text-lime-400 transition">↗</span>
             </div>
-            <h3 className="text-[15px] font-bold text-slate-100 mb-1">{r.name}</h3>
-            <p className="text-[13px] text-slate-400 leading-relaxed line-clamp-2">{r.description}</p>
+            <h3 className="text-[15px] font-bold text-zinc-200 mb-1">{r.name}</h3>
+            <p className="text-[13px] text-zinc-400 leading-relaxed line-clamp-2">{r.description}</p>
             <span className={`inline-block mt-3 text-[10px] font-bold px-2 py-1 rounded-full border ${TYPE_COLORS[r.type] || TYPE_COLORS.grammar}`}>{r.type}</span>
           </a>
         ))}

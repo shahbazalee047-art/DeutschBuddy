@@ -10,12 +10,12 @@ export default function Fun({ content, onComplete }) {
   useEffect(() => { setCur(wins[Math.floor(Math.random() * wins.length)]); }, []);
   if (!cur) return null;
   return (
-    <div className="paper-card p-4 slide-up">
-      <div className="flex items-center gap-2 mb-3"><span className="text-lg">🎉</span><h4 className="text-sm font-bold text-[#1A1A2E]">Bonus Content</h4></div>
-      {cur.type === 'joke' && <div className="rounded-2xl p-4" style={{ background: '#FFF8E1', border: '1px solid #B8860B20' }}><p className="text-[14px] font-medium mb-2" style={{ color: '#B8860B' }}>{cur.setup}</p><p className="text-[14px] text-[#1A1A2E] font-bold">{cur.punchline}</p></div>}
-      {cur.type === 'fact' && <div className="rounded-2xl p-4" style={{ background: '#E0F2F1', border: '1px solid #2D8B7A20' }}><p className="text-[13px] text-[#4A4A5A] leading-relaxed">{cur.text}</p></div>}
-      {cur.type === 'meme' && <div className="rounded-2xl p-4 bg-[#FAF6F0] border border-[#E8E0D4]"><p className="text-lg font-bold text-[#1A1A2E]">{cur.word}</p><p className="text-[13px] text-[#4A4A5A]">{cur.meaning}</p><div className="mt-2"><SpeakerButton text={cur.word} size="sm" /></div></div>}
-      <button onClick={onComplete} className="mt-3 w-full py-2.5 text-[13px] font-medium text-[#8A8A9A] bg-[#F5F5F5] border border-[#E8E0D4] rounded-xl hover:bg-[#E8E0D4] transition">✓ Done! Finish Day</button>
+    <div className="glass-card p-4 slide-up">
+      <div className="flex items-center gap-2 mb-3"><span className="text-lg">🎉</span><h4 className="text-sm font-bold text-zinc-200">Bonus Content</h4></div>
+      {cur.type === 'joke' && <div className="rounded-2xl p-4 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.05)' }}><p className="text-[14px] font-medium mb-2 text-lime-400">{cur.setup}</p><p className="text-[14px] text-zinc-200 font-bold">{cur.punchline}</p></div>}
+      {cur.type === 'fact' && <div className="rounded-2xl p-4 border border-cyan-500/20" style={{ background: 'rgba(6, 182, 212, 0.05)' }}><p className="text-[13px] text-zinc-300 leading-relaxed">{cur.text}</p></div>}
+      {cur.type === 'meme' && <div className="rounded-2xl p-4 bg-zinc-800 border border-zinc-700"><p className="text-lg font-bold text-zinc-100">{cur.word}</p><p className="text-[13px] text-zinc-400">{cur.meaning}</p><div className="mt-2"><SpeakerButton text={cur.word} size="sm" /></div></div>}
+      <button onClick={onComplete} className="mt-3 w-full py-2.5 text-[13px] font-medium text-zinc-400 bg-zinc-800 border border-zinc-700 rounded-xl hover:bg-zinc-700 transition active:scale-95">✓ Done! Finish Day</button>
     </div>
   );
 }

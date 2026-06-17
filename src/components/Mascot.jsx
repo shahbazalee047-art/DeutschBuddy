@@ -28,8 +28,8 @@ export function MascotMessage({ message, mood = 'happy' }) {
   return (
     <div className="flex items-start gap-3 slide-up">
       <Mascot mood={mood} size="md" />
-      <div className="bg-[#faf8f5] border border-[#d4a843]/20 rounded-2xl rounded-tl-md px-4 py-3 max-w-sm">
-        <p className="text-sm text-gray-700 leading-relaxed">{message}</p>
+      <div className="glass-card rounded-2xl rounded-tl-md px-4 py-3 max-w-sm">
+        <p className="text-sm text-zinc-300 leading-relaxed">{message}</p>
       </div>
     </div>
   );
@@ -39,7 +39,7 @@ export function MascotBubble({ children, mood = 'happy' }) {
   return (
     <div className="flex items-start gap-3">
       <Mascot mood={mood} size="sm" />
-      <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm flex-1">
+      <div className="bg-zinc-800 border border-zinc-700 rounded-2xl rounded-tl-md px-4 py-3 flex-1">
         {children}
       </div>
     </div>

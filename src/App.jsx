@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useProgress } from './hooks/useProgress';
 import a1Data from './data/a1Data';
@@ -28,7 +28,8 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function Dashboard() {
-  const { profile } = useAuth();
+  const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [activeLevel, setActiveLevel] = useState('A1');
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -37,9 +38,13 @@ function Dashboard() {
   const [todayXP, setTodayXP] = useState(0);
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [historyStack, setHistoryStack] = useState([]);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
   const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
+
+  const historyRef = useRef(historyStack);
+  historyRef.current = historyStack;
 
   function handleToggleTrackMode(mode) { setLocalTrackMode(mode); setTrackMode(mode); }
 
@@ -47,8 +52,16 @@ function Dashboard() {
   const unlockedWeeks = progress.unlockedWeeks || [1];
   const visibleWeeks = levelData.weeks;
 
-  const handleSelectDay = (weekId, day) => { setSelectedDay({ weekId, day }); setSelectedTask(null); setActiveView('dashboard'); };
-  const handleSelectTask = (task) => setSelectedTask(task);
+  const handleSelectDay = (weekId, day) => {
+    setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
+    setSelectedDay({ weekId, day });
+    setSelectedTask(null);
+    setActiveView('dashboard');
+  };
+  const handleSelectTask = (task) => {
+    setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask }]);
+    setSelectedTask(task);
+  };
 
   const handleCompleteTask = () => {
     if (selectedTask) {
@@ -75,28 +88,84 @@ function Dashboard() {
   };
   const nextDay = getNextIncompleteDay();
 
-  // Fix: Prevent back button from exiting to login
+  const handleViewChange = useCallback((view) => {
+    setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask, level: activeLevel }]);
+    setActiveView(view);
+    setSelectedDay(null);
+    setSelectedTask(null);
+    if (showNotifications) setShowNotifications(false);
+  }, [activeView, selectedDay, selectedTask, activeLevel, showNotifications]);
+
+  const handleLevelChange = useCallback((level) => {
+    setActiveLevel(level);
+    setSelectedDay(null);
+    setSelectedTask(null);
+    setActiveView('dashboard');
+  }, []);
+
+  const handleBackNavigation = useCallback(() => {
+    if (historyRef.current.length > 0) {
+      const prev = historyRef.current[historyRef.current.length - 1];
+      setHistoryStack(prev => prev.slice(0, -1));
+      setActiveView(prev.view || 'dashboard');
+      setSelectedDay(prev.day || null);
+      setSelectedTask(prev.task || null);
+      if (prev.level) setActiveLevel(prev.level);
+    } else if (selectedTask) {
+      setSelectedTask(null);
+    } else if (selectedDay) {
+      setSelectedDay(null);
+    }
+  }, [selectedTask, selectedDay]);
+
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
-      if (path === '/dashboard') {
-        // Already on dashboard, don't navigate away
-        if (selectedDay || selectedTask) {
-          handleBackToWeek();
+      if (path === '/dashboard' || path === '/') {
+        if (selectedTask || selectedDay || historyStack.length > 0) {
+          handleBackNavigation();
         }
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [selectedDay, selectedTask]);
+  }, [selectedDay, selectedTask, historyStack.length, handleBackNavigation]);
+
+  useEffect(() => {
+    let capacitorBackHandler = null;
+    async function setupCapacitor() {
+      try {
+        const { App } = await import('@capacitor/core');
+        if (App && typeof App.addListener === 'function') {
+          capacitorBackHandler = await App.addListener('backButton', () => {
+            if (selectedTask || selectedDay || historyRef.current.length > 0) {
+              handleBackNavigation();
+            } else if (activeView !== 'dashboard') {
+              setActiveView('dashboard');
+              setSelectedDay(null);
+              setSelectedTask(null);
+            }
+          });
+        }
+      } catch {
+        // Capacitor not available in browser
+      }
+    }
+    setupCapacitor();
+    return () => {
+      if (capacitorBackHandler && typeof capacitorBackHandler.remove === 'function') {
+        capacitorBackHandler.remove();
+      }
+    };
+  }, [selectedTask, selectedDay, activeView, historyStack.length, handleBackNavigation]);
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #131A2E, #0B0F19)' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#18181B' }}>
         <div className="flex flex-col items-center gap-4 scale-in">
           <div className="text-5xl animate-float">🇩🇪</div>
-          <div className="w-10 h-10 border-3 border-slate-600 rounded-full animate-spin" style={{ borderTopColor: '#B8860B' }} />
-          <p className="text-slate-400 text-sm font-medium">Loading DeutschBuddy...</p>
+          <div className="w-10 h-10 border-3 border-zinc-700 rounded-full animate-spin" style={{ borderTopColor: '#A3E635' }} />
+          <p className="text-zinc-400 text-sm font-medium">Loading DeutschBuddy...</p>
         </div>
       </div>
     );
@@ -111,16 +180,16 @@ function Dashboard() {
     if (selectedTask) {
       return (
         <div className="fade-in">
-          <button onClick={() => setSelectedTask(null)} className="flex items-center gap-1.5 text-sm text-[#8A8A9A] hover:text-[#1A1A2E] mb-4 transition">
+          <button onClick={() => setSelectedTask(null)} className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-lime-400 mb-4 transition">
             <span>&larr;</span> Back to Day {selectedDay.day}
           </button>
           <div className="paper-card p-6">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[11px] font-bold text-[#2D8B7A] bg-[#E0F2F1] px-2.5 py-1 rounded-full uppercase tracking-wider">{selectedTask.type}</span>
-              <span className="text-xs font-bold text-[#B8860B]">+{selectedTask.xp} XP</span>
+              <span className="text-[11px] font-bold text-lime-600 bg-lime-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider border border-lime-500/20">{selectedTask.type}</span>
+              <span className="text-xs font-bold text-cyan-400">+{selectedTask.xp} XP</span>
             </div>
-            <h2 className="text-lg font-bold text-[#1A1A2E] mb-1">{selectedTask.title}</h2>
-            <p className="text-sm text-[#8A8A9A] mb-5">{selectedTask.description}</p>
+            <h2 className="text-lg font-bold text-zinc-100 mb-1">{selectedTask.title}</h2>
+            <p className="text-sm text-zinc-400 mb-5">{selectedTask.description}</p>
             <TaskRenderer task={selectedTask} onComplete={handleCompleteTask} />
           </div>
         </div>
@@ -138,32 +207,35 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(135deg, #131A2E, #0B0F19)' }}>
+    <div className="min-h-screen" style={{ background: '#18181B' }}>
       {showQuickTool && <QuickGermanTool onClose={() => setShowQuickTool(false)} />}
-      {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(view) => { setActiveView(view); setShowNotifications(false); }} />}
+      {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(view) => { handleViewChange(view); }} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
 
       {/* Desktop Navbar */}
       <div className="hidden lg:block">
-        <Navbar activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} activeLevel={activeLevel} onLevelChange={(l) => { setActiveLevel(l); setSelectedDay(null); setSelectedTask(null); setActiveView('dashboard'); }} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} />
+        <Navbar activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} />
       </div>
 
-      {/* Mobile Header (compact) */}
-      <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(15, 20, 32, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(51, 65, 85, 0.3)' }}>
+      {/* Mobile Header */}
+      <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(63, 63, 70, 0.3)' }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <button onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all select-none">
-            <div className="w-8 h-8 bg-gradient-to-br from-[#B8860B] to-[#D4A843] rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm shadow-[#B8860B]/20">🇩🇪</div>
-            <span className="text-base font-extrabold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-            <span className="text-base font-extrabold text-[#B8860B]" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
-          </button>
+          <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
+            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+            <div className="w-8 h-8 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-sm font-bold shadow-sm shadow-lime-500/20">
+              <span className="text-base leading-none">🇩🇪</span>
+            </div>
+            <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
+            <span className="text-base font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+          </Link>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowNotifications(true)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#B8860B] hover:bg-[#B8860B]/10 transition relative">
-              🔔<span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F44336]" />
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
+              <span className="text-lg">🔔</span>
+              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />
             </button>
-            <button onClick={() => setActiveView('profile')}
-              className="w-9 h-9 rounded-full bg-gradient-to-br from-[#B8860B] to-[#D4A843] flex items-center justify-center text-white text-xs font-bold border border-white/10">
+            <button onClick={() => { setActiveView('profile'); setSelectedDay(null); setSelectedTask(null); }}
+              className="w-9 h-9 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xs font-bold border-2 border-zinc-700 active:scale-90 transition-transform">
               {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
             </button>
           </div>
@@ -175,32 +247,34 @@ function Dashboard() {
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
           <>
             <div className="mb-6 slide-up text-center lg:text-left">
-              <h1 className="text-3xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>
-                Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! 👋
+              <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>
+                Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! <span className="inline-block animate-cyan-pulse">👋</span>
               </h1>
-              <p className="text-slate-400 mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
+              <p className="text-zinc-500 mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
             </div>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6">
               {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
-              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-[#FFF8E1] text-[#B8860B] border border-[#B8860B]/20">A2: Fixed 8-week track</span>}
+              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">A2: Fixed 8-week track</span>}
             </div>
 
             {nextDay && (
               <button onClick={() => handleSelectDay(nextDay.weekId, nextDay.day)}
-                className="w-full mb-6 glass-card p-5 flex items-center gap-4 text-left hover:border-[#B8860B]/30 transition-all group">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #B8860B, #D4A843)', boxShadow: '0 4px 12px rgba(184, 134, 11, 0.3)' }}>▶</div>
-                <div className="flex-1">
-                  <div className="text-[10px] font-bold text-[#B8860B] uppercase tracking-widest">Continue where you left off</div>
-                  <div className="text-sm font-semibold text-slate-200 mt-1">Week {nextDay.weekId}, Day {nextDay.day}</div>
+                className="w-full mb-6 glass-card p-5 flex items-center gap-4 text-left hover:border-lime-500/30 transition-all group">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)', boxShadow: '0 4px 12px rgba(163, 230, 53, 0.3)' }}>
+                  <span>▶</span>
                 </div>
-                <span className="text-slate-500 group-hover:text-[#B8860B] transition text-lg">→</span>
+                <div className="flex-1">
+                  <div className="text-[10px] font-bold text-lime-400 uppercase tracking-widest animate-cyan-pulse">Continue where you left off</div>
+                  <div className="text-sm font-semibold text-zinc-300 mt-1">Week {nextDay.weekId}, Day {nextDay.day}</div>
+                </div>
+                <span className="text-zinc-600 group-hover:text-lime-400 transition text-lg">→</span>
               </button>
             )}
 
-            <div className="glass-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? '#4CAF50' : '#2196F3'}`, paddingLeft: '20px' }}>
-              <h2 className="text-xl font-bold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>{levelData.title}</h2>
-              <p className="text-sm text-slate-400 mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
+            <div className="glass-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? '#A3E635' : '#06B6D4'}`, paddingLeft: '20px' }}>
+              <h2 className="text-xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>{levelData.title}</h2>
+              <p className="text-sm text-zinc-500 mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
             </div>
           </>
         )}
@@ -211,7 +285,7 @@ function Dashboard() {
           <div className="lg:col-span-1"><RightPanel progress={progress} streak={progress.streak} /></div>
         </div>
 
-        {/* Mobile: Single column with sidebar below */}
+        {/* Mobile: Single column */}
         <div className="lg:hidden">
           {renderMainContent()}
           {!selectedTask && !selectedDay && activeView === 'dashboard' && (
@@ -224,7 +298,7 @@ function Dashboard() {
 
       {/* Mobile Bottom Nav */}
       <div className="lg:hidden pb-16">
-        <BottomNav activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} />
+        <BottomNav activeView={activeView} onViewChange={handleViewChange} />
       </div>
 
       {/* Desktop Footer */}
@@ -244,6 +318,7 @@ export default function App() {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthProvider>
