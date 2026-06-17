@@ -5,28 +5,32 @@ export default function WeeklyModule({ week, completedTasks, onSelectDay, select
   const isComplete = completion === 100;
 
   return (
-    <div className={`rounded-2xl border transition-all duration-200 relative overflow-hidden ${
+    <div className={`rounded-2xl border transition-all duration-300 ease-in-out ${
       isUnlocked
-        ? 'bg-slate-800 border border-slate-700/50 hover:shadow-lg'
-        : 'bg-slate-800/50 border border-slate-700/30'
+        ? 'bg-slate-800 border-slate-700/50 hover:shadow-lg hover:shadow-slate-900/50'
+        : 'bg-slate-800/50 border-slate-700/30 opacity-60 hover:opacity-80 hover:bg-slate-800/70 hover:border-slate-600/40'
     }`}>
-      {!isUnlocked && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-slate-900/60 rounded-2xl">
-          <span className="text-3xl opacity-50">🔒</span>
-        </div>
-      )}
-
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
+            {/* Week badge with inline lock icon */}
             <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold ${
               isComplete ? 'bg-lime-400 text-slate-900' :
               isUnlocked ? 'bg-slate-700 text-lime-400 border border-slate-600' :
-              'bg-slate-800/50 text-slate-500'
-            }`}>{isComplete ? '✓' : `W${week.id}`}</div>
+              'bg-slate-700/50 text-slate-500'
+            }`}>
+              {isComplete ? '✓' : `W${week.id}`}
+            </div>
+
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Week {week.id}</span>
+                {/* Inline lock icon next to week label */}
+                {!isUnlocked && (
+                  <svg className="w-3 h-3 text-slate-500 transition-all duration-300 group-hover:text-lime-400 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                )}
                 {isComplete && <span className="text-[10px] font-bold text-lime-400 bg-lime-400/10 px-2 py-0.5 rounded-full">Done</span>}
               </div>
               <h3 className="font-bold text-slate-200 text-sm">{week.title}</h3>
