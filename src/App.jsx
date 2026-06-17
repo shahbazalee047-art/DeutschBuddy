@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useProgress } from './hooks/useProgress';
 import a1Data from './data/a1Data';
@@ -152,17 +152,18 @@ function Dashboard() {
       {/* Mobile Header (compact) */}
       <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(15, 20, 32, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(51, 65, 85, 0.3)' }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <Link to="/dashboard" onClick={() => onViewChange('dashboard')} className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all">
+          <button onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
+            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all select-none">
             <div className="w-8 h-8 bg-gradient-to-br from-[#B8860B] to-[#D4A843] rounded-xl flex items-center justify-center text-white text-sm font-bold shadow-sm shadow-[#B8860B]/20">🇩🇪</div>
             <span className="text-base font-extrabold text-white" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-base font-extrabold text-[#B8860B]" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
-          </Link>
+          </button>
           <div className="flex items-center gap-2">
             <button onClick={() => setShowNotifications(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-slate-400 hover:text-[#B8860B] hover:bg-[#B8860B]/10 transition relative">
               🔔<span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F44336]" />
             </button>
-            <button onClick={() => navigate('/profile')}
+            <button onClick={() => setActiveView('profile')}
               className="w-9 h-9 rounded-full bg-gradient-to-br from-[#B8860B] to-[#D4A843] flex items-center justify-center text-white text-xs font-bold border border-white/10">
               {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
             </button>
