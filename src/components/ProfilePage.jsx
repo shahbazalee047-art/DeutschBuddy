@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Footer from '../components/Footer';
 
 export default function ProfilePage() {
-  const { profile, user } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const [editing, setEditing] = useState(false);
 
   return (
@@ -50,19 +50,30 @@ export default function ProfilePage() {
             { icon: '🔊', label: 'Sound Effects' },
             { icon: '🌙', label: 'Theme' },
             { icon: '❓', label: 'Help & Support' },
+            { icon: 'ℹ️', label: 'About', sub: 'Version 1.0.0' },
           ].map((item, i) => (
-            <button key={i} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[14px] text-[#4A4A5A] hover:bg-[#FAF6F0] transition text-left">
-              <span className="text-lg">{item.icon}</span>{item.label}
+            <button key={i} className="w-full flex items-center justify-between px-3 py-3 rounded-xl text-[14px] text-[#4A4A5A] hover:bg-[#FAF6F0] transition text-left">
+              <div className="flex items-center gap-3">
+                <span className="text-lg">{item.icon}</span>{item.label}
+              </div>
+              <span className="text-[12px] text-[#C0C0C0]">›</span>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="text-center">
-        <button onClick={handleSignOut} className="text-[14px] font-semibold text-[#F44336] hover:text-[#D32F2F] transition">
-          Sign Out
-        </button>
+      <div className="paper-card p-5">
+        <h3 className="text-sm font-bold text-[#1A1A2E] mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>About</h3>
+        <div className="space-y-3 text-[13px] text-[#8A8A9A]">
+          <div className="flex justify-between"><span>Version</span><span className="font-medium text-[#4A4A5A]">1.0.0</span></div>
+          <div className="flex justify-between"><span>Made with</span><span className="font-medium text-[#F44336]">❤️</span></div>
+          <div className="flex justify-between"><span>By</span><span className="font-medium text-[#4A4A5A]">Shahbaz Ali</span></div>
+        </div>
       </div>
+
+      <button onClick={signOut} className="w-full py-3 text-[14px] font-semibold text-[#F44336] hover:text-[#D32F2F] transition paper-card border-[#F44336]/20">
+        Sign Out
+      </button>
     </div>
   );
 }
