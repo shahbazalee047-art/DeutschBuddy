@@ -11,25 +11,25 @@ export default function DailyTasks({ week, day, completedTasks, onSelectTask, on
 
   return (
     <div className="fade-in">
-      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 mb-5 transition">
+      <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-[#9ca3af] hover:text-[#1a1a2e] mb-5 transition">
         <span>&larr;</span> Back to Week {week.id}
       </button>
 
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5 mb-5">
+      <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 mb-5 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00' }}>Week {week.id} &middot; Day {day}</span>
-            <h2 className="text-lg font-bold text-slate-100 mt-2">{dayData.title}</h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(139,105,20,0.1)', color: '#8B6914' }}>Week {week.id} · Day {day}</span>
+            <h2 className="text-lg font-bold text-[#1a1a2e] mt-2">{dayData.title}</h2>
           </div>
           <div className="text-right">
-            <div className="text-sm text-slate-400 tabular-nums">{completed}/{total}</div>
-            <div className="text-[10px] text-slate-500 mt-0.5">~{total * 5} min</div>
+            <div className="text-sm text-[#6b7280] tabular-nums">{completed}/{total}</div>
+            <div className="text-[10px] text-[#9ca3af] mt-0.5">~{total * 5} min</div>
           </div>
         </div>
-        <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%`, background: 'linear-gradient(to right, #FFCC00, #ffe066)' }} />
+        <div className="w-full h-1.5 bg-[#E8DFD4] rounded-full overflow-hidden">
+          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${total > 0 ? (completed / total) * 100 : 0}%`, background: 'linear-gradient(to right, #8B6914, #C4956A)' }} />
         </div>
-        {allDone && <div className="mt-3 text-center text-sm font-semibold py-2 rounded-xl" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00', border: '1px solid rgba(255,204,0,0.2)' }}>🎉 Day Complete! +{dayData.tasks.reduce((a, t) => a + t.xp, 0)} XP</div>}
+        {allDone && <div className="mt-3 text-center text-sm font-semibold py-2 rounded-xl" style={{ background: 'rgba(139,105,20,0.1)', color: '#8B6914', border: '1px solid rgba(139,105,20,0.2)' }}>🎉 Day Complete! +{dayData.tasks.reduce((a, t) => a + t.xp, 0)} XP</div>}
       </div>
 
       <div className="space-y-2">
@@ -38,22 +38,22 @@ export default function DailyTasks({ week, day, completedTasks, onSelectTask, on
           return (
             <button key={task.id} onClick={() => onSelectTask(task)}
               className={`w-full text-left rounded-xl border p-4 transition-all duration-200 ${
-                done ? 'border-[#FFCC00]/20' : 'bg-slate-800 border-slate-700/50 hover:border-slate-600 hover:shadow-md'
+                done ? 'border-[#8B6914]/20' : 'bg-white border-[#E8DFD4] hover:border-[#d4c9b8] hover:shadow-sm'
               }`}
-              style={done ? { background: 'rgba(255,204,0,0.05)' } : {}}>
+              style={done ? { background: 'rgba(139,105,20,0.05)' } : {}}>
               <div className="flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${
-                  done ? 'text-black' : 'bg-slate-700 text-slate-400'
+                  done ? 'text-white' : 'bg-[#F5EFE6] text-[#6b7280]'
                 }`}
-                style={done ? { background: '#FFCC00' } : {}}>
+                style={done ? { background: 'linear-gradient(135deg, #8B6914, #C4956A)' } : {}}>
                   {done ? '✓' : typeIcons[task.type] || '📌'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{index + 1}. {task.type}</div>
-                  <p className="text-sm font-semibold text-slate-200 mt-0.5 truncate">{task.title}</p>
-                  <p className="text-xs text-slate-400 mt-0.5 truncate">{task.description}</p>
+                  <div className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">{index + 1}. {task.type}</div>
+                  <p className="text-sm font-semibold text-[#1a1a2e] mt-0.5 truncate">{task.title}</p>
+                  <p className="text-xs text-[#9ca3af] mt-0.5 truncate">{task.description}</p>
                 </div>
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={done ? { background: 'rgba(255,204,0,0.1)', color: '#FFCC00' } : { background: 'rgba(51,65,85,0.5)', color: '#94a3b8' }}>
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={done ? { background: 'rgba(139,105,20,0.1)', color: '#8B6914' } : { background: '#F5EFE6', color: '#9ca3af' }}>
                   {done ? '✓' : `+${task.xp}`}
                 </span>
               </div>

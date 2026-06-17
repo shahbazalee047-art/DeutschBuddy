@@ -18,19 +18,19 @@ const ALL_BADGES = [
 
 export default function BadgeGallery({ badges }) {
   return (
-    <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5 border-t-2 border-t-[#DD0000]">
-      <h4 className="text-sm font-bold text-slate-200 mb-4">🏆 Badges</h4>
+    <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 shadow-sm border-t-2 border-t-[#C4956A]">
+      <h4 className="text-sm font-bold text-[#1a1a2e] mb-4">🏆 Badges</h4>
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
         {ALL_BADGES.map(badge => {
           const earned = badges.find(b => b.id === badge.id);
           return (
             <div key={badge.id} className={`relative group text-center p-3 rounded-xl transition-all duration-300 ${
-              earned ? 'bg-slate-700/50 border border-slate-600 hover:scale-110 hover:drop-shadow-lg cursor-pointer' : 'bg-slate-900/50 border border-slate-700/30 opacity-30 grayscale'
+              earned ? 'bg-[#FAF5ED] border border-[#E8DFD4] hover:scale-110 hover:shadow-md cursor-pointer' : 'bg-[#F5EFE6]/50 border border-[#E8DFD4]/50 opacity-30 grayscale'
             }`}>
               <div className={`text-2xl mb-1 transition-all duration-300 ${earned ? 'grayscale-0' : 'grayscale opacity-50'}`}>{badge.icon}</div>
-              <div className="text-[10px] font-medium text-slate-400 leading-tight">{badge.name}</div>
-              {earned && <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-800 flex items-center justify-center" style={{ background: '#FFCC00' }}><span className="text-black text-[7px] font-bold">✓</span></div>}
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-slate-700 text-slate-300 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10 border border-slate-600">
+              <div className="text-[10px] font-medium text-[#6b7280] leading-tight">{badge.name}</div>
+              {earned && <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full border-2 border-white flex items-center justify-center" style={{ background: '#8B6914' }}><span className="text-white text-[7px] font-bold">✓</span></div>}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-[#1a1a2e] text-slate-300 text-xs rounded-lg opacity-0 group-hover:opacity-100 transition pointer-events-none whitespace-nowrap z-10 border border-[#2d2d3f]">
                 {earned ? `Earned ${new Date(earned.earnedAt).toLocaleDateString()}` : badge.condition}
               </div>
             </div>

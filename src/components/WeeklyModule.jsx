@@ -7,46 +7,45 @@ export default function WeeklyModule({ week, completedTasks, onSelectDay, select
   return (
     <div className={`rounded-2xl border transition-all duration-300 ease-in-out ${
       isUnlocked
-        ? 'bg-slate-800 border-slate-700/50 hover:shadow-lg hover:shadow-slate-900/50'
-        : 'bg-slate-800/50 border-slate-700/30 opacity-60 hover:opacity-80 hover:bg-slate-800/70 hover:border-slate-600/40'
+        ? 'bg-white border-[#E8DFD4] shadow-sm hover:shadow-md'
+        : 'bg-white/60 border-[#E8DFD4]/50 opacity-60 hover:opacity-80 hover:bg-white/80 hover:border-[#E8DFD4]'
     }`}>
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-lg font-bold ${
-              isComplete ? 'text-black' :
-              isUnlocked ? 'bg-slate-700 border border-slate-600' :
-              'bg-slate-700/50 text-slate-500'
+              isComplete ? 'text-white' :
+              isUnlocked ? 'bg-[#E8DFD4] text-[#8B6914]' :
+              'bg-[#F5EFE6] text-[#9ca3af]'
             }`}
-            style={isComplete ? { background: '#FFCC00' } : isUnlocked ? { color: '#FFCC00' } : {}}>
+            style={isComplete ? { background: 'linear-gradient(135deg, #8B6914, #C4956A)' } : {}}>
               {isComplete ? '✓' : `W${week.id}`}
             </div>
-
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Week {week.id}</span>
+                <span className="text-[10px] font-bold text-[#9ca3af] uppercase tracking-wider">Week {week.id}</span>
                 {!isUnlocked && (
-                  <svg className="w-3 h-3 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                  <svg className="w-3 h-3 text-[#9ca3af]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 )}
-                {isComplete && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00' }}>Done</span>}
+                {isComplete && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(139,105,20,0.1)', color: '#8B6914' }}>Done</span>}
               </div>
-              <h3 className="font-bold text-slate-200 text-sm">{week.title}</h3>
-              <p className="text-xs text-slate-400 mt-0.5">{week.theme}</p>
+              <h3 className="font-bold text-[#1a1a2e] text-sm">{week.title}</h3>
+              <p className="text-xs text-[#9ca3af] mt-0.5">{week.theme}</p>
             </div>
           </div>
-          <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00' }}>+{weekXP(week, completedTasks)} XP</span>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: 'rgba(139,105,20,0.1)', color: '#8B6914' }}>+{weekXP(week, completedTasks)} XP</span>
         </div>
 
         {isUnlocked && (
           <>
             <div className="mb-3">
-              <div className="flex justify-between text-[10px] text-slate-400 mb-1 uppercase tracking-wider font-medium">
+              <div className="flex justify-between text-[10px] text-[#9ca3af] mb-1 uppercase tracking-wider font-medium">
                 <span>Progress</span><span>{completion}%</span>
               </div>
-              <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${completion}%`, background: 'linear-gradient(to right, #FFCC00, #ffe066)' }} />
+              <div className="w-full h-1.5 bg-[#E8DFD4] rounded-full overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${completion}%`, background: 'linear-gradient(to right, #8B6914, #C4956A)' }} />
               </div>
             </div>
             <div className="grid grid-cols-7 gap-1.5">
@@ -58,14 +57,14 @@ export default function WeeklyModule({ week, completedTasks, onSelectDay, select
                     <button onClick={(e) => { e.stopPropagation(); onSelectDay(week.id, day.day); }}
                       disabled={!isUnlocked}
                       className={`w-full aspect-square rounded-lg flex flex-col items-center justify-center text-[10px] font-bold transition-all duration-200 ${
-                        dayDone ? 'text-black' :
-                        hasPartial ? 'bg-red-500/10 text-red-400 border border-red-500/30' :
-                        'bg-slate-800/50 text-slate-500 border border-slate-700/50 hover:text-[#FFCC00]'
+                        dayDone ? 'text-white' :
+                        hasPartial ? 'bg-[#5B8C7A]/10 text-[#5B8C7A] border border-[#5B8C7A]/30' :
+                        'bg-[#F5EFE6] text-[#9ca3af] border border-[#E8DFD4] hover:border-[#8B6914]/50 hover:text-[#8B6914]'
                       }`}
-                      style={dayDone ? { background: '#FFCC00' } : {}}>
+                      style={dayDone ? { background: 'linear-gradient(135deg, #8B6914, #C4956A)' } : {}}>
                       {day.day}{dayDone && <span className="text-[7px]">✓</span>}
                     </button>
-                    {idx < week.days.length - 1 && <div className={`w-0.5 h-0.5 rounded-full mx-0.5 ${dayDone ? 'bg-[#FFCC00]/50' : 'bg-slate-700'}`} />}
+                    {idx < week.days.length - 1 && <div className={`w-0.5 h-0.5 rounded-full mx-0.5 ${dayDone ? 'bg-[#8B6914]/50' : 'bg-[#E8DFD4]'}`} />}
                   </div>
                 );
               })}

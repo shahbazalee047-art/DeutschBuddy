@@ -30,52 +30,52 @@ export default function RightPanel({ progress, streak }) {
 
   return (
     <div className="space-y-4">
-      {/* Verb Lookup - Red top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#DD0000]">
+      {/* Verb Lookup */}
+      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#5B8C7A]">
         <InlineVerbLookup />
       </div>
 
-      {/* Stats - Gold top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#FFCC00]">
-        <h4 className="text-sm font-bold text-slate-200 mb-3">⚡ Your Stats</h4>
+      {/* Stats */}
+      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#8B6914]">
+        <h4 className="text-sm font-bold text-[#1a1a2e] mb-3">⚡ Your Stats</h4>
         <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-slate-900/50 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold tabular-nums" style={{ color: '#FFCC00' }}>{progress.xp}</div>
-            <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">XP Earned</div>
+          <div className="bg-[#FAF5ED] rounded-xl p-3 text-center border border-[#E8DFD4]">
+            <div className="text-2xl font-bold tabular-nums" style={{ color: '#8B6914' }}>{progress.xp}</div>
+            <div className="text-[10px] text-[#9ca3af] font-medium uppercase tracking-wider">XP Earned</div>
           </div>
-          <div className="bg-slate-900/50 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold text-red-500 tabular-nums">{streak}</div>
-            <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Day Streak</div>
+          <div className="bg-[#FAF5ED] rounded-xl p-3 text-center border border-[#E8DFD4]">
+            <div className="text-2xl font-bold tabular-nums" style={{ color: '#C4956A' }}>{streak}</div>
+            <div className="text-[10px] text-[#9ca3af] font-medium uppercase tracking-wider">Day Streak</div>
           </div>
         </div>
         <div>
-          <div className="flex justify-between text-xs text-slate-400 mb-1">
+          <div className="flex justify-between text-xs text-[#6b7280] mb-1">
             <span>Next: {nextMilestone.icon} {nextMilestone.label}</span>
             <span>{progress.xp}/{nextMilestone.target}</span>
           </div>
-          <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((progress.xp / nextMilestone.target) * 100, 100)}%`, background: 'linear-gradient(to right, #FFCC00, #ffe066)' }} />
+          <div className="w-full h-2 bg-[#E8DFD4] rounded-full overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((progress.xp / nextMilestone.target) * 100, 100)}%`, background: 'linear-gradient(to right, #8B6914, #C4956A)' }} />
           </div>
         </div>
       </div>
 
-      {/* Tip of the Day - Gold top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#FFCC00]">
+      {/* Tip of the Day */}
+      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#8B6914]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm">💡</span>
-          <h4 className="text-sm font-bold text-slate-200">Tip of the Day</h4>
-          <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00', border: '1px solid rgba(255,204,0,0.2)' }}>{tip.tag}</span>
+          <h4 className="text-sm font-bold text-[#1a1a2e]">Tip of the Day</h4>
+          <span className="text-[10px] bg-[#5B8C7A]/10 text-[#5B8C7A] px-2 py-0.5 rounded-full font-medium border border-[#5B8C7A]/20">{tip.tag}</span>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">{tip.tip}</p>
+        <p className="text-xs text-[#4a5568] leading-relaxed">{tip.tip}</p>
       </div>
 
-      {/* Did You Know - Red top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#DD0000]">
+      {/* Did You Know */}
+      <div className="bg-white rounded-2xl border border-[#E8DFD4] shadow-sm p-4 border-t-2 border-t-[#C4956A]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm">🇩🇪</span>
-          <h4 className="text-sm font-bold text-slate-200">Did You Know?</h4>
+          <h4 className="text-sm font-bold text-[#1a1a2e]">Did You Know?</h4>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed">{fact}</p>
+        <p className="text-xs text-[#4a5568] leading-relaxed">{fact}</p>
       </div>
     </div>
   );

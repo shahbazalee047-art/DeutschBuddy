@@ -72,11 +72,11 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)' }}>
+      <div className="min-h-screen flex items-center justify-center bg-[#FAF5ED]">
         <div className="flex flex-col items-center gap-4 scale-in">
           <div className="text-5xl animate-float">🇩🇪</div>
-          <div className="w-10 h-10 border-3 border-slate-600 rounded-full animate-spin" style={{ borderTopColor: '#FFCC00' }} />
-          <p className="text-slate-400 text-sm font-medium">Loading DeutschBuddy...</p>
+          <div className="w-10 h-10 border-3 border-[#E8DFD4] rounded-full animate-spin" style={{ borderTopColor: '#8B6914' }} />
+          <p className="text-[#9ca3af] text-sm font-medium">Loading DeutschBuddy...</p>
         </div>
       </div>
     );
@@ -94,16 +94,16 @@ function Dashboard() {
     if (selectedTask) {
       return (
         <div className="fade-in">
-          <button onClick={() => setSelectedTask(null)} className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-200 mb-4 transition">
+          <button onClick={() => setSelectedTask(null)} className="flex items-center gap-1.5 text-sm text-[#9ca3af] hover:text-[#1a1a2e] mb-4 transition">
             <span>&larr;</span> Back to Day {selectedDay.day}
           </button>
-          <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5">
+          <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 shadow-sm">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00', border: '1px solid rgba(255,204,0,0.2)' }}>{selectedTask.type}</span>
-              <span className="text-xs font-bold" style={{ color: '#FFCC00' }}>+{selectedTask.xp} XP</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(91,140,122,0.1)', color: '#5B8C7A', border: '1px solid rgba(91,140,122,0.2)' }}>{selectedTask.type}</span>
+              <span className="text-xs font-bold" style={{ color: '#8B6914' }}>+{selectedTask.xp} XP</span>
             </div>
-            <h2 className="text-lg font-bold text-slate-100 mb-1">{selectedTask.title}</h2>
-            <p className="text-sm text-slate-300 mb-5">{selectedTask.description}</p>
+            <h2 className="text-lg font-bold text-[#1a1a2e] mb-1">{selectedTask.title}</h2>
+            <p className="text-sm text-[#4a5568] mb-5">{selectedTask.description}</p>
             <TaskRenderer task={selectedTask} onComplete={handleCompleteTask} />
           </div>
         </div>
@@ -120,7 +120,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)' }}>
+    <div className="min-h-screen bg-[#FAF5ED]">
       {showQuickTool && <QuickGermanTool onClose={() => setShowQuickTool(false)} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
       <Navbar activeView={activeView} onViewChange={(v) => { setActiveView(v); setSelectedDay(null); setSelectedTask(null); }} activeLevel={activeLevel} onLevelChange={(l) => { setActiveLevel(l); setSelectedDay(null); setSelectedTask(null); setActiveView('dashboard'); }} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} />
@@ -129,31 +129,30 @@ function Dashboard() {
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
           <>
             <div className="mb-5 slide-up text-center max-lg:space-y-3">
-              <h1 className="text-xl font-bold text-slate-100">Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! 👋</h1>
-              <p className="text-sm text-slate-300">Ready to continue learning?</p>
+              <h1 className="text-xl font-bold text-[#1a1a2e]">Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! 👋</h1>
+              <p className="text-sm text-[#6b7280]">Ready to continue learning?</p>
               <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
                 {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
-                {activeLevel === 'A2' && <span className="text-xs text-slate-400 font-medium px-3 py-1.5 bg-slate-800 border border-slate-700/50 rounded-xl">A2: Fixed 8-week track</span>}
+                {activeLevel === 'A2' && <span className="text-xs text-[#9ca3af] font-medium px-3 py-1.5 bg-white border border-[#E8DFD4] rounded-xl shadow-sm">A2: Fixed 8-week track</span>}
               </div>
             </div>
 
             {nextDay && (
               <button onClick={() => handleSelectDay(nextDay.weekId, nextDay.day)}
-                className="w-full mb-5 bg-slate-800 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4 text-left hover:border-[#FFCC00]/50 transition-all group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-black animate-pulse-gold" style={{ background: '#FFCC00' }}>▶</div>
+                className="w-full mb-5 bg-white border border-[#E8DFD4] rounded-2xl p-4 flex items-center gap-4 text-left hover:border-[#8B6914]/30 hover:shadow-md transition-all group shadow-sm">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-white animate-pulse-warm" style={{ background: 'linear-gradient(135deg, #8B6914, #C4956A)' }}>▶</div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#FFCC00' }}>Continue where you left off</div>
-                  <div className="text-sm font-semibold text-slate-200">Week {nextDay.weekId}, Day {nextDay.day}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#8B6914' }}>Continue where you left off</div>
+                  <div className="text-sm font-semibold text-[#1a1a2e]">Week {nextDay.weekId}, Day {nextDay.day}</div>
                 </div>
-                <span className="text-slate-500 group-hover:text-[#FFCC00] transition text-lg">→</span>
+                <span className="text-[#9ca3af] group-hover:text-[#8B6914] transition text-lg">→</span>
               </button>
             )}
 
-            <div className={`rounded-2xl p-5 mb-5 text-white border-l-4 ${
-              activeLevel === 'A1' ? 'bg-slate-800' : 'bg-slate-800'
-            }`} style={{ borderLeftColor: activeLevel === 'A1' ? '#000000' : '#DD0000' }}>
-              <h2 className="text-lg font-bold">{levelData.title}</h2>
-              <p className="text-slate-300 text-sm mt-0.5">{levelData.description}</p>
+            <div className="rounded-2xl p-5 mb-5 text-white border-l-4 bg-white shadow-sm"
+              style={{ borderLeftColor: activeLevel === 'A1' ? '#5B8C7A' : '#C4956A' }}>
+              <h2 className="text-lg font-bold text-[#1a1a2e]">{levelData.title}</h2>
+              <p className="text-sm mt-0.5" style={{ color: '#6b7280' }}>{levelData.description}</p>
             </div>
           </>
         )}
