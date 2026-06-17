@@ -12,13 +12,15 @@ export default function Vocabulary({ content, onComplete }) {
       <div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-200 text-lg">📖 Vocabulary</h3><span className="text-sm text-slate-400">{studied.size}/{items.length}</span></div>
       <div className="space-y-2">
         {items.map((item, i) => { const g = item.gender ? gc[item.gender] : null; return (
-          <button key={i} onClick={() => toggle(i)} className={`w-full text-left p-4 rounded-xl border transition-all ${studied.has(i) ? 'bg-lime-400/5 border-lime-400/20' : g ? `bg-slate-800/50 border-slate-700/50` : 'bg-slate-800 border-slate-700/50 hover:border-slate-600'}`}>
+          <button key={i} onClick={() => toggle(i)} className={`w-full text-left p-4 rounded-xl border transition-all ${studied.has(i) ? 'border-[#FFCC00]/20' : 'bg-slate-800 border-slate-700/50 hover:border-slate-600'}`}
+            style={studied.has(i) ? { background: 'rgba(255,204,0,0.05)' } : {}}>
             <div className="flex items-center justify-between"><div className="flex-1 min-w-0"><div className="flex items-center gap-2 flex-wrap"><span className="font-bold text-slate-200">{item.german}</span><SpeakerButton text={item.german} size="sm" />{item.gender && <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${g.badge}`}>{g.label}</span>}</div><p className="text-slate-300 text-sm mt-0.5">{item.english}</p>{item.pronunciation && <p className="text-xs text-slate-500 mt-0.5">🔊 {item.pronunciation}</p>}</div><span className="text-lg ml-2">{studied.has(i) ? '✅' : '⬜'}</span></div>
           </button>
         );})}
       </div>
-      <div className="mt-5 text-center"><button onClick={onComplete} className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${allStudied ? 'bg-lime-400 text-slate-900 hover:bg-lime-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-lime-400/25' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700/50'}`}>{allStudied ? '🎉 All studied!' : `Complete (${studied.size}/${items.length})`}</button></div>
+      <div className="mt-5 text-center"><button onClick={onComplete} className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200 ${allStudied ? 'text-black hover:scale-[1.02] hover:shadow-lg' : 'bg-slate-800 text-slate-400 hover:bg-slate-700 border border-slate-700/50'}`}
+        style={allStudied ? { background: '#FFCC00', boxShadow: '0 4px 15px rgba(255,204,0,0.3)' } : {}}>{allStudied ? '🎉 All studied!' : `Complete (${studied.size}/${items.length})`}</button></div>
     </div>
   );
 }
-function Empty({ onComplete }) { return <div className="text-center py-12"><p className="text-slate-500 mb-4">Coming soon!</p><button onClick={onComplete} className="px-4 py-2 bg-lime-400 text-slate-900 rounded-xl text-sm font-semibold hover:bg-lime-300 transition">Mark Complete</button></div>; }
+function Empty({ onComplete }) { return <div className="text-center py-12"><p className="text-slate-500 mb-4">Coming soon!</p><button onClick={onComplete} className="px-4 py-2 text-black rounded-xl text-sm font-semibold transition" style={{ background: '#FFCC00' }}>Mark Complete</button></div>; }

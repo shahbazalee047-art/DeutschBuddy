@@ -75,7 +75,7 @@ function Dashboard() {
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'radial-gradient(ellipse at top, #1e293b 0%, #0f172a 50%, #020617 100%)' }}>
         <div className="flex flex-col items-center gap-4 scale-in">
           <div className="text-5xl animate-float">🇩🇪</div>
-          <div className="w-10 h-10 border-3 border-slate-600 border-t-lime-400 rounded-full animate-spin" />
+          <div className="w-10 h-10 border-3 border-slate-600 rounded-full animate-spin" style={{ borderTopColor: '#FFCC00' }} />
           <p className="text-slate-400 text-sm font-medium">Loading DeutschBuddy...</p>
         </div>
       </div>
@@ -99,8 +99,8 @@ function Dashboard() {
           </button>
           <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] font-bold text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-2 py-0.5 rounded-full uppercase tracking-wider">{selectedTask.type}</span>
-              <span className="text-xs font-bold text-lime-400">+{selectedTask.xp} XP</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00', border: '1px solid rgba(255,204,0,0.2)' }}>{selectedTask.type}</span>
+              <span className="text-xs font-bold" style={{ color: '#FFCC00' }}>+{selectedTask.xp} XP</span>
             </div>
             <h2 className="text-lg font-bold text-slate-100 mb-1">{selectedTask.title}</h2>
             <p className="text-sm text-slate-300 mb-5">{selectedTask.description}</p>
@@ -139,19 +139,19 @@ function Dashboard() {
 
             {nextDay && (
               <button onClick={() => handleSelectDay(nextDay.weekId, nextDay.day)}
-                className="w-full mb-5 bg-slate-800 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4 text-left hover:border-lime-400/50 transition-all group">
-                <div className="w-12 h-12 bg-lime-400 rounded-xl flex items-center justify-center text-slate-900 text-lg font-bold animate-pulse-lime">▶</div>
+                className="w-full mb-5 bg-slate-800 border border-slate-700/50 rounded-2xl p-4 flex items-center gap-4 text-left hover:border-[#FFCC00]/50 transition-all group">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-black animate-pulse-gold" style={{ background: '#FFCC00' }}>▶</div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-bold text-lime-400 uppercase tracking-wider">Continue where you left off</div>
+                  <div className="text-[10px] font-bold uppercase tracking-wider" style={{ color: '#FFCC00' }}>Continue where you left off</div>
                   <div className="text-sm font-semibold text-slate-200">Week {nextDay.weekId}, Day {nextDay.day}</div>
                 </div>
-                <span className="text-slate-500 group-hover:text-lime-400 transition text-lg">→</span>
+                <span className="text-slate-500 group-hover:text-[#FFCC00] transition text-lg">→</span>
               </button>
             )}
 
             <div className={`rounded-2xl p-5 mb-5 text-white border-l-4 ${
-              activeLevel === 'A1' ? 'bg-slate-800 border-lime-400' : 'bg-slate-800 border-purple-400'
-            }`}>
+              activeLevel === 'A1' ? 'bg-slate-800' : 'bg-slate-800'
+            }`} style={{ borderLeftColor: activeLevel === 'A1' ? '#000000' : '#DD0000' }}>
               <h2 className="text-lg font-bold">{levelData.title}</h2>
               <p className="text-slate-300 text-sm mt-0.5">{levelData.description}</p>
             </div>

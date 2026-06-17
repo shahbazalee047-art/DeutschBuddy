@@ -30,21 +30,21 @@ export default function RightPanel({ progress, streak }) {
 
   return (
     <div className="space-y-4">
-      {/* Verb Lookup - cyan top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-cyan-400">
+      {/* Verb Lookup - Red top border */}
+      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#DD0000]">
         <InlineVerbLookup />
       </div>
 
-      {/* Stats - lime top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-lime-400">
+      {/* Stats - Gold top border */}
+      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#FFCC00]">
         <h4 className="text-sm font-bold text-slate-200 mb-3">⚡ Your Stats</h4>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="bg-slate-900/50 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold text-lime-400 tabular-nums">{progress.xp}</div>
+            <div className="text-2xl font-bold tabular-nums" style={{ color: '#FFCC00' }}>{progress.xp}</div>
             <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">XP Earned</div>
           </div>
           <div className="bg-slate-900/50 rounded-xl p-3 text-center">
-            <div className="text-2xl font-bold text-orange-400 tabular-nums">{streak}</div>
+            <div className="text-2xl font-bold text-red-500 tabular-nums">{streak}</div>
             <div className="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Day Streak</div>
           </div>
         </div>
@@ -54,23 +54,23 @@ export default function RightPanel({ progress, streak }) {
             <span>{progress.xp}/{nextMilestone.target}</span>
           </div>
           <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-lime-400 to-lime-300 rounded-full transition-all duration-500 shadow-lg shadow-lime-400/20" style={{ width: `${Math.min((progress.xp / nextMilestone.target) * 100, 100)}%` }} />
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((progress.xp / nextMilestone.target) * 100, 100)}%`, background: 'linear-gradient(to right, #FFCC00, #ffe066)' }} />
           </div>
         </div>
       </div>
 
-      {/* Tip of the Day - amber top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-amber-400">
+      {/* Tip of the Day - Gold top border */}
+      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#FFCC00]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm">💡</span>
           <h4 className="text-sm font-bold text-slate-200">Tip of the Day</h4>
-          <span className="text-[10px] bg-cyan-400/10 text-cyan-400 px-2 py-0.5 rounded-full font-medium border border-cyan-400/20">{tip.tag}</span>
+          <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: 'rgba(255,204,0,0.1)', color: '#FFCC00', border: '1px solid rgba(255,204,0,0.2)' }}>{tip.tag}</span>
         </div>
         <p className="text-xs text-slate-300 leading-relaxed">{tip.tip}</p>
       </div>
 
-      {/* Did You Know - purple top border */}
-      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-purple-400">
+      {/* Did You Know - Red top border */}
+      <div className="bg-slate-800 border border-slate-700/50 rounded-2xl p-4 border-t-2 border-t-[#DD0000]">
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm">🇩🇪</span>
           <h4 className="text-sm font-bold text-slate-200">Did You Know?</h4>

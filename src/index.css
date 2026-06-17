@@ -3,9 +3,9 @@
 @theme {
   --color-canvas: #0f172a;
   --color-surface: #1e293b;
-  --color-lime: #a3e635;
-  --color-cyan: #22d3ee;
-  --color-purple: #a78bfa;
+  --color-gold: #FFCC00;
+  --color-german-red: #DD0000;
+  --color-german-black: #000000;
 }
 
 * { box-sizing: border-box; }
@@ -50,10 +50,10 @@ input, textarea, select {
 
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-@keyframes pulse-lime { 0%, 100% { box-shadow: 0 0 12px rgba(163, 230, 53, 0.3); } 50% { box-shadow: 0 0 24px rgba(163, 230, 53, 0.5); } }
+@keyframes pulse-gold { 0%, 100% { box-shadow: 0 0 12px rgba(255, 204, 0, 0.3); } 50% { box-shadow: 0 0 24px rgba(255, 204, 0, 0.5); } }
 
 .animate-float { animation: float 3s ease-in-out infinite; }
-.animate-pulse-lime { animation: pulse-lime 2s infinite; }
+.animate-pulse-gold { animation: pulse-gold 2s infinite; }
 
 .skeleton {
   background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
