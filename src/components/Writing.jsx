@@ -1,17 +1,46 @@
 import { useState } from 'react';
+
 export default function Writing({ content, onComplete }) {
-  const [text, setText] = useState(''); const [done, setDone] = useState(false);
-  function submit() { if (text.trim().length > 0) { setDone(true); onComplete(); } }
+  const [userText, setUserText] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  function handleSubmit() { if (userText.trim().length > 0) { setSubmitted(true); onComplete(); } }
+
   return (
     <div className="fade-in">
-      <h3 className="font-bold text-[#1a1a2e] text-lg mb-5">✍️ Writing Exercise</h3>
-      <div className="bg-white border border-[#E8DFD4] rounded-2xl p-5 shadow-sm">
-        <div className="rounded-xl p-4 mb-4" style={{ background: 'rgba(139,105,20,0.1)', border: '1px solid rgba(139,105,20,0.2)' }}><p className="text-xs font-medium mb-1" style={{ color: '#8B6914' }}>📝 Task:</p><p className="text-sm text-[#4a5568]">{content.prompt}</p></div>
-        {content.example && <div className="bg-[#F5EFE6] rounded-lg p-3 mb-4 border border-[#E8DFD4]"><p className="text-[10px] text-[#9ca3af] mb-1">Example:</p><p className="text-xs text-[#6b7280] italic">"{content.example}"</p></div>}
-        <textarea value={text} onChange={e => setText(e.target.value)} disabled={done} placeholder="Write your German text here..." rows={4} className="w-full px-4 py-3 bg-[#F5EFE6] border border-[#E8DFD4] rounded-xl text-[#1a1a2e] placeholder-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#8B6914] transition text-sm resize-none" />
-        {!done && <button onClick={submit} disabled={text.trim().length === 0} className="mt-4 px-5 py-2 text-white rounded-xl text-sm font-semibold hover:scale-[1.02] transition disabled:opacity-40" style={{ background: 'linear-gradient(135deg, #8B6914, #C4956A)' }}>Submit Writing</button>}
+      <h3 className="font-bold text-slate-200 text-lg mb-5">✍️ Writing Exercise</h3>
+      <div className="glass-card p-5">
+        <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 mb-4">
+          <p className="text-xs text-indigo-400 font-medium mb-1">📝 Task:</p>
+          <p className="text-sm text-indigo-300">{content.prompt}</p>
+        </div>
+        {content.example && (
+          <div className="bg-slate-800/30 rounded-lg p-3 mb-4">
+            <p className="text-[10px] text-slate-500 mb-1">Example:</p>
+            <p className="text-xs text-slate-400 italic">"{content.example}"</p>
+          </div>
+        )}
+        <textarea value={userText} onChange={(e) => setUserText(e.target.value)} disabled={submitted}
+          placeholder="Write your German text here..." rows={4}
+          className="w-full px-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition text-sm resize-none" />
+        {content.tips && !submitted && (
+          <div className="mt-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+            <p className="text-xs font-bold text-amber-400 mb-1">💡 Tips:</p>
+            <ul className="text-xs text-amber-300/70 space-y-0.5">{content.tips.map((t, i) => <li key={i}>• {t}</li>)}</ul>
+          </div>
+        )}
+        {!submitted && (
+          <button onClick={handleSubmit} disabled={userText.trim().length === 0}
+            className="mt-4 px-5 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-500 transition disabled:opacity-40 shadow-lg shadow-indigo-500/20">
+            Submit Writing
+          </button>
+        )}
       </div>
-      {done && <div className="text-center p-3 rounded-xl text-sm font-medium text-white mt-4" style={{ background: 'linear-gradient(135deg, #8B6914, #C4956A)' }}>✍️ Gut geschrieben! Keep practicing!</div>}
+      {submitted && (
+        <div className="text-center p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-sm font-medium text-green-400 mt-4">
+          ✍️ Gut geschrieben! Great writing! Practice makes perfect, keep going!
+        </div>
+      )}
     </div>
   );
 }

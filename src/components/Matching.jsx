@@ -1,30 +1,83 @@
 import { useState, useEffect } from 'react';
 import SpeakerButton from './SpeakerButton';
+
 export default function Matching({ content, onComplete }) {
-  const [sel, setSel] = useState(null); const [matched, setMatched] = useState([]); const [shuffled, setShuffled] = useState([]);
+  const [selectedGerman, setSelectedGerman] = useState(null);
+  const [matched, setMatched] = useState([]);
+  const [shuffledEnglish, setShuffledEnglish] = useState([]);
+  const [attempts, setAttempts] = useState(0);
   const pairs = content.pairs || [];
-  useEffect(() => { if (pairs.length) setShuffled([...pairs].sort(() => Math.random() - 0.5)); }, [pairs.length]);
-  if (!pairs.length) return <Empty onComplete={onComplete} />;
-  function clickDE(i) { if (!matched.includes(i)) setSel(i); }
-  function clickEN(item) { if (sel === null) return; if (pairs[sel].english === item.english) { setMatched(p => [...p, sel]); setSel(null); if (matched.length + 1 === pairs.length) setTimeout(onComplete, 600); } else setSel(null); }
+
+  useEffect(() => { if (pairs.length > 0) setShuffledEnglish([...pairs].sort(() => Math.random() - 0.5)); }, [pairs.length]);
+  if (pairs.length === 0) return <EmptyState onComplete={onComplete} />;
+
+  function handleGermanClick(i) { if (!matched.includes(i)) setSelectedGerman(i); }
+  function handleEnglishClick(item) {
+    if (selectedGerman === null) return;
+    setAttempts(prev => prev + 1);
+    if (pairs[selectedGerman].english === item.english) {
+      setMatched(prev => [...prev, selectedGerman]);
+      setSelectedGerman(null);
+      if (matched.length + 1 === pairs.length) setTimeout(() => onComplete(), 600);
+    } else { setSelectedGerman(null); }
+  }
+
   return (
     <div className="fade-in">
-      <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-[#1a1a2e] text-lg">🔗 Matching</h3><span className="text-sm text-[#9ca3af]">{matched.length}/{pairs.length}</span></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-2"><h4 className="text-xs font-bold mb-2 text-center uppercase tracking-wider" style={{ color: '#5B8C7A' }}>🇩🇪 Deutsch</h4>
-          {pairs.map((p, i) => (<button key={i} onClick={() => clickDE(i)} disabled={matched.includes(i)} className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${matched.includes(i) ? 'border-[#8B6914]/20' : sel === i ? 'bg-[#5B8C7A]/10 border-[#5B8C7A]/30 text-[#1a1a2e]' : 'bg-white border-[#E8DFD4] text-[#4a5568] hover:border-[#d4c9b8]'}`}
-            style={matched.includes(i) ? { background: 'rgba(139,105,20,0.1)' } : {}}>
-            <div className="flex items-center justify-between"><span className="font-medium">{p.german}</span><div className="flex items-center gap-1">{matched.includes(i) && <span>✅</span>}<SpeakerButton text={p.german} size="sm" /></div></div></button>))}
-        </div>
-        <div className="space-y-2"><h4 className="text-xs font-bold mb-2 text-center uppercase tracking-wider" style={{ color: '#C4956A' }}>🇬🇧 English</h4>
-          {shuffled.map((p, i) => { const isMatched = matched.some(m => pairs[m].english === p.english); return (
-            <button key={i} onClick={() => clickEN(p)} disabled={isMatched} className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${isMatched ? 'border-[#8B6914]/20' : 'bg-white border-[#E8DFD4] text-[#4a5568] hover:border-[#d4c9b8]'}`}
-              style={isMatched ? { background: 'rgba(139,105,20,0.1)' } : {}}><span className="font-medium">{p.english}</span></button>
-          );})}
+      <div className="flex justify-between items-center mb-5">
+        <h3 className="font-bold text-slate-200 text-lg">🔗 Matching Game</h3>
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-slate-500">{matched.length}/{pairs.length}</span>
+          <span className="text-sm text-slate-600">{attempts} tries</span>
         </div>
       </div>
-      {matched.length === pairs.length && <div className="text-center mt-4 p-3 rounded-xl font-bold text-sm text-white" style={{ background: 'linear-gradient(135deg, #8B6914, #C4956A)' }}>🎉 All matched!</div>}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <h4 className="text-xs font-bold text-blue-400 mb-2 text-center uppercase tracking-wider">🇩🇪 Deutsch</h4>
+          {pairs.map((pair, i) => {
+            const isMatched = matched.includes(i);
+            const isSelected = selectedGerman === i;
+            return (
+              <button key={`de-${i}`} onClick={() => handleGermanClick(i)} disabled={isMatched}
+                className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${isMatched ? 'bg-green-500/10 border-green-500/20 text-green-400' : isSelected ? 'bg-blue-500/10 border-blue-500/30 text-slate-200 shadow-lg shadow-blue-500/10' : 'glass-card-sm hover:border-slate-600/50 text-slate-300'}`}>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">{pair.german}</span>
+                  <div className="flex items-center gap-1">
+                    {isMatched && <span>✅</span>}
+                    <SpeakerButton text={pair.german} size="sm" />
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <div className="space-y-2">
+          <h4 className="text-xs font-bold text-rose-400 mb-2 text-center uppercase tracking-wider">🇬🇧 English</h4>
+          {shuffledEnglish.map((pair, i) => {
+            const isMatched = matched.some(m => pairs[m].english === pair.english);
+            return (
+              <button key={`en-${i}`} onClick={() => handleEnglishClick(pair)} disabled={isMatched}
+                className={`w-full p-3 rounded-xl border text-left text-sm transition-all ${isMatched ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'glass-card-sm hover:border-rose-500/30 text-slate-300'}`}>
+                <span className="font-medium">{pair.english}</span>
+                {isMatched && <span className="ml-2">✅</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {matched.length === pairs.length && (
+        <div className="text-center mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 font-bold text-sm">🎉 All matched! Ausgezeichnet!</div>
+      )}
     </div>
   );
 }
-function Empty({ onComplete }) { return <div className="text-center py-12"><p className="text-[#9ca3af] mb-4">Coming soon!</p><button onClick={onComplete} className="px-4 py-2 text-white rounded-xl text-sm font-semibold transition" style={{ background: 'linear-gradient(135deg, #8B6914, #C4956A)' }}>Mark Complete</button></div>; }
+
+function EmptyState({ onComplete }) {
+  return (
+    <div className="text-center py-12">
+      <div className="text-4xl mb-4">🚧</div>
+      <p className="text-slate-500 mb-4">Matching game coming soon!</p>
+      <button onClick={onComplete} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-sm hover:bg-blue-500 transition shadow-lg shadow-blue-500/20">Mark as Complete</button>
+    </div>
+  );
+}
