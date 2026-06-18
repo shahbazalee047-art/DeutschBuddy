@@ -252,13 +252,13 @@ function Dashboard() {
 
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(63, 63, 70, 0.3)' }}>
-        <div className="grid grid-cols-3 items-center h-14 px-3">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-14 px-3">
           <button onClick={() => setShowSidebar(true)}
             className="justify-self-start w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
             <IconMenu className="w-5 h-5" />
           </button>
           <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-            className="flex items-center justify-center -mr-3 gap-1 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+            className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
             <span className="text-[1.6rem] leading-none">🇩🇪</span>
             <span className="text-xl font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
