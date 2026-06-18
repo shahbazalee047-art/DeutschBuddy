@@ -1,4 +1,6 @@
-export default function DayCompleteCelebration() {
+export default function DayCompleteCelebration({ show = false, xpEarned = 0 }) {
+  if (!show) return null;
+
   const confetti = Array.from({ length: 50 }, (_, i) => ({
     id: i,
     x: Math.random() * window.innerWidth,
