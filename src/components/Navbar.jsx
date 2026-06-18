@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSearch, IconBolt, IconUser, IconSettings, IconLogOut } from './Icons';
@@ -6,7 +6,15 @@ import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSear
 export default function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool, onNotifications }) {
   const { user, profile, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClick(e) { if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false); }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [menuOpen]);
 
   async function handleSignOut() { await signOut(); navigate('/login'); }
 
@@ -76,7 +84,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
                   <IconSearch className="w-5 h-5" />
                 </button>
 
-                <div className="relative">
+                <div className="relative" ref={menuRef}>
                   <button onClick={() => setMenuOpen(!menuOpen)}
                     className="w-11 h-11 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 text-zinc-900 flex items-center justify-center text-sm font-bold hover:shadow-lg hover:shadow-lime-500/30 transition ring-2 ring-lime-400/40 active:scale-90">
                     {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}

@@ -44,6 +44,14 @@ function Dashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const profileMenuRef = useRef(null);
+
+  useEffect(() => {
+    if (!showProfileMenu) return;
+    function handleClick(e) { if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) setShowProfileMenu(false); }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [showProfileMenu]);
   const [historyStack, setHistoryStack] = useState([]);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
@@ -257,7 +265,7 @@ function Dashboard() {
               <IconBell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />
             </button>
-            <div className="relative">
+            <div className="relative" ref={profileMenuRef}>
               <button onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className="w-9 h-9 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xs font-bold ring-2 ring-lime-400/40 active:scale-90 transition-transform">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
