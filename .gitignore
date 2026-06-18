@@ -25,3 +25,8 @@ dist-ssr
 .env 
 .env.example
 
+# Generator artifacts
+src/data/*.bak
+src/data/*_header.js
+src/data/*_footer.js
+
