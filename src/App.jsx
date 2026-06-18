@@ -2,6 +2,9 @@ import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react'
 import { Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useProgress } from './hooks/useProgress';
+import a1Data from './data/a1Data';
+import a1FastTrackData from './data/a1FastTrackData';
+import a2Data from './data/a2Data';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 const ProgressDashboard = lazy(() => import('./components/ProgressDashboard'));
@@ -40,28 +43,15 @@ function Dashboard() {
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
   const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
-  const [levelData, setLevelData] = useState(null);
-  const [dataLoading, setDataLoading] = useState(true);
 
   const historyRef = useRef(historyStack);
   historyRef.current = historyStack;
 
   function handleToggleTrackMode(mode) { setLocalTrackMode(mode); setTrackMode(mode); }
 
-  useEffect(() => {
-    let cancelled = false;
-    setDataLoading(true);
-    const file = activeLevel === 'A1' && trackMode === 'fast' ? './data/a1FastTrackData.js'
-      : activeLevel === 'A1' ? './data/a1Data.js'
-      : './data/a2Data.js';
-    import(file).then(mod => {
-      if (!cancelled) { setLevelData(mod.default); setDataLoading(false); }
-    });
-    return () => { cancelled = true; };
-  }, [activeLevel, trackMode]);
-
+  const levelData = activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data);
   const unlockedWeeks = progress.unlockedWeeks || [1];
-  const visibleWeeks = levelData?.weeks || [];
+  const visibleWeeks = levelData.weeks;
 
   const handleSelectDay = (weekId, day) => {
     setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
@@ -170,7 +160,7 @@ function Dashboard() {
     };
   }, [selectedTask, selectedDay, activeView, historyStack.length, handleBackNavigation]);
 
-  if (loading || dataLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#18181B' }}>
         <div className="flex flex-col items-center gap-4 scale-in">
