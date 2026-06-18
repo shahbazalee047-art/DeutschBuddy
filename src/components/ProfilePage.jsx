@@ -1,6 +1,6 @@
 export default function ProfilePage() {
   const { user, profile, signOut } = useAuth();
-  const localData = JSON.parse(localStorage.getItem(`db_progress_${profile?.selected_pacing === 'fast' ? 'A1' : 'A1'}`) || '{}');
+  const localData = JSON.parse(localStorage.getItem(`db_progress_${profile?.selected_pacing || 'A1'}`) || '{}');
   const xp = localData.xp || 0;
 
   return (

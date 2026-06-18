@@ -19,6 +19,7 @@ import WeeklyModule from './components/WeeklyModule';
 import DailyTasks from './components/DailyTasks';
 import TaskRenderer from './components/TaskRenderer';
 import NotificationPanel from './components/NotificationPanel';
+import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
 import ProtectedRoute from './components/ProtectedRoute';
 import { DayCompleteCelebration } from './components/ConfettiEffect';
@@ -39,6 +40,7 @@ function Dashboard() {
   const [todayXP, setTodayXP] = useState(0);
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showSidebar, setShowSidebar] = useState(false);
   const [historyStack, setHistoryStack] = useState([]);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
@@ -210,6 +212,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
+      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} />}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(action) => {
         if (typeof action === 'string') {
           handleViewChange(action);
@@ -237,15 +240,16 @@ function Dashboard() {
             <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-base font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-lime-500/10 border border-lime-500/20 text-lime-400">⚡{progress.xp}</span>
             <button onClick={() => setShowNotifications(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
               <span className="text-lg">🔔</span>
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />
             </button>
-            <button onClick={() => { setActiveView('profile'); setSelectedDay(null); setSelectedTask(null); }}
-              className="w-9 h-9 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xs font-bold border-2 border-zinc-700 active:scale-90 transition-transform">
-              {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
+            <button onClick={() => setShowSidebar(true)}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
+              <span className="text-xl">☰</span>
             </button>
           </div>
         </div>
