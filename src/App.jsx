@@ -45,7 +45,16 @@ function Dashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [notifVersion, setNotifVersion] = useState(0);
   const profileMenuRef = useRef(null);
+
+  const hasUnreadNotifications = useMemo(() => {
+    try {
+      const readIds = new Set(JSON.parse(localStorage.getItem('db_notif_read') || '[]'));
+      const knownIds = [1, 2, 5];
+      return knownIds.some(id => !readIds.has(id));
+    } catch { return false; }
+  }, [notifVersion]);
 
   useEffect(() => {
     if (!showProfileMenu) return;
@@ -234,7 +243,7 @@ function Dashboard() {
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
-      {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(action) => {
+      {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => { setShowNotifications(false); setNotifVersion(v => v + 1); }} onNavigate={(action) => {
         if (typeof action === 'string') {
           handleViewChange(action);
         } else if (action.type === 'view') {
@@ -247,7 +256,7 @@ function Dashboard() {
 
       {/* Desktop Navbar */}
       <div className="hidden lg:block">
-        <Navbar activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} />
+        <Navbar activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} hasUnreadNotifications={hasUnreadNotifications} />
       </div>
 
       {/* Mobile Header */}
@@ -267,7 +276,7 @@ function Dashboard() {
             <button onClick={() => setShowNotifications(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
               <IconBell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />
+              {hasUnreadNotifications && <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />}
             </button>
             <div className="relative" ref={profileMenuRef}>
               <button onClick={() => setShowProfileMenu(!showProfileMenu)}

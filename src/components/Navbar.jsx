@@ -3,7 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSearch, IconBolt, IconUser, IconSettings, IconLogOut } from './Icons';
 
-export default function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool, onNotifications }) {
+export default function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool, onNotifications, hasUnreadNotifications }) {
   const { user, profile, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -76,7 +76,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
                 <button onClick={onNotifications}
                   className="flex items-center justify-center w-11 h-11 rounded-xl text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
                   <IconBell className="w-6 h-6" />
-                  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error animate-cyan-pulse" />
+                  {hasUnreadNotifications && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error animate-cyan-pulse" />}
                 </button>
 
                 <button onClick={onQuickTool}
