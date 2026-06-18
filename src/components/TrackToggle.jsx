@@ -8,13 +8,35 @@ export default function TrackToggle({ mode, onToggle }) {
   const PlayIcon = isSpeaking ? IconPlayFilled : IconPlay;
 
   return (
-    <button
-      onClick={onToggle}
-      disabled={!mode}
-      className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${isStandard ? 'bg-sage-400 text-forest-900' : 'bg-sky-400 text-forest-900'} ${isSpeaking ? 'animate-pulse' : ''}`}
-    >
-      <PlayIcon className="w-5 h-5" />
-      <span className="text-sm font-medium">{isStandard ? 'Standard' : 'Fast'}</span>
-    </button>
+    <div className="relative flex items-center bg-forest-800 rounded-xl p-0.5 border border-border">
+      <div
+        className="absolute inset-y-0.5 w-1/2 rounded-[10px] transition-all duration-300 ease-out"
+        style={{
+          background: 'linear-gradient(135deg, #7FB069, #6BA3BE)',
+          left: isStandard ? '2px' : '50%',
+          right: isStandard ? '50%' : '2px',
+        }}
+      />
+      <button
+        onClick={() => onToggle && onToggle('standard')}
+        disabled={!mode}
+        className={`relative z-10 flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] text-sm font-medium transition-all duration-300 ${
+          isStandard ? 'text-forest-900' : 'text-cream-400 hover:text-cream-200'
+        }`}
+      >
+        <IconPlay className="w-4 h-4" />
+        Standard
+      </button>
+      <button
+        onClick={() => onToggle && onToggle('fast')}
+        disabled={!mode}
+        className={`relative z-10 flex items-center justify-center gap-1.5 px-4 py-2 rounded-[10px] text-sm font-medium transition-all duration-300 ${
+          !isStandard ? 'text-forest-900' : 'text-cream-400 hover:text-cream-200'
+        }`}
+      >
+        <IconPlayFilled className="w-4 h-4" />
+        Fast
+      </button>
+    </div>
   );
 }
