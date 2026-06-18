@@ -56,8 +56,7 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
   return (
     <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] shadow-2xl slide-in overflow-y-auto" onClick={e => e.stopPropagation()}
-        style={{ background: '#0D1A14', borderRight: '1px solid rgba(36, 61, 47, 0.3)' }}>
+      <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] shadow-2xl slide-in overflow-y-auto bg-forest-900 border-r border-border/30" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-border">
           <Link to="/" onClick={() => { onViewChange('dashboard'); onClose(); }}
             className="flex items-center gap-2">

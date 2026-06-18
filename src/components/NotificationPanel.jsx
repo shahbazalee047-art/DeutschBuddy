@@ -2,9 +2,9 @@ import { useState, useMemo, useCallback } from 'react';
 import { IconClock, IconTrophy, IconChart, IconArrowRight, IconClipboard, IconFire, IconSparkles } from './Icons';
 
 const staticNotifications = [
-  { id: 1, type: 'reminder', icon: IconClock, title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: '#F59E0B', action: { type: 'view', target: 'dashboard' } },
-  { id: 2, type: 'achievement', icon: IconTrophy, title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: '#A3E635', action: { type: 'view', target: 'badges' } },
-  { id: 5, type: 'weekly', icon: IconChart, title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: '#06B6D4', action: { type: 'view', target: 'progress' } },
+  { id: 1, type: 'reminder', icon: IconClock, title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: '#D4A574', action: { type: 'view', target: 'dashboard' } },
+  { id: 2, type: 'achievement', icon: IconTrophy, title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: '#7FB069', action: { type: 'view', target: 'badges' } },
+  { id: 5, type: 'weekly', icon: IconChart, title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: '#6BA3BE', action: { type: 'view', target: 'progress' } },
 ];
 
 function loadReadIds() {
@@ -50,7 +50,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-continue', type: 'continue', icon: IconArrowRight,
         title: `Continue: ${nextDay.weekTitle}`,
         message: `Week ${nextDay.weekId}, Day ${nextDay.day} is waiting for you`,
-        time: 'Just now', color: '#22C55E',
+        time: 'Just now', color: '#7FB069',
         action: { type: 'day', weekId: nextDay.weekId, day: nextDay.day },
       });
     }
@@ -71,7 +71,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-pending', type: 'pending', icon: IconClipboard,
         title: `${totalPending} ${totalPending === 1 ? 'task' : 'tasks'} remaining`,
         message: `Across ${pendingDays.length} ${pendingDays.length === 1 ? 'day' : 'days'}`,
-        time: 'Just now', color: '#06B6D4',
+        time: 'Just now', color: '#6BA3BE',
         action: { type: 'day', weekId: pendingDays[0].weekId, day: pendingDays[0].day },
       });
     }
@@ -82,7 +82,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-streak', type: 'achievement', icon: IconFire,
         title: `${streak}-Day Streak!`,
         message: `You're on fire! Keep your ${streak}-day streak going.`,
-        time: 'Just now', color: '#F59E0B',
+        time: 'Just now', color: '#D4A574',
         action: { type: 'view', target: 'progress' },
       });
     }
@@ -96,7 +96,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
           id: 'dyn-reminder', type: 'reminder', icon: IconClock,
           title: 'Time to study!',
           message: 'You haven\'t studied today. Keep your streak alive!',
-          time: 'Just now', color: '#F59E0B',
+          time: 'Just now', color: '#D4A574',
           action: { type: 'view', target: 'dashboard' },
         });
       }
@@ -136,42 +136,41 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-md h-full shadow-2xl slide-in overflow-hidden" onClick={e => e.stopPropagation()}
-        style={{ background: '#18181B', borderLeft: '1px solid rgba(63, 63, 70, 0.3)' }}>
-        <div className="flex items-center justify-between p-4 border-b border-zinc-700/50">
+      <div className="relative w-full max-w-md h-full shadow-2xl slide-in overflow-hidden bg-forest-800 border-l border-border/30" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Notifications</h3>
+            <h3 className="font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>Notifications</h3>
             {unreadCount > 0 && <span className="text-[10px] font-bold bg-error text-white px-2 py-0.5 rounded-full">{unreadCount}</span>}
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleMarkAllRead} className="text-[12px] text-cyan-400 font-semibold hover:text-cyan-300 transition">Mark all as read</button>
-            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 flex items-center justify-center text-zinc-400 transition text-sm">✕</button>
+            <button onClick={handleMarkAllRead} className="text-[12px] text-sky-400 font-semibold hover:text-sky-300 transition">Mark all as read</button>
+            <button onClick={onClose} className="w-8 h-8 rounded-lg bg-forest-700/50 hover:bg-forest-700 flex items-center justify-center text-cream-400 transition text-sm">✕</button>
           </div>
         </div>
 
         <div className="overflow-y-auto h-[calc(100%-64px)]">
           {allNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-              <IconSparkles className="w-12 h-12 text-lime-400 mb-4" />
-              <p className="text-zinc-400 text-sm font-medium">No notifications yet!</p>
-              <p className="text-zinc-600 text-xs mt-1">Complete lessons to earn achievements.</p>
+              <IconSparkles className="w-12 h-12 text-sage-400 mb-4" />
+              <p className="text-cream-400 text-sm font-medium">No notifications yet!</p>
+              <p className="text-cream-500 text-xs mt-1">Complete lessons to earn achievements.</p>
             </div>
           ) : (
             allNotifications.map(n => (
               <button key={n.id} onClick={() => handleNotificationClick(n)}
-                className={`w-full text-left p-4 border-b border-zinc-700/30 transition-all hover:bg-zinc-800/50 active:scale-[0.99] ${
-                  !n.read ? 'bg-zinc-800/30' : ''
+                className={`w-full text-left p-4 border-b border-border/30 transition-all hover:bg-forest-800/50 active:scale-[0.99] ${
+                  !n.read ? 'bg-forest-800/30' : ''
                 }`} style={!n.read ? { borderLeft: `4px solid ${n.color}` } : {}}>
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: `${n.color}15` }}>{typeof n.icon === 'function' ? <n.icon className="w-5 h-5" style={{ color: n.color }} /> : <span className="text-lg">{n.icon}</span>}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-[13px] font-semibold text-zinc-200 truncate">{n.title}</h4>
-                      {!n.read && <div className="w-2 h-2 rounded-full bg-cyan-500 flex-shrink-0 animate-cyan-pulse" />}
+                      <h4 className="text-[13px] font-semibold text-cream-200 truncate">{n.title}</h4>
+                      {!n.read && <div className="w-2 h-2 rounded-full bg-sky-400 flex-shrink-0" />}
                     </div>
-                    <p className="text-[12px] text-zinc-400 mt-0.5">{n.message}</p>
-                    <p className="text-[11px] text-zinc-600 mt-1">{formatTime(n.time)}</p>
+                    <p className="text-[12px] text-cream-400 mt-0.5">{n.message}</p>
+                    <p className="text-[11px] text-cream-500 mt-1">{formatTime(n.time)}</p>
                   </div>
                 </div>
               </button>

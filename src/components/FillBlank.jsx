@@ -19,7 +19,7 @@ export default function FillBlank({ content, onComplete }) {
         </div>
         <SpeakerButton text={s.text.replace('___', '...')} size="md" />
       </div>
-      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-zinc-900`} style={{ background: ans.trim().toLowerCase() === s.answer.toLowerCase() ? '#5CB85C' : '#D4A574' }}>{ans.trim().toLowerCase() === s.answer.toLowerCase() ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{s.answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
+      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-forest-900`} style={{ background: ans.trim().toLowerCase() === s.answer.toLowerCase() ? '#5CB85C' : '#D4A574' }}>{ans.trim().toLowerCase() === s.answer.toLowerCase() ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{s.answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
     </div>
   );
 }

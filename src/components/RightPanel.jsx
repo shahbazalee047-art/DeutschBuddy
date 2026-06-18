@@ -34,7 +34,7 @@ export default function RightPanel({ progress, streak }) {
             <span>Next: <nextMilestone.icon className="w-3.5 h-3.5 inline-block align-text-bottom text-sage-400" /> {nextMilestone.label}</span>
             <span>{xp}/{nextMilestone.target}</span>
           </div>
-          <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#1B3429' }}>
+          <div className="w-full h-2 rounded-full overflow-hidden bg-forest-700">
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min((xp / nextMilestone.target) * 100, 100)}%`, background: 'linear-gradient(90deg, #7FB069, #D4A574)' }} />
           </div>
         </div>

@@ -27,7 +27,7 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
   ];
 
   return (
-    <header className="sticky top-0 z-50" style={{ background: 'rgba(13, 26, 20, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(36, 61, 47, 0.3)' }}>
+    <header className="sticky top-0 z-50 bg-forest-900/95 backdrop-blur-xl border-b border-border/30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center h-16">
           {/* Mobile: centered logo */}
@@ -76,7 +76,7 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
                 <button onClick={onNotifications}
                   className="flex items-center justify-center w-11 h-11 rounded-xl text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative">
                   <IconBell className="w-6 h-6" />
-                  {hasUnreadNotifications && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error animate-cyan-pulse" />}
+                  {hasUnreadNotifications && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error" />}
                 </button>
 
                 <button onClick={onQuickTool}
@@ -90,7 +90,7 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
                     {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
                   </button>
                   {menuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border" style={{ background: '#192D22' }}>
+                    <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border bg-card">
                       <div className="px-4 py-3 border-b border-border">
                         <p className="text-sm font-semibold text-cream-200 truncate">{profile?.full_name || 'Learner'}</p>
                         <p className="text-[11px] text-cream-500 truncate">{user?.email}</p>

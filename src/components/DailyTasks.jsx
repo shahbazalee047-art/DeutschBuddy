@@ -47,7 +47,7 @@ const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], on
               style={done ? { background: 'rgba(127, 176, 105, 0.05)' } : {}}>
               <div className="flex items-center gap-4">
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${
-                  done ? 'text-zinc-900' : 'text-cream-400 bg-forest-800'
+                  done ? 'text-forest-900' : 'text-cream-400 bg-forest-800'
                 }`} style={done ? { background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' } : {}}>
                   {(() => { const IconComp = done ? IconCheck : (typeIcons[task.type] || IconBook); return <IconComp className="w-5 h-5" />; })()}
                 </div>
@@ -56,7 +56,7 @@ const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], on
                   <p className="text-[14px] font-semibold text-cream-200 mt-0.5 truncate">{task.title}</p>
                   <p className="text-[12px] text-cream-400 mt-0.5 truncate">{task.description}</p>
                 </div>
-                <span className="text-[12px] font-bold px-2.5 py-1 rounded-full flex-shrink-0" style={done ? { background: 'rgba(127, 176, 105, 0.15)', color: '#7FB069' } : { background: '#1B3429', color: '#9E9282' }}>
+                <span className={`text-[12px] font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${done ? '' : 'bg-forest-700 text-cream-400'}`} style={done ? { background: 'rgba(127, 176, 105, 0.15)', color: '#7FB069' } : {}}>
                   {done ? '✓' : `+${task.xp}`}
                 </span>
               </div>

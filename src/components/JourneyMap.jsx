@@ -34,7 +34,7 @@ export default function JourneyMap({ currentWeek, weeks }) {
             <div key={week.id} className="flex items-center gap-3">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 z-10 ${
-                  week.completed ? 'bg-sage-400 text-forest-900' : 'bg-[#162A20] border border-sage-400/20 text-cream-500'
+                  week.completed ? 'bg-sage-400 text-forest-900' : 'bg-surface-raised border border-sage-400/20 text-cream-500'
                 } ${currentWeek === week.id ? 'ring-2 ring-amber-400/30' : ''}`}
               >
                 {week.completed ? (
@@ -68,7 +68,7 @@ export default function JourneyMap({ currentWeek, weeks }) {
           <span className="text-cream-500">Weekly Progress</span>
           <span className="text-cream-200">{progress}%</span>
         </div>
-        <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#1B3429' }}>
+        <div className="w-full h-2 rounded-full overflow-hidden bg-forest-700">
           <div
             className="h-full rounded-full transition-all duration-500"
             style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #7FB069, #D4A574)' }}

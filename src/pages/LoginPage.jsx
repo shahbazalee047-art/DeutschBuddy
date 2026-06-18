@@ -21,7 +21,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0D1A14' }}>
+    <div className="min-h-screen flex flex-col bg-forest-900">
       <div className="flex-1 flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-md">
           <div className="flex items-center justify-center gap-2 mb-8">
@@ -35,7 +35,7 @@ export default function LoginPage() {
           <h1 className="text-3xl font-bold text-cream-100 mb-2 text-center" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.5px' }}>Welcome back!</h1>
           <p className="text-cream-500 text-center mb-8" style={{ fontSize: '16px' }}>Continue your German learning journey</p>
 
-          <div className="rounded-2xl p-8 border border-border" style={{ background: '#192D22' }}>
+          <div className="rounded-2xl p-8 border border-border bg-card">
             {error && <div className="bg-error/10 border border-error/20 rounded-xl p-3 mb-5 text-sm text-error font-medium">{error}</div>}
 
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -50,7 +50,7 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 rounded border-zinc-600" style={{ accentColor: '#7FB069' }} />
+                  <input type="checkbox" className="w-4 h-4 rounded border-cream-500" style={{ accentColor: '#7FB069' }} />
                   <span className="text-[13px] text-cream-400">Remember me</span>
                 </label>
                 <Link to="/forgot-password" className="text-[13px] font-medium text-sky-400 hover:text-sky-300 transition">Forgot password?</Link>

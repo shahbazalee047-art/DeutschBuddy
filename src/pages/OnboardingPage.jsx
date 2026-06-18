@@ -42,7 +42,7 @@ export default function OnboardingPage() {
 
   if (showLevelSelect) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: '#0D1A14' }}>
+      <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-forest-900">
         <h2 className="text-3xl font-bold text-cream-100 mb-2 text-center" style={{ fontFamily: 'DM Serif Display, serif' }}>Select Your Starting Level</h2>
         <p className="text-cream-500 mb-8 text-center" style={{ fontSize: '16px' }}>Choose based on your current German proficiency</p>
 
@@ -82,7 +82,7 @@ export default function OnboardingPage() {
   const slide = slides[currentSlide];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: '#0D1A14' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12 bg-forest-900">
       <div className="w-full max-w-md text-center">
         <slide.icon className="w-24 h-24 mx-auto mb-8 text-sage-400 animate-float" />
         <h1 className="text-3xl font-bold text-cream-100 mb-4" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.5px' }}>{slide.title}</h1>
@@ -90,8 +90,8 @@ export default function OnboardingPage() {
 
         <div className="flex justify-center gap-2 mb-8">
           {slides.map((_, i) => (
-            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? 'w-8' : ''}`}
-              style={{ background: i === currentSlide ? slide.accent : '#3F3F46' }} />
+            <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${i === currentSlide ? 'w-8' : 'bg-forest-700'}`}
+              style={i === currentSlide ? { background: slide.accent } : {}} />
           ))}
         </div>
 

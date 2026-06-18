@@ -21,7 +21,7 @@ export default function Quiz({ content, onComplete }) {
           );})}
         </div>
       </div>
-      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-zinc-900`} style={{ background: sel === q.correct ? '#5CB85C' : '#D4A574' }}>{sel === q.correct ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : 'Fast richtig! Almost there!'}</div>}
+      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-forest-900`} style={{ background: sel === q.correct ? '#5CB85C' : '#D4A574' }}>{sel === q.correct ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : 'Fast richtig! Almost there!'}</div>}
     </div>
   );
 }

@@ -13,8 +13,8 @@ export default function Flashcards({ content, onComplete }) {
       <div onClick={() => setFlipped(!flipped)} className="relative w-full max-w-md mx-auto cursor-pointer" style={{ perspective: '1000px' }}>
         <div className="w-full min-h-[240px] rounded-3xl transition-all duration-500" style={{ transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
           <div className="absolute inset-0 w-full min-h-[240px] rounded-3xl flex flex-col items-center justify-center p-6" style={{ background: 'linear-gradient(135deg, #7FB069, #D4A574)', backfaceVisibility: 'hidden', boxShadow: '0 8px 32px rgba(127, 176, 105, 0.3)' }}>
-            <div className="flex items-center gap-3"><div className="text-4xl font-bold text-zinc-900">{card.front}</div><SpeakerButton text={card.front} size="lg" className="bg-zinc-900/20 text-zinc-900 hover:bg-zinc-900/30" /></div>
-            <div className="text-sm mt-4 text-zinc-800/60">Click to flip</div>
+            <div className="flex items-center gap-3"><div className="text-4xl font-bold text-forest-900">{card.front}</div><SpeakerButton text={card.front} size="lg" className="bg-forest-900/20 text-forest-900 hover:bg-forest-900/30" /></div>
+            <div className="text-sm mt-4 text-forest-800/60">Click to flip</div>
           </div>
           <div className="absolute inset-0 w-full min-h-[240px] rounded-3xl glass-card flex flex-col items-center justify-center p-6" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
             <div className="flex items-center gap-2 mb-2"><div className="text-xl font-bold text-cream-100">{card.front}</div><SpeakerButton text={card.front} size="sm" /></div>

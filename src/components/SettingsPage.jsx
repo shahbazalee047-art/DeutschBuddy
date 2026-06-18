@@ -1,41 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useTheme } from '../contexts/ThemeContext';
 import { IconUser, IconBell, IconLock, IconMoon, IconSun, IconLogOut } from './Icons';
 
 export default function SettingsPage({ profile, user, onSignOut }) {
-  const [darkMode, setDarkMode] = useState(() => {
-    return localStorage.getItem('db_dark_mode') !== 'false';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('db_dark_mode', darkMode);
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
+  const { toggleTheme, isDark } = useTheme();
 
   return (
     <div className="fade-in max-w-2xl mx-auto space-y-5">
-      <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>Settings</h1>
+      <h1 className="text-3xl font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.5px' }}>Settings</h1>
 
       <div className="glass-card p-5 space-y-4">
-        <div className="flex items-center gap-4 pb-4 border-b border-zinc-700/30">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xl font-bold ring-2 ring-lime-400/40">
+        <div className="flex items-center gap-4 pb-4 border-b border-border">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-sage-400 to-amber-400 flex items-center justify-center text-forest-900 text-xl font-bold ring-2 ring-sage-400/40">
             {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div>
-            <p className="text-lg font-bold text-zinc-100">{profile?.full_name || 'Learner'}</p>
-            <p className="text-sm text-zinc-500">{user?.email}</p>
+            <p className="text-lg font-bold text-cream-100">{profile?.full_name || 'Learner'}</p>
+            <p className="text-sm text-cream-500">{user?.email}</p>
           </div>
         </div>
 
-        <div className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-zinc-800/50 transition cursor-pointer" onClick={() => setDarkMode(!darkMode)}>
+        <div className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-forest-800/50 transition cursor-pointer" onClick={toggleTheme}>
           <div className="flex items-center gap-3">
-            {darkMode ? <IconMoon className="w-5 h-5 text-zinc-400" /> : <IconSun className="w-5 h-5 text-zinc-400" />}
+            {isDark ? <IconMoon className="w-5 h-5 text-cream-400" /> : <IconSun className="w-5 h-5 text-cream-400" />}
             <div>
-              <p className="text-sm font-semibold text-zinc-200">Dark Mode</p>
-              <p className="text-[12px] text-zinc-500">{darkMode ? 'On' : 'Off'}</p>
+              <p className="text-sm font-semibold text-cream-200">Dark Mode</p>
+              <p className="text-[12px] text-cream-500">{isDark ? 'On' : 'Off'}</p>
             </div>
           </div>
-          <div className={`w-12 h-7 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${darkMode ? 'bg-lime-500/40 border border-lime-500/50 justify-end' : 'bg-zinc-700 border border-zinc-600 justify-start'}`}>
-            <div className={`w-5 h-5 rounded-full shadow transition-colors ${darkMode ? 'bg-lime-400' : 'bg-zinc-400'}`} />
+          <div className={`w-12 h-7 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${isDark ? 'bg-sage-400/40 border border-sage-400/50 justify-end' : 'bg-forest-700 border border-border justify-start'}`}>
+            <div className={`w-5 h-5 rounded-full shadow transition-colors ${isDark ? 'bg-sage-400' : 'bg-cream-400'}`} />
           </div>
         </div>
 
@@ -44,15 +37,15 @@ export default function SettingsPage({ profile, user, onSignOut }) {
           { icon: IconBell, label: 'Notifications', desc: 'Manage your notification preferences' },
           { icon: IconLock, label: 'Privacy & Security', desc: 'Password and account security' },
         ].map((item, i) => (
-          <div key={i} className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-zinc-800/50 transition cursor-pointer">
+          <div key={i} className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-forest-800/50 transition cursor-pointer">
             <div className="flex items-center gap-3">
-              <item.icon className="w-5 h-5 text-zinc-400" />
+              <item.icon className="w-5 h-5 text-cream-400" />
               <div>
-                <p className="text-sm font-semibold text-zinc-200">{item.label}</p>
-                <p className="text-[12px] text-zinc-500">{item.desc}</p>
+                <p className="text-sm font-semibold text-cream-200">{item.label}</p>
+                <p className="text-[12px] text-cream-500">{item.desc}</p>
               </div>
             </div>
-            <span className="text-zinc-600 text-sm">→</span>
+            <span className="text-cream-500 text-sm">→</span>
           </div>
         ))}
       </div>

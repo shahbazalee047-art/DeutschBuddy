@@ -22,7 +22,7 @@ export default function Matching({ content, onComplete }) {
           );})}
         </div>
       </div>
-      {matched.length === pairs.length && <div className="text-center mt-4 p-3 rounded-2xl font-bold text-sm text-zinc-900 flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #7FB069, #D4A574)' }}><IconSparkles className="w-4 h-4" /> All matched! Ausgezeichnet!</div>}
+      {matched.length === pairs.length && <div className="text-center mt-4 p-3 rounded-2xl font-bold text-sm text-forest-900 flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #7FB069, #D4A574)' }}><IconSparkles className="w-4 h-4" /> All matched! Ausgezeichnet!</div>}
     </div>
   );
 }

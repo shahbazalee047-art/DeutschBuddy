@@ -17,7 +17,7 @@ export default function Scramble({ content, onComplete }) {
         <div className="flex items-center justify-center gap-3 mb-3"><input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !show && submit()} disabled={show} placeholder="Type the word..." className="w-56 paper-input text-center text-lg font-medium" /><SpeakerButton text={w.answer} size="md" /></div>
         {!show && <button onClick={submit} className="btn-primary px-6 active:scale-95">Check</button>}
       </div>
-      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-zinc-900`} style={{ background: input.trim().toLowerCase() === w.answer.toLowerCase() ? '#5CB85C' : '#D4A574' }}>{input.trim().toLowerCase() === w.answer.toLowerCase() ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{w.answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
+      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-forest-900`} style={{ background: input.trim().toLowerCase() === w.answer.toLowerCase() ? '#5CB85C' : '#D4A574' }}>{input.trim().toLowerCase() === w.answer.toLowerCase() ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{w.answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
     </div>
   );
 }

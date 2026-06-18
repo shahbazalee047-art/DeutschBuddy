@@ -63,7 +63,7 @@ export default function QuickGermanTool({ onClose }) {
       <input
         type="text"
         placeholder="Search or input a verb..."
-        className="w-full p-3 rounded-xl border border-sage-400/20 bg-[#0D1A14]/80 text-cream-100 placeholder:text-cream-500/60 focus:outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400/50 transition-all duration-200"
+        className="w-full p-3 rounded-xl border border-sage-400/20 bg-forest-900/80 text-cream-100 placeholder:text-cream-500/60 focus:outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400/50 transition-all duration-200"
         onChange={handleVerbSearch}
       />
       <div className="mt-4 space-y-2">

@@ -14,7 +14,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold ${
               isComplete
-                ? 'text-zinc-900 shadow-md bg-gradient-to-br from-sage-400 to-sky-400'
+                ? 'text-forest-900 shadow-md bg-gradient-to-br from-sage-400 to-sky-400'
                 : isUnlocked
                   ? 'text-sage-400 border border-sage-400/20 bg-sage-400/10'
                   : 'text-cream-500 bg-forest-800'

@@ -159,39 +159,39 @@ export default function CommunitySection({ user }) {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <IconChat className="w-7 h-7 text-lime-400" />
-            <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>Community</h1>
+            <IconChat className="w-7 h-7 text-sage-400" />
+            <h1 className="text-3xl font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.5px' }}>Community</h1>
           </div>
-          <p className="text-zinc-500 text-sm mt-1">Discuss, ask questions, and share tips</p>
+          <p className="text-cream-500 text-sm mt-1">Discuss, ask questions, and share tips</p>
           {usingFallback && <span className="text-[11px] text-amber-400">Showing sample posts (DB not connected)</span>}
         </div>
         <button onClick={() => setShowCreateModal(true)}
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-900 transition-all hover:scale-110 active:scale-95" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }}><IconPlus className="w-5 h-5" /></button>
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-forest-900 transition-all hover:scale-110 active:scale-95" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}><IconPlus className="w-5 h-5" /></button>
       </div>
 
       {/* Create Post Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowCreateModal(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg rounded-2xl p-6 shadow-2xl scale-in" onClick={e => e.stopPropagation()} style={{ background: '#1E1E24', border: '1px solid rgba(63, 63, 70, 0.5)' }}>
-            <h2 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Create Post</h2>
+          <div className="relative w-full max-w-lg rounded-2xl p-6 shadow-2xl scale-in bg-card border border-border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-cream-100 mb-4" style={{ fontFamily: 'DM Serif Display, serif' }}>Create Post</h2>
             <form onSubmit={handleCreatePost} className="space-y-4">
               <input placeholder="Title" value={createForm.title} onChange={e => setCreateForm(p => ({ ...p, title: e.target.value }))}
-                className="w-full h-12 px-4 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-lime-500/50" required />
+                className="w-full h-12 px-4 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50" required />
               <textarea placeholder="What's on your mind?" value={createForm.content} onChange={e => setCreateForm(p => ({ ...p, content: e.target.value }))}
-                className="w-full h-32 px-4 py-3 rounded-xl bg-zinc-800 border border-zinc-700 text-zinc-200 text-sm focus:outline-none focus:border-lime-500/50 resize-none" required />
+                className="w-full h-32 px-4 py-3 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50 resize-none" required />
               <div className="flex gap-2">
                 {categories.filter(c => c !== 'All').map(cat => (
                   <button key={cat} type="button" onClick={() => setCreateForm(p => ({ ...p, category: cat }))}
                     className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-                      createForm.category === cat ? 'bg-lime-500 text-zinc-900' : 'bg-zinc-800 text-zinc-400 border border-zinc-700'
+                      createForm.category === cat ? 'bg-sage-400 text-forest-900' : 'bg-forest-800 text-cream-400 border border-border'
                     }`}>{cat}</button>
                 ))}
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreateModal(false)} className="px-6 py-2.5 rounded-xl text-sm font-semibold text-zinc-400 hover:text-zinc-200 transition">Cancel</button>
+                <button type="button" onClick={() => setShowCreateModal(false)} className="px-6 py-2.5 rounded-xl text-sm font-semibold text-cream-400 hover:text-cream-200 transition">Cancel</button>
                 <button type="submit" disabled={submitting}
-                  className="px-6 py-2.5 rounded-xl text-sm font-bold text-zinc-900 transition-all active:scale-95 disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }}>
+                  className="px-6 py-2.5 rounded-xl text-sm font-bold text-forest-900 transition-all active:scale-95 disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>
                   {submitting ? 'Posting...' : 'Post'}
                 </button>
               </div>
@@ -205,7 +205,7 @@ export default function CommunitySection({ user }) {
         {categories.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all active:scale-95 ${
-              activeCategory === cat ? 'text-zinc-900 bg-lime-500 shadow-md shadow-lime-500/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200'
+              activeCategory === cat ? 'text-forest-900 bg-sage-400 shadow-md shadow-sage-400/20' : 'bg-forest-800 text-cream-400 border border-border/50 hover:text-cream-200'
             }`}>
             {cat}
           </button>
@@ -229,42 +229,42 @@ export default function CommunitySection({ user }) {
         </div>
       ) : filtered.length === 0 ? (
         <div className="glass-card p-8 text-center">
-          <IconSearch className="w-12 h-12 mx-auto mb-3 text-zinc-500" />
-          <p className="text-zinc-400 font-medium">No posts in this category yet</p>
-          <p className="text-zinc-600 text-sm mt-1">Be the first to start a discussion!</p>
+          <IconSearch className="w-12 h-12 mx-auto mb-3 text-cream-500" />
+          <p className="text-cream-400 font-medium">No posts in this category yet</p>
+          <p className="text-cream-500 text-sm mt-1">Be the first to start a discussion!</p>
         </div>
       ) : (
         filtered.map(post => (
-          <div key={post.id} className="glass-card p-5 hover:shadow-lg transition-all hover:border-lime-500/20">
+          <div key={post.id} className="glass-card p-5 hover:shadow-lg transition-all hover:border-sage-400/20">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-zinc-900" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }}>{post.avatar}</div>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-forest-900" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>{post.avatar}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-semibold text-zinc-200 truncate">{post.user}</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-lime-400 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)' }}>{post.level}</span>
+                  <span className="text-[13px] font-semibold text-cream-200 truncate">{post.user}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10">{post.level}</span>
                 </div>
-                <span className="text-[11px] text-zinc-600">{formatTime(post.time)}</span>
+                <span className="text-[11px] text-cream-500">{formatTime(post.time)}</span>
               </div>
             </div>
 
             <div className="mb-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-cyan-500/20" style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06B6D4' }}>{post.category}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-400/20 text-sky-400" style={{ background: 'rgba(107, 163, 190, 0.1)' }}>{post.category}</span>
             </div>
 
-            <h3 className="text-[14px] font-bold text-zinc-200 mb-2">{post.title}</h3>
-            <p className="text-[13px] text-zinc-400 line-clamp-2">{post.content}</p>
+            <h3 className="text-[14px] font-bold text-cream-200 mb-2">{post.title}</h3>
+            <p className="text-[13px] text-cream-400 line-clamp-2">{post.content}</p>
 
-            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-zinc-700/50">
+            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/50">
               <button onClick={() => handleUpvote(post.id)}
                 className={`flex items-center gap-1 text-[12px] transition active:scale-90 ${
-                  upvotedIds.has(post.id) ? 'text-lime-400' : 'text-zinc-500 hover:text-lime-400'
+                  upvotedIds.has(post.id) ? 'text-sage-400' : 'text-cream-500 hover:text-sage-400'
                 }`}>
                 <IconArrowUp className="w-3.5 h-3.5" /><span>{post.upvotes}</span>
               </button>
-              <button className="flex items-center gap-1 text-[12px] text-zinc-500 hover:text-cyan-400 transition active:scale-90">
+              <button className="flex items-center gap-1 text-[12px] text-cream-500 hover:text-sky-400 transition active:scale-90">
                 <IconMessageCircle className="w-3.5 h-3.5" /><span>{post.comments}</span>
               </button>
-              {post.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-lime-400 border border-lime-500/20" style={{ background: 'rgba(34, 197, 94, 0.1)' }}><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
+              {post.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10"><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
             </div>
           </div>
         ))

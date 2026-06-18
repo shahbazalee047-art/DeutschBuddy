@@ -12,7 +12,7 @@ export default function Writing({ content, onComplete }) {
         <textarea value={text} onChange={e => setText(e.target.value)} disabled={done} placeholder="Write your German text here..." rows={4} className="w-full px-4 py-3 paper-input resize-none" />
         {!done && <button onClick={submit} disabled={text.trim().length === 0} className="mt-4 btn-primary px-6 disabled:opacity-40 active:scale-95">Submit Writing</button>}
       </div>
-      {done && <div className="text-center p-3 rounded-2xl text-sm font-semibold text-zinc-900 mt-4 flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #7FB069, #D4A574)' }}><IconFeather className="w-4 h-4" /> Gut geschrieben! Keep practicing!</div>}
+      {done && <div className="text-center p-3 rounded-2xl text-sm font-semibold text-forest-900 mt-4 flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(135deg, #7FB069, #D4A574)' }}><IconFeather className="w-4 h-4" /> Gut geschrieben! Keep practicing!</div>}
     </div>
   );
 }

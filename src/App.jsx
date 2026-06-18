@@ -29,10 +29,10 @@ function Dashboard() {
   // Safety check for auth state
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#18181B' }}>
+      <div className="min-h-screen flex items-center justify-center p-4 bg-forest-900">
         <div className="text-center">
           <div className="text-5xl mb-4">🇩🇪</div>
-          <p className="text-zinc-400 text-sm">Redirecting to login...</p>
+          <p className="text-cream-400 text-sm">Redirecting to login...</p>
         </div>
       </div>
     );
@@ -204,10 +204,10 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0D1A14' }}>
+      <div className="min-h-screen flex items-center justify-center bg-forest-900">
         <div className="flex flex-col items-center gap-4 scale-in">
           <div className="text-5xl animate-float">🇩🇪</div>
-          <div className="w-10 h-10 border-3 rounded-full animate-spin" style={{ borderColor: '#1B3429', borderTopColor: '#7FB069' }} />
+          <div className="w-10 h-10 border-3 border-forest-700 border-t-sage-400 rounded-full animate-spin" />
           <p className="text-cream-400 text-sm font-medium">Loading DeutschBuddy...</p>
         </div>
       </div>
@@ -215,7 +215,7 @@ function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#0D1A14' }}>
+      <div className="min-h-screen bg-forest-900">
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress?.xp || 0} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
@@ -236,7 +236,7 @@ function Dashboard() {
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(13, 26, 20, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(36, 61, 47, 0.4)' }}>
+      <div className="lg:hidden sticky top-0 z-40 bg-forest-900/95 backdrop-blur-xl border-b border-border/40">
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-14 px-3">
           <button onClick={() => setShowSidebar(true)}
             className="justify-self-start w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-cream-200 hover:bg-forest-800 transition">
@@ -260,7 +260,7 @@ function Dashboard() {
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
               </button>
               {showProfileMenu && (
-                <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border" style={{ background: '#192D22' }} onClick={e => e.stopPropagation()}>
+                <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border bg-card" onClick={e => e.stopPropagation()}>
                   <div className="px-4 py-3 border-b border-border">
                     <p className="text-sm font-semibold text-cream-200 truncate">{profile?.full_name || 'Learner'}</p>
                     <p className="text-[11px] text-cream-500 truncate">{user?.email || ''}</p>

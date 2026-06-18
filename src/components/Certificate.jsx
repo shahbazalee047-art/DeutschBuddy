@@ -9,7 +9,7 @@ export default function Certificate() {
           Certificate
         </h3>
       </div>
-      <div className="p-4 rounded-xl border border-sage-400/20 bg-[#0D1A14]/40">
+      <div className="p-4 rounded-xl border border-sage-400/20 bg-forest-900/40">
         <div className="text-center mb-4">
           <div className="text-2xl font-bold text-cream-100 mb-1" style={{ fontFamily: 'DM Serif Display, serif' }}>
             DeutschBuddy Certificate
