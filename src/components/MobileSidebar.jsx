@@ -1,12 +1,5 @@
 import { Link } from 'react-router-dom';
 
-const mainNav = [
-  { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
-  { id: 'badges', label: 'Badges', icon: '🏆' },
-  { id: 'community', label: 'Community', icon: '💬' },
-  { id: 'resources', label: 'Resources', icon: '📚' },
-];
-
 const progressSections = [
   { id: 'statistics', label: 'Learning Statistics', icon: '📊' },
   { id: 'skills', label: 'Skill Breakdown', icon: '🎯' },
@@ -14,11 +7,6 @@ const progressSections = [
 ];
 
 export default function MobileSidebar({ isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange, xp, onProgressTab }) {
-  function handleNav(id) {
-    onViewChange(id);
-    onClose();
-  }
-
   function handleProgressTab(tabId) {
     if (onProgressTab) onProgressTab(tabId);
     onViewChange('progress');
@@ -44,21 +32,6 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
         </div>
 
         <div className="p-3 pt-4">
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest px-3 mb-2">Main</p>
-          {mainNav.map(item => (
-            <button key={item.id} onClick={() => handleNav(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] mb-0.5 ${
-                activeView === item.id
-                  ? 'text-zinc-900 bg-lime-500 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
-              }`}>
-              <span className="text-lg">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="p-3 pt-2 mt-2 border-t border-zinc-700/50">
           <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest px-3 mb-2">Progress</p>
           {progressSections.map(item => (
             <button key={item.id} onClick={() => handleProgressTab(item.id)}
