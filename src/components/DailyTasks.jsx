@@ -1,8 +1,8 @@
 import { getDayCompletion } from '../utils/progress';
-import { IconFire, IconBookOpen, IconEdit, IconHelpCircle, IconCards, IconLink, IconPencil, IconShuffle, IconMic, IconFeather, IconClipboard, IconTheater, IconSparkles, IconHeadphones, IconBolt } from './Icons';
+import { IconFire, IconBookOpen, IconEdit, IconHelpCircle, IconCards, IconLink, IconPencil, IconShuffle, IconMic, IconFeather, IconClipboard, IconTheater, IconSparkles, IconHeadphones, IconBolt, IconBook, IconCheck } from './Icons';
 
-export default function DailyTasks({ week, day, completedTasks, onSelectTask, onBack }) {
-  const dayData = week.days.find(d => d.day === day);
+export default function DailyTasks({ week, day, completedTasks = [], onSelectTask, onBack }) {
+  const dayData = week?.days?.find(d => d.day === day);
   if (!dayData) return null;
   const completed = getDayCompletion(dayData.tasks, completedTasks);
   const total = dayData.tasks.length;
