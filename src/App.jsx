@@ -7,11 +7,6 @@ import a1FastTrackData from './data/a1FastTrackData';
 import a2Data from './data/a2Data';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
-const ProgressDashboard = lazy(() => import('./components/ProgressDashboard'));
-const BadgeGallery = lazy(() => import('./components/BadgeGallery'));
-const CommunitySection = lazy(() => import('./components/CommunitySection'));
-const ResourceLibrary = lazy(() => import('./components/ResourceLibrary'));
-const ProfilePage = lazy(() => import('./components/ProfilePage'));
 const QuickGermanTool = lazy(() => import('./components/QuickGermanTool'));
 const RightPanel = lazy(() => import('./components/RightPanel'));
 
@@ -20,10 +15,9 @@ import NotificationPanel from './components/NotificationPanel';
 import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
 import ProtectedRoute from './components/ProtectedRoute';
-import { IconBell, IconBolt, IconWave, IconUser, IconSettings, IconLogOut, IconMenu } from './components/Icons';
+import { IconBell, IconWave, IconUser, IconSettings, IconMenu } from './components/Icons';
 import { DayCompleteCelebration } from './components/ConfettiEffect';
 import Footer from './components/Footer';
-import SettingsPage from './components/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -73,7 +67,7 @@ function Dashboard() {
   const levelData = useMemo(() => 
     activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data),
   [activeLevel, trackMode]);
-  const unlockedWeeks = progress.unlockedWeeks || [1];
+  const unlockedWeeks = useMemo(() => progress.unlockedWeeks || [1], [progress.unlockedWeeks]);
   const visibleWeeks = levelData.weeks;
 
   const handleSelectDay = useCallback((weekId, day) => {
@@ -143,7 +137,7 @@ function Dashboard() {
     }
   }, [selectedTask, selectedDay]);
 
-  async function handleSignOutFromApp() { try { await signOut(); } catch {} navigate('/login'); }
+  const handleSignOutFromApp = useCallback(async () => { try { await signOut(); } catch { /* ignore */ } navigate('/login'); }, [signOut, navigate]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -188,6 +182,14 @@ function Dashboard() {
     };
   }, [selectedTask, selectedDay, activeView, historyStack.length, handleBackNavigation]);
 
+  const mainContentProps = useMemo(() => ({
+    activeView, selectedDay, selectedTask, currentWeek,
+    progress, levelData, visibleWeeks, unlockedWeeks,
+    profile, user, onSignOut: handleSignOutFromApp,
+    onSelectDay: handleSelectDay, onSelectTask: handleSelectTask,
+    onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
+  }), [activeView, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#18181B' }}>
@@ -199,14 +201,6 @@ function Dashboard() {
       </div>
     );
   }
-
-  const mainContentProps = useMemo(() => ({
-    activeView, selectedDay, selectedTask, currentWeek,
-    progress, levelData, visibleWeeks, unlockedWeeks,
-    profile, user, onSignOut: handleSignOutFromApp,
-    onSelectDay: handleSelectDay, onSelectTask: handleSelectTask,
-    onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
-  }), [activeView, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek]);
 
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
