@@ -25,11 +25,11 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
           {/* Brand Logo - routes to root */}
           <Link to="/" onClick={() => onViewChange('dashboard')}
             className="flex items-center gap-2.5 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-            <div className="w-9 h-9 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-sm font-bold shadow-lg shadow-lime-500/20 animate-lime-glow">
-              <span className="text-sm leading-none">🇩🇪</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-base font-bold shadow-lg shadow-lime-500/20 animate-lime-glow">
+              <span className="text-base leading-none">🇩🇪</span>
             </div>
-            <span className="text-lg font-extrabold text-zinc-100 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-            <span className="text-lg font-extrabold text-lime-400 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+            <span className="text-2xl font-extrabold text-zinc-100 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
+            <span className="text-2xl font-extrabold text-lime-400 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
           </Link>
 
           {/* Desktop Nav */}
@@ -46,12 +46,6 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
 
           {/* Right Side */}
           <div className="flex items-center gap-2.5">
-            {/* XP Badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-500/10 border border-lime-500/20">
-              <IconBolt className="w-4 h-4 text-lime-400" />
-              <span className="text-sm font-bold text-lime-400 tabular-nums">{xp}</span>
-            </div>
-
             {/* Level Switcher */}
             <div className="flex rounded-xl overflow-hidden border border-zinc-700">
               {['A1', 'A2'].map(lvl => (
@@ -68,9 +62,9 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
 
             <div className="flex items-center gap-2">
               <button onClick={onNotifications}
-                className="flex items-center justify-center w-10 h-10 rounded-xl text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
-                <IconBell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error animate-cyan-pulse" />
+                className="flex items-center justify-center w-11 h-11 rounded-xl text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
+                <IconBell className="w-6 h-6" />
+                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error animate-cyan-pulse" />
               </button>
 
               <button onClick={onQuickTool}
@@ -80,7 +74,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
 
               <div className="relative">
                 <button onClick={() => setMenuOpen(!menuOpen)}
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 text-zinc-900 flex items-center justify-center text-sm font-bold hover:shadow-lg hover:shadow-lime-500/30 transition border-2 border-zinc-700 active:scale-90">
+                  className="w-11 h-11 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 text-zinc-900 flex items-center justify-center text-sm font-bold hover:shadow-lg hover:shadow-lime-500/30 transition ring-2 ring-lime-400/40 active:scale-90">
                   {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
                 </button>
                 {menuOpen && (

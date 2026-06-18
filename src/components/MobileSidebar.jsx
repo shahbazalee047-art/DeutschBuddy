@@ -134,18 +134,6 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
           </div>
         </div>
 
-        {/* XP Badge */}
-        {xp !== undefined && (
-          <div className="p-3 pt-3 pb-8">
-            <div className="mx-3 px-4 py-3 rounded-xl flex items-center gap-2 bg-lime-500/10 border border-lime-500/20">
-              <IconBolt className="w-5 h-5 text-lime-400" />
-              <div>
-                <span className="text-sm font-bold text-lime-400 tabular-nums">{xp}</span>
-                <span className="text-[11px] text-lime-400/60 ml-1">XP</span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

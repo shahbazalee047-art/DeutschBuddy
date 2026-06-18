@@ -240,8 +240,8 @@ function Dashboard() {
 
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(63, 63, 70, 0.3)' }}>
-        <div className="flex items-center justify-between h-14 px-4">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between h-14 px-2 pl-1">
+          <div className="flex items-center gap-0">
             <button onClick={() => setShowSidebar(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
               <IconMenu className="w-5 h-5" />
@@ -256,7 +256,6 @@ function Dashboard() {
             </Link>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-lime-500/10 border border-lime-500/20 text-lime-400 tabular-nums"><IconBolt className="w-3.5 h-3.5" />{progress.xp}</span>
             <button onClick={() => setShowNotifications(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
               <IconBell className="w-5 h-5" />
@@ -264,7 +263,7 @@ function Dashboard() {
             </button>
             <div className="relative">
               <button onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xs font-bold border-2 border-zinc-700 active:scale-90 transition-transform">
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xs font-bold ring-2 ring-lime-400/40 active:scale-90 transition-transform">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
               </button>
               {showProfileMenu && (
