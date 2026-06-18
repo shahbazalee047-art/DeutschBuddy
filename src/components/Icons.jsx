@@ -7,7 +7,13 @@ function si(type, props, children) {
 }
 
 function p(d) { return ['path', { d }]; }
-function l(x1, y1, x2, y2) { return ['line', { x1, y1, x2, y2 }]; }
+function l(x1, y1, x2, y2) {
+  if (typeof x1 === 'string' && y1 === undefined) {
+    const nums = x1.match(/-?\d+\.?\d*/g).map(Number);
+    return ['line', { x1: nums[0], y1: nums[1], x2: nums[2], y2: nums[3] }];
+  }
+  return ['line', { x1, y1, x2, y2 }];
+}
 function poly(points) { return ['polyline', { points }]; }
 function c(x, y, r) { return ['circle', { cx: x, cy: y, r }]; }
 function r(x, y, w, h, rx) { const a = { x, y, width: w, height: h }; if (rx !== undefined) a.rx = rx; return ['rect', a]; }
@@ -26,11 +32,11 @@ export const IconWave = (props) => si('g', props, [p('M2 12a10 10 0 0 1 20 0'), 
 export const IconFire = (props) => si('g', props, [p('M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z')]);
 export const IconEdit = (props) => si('g', props, [p('M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7')]);
 export const IconHelpCircle = (props) => si('g', props, [c(12, 12, 10), p('M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3'), l('12 17 12.01 17')]);
-export const IconCards = (props) => si('g', props, [p('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'), poly('14 2 14 8 20 8'), l('16 13 8 13'), l('8 13 8 13')]);
+export const IconCards = (props) => si('g', props, [p('M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'), poly('14 2 14 8 20 8'), l(16, 13, 8, 13), l(8, 14, 16, 14)]);
 export const IconLink = (props) => si('g', props, [p('M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71'), p('M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71')]);
 export const IconPencil = (props) => si('g', props, [p('M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z')]);
-export const IconShuffle = (props) => si('g', props, [poly('16 3 21 3 21 8'), l('4 3-7 7'), poly('8 21 3 21 3 16'), l('3 3 7-7')]);
-export const IconMic = (props) => si('g', props, [p('M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z'), l('19 10-1.5 1.5'), p('M5.5 11.5 5 12a7 7 0 0 0 14 0')]);
+export const IconShuffle = (props) => si('g', props, [poly('16 3 21 3 21 8'), l(4, 3, 21, 3), poly('8 21 3 21 3 16'), l(21, 21, 3, 3)]);
+export const IconMic = (props) => si('g', props, [p('M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z'), l(19, 10, 17.5, 11.5), p('M5.5 11.5 5 12a7 7 0 0 0 14 0')]);
 export const IconFeather = (props) => si('g', props, [p('M3 21c3-3 7-3 12-3 3 0 6 0 6-3C21 9 9 3 3 9c0 3 2 5 4 7-2 2-4 3-4 5z'), p('M15 12c-3-1-6-3-8-5')]);
 export const IconClipboard = (props) => si('g', props, [r(3, 3, 18, 18, 2), l('9 12 12 12'), l('9 16 12 16')]);
 export const IconTheater = (props) => si('g', props, [p('M12 2a10 10 0 1 0 10 10 4 4 0 0 1-5-5 4 4 0 0 1-5-5'), p('M8.5 8.5v.01'), p('M15.5 15.5v.01'), p('M12 22v-4')]);
@@ -41,7 +47,7 @@ export const IconLightbulb = (props) => si('g', props, [p('M9 18h6'), p('M10 22h
 export const IconLock = (props) => si('g', props, [r(5, 11, 14, 9, 2), p('M7 11V7a5 5 0 0 1 10 0v4')]);
 export const IconCheck = (props) => si('g', props, [poly('20 6 9 17 4 12')]);
 export const IconSquare = (props) => si('g', props, [r(3, 3, 18, 18, 2)]);
-export const IconSearch = (props) => si('g', props, [c(11, 11, 8), l('21 21-4.35-4.35')]);
+export const IconSearch = (props) => si('g', props, [c(11, 11, 8), l(21, 21, 16.65, 16.65)]);
 export const IconMail = (props) => si('g', props, [r(2, 4, 20, 16, 2), poly('2 4 12 13 22 4')]);
 export const IconCrown = (props) => si('g', props, [p('M2 20h20M4 20V8l4 4 4-8 4 8 4-4v12')]);
 export const IconDiamond = (props) => si('g', props, [p('M12 2l4 6-4 14-4-14z'), p('M12 2l-4 6 8 6')]);
@@ -72,7 +78,7 @@ export const IconMessageCircle = (props) => si('g', props, [p('M21 15a2 2 0 0 1-
 export const IconImage = (props) => si('g', props, [r(2, 2, 20, 20, 2), c(8.5, 8.5, 1.5), p('M21 15l-5-5L5 21')]);
 export const IconSettings = (props) => si('g', props, [c(12, 12, 3), p('M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42')]);
 export const IconLogOut = (props) => si('g', props, [p('M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'), poly('16 17 21 12 16 7'), l('21 12 9 12')]);
-export const IconFlag = (props) => si('g', props, [p('M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z'), l('4 22 4-7')]);
+export const IconFlag = (props) => si('g', props, [p('M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z'), l(4, 22, 4, 15)]);
 export const IconHeart = (props) => si('g', props, [p('M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z')]);
 export const IconZap = (props) => si('g', props, [p('M13 2L3 14h9l-1 8 10-12h-9l1-8z')]);
 export const IconInfo = (props) => si('g', props, [c(12, 12, 10), l('12 16 12 12'), l('12 8 12.01 8')]);

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { IconChart, IconTarget, IconCalendar } from './Icons';
+import { IconChart, IconTarget, IconCalendar, IconX } from './Icons';
 
 const progressSections = [
   { id: 'statistics', label: 'Learning Statistics', icon: IconChart },
@@ -29,7 +29,7 @@ export default function MobileSidebar({ isOpen, onClose, activeView, activeProgr
             </div>
             <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>DeutschBuddy</span>
           </Link>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 flex items-center justify-center text-zinc-400 transition text-sm">✕</button>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 flex items-center justify-center text-zinc-400 transition"><IconX className="w-4 h-4" /></button>
         </div>
 
         <div className="p-3 pt-4">
