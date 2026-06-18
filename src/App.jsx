@@ -192,18 +192,18 @@ function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: '#18181B' }}>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0D1A14' }}>
         <div className="flex flex-col items-center gap-4 scale-in">
           <div className="text-5xl animate-float">🇩🇪</div>
-          <div className="w-10 h-10 border-3 border-zinc-700 rounded-full animate-spin" style={{ borderTopColor: '#A3E635' }} />
-          <p className="text-zinc-400 text-sm font-medium">Loading DeutschBuddy...</p>
+          <div className="w-10 h-10 border-3 rounded-full animate-spin" style={{ borderColor: '#1B3429', borderTopColor: '#7FB069' }} />
+          <p className="text-cream-400 text-sm font-medium">Loading DeutschBuddy...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#18181B' }}>
+    <div className="min-h-screen" style={{ background: '#0D1A14' }}>
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
@@ -224,39 +224,39 @@ function Dashboard() {
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(63, 63, 70, 0.3)' }}>
+      <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(13, 26, 20, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(36, 61, 47, 0.4)' }}>
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-14 px-3">
           <button onClick={() => setShowSidebar(true)}
-            className="justify-self-start w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
+            className="justify-self-start w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-cream-200 hover:bg-forest-800 transition">
             <IconMenu className="w-5 h-5" />
           </button>
           <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
             className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
             <span className="text-[1.6rem] leading-none">🇩🇪</span>
-            <span className="text-xl font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-            <span className="text-xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+            <span className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>Deutsch</span>
+            <span className="text-xl text-sage-400" style={{ fontFamily: 'DM Serif Display, serif' }}>Buddy</span>
           </Link>
           <div className="justify-self-end flex items-center gap-1.5">
             <button onClick={() => setShowNotifications(true)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative">
               <IconBell className="w-5 h-5" />
               {hasUnreadNotifications && <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />}
             </button>
             <div className="relative" ref={profileMenuRef}>
               <button onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xs font-bold ring-2 ring-lime-400/40 active:scale-90 transition-transform">
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-sage-400 to-amber-400 flex items-center justify-center text-forest-900 text-xs font-bold ring-2 ring-sage-400/30 active:scale-90 transition-transform">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
               </button>
               {showProfileMenu && (
-                <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-zinc-700" style={{ background: '#20202A' }} onClick={e => e.stopPropagation()}>
-                  <div className="px-4 py-3 border-b border-zinc-700">
-                    <p className="text-sm font-semibold text-zinc-200 truncate">{profile?.full_name || 'Learner'}</p>
-                    <p className="text-[11px] text-zinc-500 truncate">{user?.email || ''}</p>
+                <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border" style={{ background: '#192D22' }} onClick={e => e.stopPropagation()}>
+                  <div className="px-4 py-3 border-b border-border">
+                    <p className="text-sm font-semibold text-cream-200 truncate">{profile?.full_name || 'Learner'}</p>
+                    <p className="text-[11px] text-cream-500 truncate">{user?.email || ''}</p>
                   </div>
                   <button onClick={() => { setActiveView('profile'); setShowProfileMenu(false); setSelectedDay(null); setSelectedTask(null); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
+                    className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
                   <button onClick={() => { setActiveView('settings'); setShowProfileMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
+                    className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
                   <button onClick={handleSignOutFromApp}
                     className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
                 </div>
@@ -271,47 +271,47 @@ function Dashboard() {
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
           <>
             <div className="mb-6 slide-up text-center lg:text-left">
-              <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>
-                Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! <IconWave className="w-7 h-7 inline-block align-text-bottom text-lime-400 animate-cyan-pulse" />
+              <h1 className="text-3xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.3px' }}>
+                Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! <IconWave className="w-7 h-7 inline-block align-text-bottom text-sage-400 animate-sage-glow" />
               </h1>
-              <p className="text-zinc-500 mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
+              <p className="text-cream-500 mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
             </div>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6">
               {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
-              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">A2: Fixed 8-week track</span>}
+              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-sky-400/10 text-sky-400 border border-sky-400/20">A2: Fixed 8-week track</span>}
             </div>
 
             {nextDay && (
               <button onClick={() => handleSelectDay(nextDay.weekId, nextDay.day)}
-                className="w-full mb-6 glass-card p-5 flex items-center gap-4 text-left hover:border-lime-500/30 transition-all group">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)', boxShadow: '0 4px 12px rgba(163, 230, 53, 0.3)' }}>
+                className="w-full mb-6 glass-card p-5 flex items-center gap-4 text-left hover:border-sage-400/20 transition-all group">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #7FB069, #D4A574)', boxShadow: '0 4px 12px rgba(127, 176, 105, 0.2)' }}>
                   <span>▶</span>
                 </div>
                 <div className="flex-1">
-                  <div className="text-[10px] font-bold text-lime-400 uppercase tracking-widest animate-cyan-pulse">Continue where you left off</div>
-                  <div className="text-sm font-semibold text-zinc-300 mt-1">Week {nextDay.weekId}, Day {nextDay.day}</div>
+                  <div className="text-[10px] font-bold text-sage-400 uppercase tracking-widest animate-sage-glow">Continue where you left off</div>
+                  <div className="text-sm font-semibold text-cream-300 mt-1">Week {nextDay.weekId}, Day {nextDay.day}</div>
                 </div>
-                <span className="text-zinc-600 group-hover:text-lime-400 transition text-lg">→</span>
+                <span className="text-cream-500 group-hover:text-sage-400 transition text-lg">→</span>
               </button>
             )}
 
-            <div className="glass-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? '#A3E635' : '#06B6D4'}`, paddingLeft: '20px' }}>
-              <h2 className="text-xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>{levelData.title}</h2>
-              <p className="text-sm text-zinc-500 mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
+            <div className="glass-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? '#7FB069' : '#6BA3BE'}`, paddingLeft: '20px' }}>
+              <h2 className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>{levelData.title}</h2>
+              <p className="text-sm text-cream-500 mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
             </div>
           </>
         )}
 
         {/* Desktop: Two-column layout */}
         <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2"><Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense></div>
-          <div className="lg:col-span-1"><Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><RightPanel progress={progress} streak={progress.streak} /></Suspense></div>
+          <div className="lg:col-span-2"><Suspense fallback={<div className="text-cream-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense></div>
+          <div className="lg:col-span-1"><Suspense fallback={<div className="text-cream-500 text-sm">Loading...</div>}><RightPanel progress={progress} streak={progress.streak} /></Suspense></div>
         </div>
 
         {/* Mobile: Single column */}
         <div className="lg:hidden">
-          <Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense>
+          <Suspense fallback={<div className="text-cream-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense>
         </div>
       </main>
 

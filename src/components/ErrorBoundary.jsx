@@ -1,42 +1,29 @@
-import { Component } from 'react';
-import { IconInfo } from './Icons';
+import { IconHome, IconWarning } from './Icons';
 
-export default class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+export default function ErrorBoundary({ error, resetError }) {
+  if (error === null) return null;
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error, errorInfo) {
-    console.error('ErrorBoundary caught:', error, errorInfo);
-    if (error?.message?.includes('Failed to fetch dynamically imported module') ||
-        error?.message?.includes('dynamic import') ||
-        error?.name === 'ChunkLoadError') {
-      window.location.reload();
-    }
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen flex items-center justify-center" style={{ background: '#18181B' }}>
-          <div className="glass-card max-w-md w-full text-center p-8">
-            <div className="mb-4"><IconInfo className="w-12 h-12 mx-auto text-lime-400" /></div>
-            <h1 className="text-xl font-bold text-zinc-100 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>Something went wrong</h1>
-            <p className="text-zinc-400 text-sm mb-4">{this.state.error?.message || 'An unexpected error occurred.'}</p>
-            <button onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}
-              className="px-5 py-2.5 text-zinc-900 font-semibold rounded-xl transition-all active:scale-95"
-              style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)', boxShadow: '0 4px 12px rgba(163, 230, 53, 0.3)' }}>
-              Reload Page
-            </button>
-          </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#0D1A14' }}>
+      <div className="glass-card p-8 max-w-md w-full text-center">
+        <div className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(255, 87, 87, 0.1)' }}>
+          <IconWarning className="w-10 h-10 text-red-400" />
         </div>
-      );
-    }
-    return this.props.children;
-  }
+        <h2 className="text-2xl font-bold text-cream-100 mb-2" style={{ fontFamily: 'DM Serif Display, serif' }}>
+          Something went wrong
+        </h2>
+        <p className="text-sm text-cream-400 mb-6">
+          We encountered an unexpected error. Please try again or contact support.
+        </p>
+        {resetError && (
+          <button
+            onClick={resetError}
+            className="px-6 py-2 rounded-xl bg-sage-400 text-forest-900 font-semibold hover:bg-sage-400/90 transition-all duration-200"
+          >
+            Try Again
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }

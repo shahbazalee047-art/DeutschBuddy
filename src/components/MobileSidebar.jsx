@@ -57,14 +57,14 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
     <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] shadow-2xl slide-in overflow-y-auto" onClick={e => e.stopPropagation()}
-        style={{ background: '#18181B', borderRight: '1px solid rgba(63, 63, 70, 0.3)' }}>
-        <div className="flex items-center justify-between p-4 border-b border-zinc-700/50">
+        style={{ background: '#0D1A14', borderRight: '1px solid rgba(36, 61, 47, 0.3)' }}>
+        <div className="flex items-center justify-between p-4 border-b border-border">
           <Link to="/" onClick={() => { onViewChange('dashboard'); onClose(); }}
             className="flex items-center gap-2">
             <span className="text-xl leading-none">🇩🇪</span>
-            <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>DeutschBuddy</span>
+            <span className="text-base font-extrabold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>DeutschBuddy</span>
           </Link>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 flex items-center justify-center text-zinc-400 transition"><IconX className="w-4 h-4" /></button>
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-forest-800/50 hover:bg-forest-800 flex items-center justify-center text-cream-400 transition"><IconX className="w-4 h-4" /></button>
         </div>
 
         {/* Level Toggle — TOP */}
@@ -74,8 +74,8 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
               <button key={lvl} onClick={() => { onLevelChange(lvl); onClose(); }}
                 className={`flex-1 py-2.5 rounded-xl text-[13px] font-bold transition-all active:scale-95 ${
                   activeLevel === lvl
-                    ? lvl === 'A1' ? 'bg-lime-500 text-zinc-900 shadow-sm shadow-lime-500/20' : 'bg-cyan-500 text-zinc-900 shadow-sm shadow-cyan-500/20'
-                    : 'bg-zinc-800 text-zinc-400 border border-zinc-700 hover:text-zinc-200'
+                    ? lvl === 'A1' ? 'bg-sage-400 text-forest-900 shadow-sm shadow-sage-400/20' : 'bg-sky-400 text-forest-900 shadow-sm shadow-sky-400/20'
+                    : 'bg-forest-800 text-cream-400 border border-border hover:text-cream-200'
                 }`}>
                 {lvl}
               </button>
@@ -84,14 +84,14 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
         </div>
 
         {/* Progress Sections */}
-        <div className="p-3 pt-2 border-t border-zinc-700/50">
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest px-3 mb-2">Progress</p>
+        <div className="p-3 pt-2 border-t border-border">
+          <p className="text-[10px] font-bold text-cream-500 uppercase tracking-widest px-3 mb-2">Progress</p>
           {progressSections.map(item => (
             <button key={item.id} onClick={() => handleNav(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] mb-0.5 ${
                 activeView === item.id
-                  ? 'text-zinc-900 bg-lime-500 shadow-sm'
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
+                  ? 'text-forest-900 bg-sage-400 shadow-sm'
+                  : 'text-cream-400 hover:text-cream-200 hover:bg-forest-800/50'
               }`}>
               <item.icon className="w-5 h-5 flex-shrink-0" />
               <span>{item.label}</span>
@@ -100,35 +100,35 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
         </div>
 
         {/* Verb Lookup */}
-        <div className="p-3 pt-2 border-t border-zinc-700/50">
-          <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest px-3 mb-2">Tools</p>
+        <div className="p-3 pt-2 border-t border-border">
+          <p className="text-[10px] font-bold text-cream-500 uppercase tracking-widest px-3 mb-2">Tools</p>
           <button onClick={() => { onVerbLookup(); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50">
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] text-cream-400 hover:text-cream-200 hover:bg-forest-800/50">
             <IconSearch className="w-5 h-5 flex-shrink-0" />
             <span>Verb Lookup</span>
           </button>
         </div>
 
         {/* Tip of the Day */}
-        <div className="p-3 pt-2 border-t border-zinc-700/50">
-          <div className="mx-3 rounded-2xl p-3 border border-zinc-700/50" style={{ background: 'rgba(6, 182, 212, 0.04)' }}>
+        <div className="p-3 pt-2 border-t border-border">
+          <div className="mx-3 rounded-2xl p-3 border border-sky-400/20 bg-sky-400/5">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <IconLightbulb className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider flex-1">Tip of the Day</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)', color: '#A3E635' }}>{tip.tag}</span>
+              <IconLightbulb className="w-3.5 h-3.5 text-sky-400" />
+              <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider flex-1">Tip of the Day</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-sage-400/20 bg-sage-400/10 text-sage-400">{tip.tag}</span>
             </div>
-            <p className="text-[12px] text-zinc-400 leading-relaxed">{tip.tip}</p>
+            <p className="text-[12px] text-cream-400 leading-relaxed">{tip.tip}</p>
           </div>
         </div>
 
         {/* Did You Know */}
-        <div className="p-3 pt-0 border-b border-zinc-700/50">
-          <div className="mx-3 rounded-2xl p-3 border border-zinc-700/50" style={{ background: 'rgba(163, 230, 53, 0.04)' }}>
+        <div className="p-3 pt-0 border-b border-border">
+          <div className="mx-3 rounded-2xl p-3 border border-sage-400/20 bg-sage-400/5">
             <div className="flex items-center gap-1.5 mb-1.5">
-              <IconFlag className="w-3.5 h-3.5 text-lime-400" />
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Did You Know?</span>
+              <IconFlag className="w-3.5 h-3.5 text-sage-400" />
+              <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider">Did You Know?</span>
             </div>
-            <p className="text-[12px] text-zinc-400 leading-relaxed">{fact}</p>
+            <p className="text-[12px] text-cream-400 leading-relaxed">{fact}</p>
           </div>
         </div>
 

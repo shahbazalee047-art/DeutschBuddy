@@ -8,32 +8,32 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
   const weekXP = week.days.reduce((acc, day) => acc + day.tasks.filter(t => completedTasks.includes(t.id)).reduce((a, t) => a + t.xp, 0), 0);
 
   return (
-    <div className={`glass-card transition-all duration-300 ${!isUnlocked ? 'opacity-50' : 'hover:border-lime-500/20 hover:shadow-lg'}`}>
+    <div className={`glass-card transition-all duration-300 ${!isUnlocked ? 'opacity-50' : 'hover:border-sage-400/20 hover:shadow-lg'}`}>
       <div className="p-5">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold ${
               isComplete
-                ? 'text-zinc-900 shadow-md bg-gradient-to-br from-lime-500 to-cyan-500'
+                ? 'text-zinc-900 shadow-md bg-gradient-to-br from-sage-400 to-sky-400'
                 : isUnlocked
-                  ? 'text-lime-400 border border-lime-500/20 bg-lime-500/10'
-                  : 'text-zinc-600 bg-zinc-800'
+                  ? 'text-sage-400 border border-sage-400/20 bg-sage-400/10'
+                  : 'text-cream-500 bg-forest-800'
             }`}>
               {isComplete ? '✓' : `W${week.id}`}
             </div>
             <div>
-              <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Week {week.id}</span>
-              <h3 className="text-[16px] font-bold text-zinc-100">{week.title}</h3>
-              <p className="text-[13px] text-zinc-400">{week.theme}</p>
+              <span className="text-[10px] font-bold text-cream-500 uppercase tracking-widest">Week {week.id}</span>
+              <h3 className="text-[16px] font-bold text-cream-100">{week.title}</h3>
+              <p className="text-[13px] text-cream-400">{week.theme}</p>
             </div>
           </div>
-          <span className="text-xs font-bold px-3 py-1.5 rounded-full text-lime-400 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)' }}>+{weekXP} XP</span>
+          <span className="text-xs font-bold px-3 py-1.5 rounded-full text-sage-400 border border-sage-400/20" style={{ background: 'rgba(127, 176, 105, 0.1)' }}>+{weekXP} XP</span>
         </div>
 
         {isUnlocked && (
           <>
             <div className="mb-4">
-              <div className="flex justify-between text-[11px] text-zinc-500 mb-1.5 uppercase font-medium" style={{ letterSpacing: '0.5px' }}>
+              <div className="flex justify-between text-[11px] text-cream-500 mb-1.5 uppercase font-medium" style={{ letterSpacing: '0.5px' }}>
                 <span>Progress</span><span>{completion}%</span>
               </div>
               <div className="progress-bar">
@@ -55,7 +55,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
         )}
 
         {!isUnlocked && (
-          <div className="flex items-center justify-center gap-2 py-2 text-zinc-500 text-sm">
+          <div className="flex items-center justify-center gap-2 py-2 text-cream-500 text-sm">
             <IconLock className="w-4 h-4" /> Complete previous week to unlock
           </div>
         )}

@@ -1,25 +1,26 @@
-import { useState } from 'react';
-import { speakGerman } from '../utils/speech';
-import { IconSpeaker, IconSpeakerMute } from './Icons';
+import { useSpeech } from '../hooks/useSpeech';
+import { IconSpeaker, IconSpeakerX } from './Icons';
 
-export default function SpeakerButton({ text, size = 'md', className = '' }) {
-  const [playing, setPlaying] = useState(false);
+export default function SpeakerButton({ text, language = 'de-DE', onAudioEnd, onAudioError }) {
+  const { isSpeaking, error, playAudio, stopAudio } = useSpeech(language, onAudioEnd, onAudioError);
 
-  function handleClick(e) {
-    e.stopPropagation();
-    setPlaying(true);
-    speakGerman(text);
-    setTimeout(() => setPlaying(false), 1200);
-  }
+  const handleToggle = () => {
+    if (isSpeaking) {
+      stopAudio();
+    } else {
+      playAudio(text);
+    }
+  };
 
-  const sizes = { sm: 'w-8 h-8', md: 'w-10 h-10', lg: 'w-12 h-12' };
+  const SpeakerIcon = isSpeaking ? IconSpeakerX : IconSpeaker;
 
   return (
-    <button onClick={handleClick}
-      className={`${sizes[size]} inline-flex items-center justify-center rounded-xl transition-all duration-200 ${
-        playing ? 'bg-lime-500 text-zinc-900 scale-110 shadow-md shadow-lime-500/30' : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-zinc-200 border border-zinc-700'
-      } ${className}`} title={`Pronounce "${text}"`}>
-      {playing ? <IconSpeaker className="w-4 h-4" /> : <IconSpeakerMute className="w-4 h-4" />}
+    <button
+      onClick={handleToggle}
+      disabled={!text || isSpeaking}
+      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isSpeaking ? 'bg-sage-400 text-forest-900 animate-pulse' : 'bg-amber-400/10 text-amber-400 hover:bg-amber-400/20'}`}
+    >
+      <SpeakerIcon className="w-5 h-5" />
     </button>
   );
 }
