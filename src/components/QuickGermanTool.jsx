@@ -1,6 +1,6 @@
 import { IconSearch } from './Icons';
 
-export default function QuickGermanTool() {
+export default function QuickGermanTool({ onClose }) {
   const verbs = [
     { english: 'to run', german: 'laufen' },
     { english: 'to think', german: 'denken' },
