@@ -161,7 +161,7 @@ App
 - Multiple theme iterations (Electric Lime, Slate Navy, German Flag, Premium Beige) all reverted
 
 #### Phase 1 MVP (Commit: a00780e)
-- **Premium Warm Theme**: `#FAF6F0` cream background, `#B8860B` dark gold accent, `#D4A843` amber gold secondary, `#2D8B7A` teal links
+- **Original Premium Warm Theme**: `#FAF6F0` cream background, `#B8860B` dark gold accent
 - **CSS Classes**: `.paper-card`, `.paper-input`, `.btn-primary`, `.btn-secondary`, `.progress-bar`, `.day-circle`
 - **Auth Pages**: Login, Signup, Forgot/Reset Password with paper-card styling
 - **Dashboard**: Greeting, track toggle, continue card, weekly modules, day circles
@@ -184,6 +184,14 @@ App
 - **Profile Page**: Full profile with avatar, stats, settings
 - **PWA Manifest**: Updated theme colors
 
+#### Phase 5: Electric Lime & Midnight Finalization (Commit: TBD)
+- **Design System Overhaul**: Complete migration to Electric Lime & Midnight (`#18181B` bg, `#A3E635` lime, `#06B6D4` cyan)
+- **Theme Migration**: Rewrote `index.css` with dark zinc/lime/cyan tokens; migrated all 20+ components, all auth pages, onboarding, error boundary, mascot, certificate
+- **A2 Data Expansion**: Generated weeks 3–8 curriculum (grammar, vocab, quizzes, listening, speaking, roleplay, writing, review) via Python generator
+- **Interactive Features**: Logo routing, profile badge routing, bottom nav badges isolation, notification panel navigation, history stack + Android back button, date-locked Tip of the Day, login-triggered Did You Know
+- **Config Updates**: `index.html` theme-color → `#18181B`, `manifest.json` → `#18181B` / `#A3E635`
+- **Build**: `npm run build` passes, 111 modules, ~2s build time
+
 #### Bug Fixes (Commits: 7facdc2, d9810a6, ef5db95, d129b13)
 - Mobile bottom navigation added
 - Resource library populated with 12 fallback resources
@@ -196,13 +204,12 @@ App
 - ProfilePage useProgress call removed
 - Unused useNavigate removed from Dashboard
 
-#### Theme Evolution (all reverted)
-1. **Electric Lime & Midnight** → Reverted
+#### Theme Evolution
+1. **Electric Lime & Midnight** → First attempt, reverted
 2. **Slate Navy** → Reverted
 3. **German Flag (Black/Red/Gold)** → Reverted
 4. **Premium Beige** → Reverted
-5. **Paper Card CSS** → Kept as `.glass-card` class
-6. **Current: Premium Warm Theme** → `#FAF6F0` + `#B8860B` gold
+5. **Electric Lime & Midnight (final)** → Current. `#18181B` zinc bg, `#A3E635` lime accent, `#06B6D4` cyan secondary, `bg-zinc-900` cards
 
 ---
 
@@ -211,19 +218,19 @@ App
 ### Color Palette
 | Token | Value | Usage |
 |-------|-------|-------|
-| Primary BG | `#FAF6F0` | Page background (cream) |
-| Card BG | `#FFFFFF` | Content cards |
-| Accent Primary | `#B8860B` | Dark gold (buttons, XP, active states) |
-| Accent Secondary | `#D4A843` | Amber gold (gradients, secondary) |
-| Interactive | `#2D8B7A` | Teal (links, secondary buttons) |
-| Success | `#4CAF50` | Green (completed tasks) |
-| Warning | `#FF9800` | Orange (streaks) |
-| Error | `#F44336` | Red (errors) |
-| Info | `#2196F3` | Blue (notifications) |
-| Border | `#E8E0D4` | Light beige |
-| Primary Text | `#1A1A2E` | Dark navy |
-| Body Text | `#4A4A5A` | Medium gray |
-| Muted Text | `#8A8A9A` | Soft gray |
+| Primary BG | `#18181B` | Page background (zinc-900 ultra-dark) |
+| Card BG | `#1E1E24` | .glass-card surface |
+| Card Alt | `#20202A` | Alternate card surface |
+| Accent Primary | `#A3E635` | Electric Lime (buttons, XP, active states, progress) |
+| Accent Secondary | `#06B6D4` | Cyan (gradients, secondary buttons, links) |
+| Success | `#22C55E` | Green (completed tasks) |
+| Warning | `#F59E0B` | Amber (streaks, warnings) |
+| Error | `#EF4444` | Red (errors) |
+| Info | `#3B82F6` | Blue (notifications) |
+| Border | `#27272A` | zinc-800 (subtle borders) |
+| Primary Text | `#F4F4F5` | zinc-100 (headings) |
+| Body Text | `#A1A1AA` | zinc-400 (body) |
+| Muted Text | `#71717A` | zinc-500 (muted) |
 
 ### Typography
 - **Headings**: Poppins (bold, extrabold)
@@ -236,13 +243,14 @@ App
 - Component gaps: 8-16px
 
 ### CSS Classes
-- `.paper-card` — White card with subtle border and shadow
-- `.paper-input` — Parchment-toned input field
-- `.btn-primary` — Gold gradient button with shadow
-- `.btn-secondary` — White button with gold border
-- `.btn-text` — No background, teal text
-- `.progress-bar` / `.progress-bar-fill` — Progress indicators
-- `.day-circle` / `.day-circle-completed` / `.day-circle-current` — Day circles
+- `.glass-card` — Dark zinc card with subtle border (`bg-zinc-900/60 border border-zinc-800/50`)
+- `.paper-card` — Ultra-dark surface card (`bg-[#1E1E24]`)
+- `.paper-input` — Dark input field with lime focus ring
+- `.btn-primary` — Lime gradient button (`from-lime-500 to-lime-600`)
+- `.btn-secondary` — Zinc button with cyan border
+- `.btn-text` — No background, cyan text
+- `.progress-bar` / `.progress-bar-fill` — Lime gradient progress indicators
+- `.day-circle` / `.day-circle-completed` / `.day-circle-current` — Dark day circles with lime glow
 
 ---
 
@@ -276,7 +284,7 @@ App
 - **XP System**: Points earned per task
 - **Streak Tracking**: Daily study streak
 - **15 Badges**: From First Steps to XP Legend
-- **Progress Bars**: Gold gradient fill with percentage
+- **Progress Bars**: Lime gradient fill with percentage
 - **Day Circles**: Visual progress through weekly modules
 
 ---
@@ -363,8 +371,8 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 ### PWA Manifest
 - `start_url`: `/login`
 - `display`: `standalone`
-- `background_color`: `#FAF6F0`
-- `theme_color`: `#B8860B`
+- `background_color`: `#18181B`
+- `theme_color`: `#A3E635`
 - Icons: 192x192 and 512x512 PNG
 
 ### Service Worker
@@ -395,17 +403,19 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 | ProfilePage crashes useProgress | Removed hook, read from localStorage | d129b13 |
 | A2 weeks 3-8 data broken | Extracted to `makeWeeks3to8()` helper | Earlier |
 | Logo not clickable | Changed button to `<Link to="/dashboard">` | Earlier |
+| Premium Beige theme remnants | Migrated to Electric Lime & Midnight across all components | Phase 5 |
+| Old PWA manifest colors | Updated to `#18181B` / `#A3E635` | Phase 5 |
+| A2 weeks 3-8 empty | Generated full curriculum via Python script | Phase 5 |
 
 ### Remaining Known Issues
 - Notification items could be more dynamically routable
 - Community section uses static mock data (not from database)
-- Some task content is placeholder (weeks 3-8 in both levels)
 - `BottomNav` has `safe-area-bottom` class but CSS not defined in Tailwind v4
 
 ### Important Notes for New Sessions
 - **Node.js**: Must load via nvm: `export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"`
-- **Tailwind v4**: Uses `@import "tailwindcss"` (not v3 syntax)
-- **Theme**: Premium Warm Theme — `#FAF6F0` cream, `#B8860B` gold accent
+- **Tailwind v4**: Uses `@import "tailwindcss"` (not v3 syntax). Custom tokens in `@theme {}` block inside `index.css`
+- **Theme**: Electric Lime & Midnight — `#18181B` zinc bg, `#A3E635` lime accent, `#06B6D4` cyan secondary
 - **No social auth**: Email/password only (Google/GitHub removed)
 - **No demo mode**: Removed entirely
 - **Footer**: "Made with ❤️ by Shahbaz Ali" (native heart emoji)
@@ -477,7 +487,7 @@ german-learning/
 │   │   └── OnboardingPage.jsx
 │   ├── data/
 │   │   ├── a1Data.js               # A1 curriculum (8 weeks, full content Week 1-2)
-│   │   ├── a2Data.js               # A2 curriculum (8 weeks, full content Week 1-2)
+│   │   ├── a2Data.js               # A2 curriculum (8 weeks, fully populated)
 │   │   └── a1FastTrackData.js      # A1 fast track (6 weeks)
 │   ├── utils/
 │   │   ├── progress.js             # Progress helpers
