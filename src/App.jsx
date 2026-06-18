@@ -173,7 +173,7 @@ function Dashboard() {
   }
 
   function renderMainContent() {
-    if (activeView === 'community') return <CommunitySection />;
+    if (activeView === 'community') return <CommunitySection user={user} />;
     if (activeView === 'profile') return <ProfilePage />;
     if (activeView === 'progress') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />;
     if (activeView === 'badges') return <BadgeGallery badges={progress.badges || []} />;
