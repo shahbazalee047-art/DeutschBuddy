@@ -39,7 +39,7 @@ export default function WeeklyModule({ week, completedTasks, onSelectDay, select
                 <div className="progress-bar-fill" style={{ width: `${completion}%` }} />
               </div>
             </div>
-            <div className="grid grid-cols-7 gap-2">
+            <div className="flex justify-center gap-3">
               {week.days.map((day) => {
                 const dayDone = day.tasks.every(t => completedTasks.includes(t.id));
                 return (
