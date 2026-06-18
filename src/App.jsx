@@ -79,7 +79,7 @@ function Dashboard() {
   const levelData = useMemo(() => 
     activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data),
   [activeLevel, trackMode]);
-  const unlockedWeeks = useMemo(() => progress.unlockedWeeks || [1], [progress.unlockedWeeks]);
+  const unlockedWeeks = useMemo(() => progress?.unlockedWeeks || [1], [progress?.unlockedWeeks]);
   const visibleWeeks = levelData.weeks;
 
   const handleSelectDay = useCallback((weekId, day) => {
@@ -217,7 +217,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen" style={{ background: '#0D1A14' }}>
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
-      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
+      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress?.xp || 0} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => { setShowNotifications(false); setNotifVersion(v => v + 1); }} onNavigate={(action) => {
         if (typeof action === 'string') {
@@ -232,7 +232,7 @@ function Dashboard() {
 
       {/* Desktop Navbar */}
       <div className="hidden lg:block">
-        <Navbar activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} streak={progress.streak} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} hasUnreadNotifications={hasUnreadNotifications} />
+        <Navbar activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress?.xp || 0} streak={progress?.streak || 0} onQuickTool={() => setShowQuickTool(true)} onNotifications={() => setShowNotifications(true)} hasUnreadNotifications={hasUnreadNotifications} />
       </div>
 
       {/* Mobile Header */}
