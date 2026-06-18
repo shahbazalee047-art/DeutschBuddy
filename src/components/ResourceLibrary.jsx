@@ -47,11 +47,11 @@ export default function ResourceLibrary({ resources }) {
         <p className="text-zinc-500" style={{ fontSize: '16px', lineHeight: '1.5' }}>Curated external resources to accelerate your German learning journey</p>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+      <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
         {categories.map(cat => (
           <button key={cat} onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
-            className={`text-[13px] font-semibold whitespace-nowrap transition-all pb-1 border-b-2 ${
-              selectedCategory === cat ? 'text-lime-400 border-lime-400' : 'text-zinc-500 border-transparent hover:text-zinc-300'
+            className={`px-4 py-2 rounded-xl text-[13px] font-semibold whitespace-nowrap transition-all active:scale-95 ${
+              selectedCategory === cat ? 'text-zinc-900 bg-lime-500 shadow-md shadow-lime-500/20' : 'bg-zinc-800 text-zinc-400 border border-zinc-700/50 hover:text-zinc-200'
             }`}>
             {cat}
           </button>
