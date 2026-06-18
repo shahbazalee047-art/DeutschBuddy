@@ -258,7 +258,7 @@ function Dashboard() {
             <IconMenu className="w-5 h-5" />
           </button>
           <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-            className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+            className="flex items-center justify-center -mr-3 gap-1 cursor-pointer active:scale-95 transition-all duration-150 select-none">
             <span className="text-[1.6rem] leading-none">🇩🇪</span>
             <span className="text-xl font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
