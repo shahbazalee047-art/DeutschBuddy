@@ -1,8 +1,8 @@
 import { useAuth } from '../contexts/AuthContext';
-import { IconBolt, IconFire, IconCheck, IconGraduation, IconSettings, IconLogOut } from './Icons';
+import { IconBolt, IconFire, IconCheck, IconGraduation } from './Icons';
 
 export default function ProfilePage() {
-  const { user, profile, signOut } = useAuth();
+  const { user, profile } = useAuth();
   const localData = JSON.parse(localStorage.getItem(`db_progress_${profile?.selected_pacing || 'A1'}`) || '{}');
   const xp = localData.xp || 0;
 
@@ -10,15 +10,15 @@ export default function ProfilePage() {
     <div className="fade-in max-w-2xl mx-auto space-y-5">
       {/* Profile Header */}
       <div className="glass-card overflow-hidden">
-        <div className="h-32 rounded-t-2xl" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }} />
-        <div className="px-6 pb-6 -mt-12">
-          <div className="flex items-end gap-4 mb-4">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-zinc-900 border-4 border-zinc-800 shadow-lg mb-3">
+        <div className="h-28 rounded-t-2xl" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }} />
+        <div className="px-6 pb-6 -mt-14">
+          <div className="flex items-end gap-3">
+            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-3xl font-bold text-zinc-900 border-4 border-zinc-800 shadow-lg shrink-0">
               {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
             </div>
-            <div className="flex-1 pb-1">
-              <h2 className="text-xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>{profile?.full_name || 'Learner'}</h2>
-              <p className="text-[13px] text-zinc-500">{user?.email}</p>
+            <div className="min-w-0 pb-0.5">
+              <h2 className="text-xl font-bold text-zinc-100 leading-tight" style={{ fontFamily: 'Poppins, sans-serif' }}>{profile?.full_name || 'Learner'}</h2>
+              <p className="text-[12px] text-zinc-500 truncate">{user?.email}</p>
               <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-[11px] font-bold border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)', color: '#A3E635' }}>
                 <IconGraduation className="w-3.5 h-3.5" /> A1 Learner
               </div>
@@ -40,37 +40,6 @@ export default function ProfilePage() {
             <div className="text-[10px] text-zinc-500 font-medium uppercase mt-0.5">{stat.label}</div>
           </div>
         ))}
-      </div>
-
-      {/* Settings */}
-      <div className="glass-card p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <IconSettings className="w-4 h-4 text-zinc-400" />
-          <h3 className="text-sm font-bold text-zinc-200" style={{ fontFamily: 'Poppins, sans-serif' }}>Settings</h3>
-        </div>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between py-3 border-b border-zinc-700/50">
-            <div>
-              <p className="text-[14px] font-medium text-zinc-200">Email Notifications</p>
-              <p className="text-[12px] text-zinc-500">Receive study reminders and updates</p>
-            </div>
-            <div className="w-12 h-7 rounded-full bg-lime-500/30 border border-lime-500/50 flex items-center px-0.5 justify-end cursor-pointer">
-              <div className="w-5 h-5 rounded-full bg-lime-400 shadow" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between py-3 border-b border-zinc-700/50">
-            <div>
-              <p className="text-[14px] font-medium text-zinc-200">Dark Mode</p>
-              <p className="text-[12px] text-zinc-500">Always on (electric lime theme)</p>
-            </div>
-            <div className="w-12 h-7 rounded-full bg-lime-500/30 border border-lime-500/50 flex items-center px-0.5 justify-end cursor-pointer opacity-50">
-              <div className="w-5 h-5 rounded-full bg-lime-400 shadow" />
-            </div>
-          </div>
-          <button onClick={signOut} className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-error hover:bg-error/10 transition active:scale-95 mt-3">
-            <IconLogOut className="w-4 h-4" /> Sign Out
-          </button>
-        </div>
       </div>
     </div>
   );

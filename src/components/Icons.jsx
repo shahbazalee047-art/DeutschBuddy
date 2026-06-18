@@ -86,3 +86,4 @@ export const IconTrendingUp = (props) => si('g', props, [poly('23 6 13.5 15.5 8.
 export const IconActivity = (props) => si('g', props, [poly('22 12 18 12 15 21 9 3 6 12 2 12')]);
 export const IconCheckCircle = (props) => si('g', props, [c(12, 12, 10), poly('9 12 11 14 15 10')]);
 export const IconMoon = (props) => si('g', props, [p('M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z')]);
+export const IconSun = (props) => si('g', props, [c(12, 12, 5), l('12 1 12 3'), l('12 21 12 23'), l('4.22 4.22 5.64 5.64'), l('18.36 18.36 5.64 5.64'), l('1 12 3 12'), l('21 12 23 12'), l('4.22 19.78 5.64 18.36'), l('18.36 5.64 5.64 4.22')]);

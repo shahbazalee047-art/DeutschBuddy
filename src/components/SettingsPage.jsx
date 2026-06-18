@@ -1,6 +1,16 @@
-import { IconUser, IconBell, IconLock, IconLogOut } from './Icons';
+import { useState, useEffect } from 'react';
+import { IconUser, IconBell, IconLock, IconMoon, IconSun, IconLogOut } from './Icons';
 
 export default function SettingsPage({ profile, user, onSignOut }) {
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem('db_dark_mode') !== 'false';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('db_dark_mode', darkMode);
+    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
+
   return (
     <div className="fade-in max-w-2xl mx-auto space-y-5">
       <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>Settings</h1>
@@ -13,6 +23,19 @@ export default function SettingsPage({ profile, user, onSignOut }) {
           <div>
             <p className="text-lg font-bold text-zinc-100">{profile?.full_name || 'Learner'}</p>
             <p className="text-sm text-zinc-500">{user?.email}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between py-3 px-4 rounded-xl hover:bg-zinc-800/50 transition cursor-pointer" onClick={() => setDarkMode(!darkMode)}>
+          <div className="flex items-center gap-3">
+            {darkMode ? <IconMoon className="w-5 h-5 text-zinc-400" /> : <IconSun className="w-5 h-5 text-zinc-400" />}
+            <div>
+              <p className="text-sm font-semibold text-zinc-200">Dark Mode</p>
+              <p className="text-[12px] text-zinc-500">{darkMode ? 'On' : 'Off'}</p>
+            </div>
+          </div>
+          <div className={`w-12 h-7 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${darkMode ? 'bg-lime-500/40 border border-lime-500/50 justify-end' : 'bg-zinc-700 border border-zinc-600 justify-start'}`}>
+            <div className={`w-5 h-5 rounded-full shadow transition-colors ${darkMode ? 'bg-lime-400' : 'bg-zinc-400'}`} />
           </div>
         </div>
 
