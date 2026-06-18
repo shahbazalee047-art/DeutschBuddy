@@ -1,22 +1,36 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 const staticNotifications = [
-  { id: 1, type: 'reminder', icon: '⏰', title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', read: false, color: '#F59E0B', action: { type: 'view', target: 'dashboard' } },
-  { id: 2, type: 'achievement', icon: '🏆', title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', read: true, color: '#A3E635', action: { type: 'view', target: 'badges' } },
-  { id: 5, type: 'weekly', icon: '📊', title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', read: true, color: '#06B6D4', action: { type: 'view', target: 'progress' } },
+  { id: 1, type: 'reminder', icon: '⏰', title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: '#F59E0B', action: { type: 'view', target: 'dashboard' } },
+  { id: 2, type: 'achievement', icon: '🏆', title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: '#A3E635', action: { type: 'view', target: 'badges' } },
+  { id: 5, type: 'weekly', icon: '📊', title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: '#06B6D4', action: { type: 'view', target: 'progress' } },
 ];
 
+function loadReadIds() {
+  try { return new Set(JSON.parse(localStorage.getItem('db_notif_read') || '[]')); } catch { return new Set(); }
+}
+
+function saveReadIds(set) {
+  localStorage.setItem('db_notif_read', JSON.stringify([...set]));
+}
+
 export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, levelData, visibleWeeks, unlockedWeeks }) {
-  const [notifications, setNotifications] = useState(() => {
-    const stored = localStorage.getItem('db_notifications');
-    return stored ? JSON.parse(stored) : staticNotifications;
-  });
+  const [readIds, setReadIds] = useState(loadReadIds);
+
+  const markRead = useCallback((id) => {
+    setReadIds(prev => {
+      if (prev.has(id)) return prev;
+      const next = new Set(prev);
+      next.add(id);
+      saveReadIds(next);
+      return next;
+    });
+  }, []);
 
   const dynamicNotifications = useMemo(() => {
     const dynamic = [];
     const completed = progress?.completedTasks || [];
     const unlocked = unlockedWeeks || [1];
-    const xp = progress?.xp || 0;
 
     const nextDay = (() => {
       if (!visibleWeeks) return null;
@@ -35,7 +49,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-continue', type: 'continue', icon: '▶️',
         title: `Continue: ${nextDay.weekTitle}`,
         message: `Week ${nextDay.weekId}, Day ${nextDay.day} is waiting for you`,
-        time: 'Just now', read: false, color: '#22C55E',
+        time: 'Just now', color: '#22C55E',
         action: { type: 'day', weekId: nextDay.weekId, day: nextDay.day },
       });
     }
@@ -56,7 +70,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-pending', type: 'pending', icon: '📋',
         title: `${totalPending} ${totalPending === 1 ? 'task' : 'tasks'} remaining`,
         message: `Across ${pendingDays.length} ${pendingDays.length === 1 ? 'day' : 'days'}`,
-        time: 'Just now', read: false, color: '#06B6D4',
+        time: 'Just now', color: '#06B6D4',
         action: { type: 'day', weekId: pendingDays[0].weekId, day: pendingDays[0].day },
       });
     }
@@ -67,7 +81,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-streak', type: 'achievement', icon: '🔥',
         title: `${streak}-Day Streak!`,
         message: `You're on fire! Keep your ${streak}-day streak going.`,
-        time: 'Just now', read: false, color: '#F59E0B',
+        time: 'Just now', color: '#F59E0B',
         action: { type: 'view', target: 'progress' },
       });
     }
@@ -81,7 +95,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
           id: 'dyn-reminder', type: 'reminder', icon: '⏰',
           title: 'Time to study!',
           message: 'You haven\'t studied today. Keep your streak alive!',
-          time: 'Just now', read: false, color: '#F59E0B',
+          time: 'Just now', color: '#F59E0B',
           action: { type: 'view', target: 'dashboard' },
         });
       }
@@ -91,26 +105,20 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
   }, [progress, visibleWeeks, unlockedWeeks]);
 
   const allNotifications = useMemo(() => {
-    const merged = [...dynamicNotifications];
-    const staticIds = new Set(merged.map(n => n.id));
-    for (const sn of notifications) {
-      if (!staticIds.has(sn.id)) merged.push(sn);
-    }
-    return merged;
-  }, [notifications, dynamicNotifications]);
+    const all = [...dynamicNotifications, ...staticNotifications];
+    return all.map(n => ({ ...n, read: readIds.has(n.id) }));
+  }, [dynamicNotifications, readIds]);
 
   const unreadCount = allNotifications.filter(n => !n.read).length;
 
-  function markAllRead() {
-    const updated = notifications.map(n => ({ ...n, read: true }));
-    setNotifications(updated);
-    localStorage.setItem('db_notifications', JSON.stringify(updated));
+  function handleMarkAllRead() {
+    const next = new Set(allNotifications.map(n => n.id));
+    setReadIds(next);
+    saveReadIds(next);
   }
 
   function handleNotificationClick(notification) {
-    const updated = notifications.map(n => n.id === notification.id ? { ...n, read: true } : n);
-    setNotifications(updated);
-    localStorage.setItem('db_notifications', JSON.stringify(updated));
+    markRead(notification.id);
     if (notification.action && onNavigate) {
       onNavigate(notification.action);
     }
@@ -135,7 +143,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
             {unreadCount > 0 && <span className="text-[10px] font-bold bg-error text-white px-2 py-0.5 rounded-full">{unreadCount}</span>}
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={markAllRead} className="text-[12px] text-cyan-400 font-semibold hover:text-cyan-300 transition">Mark all as read</button>
+            <button onClick={handleMarkAllRead} className="text-[12px] text-cyan-400 font-semibold hover:text-cyan-300 transition">Mark all as read</button>
             <button onClick={onClose} className="w-8 h-8 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 flex items-center justify-center text-zinc-400 transition text-sm">✕</button>
           </div>
         </div>
