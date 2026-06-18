@@ -210,7 +210,15 @@ function Dashboard() {
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
-      {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(view) => { handleViewChange(view); }} />}
+      {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(action) => {
+        if (typeof action === 'string') {
+          handleViewChange(action);
+        } else if (action.type === 'view') {
+          handleViewChange(action.target);
+        } else if (action.type === 'day') {
+          handleSelectDay(action.weekId, action.day);
+        }
+      }} progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} unlockedWeeks={unlockedWeeks} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
 
       {/* Desktop Navbar */}

@@ -1,27 +1,125 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
-const sampleNotifications = [
-  { id: 1, type: 'reminder', icon: '⏰', title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', read: false, color: '#F59E0B', action: 'dashboard' },
-  { id: 2, type: 'achievement', icon: '🏆', title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', read: true, color: '#A3E635', action: 'badges' },
-  { id: 3, type: 'pending', icon: '📋', title: '3 lessons pending', message: 'Week 1, Day 4-6 are waiting for you', time: '5 hours ago', read: false, color: '#06B6D4', action: 'progress' },
-  { id: 4, type: 'continue', icon: '▶️', title: 'Pick up where you left off', message: 'Week 2, Day 3: Personal Pronouns', time: '1 hour ago', read: false, color: '#22C55E', action: 'dashboard' },
-  { id: 5, type: 'weekly', icon: '📊', title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! 🔥 5-day streak', time: '1 day ago', read: true, color: '#06B6D4', action: 'progress' },
+const staticNotifications = [
+  { id: 1, type: 'reminder', icon: '⏰', title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', read: false, color: '#F59E0B', action: { type: 'view', target: 'dashboard' } },
+  { id: 2, type: 'achievement', icon: '🏆', title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', read: true, color: '#A3E635', action: { type: 'view', target: 'badges' } },
+  { id: 5, type: 'weekly', icon: '📊', title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', read: true, color: '#06B6D4', action: { type: 'view', target: 'progress' } },
 ];
 
-export default function NotificationPanel({ isOpen, onClose, onNavigate }) {
-  const [notifications, setNotifications] = useState(sampleNotifications);
-  const unreadCount = notifications.filter(n => !n.read).length;
+export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, levelData, visibleWeeks, unlockedWeeks }) {
+  const [notifications, setNotifications] = useState(() => {
+    const stored = localStorage.getItem('db_notifications');
+    return stored ? JSON.parse(stored) : staticNotifications;
+  });
+
+  const dynamicNotifications = useMemo(() => {
+    const dynamic = [];
+    const completed = progress?.completedTasks || [];
+    const unlocked = unlockedWeeks || [1];
+    const xp = progress?.xp || 0;
+
+    const nextDay = (() => {
+      if (!visibleWeeks) return null;
+      for (const week of visibleWeeks) {
+        if (!unlocked.includes(week.id)) continue;
+        for (const day of week.days) {
+          if (!day.tasks.every(t => completed.includes(t.id)))
+            return { weekId: week.id, day: day.day, weekTitle: week.title };
+        }
+      }
+      return null;
+    })();
+
+    if (nextDay) {
+      dynamic.push({
+        id: 'dyn-continue', type: 'continue', icon: '▶️',
+        title: `Continue: ${nextDay.weekTitle}`,
+        message: `Week ${nextDay.weekId}, Day ${nextDay.day} is waiting for you`,
+        time: 'Just now', read: false, color: '#22C55E',
+        action: { type: 'day', weekId: nextDay.weekId, day: nextDay.day },
+      });
+    }
+
+    const weekIds = [...new Set(visibleWeeks?.map(w => w.id) || [])];
+    const pendingDays = [];
+    for (const weekId of weekIds) {
+      const week = visibleWeeks?.find(w => w.id === weekId);
+      if (!week || !unlocked.includes(weekId)) continue;
+      for (const day of week.days) {
+        const pending = day.tasks.filter(t => !completed.includes(t.id));
+        if (pending.length > 0) pendingDays.push({ weekId, day: day.day, count: pending.length });
+      }
+    }
+    if (pendingDays.length > 0) {
+      const totalPending = pendingDays.reduce((s, d) => s + d.count, 0);
+      dynamic.push({
+        id: 'dyn-pending', type: 'pending', icon: '📋',
+        title: `${totalPending} ${totalPending === 1 ? 'task' : 'tasks'} remaining`,
+        message: `Across ${pendingDays.length} ${pendingDays.length === 1 ? 'day' : 'days'}`,
+        time: 'Just now', read: false, color: '#06B6D4',
+        action: { type: 'day', weekId: pendingDays[0].weekId, day: pendingDays[0].day },
+      });
+    }
+
+    const streak = progress?.streak || 0;
+    if (streak > 0 && streak % 5 === 0) {
+      dynamic.push({
+        id: 'dyn-streak', type: 'achievement', icon: '🔥',
+        title: `${streak}-Day Streak!`,
+        message: `You're on fire! Keep your ${streak}-day streak going.`,
+        time: 'Just now', read: false, color: '#F59E0B',
+        action: { type: 'view', target: 'progress' },
+      });
+    }
+
+    const lastStudyDate = progress?.lastStudyDate;
+    if (lastStudyDate) {
+      const today = new Date().toDateString();
+      const last = new Date(lastStudyDate).toDateString();
+      if (last !== today) {
+        dynamic.push({
+          id: 'dyn-reminder', type: 'reminder', icon: '⏰',
+          title: 'Time to study!',
+          message: 'You haven\'t studied today. Keep your streak alive!',
+          time: 'Just now', read: false, color: '#F59E0B',
+          action: { type: 'view', target: 'dashboard' },
+        });
+      }
+    }
+
+    return dynamic;
+  }, [progress, visibleWeeks, unlockedWeeks]);
+
+  const allNotifications = useMemo(() => {
+    const merged = [...dynamicNotifications];
+    const staticIds = new Set(merged.map(n => n.id));
+    for (const sn of notifications) {
+      if (!staticIds.has(sn.id)) merged.push(sn);
+    }
+    return merged;
+  }, [notifications, dynamicNotifications]);
+
+  const unreadCount = allNotifications.filter(n => !n.read).length;
 
   function markAllRead() {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    const updated = notifications.map(n => ({ ...n, read: true }));
+    setNotifications(updated);
+    localStorage.setItem('db_notifications', JSON.stringify(updated));
   }
 
   function handleNotificationClick(notification) {
-    setNotifications(prev => prev.map(n => n.id === notification.id ? { ...n, read: true } : n));
+    const updated = notifications.map(n => n.id === notification.id ? { ...n, read: true } : n);
+    setNotifications(updated);
+    localStorage.setItem('db_notifications', JSON.stringify(updated));
     if (notification.action && onNavigate) {
       onNavigate(notification.action);
     }
     onClose();
+  }
+
+  function formatTime(dateStr) {
+    if (dateStr === 'Just now') return 'Just now';
+    return dateStr;
   }
 
   if (!isOpen) return null;
@@ -43,14 +141,14 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate }) {
         </div>
 
         <div className="overflow-y-auto h-[calc(100%-64px)]">
-          {notifications.length === 0 ? (
+          {allNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-6">
               <div className="text-5xl mb-4">🎉</div>
               <p className="text-zinc-400 text-sm font-medium">No notifications yet!</p>
               <p className="text-zinc-600 text-xs mt-1">Complete lessons to earn achievements.</p>
             </div>
           ) : (
-            notifications.map(n => (
+            allNotifications.map(n => (
               <button key={n.id} onClick={() => handleNotificationClick(n)}
                 className={`w-full text-left p-4 border-b border-zinc-700/30 transition-all hover:bg-zinc-800/50 active:scale-[0.99] ${
                   !n.read ? 'bg-zinc-800/30' : ''
@@ -64,7 +162,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate }) {
                       {!n.read && <div className="w-2 h-2 rounded-full bg-cyan-500 flex-shrink-0 animate-cyan-pulse" />}
                     </div>
                     <p className="text-[12px] text-zinc-400 mt-0.5">{n.message}</p>
-                    <p className="text-[11px] text-zinc-600 mt-1">{n.time}</p>
+                    <p className="text-[11px] text-zinc-600 mt-1">{formatTime(n.time)}</p>
                   </div>
                 </div>
               </button>
