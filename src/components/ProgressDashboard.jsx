@@ -25,35 +25,7 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
 
   if (mode === 'statistics') {
     return (
-      <div className="fade-in space-y-5">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[
-            { icon: IconBolt, value: progress.xp, label: 'Total XP', color: '#A3E635' },
-            { icon: IconFire, value: progress.streak, label: 'Day Streak', color: '#F59E0B' },
-            { icon: IconChart, value: `${avgCompletion}%`, label: 'Progress', color: '#06B6D4' },
-            { icon: IconCheck, value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: '#22C55E' },
-          ].map((stat, i) => (
-            <div key={i} className="glass-card p-5 text-center">
-              <div className="flex justify-center mb-2"><stat.icon className="w-7 h-7" style={{ color: stat.color }} /></div>
-              <div className="text-2xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: 'Poppins, sans-serif' }}>{stat.value}</div>
-              <div className="text-[11px] text-zinc-500 font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
-            </div>
-          ))}
-        </div>
-        <div className="glass-card p-5">
-          <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Weekly Progress</h3>
-          <div className="space-y-3">
-            {weeklyStats.map(stat => (
-              <div key={stat.week} className="flex items-center gap-3">
-                <span className="text-[12px] font-bold text-zinc-500 w-8 tabular-nums">W{stat.week}</span>
-                <div className="flex-1 h-3 rounded-full overflow-hidden" style={{ background: '#3F3F46' }}>
-                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'linear-gradient(90deg, #A3E635, #06B6D4)' }} />
-                </div>
-                <span className="text-[12px] font-bold text-lime-400 w-10 text-right tabular-nums">{stat.completion}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="fade-in">
         <div className="glass-card p-5">
           <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Learning Statistics</h3>
           <div className="space-y-3">
