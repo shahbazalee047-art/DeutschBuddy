@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { getWeekCompletion } from '../utils/progress';
 import BadgeGallery from './BadgeGallery';
 
-export default function ProgressDashboard({ progress, levelData, visibleWeeks }) {
-  const [activeTab, setActiveTab] = useState('statistics');
+export default function ProgressDashboard({ progress, levelData, visibleWeeks, initialTab }) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'statistics');
   const levelWeeks = visibleWeeks || levelData.weeks;
   const weeklyStats = levelWeeks.map(week => ({ week: week.id, title: week.title, completion: getWeekCompletion(week.days, progress.completedTasks) }));
   const unlocked = weeklyStats.filter(w => w.completion > 0 || weeklyStats.indexOf(w) < (progress.unlockedWeeks?.length || 1));

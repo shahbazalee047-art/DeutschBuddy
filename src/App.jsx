@@ -30,7 +30,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function Dashboard() {
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [activeLevel, setActiveLevel] = useState('A1');
   const [selectedDay, setSelectedDay] = useState(null);
@@ -41,6 +41,8 @@ function Dashboard() {
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [activeProgressTab, setActiveProgressTab] = useState('statistics');
   const [historyStack, setHistoryStack] = useState([]);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
@@ -177,7 +179,7 @@ function Dashboard() {
   function renderMainContent() {
     if (activeView === 'community') return <CommunitySection user={user} />;
     if (activeView === 'profile') return <ProfilePage />;
-    if (activeView === 'progress') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />;
+    if (activeView === 'progress') return <ProgressDashboard key={activeProgressTab} progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} initialTab={activeProgressTab} />;
     if (activeView === 'badges') return <BadgeGallery badges={progress.badges || []} />;
     if (activeView === 'resources') return <ResourceLibrary resources={levelData.weeks.flatMap(w => w.resources || [])} />;
     if (selectedTask) {
@@ -212,7 +214,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
-      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} />}
+      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onProgressTab={setActiveProgressTab} />}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(action) => {
         if (typeof action === 'string') {
           handleViewChange(action);
@@ -232,25 +234,47 @@ function Dashboard() {
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(63, 63, 70, 0.3)' }}>
         <div className="flex items-center justify-between h-14 px-4">
-          <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-            <div className="w-8 h-8 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-sm font-bold shadow-sm shadow-lime-500/20">
-              <span className="text-base leading-none">🇩🇪</span>
-            </div>
-            <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-            <span className="text-base font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowSidebar(true)}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
+              <span className="text-xl">☰</span>
+            </button>
+            <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
+              className="flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+              <div className="w-8 h-8 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-sm font-bold shadow-sm shadow-lime-500/20">
+                <span className="text-base leading-none">🇩🇪</span>
+              </div>
+              <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
+              <span className="text-base font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+            </Link>
+          </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-lime-500/10 border border-lime-500/20 text-lime-400">⚡{progress.xp}</span>
+            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-lime-500/10 border border-lime-500/20 text-lime-400 tabular-nums">⚡{progress.xp}</span>
             <button onClick={() => setShowNotifications(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
               <span className="text-lg">🔔</span>
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />
             </button>
-            <button onClick={() => setShowSidebar(true)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
-              <span className="text-xl">☰</span>
-            </button>
+            <div className="relative">
+              <button onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-lime-500 to-cyan-500 flex items-center justify-center text-zinc-900 text-xs font-bold border-2 border-zinc-700 active:scale-90 transition-transform">
+                {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
+              </button>
+              {showProfileMenu && (
+                <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-zinc-700" style={{ background: '#20202A' }} onClick={e => e.stopPropagation()}>
+                  <div className="px-4 py-3 border-b border-zinc-700">
+                    <p className="text-sm font-semibold text-zinc-200 truncate">{profile?.full_name || 'Learner'}</p>
+                    <p className="text-[11px] text-zinc-500 truncate">{user?.email || ''}</p>
+                  </div>
+                  <button onClick={() => { setActiveView('profile'); setShowProfileMenu(false); setSelectedDay(null); setSelectedTask(null); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition">👤 Profile</button>
+                  <button onClick={() => { setActiveView('progress'); setShowProfileMenu(false); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition">⚙️ Settings</button>
+                  <button onClick={async () => { try { await signOut(); } catch {} navigate('/login'); }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
