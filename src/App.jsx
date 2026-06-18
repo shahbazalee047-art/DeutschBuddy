@@ -40,10 +40,10 @@ function Dashboard() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [todayXP, setTodayXP] = useState(0);
   const [showQuickTool, setShowQuickTool] = useState(false);
+  const [showSidebarVerbLookup, setShowSidebarVerbLookup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [activeProgressTab, setActiveProgressTab] = useState('statistics');
   const [historyStack, setHistoryStack] = useState([]);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
@@ -182,9 +182,12 @@ function Dashboard() {
   function renderMainContent() {
     if (activeView === 'community') return <CommunitySection user={user} />;
     if (activeView === 'profile') return <ProfilePage />;
-    if (activeView === 'progress') return <ProgressDashboard key={activeProgressTab} progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} initialTab={activeProgressTab} />;
+    if (activeView === 'progress') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />;
+    if (activeView === 'progress-statistics') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" />;
+    if (activeView === 'progress-skills') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" />;
+    if (activeView === 'progress-calendar') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" />;
     if (activeView === 'badges') return <BadgeGallery badges={progress.badges || []} />;
-    if (activeView === 'resources') return <ResourceLibrary resources={levelData.weeks.flatMap(w => w.resources || [])} />;
+    if (activeView === 'resources') return <ResourceLibrary resources={[...new Map(levelData.weeks.flatMap(w => w.resources || []).map(r => [r.name, r])).values()]} />;
     if (selectedTask) {
       return (
         <div className="fade-in">
@@ -217,7 +220,8 @@ function Dashboard() {
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
-      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} activeProgressTab={activeProgressTab} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onProgressTab={setActiveProgressTab} />}
+      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
+      {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(action) => {
         if (typeof action === 'string') {
           handleViewChange(action);
