@@ -12,6 +12,20 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
+// Force unregister any stale service worker to prevent caching issues
+if ('serviceWorker' in navigator && !sessionStorage.getItem('sw_cleared')) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    if (regs.length > 0) {
+      sessionStorage.setItem('sw_cleared', '1');
+      Promise.all(regs.map((r) => r.unregister())).then(() => window.location.reload());
+    }
+  });
+} else if ('serviceWorker' in navigator && 'https:' === window.location.protocol) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ErrorBoundary>
