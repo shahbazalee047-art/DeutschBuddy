@@ -4,6 +4,8 @@ import { IconChart, IconTarget, IconCalendar, IconX, IconBolt, IconSearch, IconL
 
 const progressSections = [
   { id: 'progress-statistics', label: 'Learning Statistics', icon: IconChart },
+  { id: 'progress-skills', label: 'Skill Breakdown', icon: IconTarget },
+  { id: 'progress-calendar', label: 'Activity Calendar', icon: IconCalendar },
 ];
 
 const dailyTips = [
