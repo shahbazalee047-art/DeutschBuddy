@@ -331,6 +331,11 @@ function Dashboard() {
         {/* Mobile: Single column */}
         <div className="lg:hidden">
           <Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}>{renderMainContent()}</Suspense>
+          {!selectedTask && !selectedDay && activeView === 'dashboard' && (
+            <div className="mt-6 space-y-4">
+              <Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><RightPanel progress={progress} streak={progress.streak} /></Suspense>
+            </div>
+          )}
         </div>
       </main>
 
