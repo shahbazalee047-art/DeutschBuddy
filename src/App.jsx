@@ -240,22 +240,20 @@ function Dashboard() {
 
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-40" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(63, 63, 70, 0.3)' }}>
-        <div className="flex items-center justify-between h-14 px-2 pl-1">
-          <div className="flex items-center gap-0">
-            <button onClick={() => setShowSidebar(true)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
-              <IconMenu className="w-5 h-5" />
-            </button>
-            <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-              className="flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-              <div className="w-8 h-8 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-sm font-bold shadow-sm shadow-lime-500/20">
-                <span className="text-base leading-none">🇩🇪</span>
-              </div>
-              <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-              <span className="text-base font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
-            </Link>
-          </div>
-          <div className="flex items-center gap-1.5">
+        <div className="grid grid-cols-3 items-center h-14 px-3">
+          <button onClick={() => setShowSidebar(true)}
+            className="justify-self-start w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
+            <IconMenu className="w-5 h-5" />
+          </button>
+          <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
+            className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+            <div className="w-9 h-9 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-base font-bold shadow-sm shadow-lime-500/20">
+              <span className="text-base leading-none">🇩🇪</span>
+            </div>
+            <span className="text-xl font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
+            <span className="text-xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+          </Link>
+          <div className="justify-self-end flex items-center gap-1.5">
             <button onClick={() => setShowNotifications(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
               <IconBell className="w-5 h-5" />
