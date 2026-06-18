@@ -61,9 +61,7 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
         <div className="flex items-center justify-between p-4 border-b border-zinc-700/50">
           <Link to="/" onClick={() => { onViewChange('dashboard'); onClose(); }}
             className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-sm font-bold shadow-sm shadow-lime-500/20">
-              <span>🇩🇪</span>
-            </div>
+            <span className="text-xl leading-none">🇩🇪</span>
             <span className="text-base font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>DeutschBuddy</span>
           </Link>
           <button onClick={onClose} className="w-8 h-8 rounded-lg bg-zinc-800/50 hover:bg-zinc-700/50 flex items-center justify-center text-zinc-400 transition"><IconX className="w-4 h-4" /></button>

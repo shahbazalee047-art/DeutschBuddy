@@ -25,20 +25,16 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
           {/* Mobile: centered logo */}
           <Link to="/" onClick={() => onViewChange('dashboard')}
             className="lg:hidden flex items-center justify-center flex-1 gap-3 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-            <div className="w-10 h-10 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-lg font-bold shadow-lg shadow-lime-500/20 animate-lime-glow">
-              <span className="text-lg leading-none">🇩🇪</span>
-            </div>
+            <span className="text-3xl leading-none">🇩🇪</span>
             <span className="text-2xl font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-2xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
           </Link>
 
           {/* Desktop: left logo, center nav, right icons */}
-          <div className="hidden lg:flex lg:items-center lg:w-full">
+          <div             className="hidden lg:flex lg:items-center lg:w-full">
             <Link to="/" onClick={() => onViewChange('dashboard')}
-              className="flex items-center gap-3 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-              <div className="w-11 h-11 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-lg font-bold shadow-lg shadow-lime-500/20 animate-lime-glow">
-                <span className="text-lg leading-none">🇩🇪</span>
-              </div>
+              className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+              <span className="text-[2rem] leading-none">🇩🇪</span>
               <span className="text-3xl font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
               <span className="text-3xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
             </Link>
