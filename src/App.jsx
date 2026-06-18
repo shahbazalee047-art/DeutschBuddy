@@ -16,7 +16,7 @@ import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
 import ProtectedRoute from './components/ProtectedRoute';
 import { IconBell, IconWave, IconUser, IconSettings, IconMenu } from './components/Icons';
-import { DayCompleteCelebration } from './components/ConfettiEffect';
+import DayCompleteCelebration from './components/ConfettiEffect';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';

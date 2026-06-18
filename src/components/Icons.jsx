@@ -87,3 +87,11 @@ export const IconActivity = (props) => si('g', props, [poly('22 12 18 12 15 21 9
 export const IconCheckCircle = (props) => si('g', props, [c(12, 12, 10), poly('9 12 11 14 15 10')]);
 export const IconMoon = (props) => si('g', props, [p('M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z')]);
 export const IconSun = (props) => si('g', props, [c(12, 12, 5), l('12 1 12 3'), l('12 21 12 23'), l('4.22 4.22 5.64 5.64'), l('18.36 18.36 5.64 5.64'), l('1 12 3 12'), l('21 12 23 12'), l('4.22 19.78 5.64 18.36'), l('18.36 5.64 5.64 4.22')]);
+
+export const IconWarning = (props) => si('g', props, [c(12, 12, 10), p('M12 2v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z')]);
+
+export const IconPlay = (props) => si('g', props, [c(12, 12, 10), p('M10 8l6 4-6 4V8z')]);
+
+export const IconPlayFilled = (props) => si('g', props, [poly('5 3 19 12 5 21 5 3z')]);
+
+export const IconSpeakerX = (props) => si('g', props, [poly('11 5 6 9 2 9 2 15 6 15 11 19 11 5'), l('23 9 9 23'), l('9 9 23 23')]);

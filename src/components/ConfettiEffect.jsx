@@ -1,4 +1,4 @@
-export default function ConfettiEffect() {
+export default function DayCompleteCelebration() {
   const confetti = Array.from({ length: 50 }, (_, i) => ({
     id: i,
     x: Math.random() * window.innerWidth,

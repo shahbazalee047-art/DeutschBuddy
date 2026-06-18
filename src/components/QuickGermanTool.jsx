@@ -10,38 +10,38 @@ export default function QuickGermanTool() {
     { english: 'to play', german: 'spielen' },
   ];
 
-  const conjugations = {
-    'laufen': {
-      present: { ich: 'laufe', du: 'läufst', er/sie/es: 'läuft', wir: 'laufen', ihr: 'lauft', sie/Sie: 'laufen' },
-      past: { ich: 'lief', du: 'liefst', er/sie/es: 'lief', wir: 'liefen', ihr: 'lauft', sie/Sie: 'liefen' },
-      future: { ich: 'werde laufen', du: 'wirst laufen', er/sie/es: 'wird laufen', wir: 'werden laufen', ihr: 'werdet laufen', sie/Sie: 'werden laufen' },
-    },
-    'denken': {
-      present: { ich: 'denke', du: 'denkst', er/sie/es: 'denkt', wir: 'denken', ihr: 'denkt', sie/Sie: 'denken' },
-      past: { ich: 'dachte', du: 'dachtest', er/sie/es: 'dachte', wir: 'dachten', ihr: 'dachtet', sie/Sie: 'dachten' },
-      future: { ich: 'werde denken', du: 'wirst denken', er/sie/es: 'wird denken', wir: 'werden denken', ihr: 'werdet denken', sie/Sie: 'werden denken' },
-    },
-    'essen': {
-      present: { ich: 'esse', du: 'ißt', er/sie/es: 'ißt', wir: 'essen', ihr: 'esst', sie/Sie: 'essen' },
-      past: { ich: 'aß', du: 'aßt', er/sie/es: 'aß', wir: 'aßen', ihr: 'aßt', sie/Sie: 'aßen' },
-      future: { ich: 'werde essen', du: 'wirst essen', er/sie/es: 'wird essen', wir: 'werden essen', ihr: 'werdet essen', sie/Sie: 'werden essen' },
-    },
-    'sprechen': {
-      present: { ich: 'spreche', du: 'sprichst', er/sie/es: 'spricht', wir: 'sprechen', ihr: 'sprecht', sie/Sie: 'sprechen' },
-      past: { ich: 'sprach', du: 'sprachst', er/sie/es: 'sprach', wir: 'sprachen', ihr: 'spracht', sie/Sie: 'sprachen' },
-      future: { ich: 'werde sprechen', du: 'wirst sprechen', er/sie/es: 'wird sprechen', wir: 'werden sprechen', ihr: 'werdet sprechen', sie/Sie: 'werden sprechen' },
-    },
-    'arbeiten': {
-      present: { ich: 'arbeite', du: 'arbeitest', er/sie/es: 'arbeitet', wir: 'arbeiten', ihr: 'arbeitet', sie/Sie: 'arbeiten' },
-      past: { ich: 'arbeitete', du: 'arbeitetest', er/sie/es: 'arbeitete', wir: 'arbeiteten', ihr: 'arbeitetet', sie/Sie: 'arbeiteten' },
-      future: { ich: 'werde arbeiten', du: 'wirst arbeiten', er/sie/es: 'wird arbeiten', wir: 'werden arbeiten', ihr: 'werdet arbeiten', sie/Sie: 'werden arbeiten' },
-    },
-    'spielen': {
-      present: { ich: 'spiele', du: 'spielst', er/sie/es: 'spielt', wir: 'spielen', ihr: 'spielt', sie/Sie: 'spielen' },
-      past: { ich: 'spielte', du: 'spieltest', er/sie/es: 'spielte', wir: 'spielten', ihr: 'spieltet', sie/Sie: 'spielten' },
-      future: { ich: 'werde spielen', du: 'wirst spielen', er/sie/es: 'wird spielen', wir: 'werden spielen', ihr: 'werdet spielen', sie/Sie: 'werden spielen' },
-    },
-  };
+   const conjugations = {
+     'laufen': {
+       present: { 'ich': 'laufe', 'du': 'läufst', 'er/sie/es': 'läuft', 'wir': 'laufen', 'ihr': 'lauft', 'sie/Sie': 'laufen' },
+       past: { 'ich': 'lief', 'du': 'liefst', 'er/sie/es': 'lief', 'wir': 'liefen', 'ihr': 'lauft', 'sie/Sie': 'liefen' },
+       future: { 'ich': 'werde laufen', 'du': 'wirst laufen', 'er/sie/es': 'wird laufen', 'wir': 'werden laufen', 'ihr': 'werdet laufen', 'sie/Sie': 'werden laufen' },
+     },
+     'denken': {
+       present: { 'ich': 'denke', 'du': 'denkst', 'er/sie/es': 'denkt', 'wir': 'denken', 'ihr': 'denkt', 'sie/Sie': 'denken' },
+       past: { 'ich': 'dachte', 'du': 'dachtest', 'er/sie/es': 'dachte', 'wir': 'dachten', 'ihr': 'dachtet', 'sie/Sie': 'dachten' },
+       future: { 'ich': 'werde denken', 'du': 'wirst denken', 'er/sie/es': 'wird denken', 'wir': 'werden denken', 'ihr': 'werdet denken', 'sie/Sie': 'werden denken' },
+     },
+     'essen': {
+       present: { 'ich': 'esse', 'du': 'ißt', 'er/sie/es': 'ißt', 'wir': 'essen', 'ihr': 'esst', 'sie/Sie': 'essen' },
+       past: { 'ich': 'aß', 'du': 'aßt', 'er/sie/es': 'aß', 'wir': 'aßen', 'ihr': 'aßt', 'sie/Sie': 'aßen' },
+       future: { 'ich': 'werde essen', 'du': 'wirst essen', 'er/sie/es': 'wird essen', 'wir': 'werden essen', 'ihr': 'werdet essen', 'sie/Sie': 'werden essen' },
+     },
+     'sprechen': {
+       present: { 'ich': 'spreche', 'du': 'sprichst', 'er/sie/es': 'spricht', 'wir': 'sprechen', 'ihr': 'sprecht', 'sie/Sie': 'sprechen' },
+       past: { 'ich': 'sprach', 'du': 'sprachst', 'er/sie/es': 'sprach', 'wir': 'sprachen', 'ihr': 'spracht', 'sie/Sie': 'sprachen' },
+       future: { 'ich': 'werde sprechen', 'du': 'wirst sprechen', 'er/sie/es': 'wird sprechen', 'wir': 'werden sprechen', 'ihr': 'werdet sprechen', 'sie/Sie': 'werden sprechen' },
+     },
+     'arbeiten': {
+       present: { 'ich': 'arbeite', 'du': 'arbeitest', 'er/sie/es': 'arbeitet', 'wir': 'arbeiten', 'ihr': 'arbeitet', 'sie/Sie': 'arbeiten' },
+       past: { 'ich': 'arbeitete', 'du': 'arbeitetest', 'er/sie/es': 'arbeitete', 'wir': 'arbeiteten', 'ihr': 'arbeitetet', 'sie/Sie': 'arbeiteten' },
+       future: { 'ich': 'werde arbeiten', 'du': 'wirst arbeiten', 'er/sie/es': 'wird arbeiten', 'wir': 'werden arbeiten', 'ihr': 'werdet arbeiten', 'sie/Sie': 'werden arbeiten' },
+     },
+     'spielen': {
+       present: { 'ich': 'spiele', 'du': 'spielst', 'er/sie/es': 'spielt', 'wir': 'spielen', 'ihr': 'spielt', 'sie/Sie': 'spielen' },
+       past: { 'ich': 'spielte', 'du': 'spieltest', 'er/sie/es': 'spielte', 'wir': 'spielten', 'ihr': 'spieltet', 'sie/Sie': 'spielten' },
+       future: { 'ich': 'werde spielen', 'du': 'wirst spielen', 'er/sie/es': 'wird spielen', 'wir': 'werden spielen', 'ihr': 'werdet spielen', 'sie/Sie': 'werden spielen' },
+     },
+   };
 
   const handleVerbSearch = (e) => {
     const query = e.target.value.toLowerCase().trim();
@@ -49,7 +49,7 @@ export default function QuickGermanTool() {
       const found = verbs.find(v => v.english.includes(query) || v.german.includes(query));
       if (found) {
         const tense = Object.keys(conjugations[found.german])[0];
-        alert(`German: ${found.german} - ${tense.charAt(0).toUpperCase() + tense.slice(1)}\n${JSON.stringify(conjugations[found.german][tense], null, 2)}`);
+        alert(`German: ${found.german} - ${tense.charAt(0).toUpperCase() + tense.slice(1)}`);
       }
     }
   };
