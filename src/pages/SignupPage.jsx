@@ -17,7 +17,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       await signUp(email, password, fullName);
-      navigate('/dashboard');
+      navigate('/login');
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   }
 
