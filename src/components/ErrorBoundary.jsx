@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import { IconInfo } from './Icons';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -19,7 +20,7 @@ export default class ErrorBoundary extends Component {
       return (
         <div className="min-h-screen flex items-center justify-center" style={{ background: '#18181B' }}>
           <div className="glass-card max-w-md w-full text-center p-8">
-            <div className="text-5xl mb-4">😵</div>
+            <div className="mb-4"><IconInfo className="w-12 h-12 mx-auto text-lime-400" /></div>
             <h1 className="text-xl font-bold text-zinc-100 mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>Something went wrong</h1>
             <p className="text-zinc-400 text-sm mb-4">{this.state.error?.message || 'An unexpected error occurred.'}</p>
             <button onClick={() => { this.setState({ hasError: false, error: null }); window.location.reload(); }}

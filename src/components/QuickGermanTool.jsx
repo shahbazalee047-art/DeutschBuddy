@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { IconSearch, IconSparkles, IconX } from './Icons';
 
 const verbsDb = {
   sein: { verb: 'sein', meaning: 'to be', prasens: ['bin', 'bist', 'ist', 'sind', 'seid', 'sind'], prateritum: ['war', 'warst', 'war', 'waren', 'wart', 'waren'], perfekt: ['bin gewesen', 'bist gewesen', 'ist gewesen', 'sind gewesen', 'seid gewesen', 'sind gewesen'] },
@@ -60,7 +61,10 @@ export function InlineVerbLookup() {
 
   return (
     <div>
-      <h4 className="text-sm font-bold text-zinc-200 mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>🔍 Verb Lookup</h4>
+      <div className="flex items-center gap-2 mb-3">
+        <IconSearch className="w-4 h-4 text-cyan-400" />
+        <h4 className="text-sm font-bold text-zinc-200" style={{ fontFamily: 'Poppins, sans-serif' }}>Verb Lookup</h4>
+      </div>
 
       <form onSubmit={handleSubmit} className="relative mb-3">
         <input type="text" value={query} onChange={e => { setQuery(e.target.value); setExpanded(false); }} placeholder="Search verb..." className="w-full h-10 px-4 pr-10 text-[13px] rounded-xl border border-zinc-700" style={{ background: '#27272A', color: '#D4D4D8' }} />
@@ -76,7 +80,7 @@ export function InlineVerbLookup() {
 
       {!expanded && !result && (
         <div className="rounded-2xl p-3 mb-2 border border-zinc-700" style={{ background: 'rgba(163, 230, 53, 0.05)' }}>
-          <p className="text-[10px] font-bold text-lime-400 mb-1 uppercase tracking-wider">✨ Verb of the Day</p>
+          <p className="text-[10px] font-bold text-lime-400 mb-1 uppercase tracking-wider flex items-center gap-1"><IconSparkles className="w-3 h-3" /> Verb of the Day</p>
           <p className="text-base font-bold text-zinc-100">{verbOfDay.verb}</p>
           <p className="text-[11px] text-zinc-500">{verbOfDay.meaning}</p>
           <div className="mt-2 flex flex-wrap gap-1">
@@ -146,7 +150,7 @@ export default function QuickGermanTool({ onClose }) {
       <div className="relative w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto rounded-3xl shadow-2xl border border-zinc-700 scale-in" onClick={e => e.stopPropagation()} style={{ background: '#18181B' }}>
         <div className="flex items-center justify-between p-5 border-b border-zinc-700">
           <h3 className="font-bold text-zinc-100 text-lg" style={{ fontFamily: 'Poppins, sans-serif' }}>Quick Verb Lookup</h3>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-zinc-200 transition text-sm">✕</button>
+          <button onClick={onClose} className="w-8 h-8 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-zinc-200 transition"><IconX className="w-4 h-4" /></button>
         </div>
 
         <div className="p-5">
@@ -164,7 +168,7 @@ export default function QuickGermanTool({ onClose }) {
 
           {!result && !query && (
             <div className="rounded-2xl p-5 mb-4 border border-zinc-700" style={{ background: 'rgba(163, 230, 53, 0.05)' }}>
-              <p className="text-[10px] font-bold text-lime-400 mb-2 uppercase tracking-wider">✨ Verb of the Day</p>
+              <p className="text-[10px] font-bold text-lime-400 mb-2 uppercase tracking-wider flex items-center gap-1"><IconSparkles className="w-3 h-3" /> Verb of the Day</p>
               <p className="text-lg font-bold text-zinc-100">{verbOfDay.verb}</p>
               <p className="text-[13px] text-zinc-500 mb-3">{verbOfDay.meaning}</p>
               <div className="grid grid-cols-2 gap-1 text-[12px] text-zinc-400">

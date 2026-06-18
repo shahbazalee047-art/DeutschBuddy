@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { IconVideo, IconEdit, IconBookOpen, IconBook, IconHeadphones, IconNewspaper, IconPodcast, IconLink } from './Icons';
 
 const FALLBACK_RESOURCES = [
   { name: 'Nicos Weg', description: 'Structured video course by Deutsche Welle for A1/A2 learners', url: 'https://learngerman.dw.com/en/overview', type: 'video' },
@@ -16,8 +17,8 @@ const FALLBACK_RESOURCES = [
 ];
 
 const TYPE_ICONS = {
-  video: '🎥', exercise: '📝', grammar: '📖', vocabulary: '📚',
-  listening: '🎧', reading: '📰', podcast: '🎙️',
+  video: IconVideo, exercise: IconEdit, grammar: IconBookOpen, vocabulary: IconBook,
+  listening: IconHeadphones, reading: IconNewspaper, podcast: IconPodcast,
 };
 
 const TYPE_COLORS = {
@@ -39,7 +40,10 @@ export default function ResourceLibrary({ resources }) {
   return (
     <div className="fade-in space-y-5">
       <div>
-        <h1 className="text-3xl font-bold text-zinc-100 mb-2" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>📚 Resource Library</h1>
+        <div className="flex items-center gap-3 mb-2">
+          <IconBook className="w-8 h-8 text-lime-400" />
+          <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>Resource Library</h1>
+        </div>
         <p className="text-zinc-500" style={{ fontSize: '16px', lineHeight: '1.5' }}>Curated external resources to accelerate your German learning</p>
       </div>
 
@@ -59,8 +63,8 @@ export default function ResourceLibrary({ resources }) {
           <a key={i} href={r.url} target="_blank" rel="noopener noreferrer"
             className="glass-card p-5 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group block active:scale-[0.98]">
             <div className="flex items-start justify-between mb-3">
-              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl border border-lime-500/10" style={{ background: 'rgba(163, 230, 53, 0.05)' }}>
-                {TYPE_ICONS[r.type] || '🔗'}
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center border border-lime-500/10" style={{ background: 'rgba(163, 230, 53, 0.05)' }}>
+                {(() => { const IconComp = TYPE_ICONS[r.type] || IconLink; return <IconComp className="w-6 h-6 text-lime-400" />; })()}
               </div>
               <span className="text-zinc-600 group-hover:text-lime-400 transition">↗</span>
             </div>

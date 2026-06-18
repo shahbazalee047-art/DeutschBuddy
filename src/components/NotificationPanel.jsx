@@ -1,9 +1,10 @@
 import { useState, useMemo, useCallback } from 'react';
+import { IconClock, IconTrophy, IconChart, IconArrowRight, IconClipboard, IconFire, IconSparkles } from './Icons';
 
 const staticNotifications = [
-  { id: 1, type: 'reminder', icon: '⏰', title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: '#F59E0B', action: { type: 'view', target: 'dashboard' } },
-  { id: 2, type: 'achievement', icon: '🏆', title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: '#A3E635', action: { type: 'view', target: 'badges' } },
-  { id: 5, type: 'weekly', icon: '📊', title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: '#06B6D4', action: { type: 'view', target: 'progress' } },
+  { id: 1, type: 'reminder', icon: IconClock, title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: '#F59E0B', action: { type: 'view', target: 'dashboard' } },
+  { id: 2, type: 'achievement', icon: IconTrophy, title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: '#A3E635', action: { type: 'view', target: 'badges' } },
+  { id: 5, type: 'weekly', icon: IconChart, title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: '#06B6D4', action: { type: 'view', target: 'progress' } },
 ];
 
 function loadReadIds() {
@@ -46,7 +47,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
 
     if (nextDay) {
       dynamic.push({
-        id: 'dyn-continue', type: 'continue', icon: '▶️',
+        id: 'dyn-continue', type: 'continue', icon: IconArrowRight,
         title: `Continue: ${nextDay.weekTitle}`,
         message: `Week ${nextDay.weekId}, Day ${nextDay.day} is waiting for you`,
         time: 'Just now', color: '#22C55E',
@@ -67,7 +68,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
     if (pendingDays.length > 0) {
       const totalPending = pendingDays.reduce((s, d) => s + d.count, 0);
       dynamic.push({
-        id: 'dyn-pending', type: 'pending', icon: '📋',
+        id: 'dyn-pending', type: 'pending', icon: IconClipboard,
         title: `${totalPending} ${totalPending === 1 ? 'task' : 'tasks'} remaining`,
         message: `Across ${pendingDays.length} ${pendingDays.length === 1 ? 'day' : 'days'}`,
         time: 'Just now', color: '#06B6D4',
@@ -78,7 +79,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
     const streak = progress?.streak || 0;
     if (streak > 0 && streak % 5 === 0) {
       dynamic.push({
-        id: 'dyn-streak', type: 'achievement', icon: '🔥',
+        id: 'dyn-streak', type: 'achievement', icon: IconFire,
         title: `${streak}-Day Streak!`,
         message: `You're on fire! Keep your ${streak}-day streak going.`,
         time: 'Just now', color: '#F59E0B',
@@ -92,7 +93,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
       const last = new Date(lastStudyDate).toDateString();
       if (last !== today) {
         dynamic.push({
-          id: 'dyn-reminder', type: 'reminder', icon: '⏰',
+          id: 'dyn-reminder', type: 'reminder', icon: IconClock,
           title: 'Time to study!',
           message: 'You haven\'t studied today. Keep your streak alive!',
           time: 'Just now', color: '#F59E0B',
@@ -151,7 +152,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         <div className="overflow-y-auto h-[calc(100%-64px)]">
           {allNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-              <div className="text-5xl mb-4">🎉</div>
+              <IconSparkles className="w-12 h-12 text-lime-400 mb-4" />
               <p className="text-zinc-400 text-sm font-medium">No notifications yet!</p>
               <p className="text-zinc-600 text-xs mt-1">Complete lessons to earn achievements.</p>
             </div>
@@ -162,8 +163,8 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
                   !n.read ? 'bg-zinc-800/30' : ''
                 }`} style={!n.read ? { borderLeft: `4px solid ${n.color}` } : {}}>
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
-                    style={{ background: `${n.color}15` }}>{n.icon}</div>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: `${n.color}15` }}>{typeof n.icon === 'function' ? <n.icon className="w-5 h-5" style={{ color: n.color }} /> : <span className="text-lg">{n.icon}</span>}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h4 className="text-[13px] font-semibold text-zinc-200 truncate">{n.title}</h4>

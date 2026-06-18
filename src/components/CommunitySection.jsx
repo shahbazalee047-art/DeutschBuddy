@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
+import { IconChat, IconSearch, IconMessageCircle, IconArrowUp, IconCheck, IconPlus } from './Icons';
 
 const samplePosts = [
   { id: 'sample-1', user: 'Maria K.', level: 'A2', avatar: 'M', title: 'Difference between "war" and "war gewesen"?', category: 'Grammar', content: 'I\'m confused about when to use Präteritum vs Perfekt in spoken German. Can someone explain the key differences?', upvotes: 24, comments: 8, time: '2h ago', solved: false },
@@ -157,12 +158,15 @@ export default function CommunitySection({ user }) {
     <div className="fade-in space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>💬 Community</h1>
+          <div className="flex items-center gap-3">
+            <IconChat className="w-7 h-7 text-lime-400" />
+            <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>Community</h1>
+          </div>
           <p className="text-zinc-500 text-sm mt-1">Discuss, ask questions, and share tips</p>
           {usingFallback && <span className="text-[11px] text-amber-400">Showing sample posts (DB not connected)</span>}
         </div>
         <button onClick={() => setShowCreateModal(true)}
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-900 text-lg transition-all hover:scale-110 active:scale-95" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }}>+</button>
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-zinc-900 transition-all hover:scale-110 active:scale-95" style={{ background: 'linear-gradient(135deg, #A3E635, #06B6D4)' }}><IconPlus className="w-5 h-5" /></button>
       </div>
 
       {/* Create Post Modal */}
@@ -225,7 +229,7 @@ export default function CommunitySection({ user }) {
         </div>
       ) : filtered.length === 0 ? (
         <div className="glass-card p-8 text-center">
-          <div className="text-4xl mb-3">🔍</div>
+          <IconSearch className="w-12 h-12 mx-auto mb-3 text-zinc-500" />
           <p className="text-zinc-400 font-medium">No posts in this category yet</p>
           <p className="text-zinc-600 text-sm mt-1">Be the first to start a discussion!</p>
         </div>
@@ -255,12 +259,12 @@ export default function CommunitySection({ user }) {
                 className={`flex items-center gap-1 text-[12px] transition active:scale-90 ${
                   upvotedIds.has(post.id) ? 'text-lime-400' : 'text-zinc-500 hover:text-lime-400'
                 }`}>
-                <span>▲</span><span>{post.upvotes}</span>
+                <IconArrowUp className="w-3.5 h-3.5" /><span>{post.upvotes}</span>
               </button>
               <button className="flex items-center gap-1 text-[12px] text-zinc-500 hover:text-cyan-400 transition active:scale-90">
-                <span>💬</span><span>{post.comments}</span>
+                <IconMessageCircle className="w-3.5 h-3.5" /><span>{post.comments}</span>
               </button>
-              {post.solved && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-lime-400 border border-lime-500/20" style={{ background: 'rgba(34, 197, 94, 0.1)' }}>✓ Solved</span>}
+              {post.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-lime-400 border border-lime-500/20" style={{ background: 'rgba(34, 197, 94, 0.1)' }}><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
             </div>
           </div>
         ))

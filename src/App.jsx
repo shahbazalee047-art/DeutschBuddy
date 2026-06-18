@@ -22,6 +22,7 @@ import NotificationPanel from './components/NotificationPanel';
 import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
 import ProtectedRoute from './components/ProtectedRoute';
+import { IconBell, IconBolt, IconWave, IconUser, IconSettings, IconLogOut, IconMenu } from './components/Icons';
 import { DayCompleteCelebration } from './components/ConfettiEffect';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
@@ -239,7 +240,7 @@ function Dashboard() {
           <div className="flex items-center gap-2">
             <button onClick={() => setShowSidebar(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition">
-              <span className="text-xl">☰</span>
+              <IconMenu className="w-5 h-5" />
             </button>
             <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
               className="flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all duration-150 select-none">
@@ -251,10 +252,10 @@ function Dashboard() {
             </Link>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-lime-500/10 border border-lime-500/20 text-lime-400 tabular-nums">⚡{progress.xp}</span>
+            <span className="flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full bg-lime-500/10 border border-lime-500/20 text-lime-400 tabular-nums"><IconBolt className="w-3.5 h-3.5" />{progress.xp}</span>
             <button onClick={() => setShowNotifications(true)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
-              <span className="text-lg">🔔</span>
+              <IconBell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />
             </button>
             <div className="relative">
@@ -269,9 +270,9 @@ function Dashboard() {
                     <p className="text-[11px] text-zinc-500 truncate">{user?.email || ''}</p>
                   </div>
                   <button onClick={() => { setActiveView('profile'); setShowProfileMenu(false); setSelectedDay(null); setSelectedTask(null); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition">👤 Profile</button>
+                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
                   <button onClick={() => { setActiveView('progress'); setShowProfileMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition">⚙️ Settings</button>
+                    className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
                   <button onClick={async () => { try { await signOut(); } catch {} navigate('/login'); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
                 </div>
@@ -287,7 +288,7 @@ function Dashboard() {
           <>
             <div className="mb-6 slide-up text-center lg:text-left">
               <h1 className="text-3xl font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>
-                Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! <span className="inline-block animate-cyan-pulse">👋</span>
+                Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! <IconWave className="w-7 h-7 inline-block align-text-bottom text-lime-400 animate-cyan-pulse" />
               </h1>
               <p className="text-zinc-500 mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
             </div>

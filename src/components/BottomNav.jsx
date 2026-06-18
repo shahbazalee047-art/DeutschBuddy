@@ -1,10 +1,12 @@
+import { IconHome, IconChart, IconTrophy, IconChat, IconBook } from './Icons';
+
 export default function BottomNav({ activeView, onViewChange }) {
   const items = [
-    { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
-    { id: 'progress', label: 'Progress', icon: '📊' },
-    { id: 'badges', label: 'Badges', icon: '🏆' },
-    { id: 'community', label: 'Community', icon: '💬' },
-    { id: 'resources', label: 'Resources', icon: '📚' },
+    { id: 'dashboard', label: 'Dashboard', icon: IconHome },
+    { id: 'progress', label: 'Progress', icon: IconChart },
+    { id: 'badges', label: 'Badges', icon: IconTrophy },
+    { id: 'community', label: 'Community', icon: IconChat },
+    { id: 'resources', label: 'Resources', icon: IconBook },
   ];
 
   return (
@@ -17,7 +19,7 @@ export default function BottomNav({ activeView, onViewChange }) {
                 ? 'text-lime-400 scale-110'
                 : 'text-zinc-600 hover:text-zinc-300'
             }`}>
-            <span className="text-xl">{item.icon}</span>
+            <item.icon className="w-5 h-5" />
             <span className="text-[10px] font-semibold">{item.label}</span>
             {activeView === item.id && <div className="w-1 h-1 rounded-full bg-lime-400 mt-0.5" />}
           </button>

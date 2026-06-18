@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
+import { IconChart, IconTarget, IconCalendar } from './Icons';
 
 const progressSections = [
-  { id: 'statistics', label: 'Learning Statistics', icon: '📊' },
-  { id: 'skills', label: 'Skill Breakdown', icon: '🎯' },
-  { id: 'calendar', label: 'Activity Calendar', icon: '📅' },
+  { id: 'statistics', label: 'Learning Statistics', icon: IconChart },
+  { id: 'skills', label: 'Skill Breakdown', icon: IconTarget },
+  { id: 'calendar', label: 'Activity Calendar', icon: IconCalendar },
 ];
 
 export default function MobileSidebar({ isOpen, onClose, activeView, activeProgressTab, onViewChange, activeLevel, onLevelChange, xp, onProgressTab }) {
@@ -40,7 +41,7 @@ export default function MobileSidebar({ isOpen, onClose, activeView, activeProgr
                   ? 'text-zinc-900 bg-lime-500 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
               }`}>
-              <span className="text-lg">{item.icon}</span>
+              <item.icon className="w-5 h-5 flex-shrink-0" />
               <span>{item.label}</span>
             </button>
           ))}

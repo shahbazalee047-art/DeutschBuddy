@@ -1,4 +1,5 @@
 import { getDayCompletion } from '../utils/progress';
+import { IconFire, IconBookOpen, IconEdit, IconHelpCircle, IconCards, IconLink, IconPencil, IconShuffle, IconMic, IconFeather, IconClipboard, IconTheater, IconSparkles, IconHeadphones, IconBolt } from './Icons';
 
 export default function DailyTasks({ week, day, completedTasks, onSelectTask, onBack }) {
   const dayData = week.days.find(d => d.day === day);
@@ -7,7 +8,7 @@ export default function DailyTasks({ week, day, completedTasks, onSelectTask, on
   const total = dayData.tasks.length;
   const allDone = completed === total;
 
-  const typeIcons = { warmup: '🔥', vocabulary: '📖', grammar: '📝', quiz: '❓', flashcards: '🃏', matching: '🔗', fillblank: '✏️', scramble: '🔀', speaking: '🗣️', writing: '✍️', review: '📋', roleplay: '🎭', fun: '🎉', listening: '🎧', quickwin: '⚡' };
+  const typeIcons = { warmup: IconFire, vocabulary: IconBookOpen, grammar: IconEdit, quiz: IconHelpCircle, flashcards: IconCards, matching: IconLink, fillblank: IconPencil, scramble: IconShuffle, speaking: IconMic, writing: IconFeather, review: IconClipboard, roleplay: IconTheater, fun: IconSparkles, listening: IconHeadphones, quickwin: IconBolt };
 
   return (
     <div className="fade-in">
@@ -31,7 +32,7 @@ export default function DailyTasks({ week, day, completedTasks, onSelectTask, on
         </div>
         {allDone && (
           <div className="mt-3 text-center text-sm font-semibold py-2 rounded-xl text-lime-400 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)' }}>
-            🎉 Day Complete! +{dayData.tasks.reduce((a, t) => a + t.xp, 0)} XP
+            <IconSparkles className="w-4 h-4 inline-block mr-1.5" /> Day Complete! +{dayData.tasks.reduce((a, t) => a + t.xp, 0)} XP
           </div>
         )}
       </div>
@@ -47,7 +48,7 @@ export default function DailyTasks({ week, day, completedTasks, onSelectTask, on
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg flex-shrink-0 ${
                   done ? 'text-zinc-900' : 'text-zinc-400 bg-zinc-800'
                 }`} style={done ? { background: 'linear-gradient(135deg, #A3E635, #06B6D4)' } : {}}>
-                  {done ? '✓' : typeIcons[task.type] || '📌'}
+                  {(() => { const IconComp = done ? IconCheck : (typeIcons[task.type] || IconBook); return <IconComp className="w-5 h-5" />; })()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-[11px] font-bold text-zinc-500 uppercase tracking-wider">{index + 1}. {task.type}</div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
+import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSearch, IconBolt, IconUser, IconSettings, IconLogOut } from './Icons';
 
 export default function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool, onNotifications }) {
   const { user, profile, signOut } = useAuth();
@@ -10,11 +11,11 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
   async function handleSignOut() { await signOut(); navigate('/login'); }
 
   const navLinks = [
-    { id: 'dashboard', label: 'Dashboard', icon: '🏠' },
-    { id: 'progress', label: 'Progress', icon: '📊' },
-    { id: 'badges', label: 'Badges', icon: '🏆' },
-    { id: 'community', label: 'Community', icon: '💬' },
-    { id: 'resources', label: 'Resources', icon: '📚' },
+    { id: 'dashboard', label: 'Dashboard', icon: IconHome },
+    { id: 'progress', label: 'Progress', icon: IconChart },
+    { id: 'badges', label: 'Badges', icon: IconTrophy },
+    { id: 'community', label: 'Community', icon: IconChat },
+    { id: 'resources', label: 'Resources', icon: IconBook },
   ];
 
   return (
@@ -38,7 +39,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
                   activeView === link.id ? 'text-[#18181B] bg-lime-400 shadow-md shadow-lime-500/20' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
                 }`}>
-                <span>{link.icon}</span>{link.label}
+                <link.icon className="w-4 h-4" />{link.label}
               </button>
             ))}
           </nav>
@@ -47,7 +48,7 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
           <div className="flex items-center gap-2.5">
             {/* XP Badge */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-lime-500/10 border border-lime-500/20">
-              <span className="text-sm">⚡</span>
+              <IconBolt className="w-4 h-4 text-lime-400" />
               <span className="text-sm font-bold text-lime-400 tabular-nums">{xp}</span>
             </div>
 
@@ -68,13 +69,13 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
             <div className="flex items-center gap-2">
               <button onClick={onNotifications}
                 className="flex items-center justify-center w-10 h-10 rounded-xl text-zinc-400 hover:text-lime-400 hover:bg-lime-500/10 transition relative">
-                <span className="text-lg">🔔</span>
+                <IconBell className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error animate-cyan-pulse" />
               </button>
 
               <button onClick={onQuickTool}
                 className="flex items-center justify-center w-10 h-10 rounded-xl text-zinc-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition">
-                <span className="text-lg">🔍</span>
+                <IconSearch className="w-5 h-5" />
               </button>
 
               <div className="relative">
@@ -88,8 +89,8 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
                       <p className="text-sm font-semibold text-zinc-200 truncate">{profile?.full_name || 'Learner'}</p>
                       <p className="text-[11px] text-zinc-500 truncate">{user?.email}</p>
                     </div>
-                    <button onClick={() => { onViewChange('profile'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition">👤 Profile</button>
-                    <button onClick={() => { onViewChange('progress'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition">⚙️ Settings</button>
+                    <button onClick={() => { onViewChange('profile'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
+                    <button onClick={() => { onViewChange('progress'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
                     <button onClick={handleSignOut} className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
                   </div>
                 )}

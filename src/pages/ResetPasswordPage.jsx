@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { IconCheck } from '../components/Icons';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
@@ -25,7 +26,7 @@ export default function ResetPasswordPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#18181B' }}>
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)' }}>✅</div>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)' }}><IconCheck className="w-8 h-8 text-lime-400" /></div>
           <h1 className="text-3xl font-bold text-zinc-100 mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>Password updated!</h1>
           <p className="text-zinc-400">Redirecting to login...</p>
         </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { IconMail } from '../components/Icons';
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -26,7 +27,7 @@ export default function SignupPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6" style={{ background: '#18181B' }}>
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-6 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)' }}>📬</div>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)' }}><IconMail className="w-7 h-7 text-lime-400" /></div>
           <h1 className="text-3xl font-bold text-zinc-100 mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>Check your email</h1>
           <p className="text-zinc-400 mb-6" style={{ fontSize: '16px', lineHeight: '1.6' }}>
             We've sent a confirmation link to <strong className="text-zinc-200">{email}</strong>. Please verify to continue.

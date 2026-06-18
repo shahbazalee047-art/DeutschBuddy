@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import SpeakerButton from './SpeakerButton';
+import { IconShuffle, IconSparkles, IconHeart } from './Icons';
 export default function Scramble({ content, onComplete }) {
   const [idx, setIdx] = useState(0); const [input, setInput] = useState(''); const [show, setShow] = useState(false); const [score, setScore] = useState(0);
   const words = content.words || [];
@@ -8,7 +9,7 @@ export default function Scramble({ content, onComplete }) {
   function submit() { const ok = input.trim().toLowerCase() === w.answer.toLowerCase(); if (ok) setScore(p => p + 1); setShow(true); setTimeout(() => { if (isLast) onComplete(); else { setIdx(p => p + 1); setInput(''); setShow(false); } }, 1200); }
   return (
     <div className="fade-in">
-      <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-zinc-100 text-lg">🔀 Unscramble</h3><span className="text-sm font-bold text-lime-400">{score}/{words.length}</span></div>
+      <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-zinc-100 text-lg flex items-center gap-2"><IconShuffle className="w-5 h-5 text-lime-400" /> Unscramble</h3><span className="text-sm font-bold text-lime-400">{score}/{words.length}</span></div>
       <div className="progress-bar mb-5"><div className="progress-bar-fill" style={{ width: `${((idx + 1) / words.length) * 100}%` }} /></div>
       <div className="glass-card p-6 mb-4 text-center">
         <p className="text-[11px] text-zinc-500 mb-4 uppercase font-medium" style={{ letterSpacing: '0.5px' }}>Unscramble the German word:</p>
@@ -16,7 +17,7 @@ export default function Scramble({ content, onComplete }) {
         <div className="flex items-center justify-center gap-3 mb-3"><input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && !show && submit()} disabled={show} placeholder="Type the word..." className="w-56 paper-input text-center text-lg font-medium" /><SpeakerButton text={w.answer} size="md" /></div>
         {!show && <button onClick={submit} className="btn-primary px-6 active:scale-95">Check</button>}
       </div>
-      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-zinc-900`} style={{ background: input.trim().toLowerCase() === w.answer.toLowerCase() ? '#22C55E' : '#F59E0B' }}>{input.trim().toLowerCase() === w.answer.toLowerCase() ? 'Richtig! 🎉' : `Answer: "${w.answer}" 💪`}</div>}
+      {show && <div className={`text-center p-3 rounded-2xl text-sm font-semibold text-zinc-900`} style={{ background: input.trim().toLowerCase() === w.answer.toLowerCase() ? '#22C55E' : '#F59E0B' }}>{input.trim().toLowerCase() === w.answer.toLowerCase() ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{w.answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
     </div>
   );
 }

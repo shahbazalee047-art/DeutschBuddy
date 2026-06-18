@@ -1,21 +1,22 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { IconFlag, IconCalendar, IconTrophy, IconTarget, IconBook } from '../components/Icons';
 
 const slides = [
   {
-    icon: '🇩🇪',
+    icon: IconFlag,
     title: 'Learn German the Fun Way!',
     description: 'Master German with structured lessons, gamification, and community support.',
     accent: '#A3E635',
   },
   {
-    icon: '📅',
+    icon: IconCalendar,
     title: '8-Week Structured Curriculum',
     description: 'From A1 to A2 with clear milestones and progress tracking.',
     accent: '#06B6D4',
   },
   {
-    icon: '🏆',
+    icon: IconTrophy,
     title: 'Earn Badges & Maintain Streaks',
     description: 'Stay motivated with XP points, daily streaks, and achievement badges.',
     accent: '#F59E0B',
@@ -51,7 +52,7 @@ export default function OnboardingPage() {
               selectedLevel === 'A1' ? 'border-lime-500 bg-lime-500/10 shadow-lg shadow-lime-500/10' : 'glass-card hover:border-lime-500/30'
             }`}>
             <div className="flex items-center gap-4">
-              <div className="text-3xl">🎯</div>
+              <IconTarget className="w-8 h-8 text-lime-400" />
               <div>
                 <h3 className="text-lg font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>A1 - Beginner</h3>
                 <p className="text-[13px] text-zinc-400 mt-1">Complete beginner? Start here. Learn alphabet, greetings, basic grammar.</p>
@@ -63,7 +64,7 @@ export default function OnboardingPage() {
               selectedLevel === 'A2' ? 'border-cyan-500 bg-cyan-500/10 shadow-lg shadow-cyan-500/10' : 'glass-card hover:border-cyan-500/30'
             }`}>
             <div className="flex items-center gap-4">
-              <div className="text-3xl">📚</div>
+              <IconBook className="w-8 h-8 text-cyan-400" />
               <div>
                 <h3 className="text-lg font-bold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>A2 - Elementary</h3>
                 <p className="text-[13px] text-zinc-400 mt-1">Know some German? Test into A2. Past tenses, complex sentences, travel vocabulary.</p>
@@ -83,7 +84,7 @@ export default function OnboardingPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-12" style={{ background: '#18181B' }}>
       <div className="w-full max-w-md text-center">
-        <div className="text-7xl mb-8 animate-float">{slide.icon}</div>
+        <slide.icon className="w-24 h-24 mx-auto mb-8 text-lime-400 animate-float" />
         <h1 className="text-3xl font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif', letterSpacing: '-0.5px' }}>{slide.title}</h1>
         <p className="text-zinc-400 mb-10" style={{ fontSize: '16px', lineHeight: '1.6' }}>{slide.description}</p>
 

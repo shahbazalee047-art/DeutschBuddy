@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { InlineVerbLookup } from './QuickGermanTool';
+import { IconBolt, IconTarget, IconTrophy, IconDiamond, IconLightbulb, IconFlag } from './Icons';
 
 const dailyTips = [
   { tip: 'German compound nouns take the gender of the last word. "der Hand-schuh" is masculine.', tag: 'Grammar' },
@@ -74,11 +75,11 @@ export default function RightPanel({ progress, streak }) {
   }, []);
 
   const milestones = [
-    { label: '10 XP', target: 10, icon: '⚡' },
-    { label: '50 XP', target: 50, icon: '🎯' },
-    { label: '100 XP', target: 100, icon: '🏆' },
+    { label: '10 XP', target: 10, icon: IconBolt },
+    { label: '50 XP', target: 50, icon: IconTarget },
+    { label: '100 XP', target: 100, icon: IconTrophy },
   ];
-  const nextMilestone = milestones.find(m => progress.xp < m.target) || { label: 'Legend', target: 1000, icon: '💎' };
+  const nextMilestone = milestones.find(m => progress.xp < m.target) || { label: 'Legend', target: 1000, icon: IconDiamond };
 
   return (
     <div className="space-y-4">
@@ -89,7 +90,10 @@ export default function RightPanel({ progress, streak }) {
 
       {/* Stats */}
       <div className="glass-card p-4">
-        <h4 className="text-sm font-bold text-zinc-200 mb-3" style={{ fontFamily: 'Poppins, sans-serif' }}>⚡ Your Stats</h4>
+        <div className="flex items-center gap-2 mb-3">
+          <IconBolt className="w-4 h-4 text-lime-400" />
+          <h4 className="text-sm font-bold text-zinc-200" style={{ fontFamily: 'Poppins, sans-serif' }}>Your Stats</h4>
+        </div>
         <div className="grid grid-cols-2 gap-3 mb-4">
           <div className="rounded-2xl p-4 text-center border border-lime-500/10" style={{ background: 'rgba(163, 230, 53, 0.05)' }}>
             <div className="text-2xl font-bold tabular-nums text-lime-400">{progress.xp}</div>
@@ -102,7 +106,7 @@ export default function RightPanel({ progress, streak }) {
         </div>
         <div>
           <div className="flex justify-between text-[12px] text-zinc-400 mb-1">
-            <span>Next: {nextMilestone.icon} {nextMilestone.label}</span>
+            <span>Next: <nextMilestone.icon className="w-3.5 h-3.5 inline-block align-text-bottom text-lime-400" /> {nextMilestone.label}</span>
             <span>{progress.xp}/{nextMilestone.target}</span>
           </div>
           <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: '#3F3F46' }}>
@@ -114,7 +118,7 @@ export default function RightPanel({ progress, streak }) {
       {/* Tip of the Day */}
       <div className="glass-card p-4">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm">💡</span>
+          <IconLightbulb className="w-4 h-4 text-cyan-400" />
           <h4 className="text-sm font-bold text-zinc-200" style={{ fontFamily: 'Poppins, sans-serif' }}>Tip of the Day</h4>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-lime-500/20" style={{ background: 'rgba(163, 230, 53, 0.1)', color: '#A3E635' }}>{tip.tag}</span>
         </div>
@@ -124,7 +128,7 @@ export default function RightPanel({ progress, streak }) {
       {/* Did You Know */}
       <div className="glass-card p-4">
         <div className="flex items-center gap-2 mb-2">
-          <span className="text-sm">🇩🇪</span>
+          <IconFlag className="w-4 h-4 text-lime-400" />
           <h4 className="text-sm font-bold text-zinc-200" style={{ fontFamily: 'Poppins, sans-serif' }}>Did You Know?</h4>
         </div>
         <p className="text-[13px] text-zinc-300 leading-relaxed">{fact}</p>

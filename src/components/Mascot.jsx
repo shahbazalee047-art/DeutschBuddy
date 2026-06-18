@@ -1,3 +1,5 @@
+import { IconBear, IconSparkles, IconHelpCircle, IconHeart, IconWave, IconMoon } from './Icons';
+
 export default function Mascot({ mood = 'happy', size = 'md', className = '' }) {
   const sizes = {
     sm: 'w-8 h-8',
@@ -7,19 +9,19 @@ export default function Mascot({ mood = 'happy', size = 'md', className = '' }) 
   };
 
   const faces = {
-    happy: '🐻',
-    excited: '🎉',
-    thinking: '🤔',
-    proud: '💪',
-    waving: '👋',
-    sleeping: '😴',
+    happy: IconBear,
+    excited: IconSparkles,
+    thinking: IconHelpCircle,
+    proud: IconHeart,
+    waving: IconWave,
+    sleeping: IconMoon,
   };
+
+  const FaceIcon = faces[mood] || faces.happy;
 
   return (
     <div className={`${sizes[size]} inline-flex items-center justify-center ${className}`}>
-      <span className="animate-float" role="img" aria-label="mascot">
-        {faces[mood] || faces.happy}
-      </span>
+      <FaceIcon className="w-full h-full text-lime-400 animate-float" />
     </div>
   );
 }

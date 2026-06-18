@@ -1,4 +1,5 @@
 import { getWeekCompletion } from '../utils/progress';
+import { IconLock } from './Icons';
 
 export default function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked }) {
   const completion = getWeekCompletion(week.days, completedTasks);
@@ -54,7 +55,7 @@ export default function WeeklyModule({ week, completedTasks, onSelectDay, select
 
         {!isUnlocked && (
           <div className="flex items-center justify-center gap-2 py-2 text-zinc-500 text-sm">
-            <span>🔒</span> Complete previous week to unlock
+            <IconLock className="w-4 h-4" /> Complete previous week to unlock
           </div>
         )}
       </div>
