@@ -25,6 +25,18 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function Dashboard() {
   const { user, profile, signOut } = useAuth();
+
+  // Safety check for auth state
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#18181B' }}>
+        <div className="text-center">
+          <div className="text-5xl mb-4">🇩🇪</div>
+          <p className="text-zinc-400 text-sm">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
   const navigate = useNavigate();
   const [activeLevel, setActiveLevel] = useState('A1');
   const [selectedDay, setSelectedDay] = useState(null);
