@@ -21,31 +21,22 @@ export default function Navbar({ activeView, onViewChange, activeLevel, onLevelC
   return (
     <header className="sticky top-0 z-50" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(63, 63, 70, 0.3)' }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Brand Logo - routes to root */}
+        <div className="grid grid-cols-3 items-center h-16">
+          {/* Left spacer */}
+          <div></div>
+
+          {/* Center: Brand Logo */}
           <Link to="/" onClick={() => onViewChange('dashboard')}
-            className="flex items-center gap-2.5 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-            <div className="w-10 h-10 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-base font-bold shadow-lg shadow-lime-500/20 animate-lime-glow">
-              <span className="text-base leading-none">🇩🇪</span>
+            className="flex items-center justify-center gap-3 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+            <div className="w-11 h-11 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-lg font-bold shadow-lg shadow-lime-500/20 animate-lime-glow">
+              <span className="text-lg leading-none">🇩🇪</span>
             </div>
-            <span className="text-2xl font-extrabold text-zinc-100 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
-            <span className="text-2xl font-extrabold text-lime-400 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
+            <span className="text-3xl font-extrabold text-zinc-100 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
+            <span className="text-3xl font-extrabold text-lime-400 hidden sm:block" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map(link => (
-              <button key={link.id} onClick={() => onViewChange(link.id)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
-                  activeView === link.id ? 'text-[#18181B] bg-lime-400 shadow-md shadow-lime-500/20' : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800'
-                }`}>
-                <link.icon className="w-4 h-4" />{link.label}
-              </button>
-            ))}
-          </nav>
-
           {/* Right Side */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-end gap-2.5">
             {/* Level Switcher */}
             <div className="flex rounded-xl overflow-hidden border border-zinc-700">
               {['A1', 'A2'].map(lvl => (
