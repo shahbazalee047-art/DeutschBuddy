@@ -13,6 +13,11 @@ export default class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught:', error, errorInfo);
+    if (error?.message?.includes('Failed to fetch dynamically imported module') ||
+        error?.message?.includes('dynamic import') ||
+        error?.name === 'ChunkLoadError') {
+      window.location.reload();
+    }
   }
 
   render() {

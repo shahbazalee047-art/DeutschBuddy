@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deutschbuddy-v1';
+const CACHE_NAME = 'deutschbuddy-v2';
 const STATIC_ASSETS = [
   '/',
   '/login',
@@ -32,8 +32,9 @@ self.addEventListener('fetch', (event) => {
         if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+          return response;
         }
-        return response;
+        return caches.match(event.request).then((cached) => cached || response);
       })
       .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/')))
   );
