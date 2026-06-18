@@ -67,8 +67,9 @@ export default function RightPanel({ progress, streak }) {
     const authData = JSON.parse(localStorage.getItem('db_auth_session') || 'null');
     if (authData && authData.user?.id !== prevUserRef.current) {
       prevUserRef.current = authData.user?.id;
-      setDidIndex(getRandomFact(didIndex));
-      localStorage.setItem('db_didyouknow_seed', JSON.stringify({ date: new Date().toDateString(), index: didIndex }));
+      const newIdx = getRandomFact(didIndex);
+      setDidIndex(newIdx);
+      localStorage.setItem('db_didyouknow_seed', JSON.stringify({ date: new Date().toDateString(), index: newIdx }));
     }
   }, []);
 

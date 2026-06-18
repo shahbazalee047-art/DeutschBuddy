@@ -1,24 +1,22 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useProgress } from './hooks/useProgress';
-import a1Data from './data/a1Data';
-import a1FastTrackData from './data/a1FastTrackData';
-import a2Data from './data/a2Data';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
-import RightPanel from './components/RightPanel';
+const ProgressDashboard = lazy(() => import('./components/ProgressDashboard'));
+const BadgeGallery = lazy(() => import('./components/BadgeGallery'));
+const CommunitySection = lazy(() => import('./components/CommunitySection'));
+const ResourceLibrary = lazy(() => import('./components/ResourceLibrary'));
+const ProfilePage = lazy(() => import('./components/ProfilePage'));
+const QuickGermanTool = lazy(() => import('./components/QuickGermanTool'));
+const RightPanel = lazy(() => import('./components/RightPanel'));
+
 import WeeklyModule from './components/WeeklyModule';
 import DailyTasks from './components/DailyTasks';
 import TaskRenderer from './components/TaskRenderer';
-import ProgressDashboard from './components/ProgressDashboard';
-import BadgeGallery from './components/BadgeGallery';
-import ResourceLibrary from './components/ResourceLibrary';
-import CommunitySection from './components/CommunitySection';
 import NotificationPanel from './components/NotificationPanel';
-import ProfilePage from './components/ProfilePage';
 import TrackToggle from './components/TrackToggle';
-import QuickGermanTool from './components/QuickGermanTool';
 import ProtectedRoute from './components/ProtectedRoute';
 import { DayCompleteCelebration } from './components/ConfettiEffect';
 import Footer from './components/Footer';
@@ -42,15 +40,28 @@ function Dashboard() {
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
   const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
+  const [levelData, setLevelData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
 
   const historyRef = useRef(historyStack);
   historyRef.current = historyStack;
 
   function handleToggleTrackMode(mode) { setLocalTrackMode(mode); setTrackMode(mode); }
 
-  const levelData = activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data);
+  useEffect(() => {
+    let cancelled = false;
+    setDataLoading(true);
+    const file = activeLevel === 'A1' && trackMode === 'fast' ? './data/a1FastTrackData.js'
+      : activeLevel === 'A1' ? './data/a1Data.js'
+      : './data/a2Data.js';
+    import(file).then(mod => {
+      if (!cancelled) { setLevelData(mod.default); setDataLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [activeLevel, trackMode]);
+
   const unlockedWeeks = progress.unlockedWeeks || [1];
-  const visibleWeeks = levelData.weeks;
+  const visibleWeeks = levelData?.weeks || [];
 
   const handleSelectDay = (weekId, day) => {
     setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
@@ -159,7 +170,7 @@ function Dashboard() {
     };
   }, [selectedTask, selectedDay, activeView, historyStack.length, handleBackNavigation]);
 
-  if (loading) {
+  if (loading || dataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#18181B' }}>
         <div className="flex flex-col items-center gap-4 scale-in">
@@ -208,7 +219,7 @@ function Dashboard() {
 
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
-      {showQuickTool && <QuickGermanTool onClose={() => setShowQuickTool(false)} />}
+      {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(view) => { handleViewChange(view); }} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
 
@@ -281,16 +292,16 @@ function Dashboard() {
 
         {/* Desktop: Two-column layout */}
         <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">{renderMainContent()}</div>
-          <div className="lg:col-span-1"><RightPanel progress={progress} streak={progress.streak} /></div>
+          <div className="lg:col-span-2"><Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}>{renderMainContent()}</Suspense></div>
+          <div className="lg:col-span-1"><Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><RightPanel progress={progress} streak={progress.streak} /></Suspense></div>
         </div>
 
         {/* Mobile: Single column */}
         <div className="lg:hidden">
-          {renderMainContent()}
+          <Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}>{renderMainContent()}</Suspense>
           {!selectedTask && !selectedDay && activeView === 'dashboard' && (
             <div className="mt-6 space-y-4">
-              <RightPanel progress={progress} streak={progress.streak} />
+              <Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><RightPanel progress={progress} streak={progress.streak} /></Suspense>
             </div>
           )}
         </div>

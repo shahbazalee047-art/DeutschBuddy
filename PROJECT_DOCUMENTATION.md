@@ -406,16 +406,19 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 | Premium Beige theme remnants | Migrated to Electric Lime & Midnight across all components | Phase 5 |
 | Old PWA manifest colors | Updated to `#18181B` / `#A3E635` | Phase 5 |
 | A2 weeks 3-8 empty | Generated full curriculum via Python script | Phase 5 |
+| 669 kB main chunk warning | Code splitting via React.lazy + dynamic data imports | Phase 5 |
+| BottomNav safe-area-bottom missing | Added `.safe-area-bottom` CSS utility and class | Phase 5 |
+| Did You Know localStorage stale on login | Fixed to store new index in localStorage | Phase 5 |
 
 ### Remaining Known Issues
 - Notification items could be more dynamically routable
 - Community section uses static mock data (not from database)
-- `BottomNav` has `safe-area-bottom` class but CSS not defined in Tailwind v4
 
 ### Important Notes for New Sessions
 - **Node.js**: Must load via nvm: `export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"`
 - **Tailwind v4**: Uses `@import "tailwindcss"` (not v3 syntax). Custom tokens in `@theme {}` block inside `index.css`
 - **Theme**: Electric Lime & Midnight — `#18181B` zinc bg, `#A3E635` lime accent, `#06B6D4` cyan secondary
+- **Code splitting**: Curriculum data (a1Data, a2Data, a1FastTrackData) loaded dynamically via `import()` based on active level; heavy view components (ProgressDashboard, BadgeGallery, CommunitySection, ResourceLibrary, ProfilePage, QuickGermanTool, RightPanel) use `React.lazy()`
 - **No social auth**: Email/password only (Google/GitHub removed)
 - **No demo mode**: Removed entirely
 - **Footer**: "Made with ❤️ by Shahbaz Ali" (native heart emoji)
@@ -486,15 +489,15 @@ german-learning/
 │   │   ├── ResetPasswordPage.jsx
 │   │   └── OnboardingPage.jsx
 │   ├── data/
-│   │   ├── a1Data.js               # A1 curriculum (8 weeks, full content Week 1-2)
-│   │   ├── a2Data.js               # A2 curriculum (8 weeks, fully populated)
+│   │   ├── a1Data.js               # A1 curriculum (8 weeks)
+│   │   ├── a2Data.js               # A2 curriculum (8 weeks)
 │   │   └── a1FastTrackData.js      # A1 fast track (6 weeks)
 │   ├── utils/
 │   │   ├── progress.js             # Progress helpers
 │   │   └── speech.js               # Text-to-speech
-│   ├── App.jsx                     # Main app with routing
+│   ├── App.jsx                     # Main app with routing + React.lazy code splitting
 │   ├── main.jsx                    # Entry point + ErrorBoundary
-│   └── index.css                   # Tailwind v4 + custom classes
+│   └── index.css                   # Tailwind v4 + custom classes + safe-area utilities
 ├── supabase/
 │   ├── schema.sql
 │   └── fix-rls.sql

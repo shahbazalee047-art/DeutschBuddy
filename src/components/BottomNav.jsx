@@ -8,7 +8,7 @@ export default function BottomNav({ activeView, onViewChange }) {
   ];
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-700/50" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)' }}>
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-zinc-700/50 safe-area-bottom" style={{ background: 'rgba(24, 24, 27, 0.95)', backdropFilter: 'blur(20px)' }}>
       <div className="flex items-center justify-around h-16 px-1">
         {items.map(item => (
           <button key={item.id} onClick={() => onViewChange(item.id)}
