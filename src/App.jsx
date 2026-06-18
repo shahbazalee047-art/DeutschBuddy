@@ -247,8 +247,8 @@ function Dashboard() {
           </button>
           <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
             className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-            <div className="w-9 h-9 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 text-base font-bold shadow-sm shadow-lime-500/20">
-              <span className="text-base leading-none">🇩🇪</span>
+            <div className="w-10 h-10 bg-gradient-to-br from-lime-500 to-cyan-500 rounded-xl flex items-center justify-center text-zinc-900 font-bold shadow-sm shadow-lime-500/20">
+              <span className="text-2xl leading-none">🇩🇪</span>
             </div>
             <span className="text-xl font-extrabold text-zinc-100" style={{ fontFamily: 'Poppins, sans-serif' }}>Deutsch</span>
             <span className="text-xl font-extrabold text-lime-400" style={{ fontFamily: 'Poppins, sans-serif' }}>Buddy</span>
