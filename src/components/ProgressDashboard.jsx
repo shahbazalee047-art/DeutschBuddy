@@ -26,6 +26,20 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
   if (mode === 'statistics') {
     return (
       <div className="fade-in space-y-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { icon: IconBolt, value: progress.xp, label: 'Total XP', color: '#A3E635' },
+            { icon: IconFire, value: progress.streak, label: 'Day Streak', color: '#F59E0B' },
+            { icon: IconChart, value: `${avgCompletion}%`, label: 'Progress', color: '#06B6D4' },
+            { icon: IconCheck, value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: '#22C55E' },
+          ].map((stat, i) => (
+            <div key={i} className="glass-card p-5 text-center">
+              <div className="flex justify-center mb-2"><stat.icon className="w-7 h-7" style={{ color: stat.color }} /></div>
+              <div className="text-2xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: 'Poppins, sans-serif' }}>{stat.value}</div>
+              <div className="text-[11px] text-zinc-500 font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
+            </div>
+          ))}
+        </div>
         <div className="glass-card p-5">
           <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Weekly Progress</h3>
           <div className="space-y-3">
@@ -36,27 +50,6 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
                   <div className="h-full rounded-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'linear-gradient(90deg, #A3E635, #06B6D4)' }} />
                 </div>
                 <span className="text-[12px] font-bold text-lime-400 w-10 text-right tabular-nums">{stat.completion}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="glass-card p-5">
-          <h3 className="text-lg font-bold text-zinc-100 mb-4" style={{ fontFamily: 'Poppins, sans-serif' }}>Learning Statistics</h3>
-          <div className="space-y-3">
-            {[
-              { icon: IconClock, label: 'Total Learning Time', value: `${Math.floor(progress.completedTasks?.length * 5 / 60)}h ${Math.floor((progress.completedTasks?.length * 5) % 60)}m` },
-              { icon: IconCheck, label: 'Lessons Completed', value: progress.completedTasks?.length || 0 },
-              { icon: IconTarget, label: 'Average Score', value: '85%' },
-              { icon: IconBook, label: 'Vocabulary Mastered', value: `${(progress.completedTasks?.length || 0) * 5} words` },
-              { icon: IconGraduation, label: 'Proficiency Level', value: 'A1.1' },
-              { icon: IconChart, label: 'Next Goal', value: `${100 - (progress.xp || 0)} XP needed` },
-            ].map((stat, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-zinc-700/30 last:border-0">
-                <div className="flex items-center gap-3">
-                  <stat.icon className="w-5 h-5 text-zinc-400" />
-                  <span className="text-[14px] text-zinc-300">{stat.label}</span>
-                </div>
-                <span className="text-[14px] font-semibold text-zinc-200">{stat.value}</span>
               </div>
             ))}
           </div>
