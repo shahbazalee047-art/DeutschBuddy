@@ -265,9 +265,9 @@ function Dashboard() {
                     <p className="text-sm font-semibold text-cream-200 truncate">{profile?.full_name || 'Learner'}</p>
                     <p className="text-[11px] text-cream-500 truncate">{user?.email || ''}</p>
                   </div>
-                  <button onClick={() => { setActiveView('profile'); setShowProfileMenu(false); setSelectedDay(null); setSelectedTask(null); }}
+                  <button onClick={() => { handleViewChange('profile'); setShowProfileMenu(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
-                  <button onClick={() => { setActiveView('settings'); setShowProfileMenu(false); }}
+                  <button onClick={() => { handleViewChange('settings'); setShowProfileMenu(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
                   <button onClick={handleSignOutFromApp}
                     className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
