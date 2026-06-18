@@ -66,7 +66,7 @@ export default function ResourceLibrary({ resources }) {
               <div className="w-12 h-12 rounded-2xl flex items-center justify-center border border-sage-400/10 bg-sage-400/5">
                 {(() => { const IconComp = TYPE_ICONS[r.type] || IconLink; return <IconComp className="w-5 h-5 text-sage-400" />; })()}
               </div>
-              <span className="text-cream-400 transition">↗</span>
+              <span className="text-cream-300 text-base font-bold transition">↗</span>
             </div>
             <h3 className="text-[14px] font-bold text-cream-200 mb-1">{r.name}</h3>
             <p className="text-[12px] text-cream-400 leading-relaxed line-clamp-2">{r.description}</p>

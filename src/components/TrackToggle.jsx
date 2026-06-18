@@ -20,7 +20,7 @@ export default function TrackToggle({ mode, onToggle }) {
           }}
         />
         <span className="relative z-10 flex items-center gap-1.5">
-          {isSpeaking ? <IconPlayFilled className="w-4 h-4" /> : <IconPlay className="w-4 h-4" />}
+          {isSpeaking ? <IconPlayFilled className="w-5 h-5" /> : <IconPlay className="w-5 h-5" />}
           <span className={isStandard ? 'text-forest-950' : 'text-cream-400 group-hover:text-cream-200'}>Standard</span>
         </span>
       </button>
@@ -37,7 +37,7 @@ export default function TrackToggle({ mode, onToggle }) {
           }}
         />
         <span className="relative z-10 flex items-center gap-1.5">
-          {isSpeaking ? <IconPlayFilled className="w-4 h-4" /> : <IconPlay className="w-4 h-4" />}
+          {isSpeaking ? <IconPlayFilled className="w-5 h-5" /> : <IconPlay className="w-5 h-5" />}
           <span className={!isStandard ? 'text-forest-950' : 'text-cream-400 group-hover:text-cream-200'}>Fast</span>
         </span>
       </button>

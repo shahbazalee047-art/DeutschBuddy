@@ -45,7 +45,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
                 <p className="text-[12px] text-cream-500">{item.desc}</p>
               </div>
             </div>
-            <span className="text-cream-500 text-sm">→</span>
+            <span className="text-cream-300 text-base font-bold">→</span>
           </div>
         ))}
       </div>

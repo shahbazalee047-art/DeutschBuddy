@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { IconChart, IconTarget, IconCalendar, IconX, IconBolt, IconSearch, IconLightbulb, IconFlag, IconSparkles } from './Icons';
+import SpeedBlitz from './SpeedBlitz';
 
 const progressSections = [
   { id: 'progress-statistics', label: 'Learning Statistics', icon: IconChart },
@@ -106,6 +107,12 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
             <IconSearch className="w-5 h-5 flex-shrink-0" />
             <span>Verb Lookup</span>
           </button>
+        </div>
+
+        {/* Speed Blitz */}
+        <div className="p-3 pt-2 border-t border-border">
+          <p className="text-[10px] font-bold text-cream-500 uppercase tracking-widest px-3 mb-2">Games</p>
+          <SpeedBlitz level={activeLevel} compact />
         </div>
 
         {/* Tip of the Day */}

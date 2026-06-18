@@ -33,8 +33,8 @@ export default function Certificate() {
           </div>
         </div>
         <div className="text-center pt-4 border-t border-sage-400/10">
-          <div className="text-xs text-cream-500 mb-2">Date: <span className="text-cream-200">June 2026</span></div>
-          <button className="px-4 py-2 rounded-lg bg-sage-400 text-forest-900 text-sm font-medium hover:bg-sage-400/90 transition-all duration-200">
+          <div className="text-xs text-cream-500 mb-2">Date: <span className="text-cream-200">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span></div>
+          <button onClick={() => window.print()} className="px-4 py-2 rounded-lg bg-sage-400 text-forest-900 text-sm font-medium hover:bg-sage-400/90 transition-all duration-200">
             Download PDF
           </button>
         </div>

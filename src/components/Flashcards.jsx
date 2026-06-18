@@ -24,8 +24,8 @@ export default function Flashcards({ content, onComplete }) {
         </div>
       </div>
       <div className="flex justify-center gap-3 mt-5">
-        <button onClick={() => { if (idx > 0) { setFlipped(false); setIdx(p => p - 1); } }} disabled={idx === 0} className="px-6 py-2.5 rounded-xl border border-border text-cream-400 hover:bg-forest-800 disabled:opacity-40 transition text-sm active:scale-95">← Prev</button>
-        <button onClick={next} className="btn-primary px-6 active:scale-95">{isLast ? '✓ Complete' : 'Next →'}</button>
+        <button onClick={() => { if (idx > 0) { setFlipped(false); setIdx(p => p - 1); } }} disabled={idx === 0} className="px-6 py-2.5 rounded-xl border border-border text-cream-400 hover:bg-forest-800 disabled:opacity-40 transition text-sm active:scale-95"><span className="text-base font-bold text-cream-300">←</span> Prev</button>
+        <button onClick={next} className="btn-primary px-6 active:scale-95">{isLast ? '✓ Complete' : <span>Next <span className="text-base font-bold">→</span></span>}</button>
       </div>
     </div>
   );

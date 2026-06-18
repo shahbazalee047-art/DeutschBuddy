@@ -10,13 +10,13 @@ import ProfilePage from './ProfilePage';
 import SettingsPage from './SettingsPage';
 
 const MainContent = memo(function MainContent({
-  activeView, selectedDay, selectedTask, currentWeek,
+  activeView, activeLevel, selectedDay, selectedTask, currentWeek,
   progress, levelData, visibleWeeks, unlockedWeeks,
   profile, user, onSignOut,
   onSelectDay, onSelectTask, onCompleteTask, onBackToWeek
 }) {
   if (activeView === 'community') return <div className="view-enter"><CommunitySection user={user} /></div>;
-  if (activeView === 'profile') return <div className="view-enter"><ProfilePage /></div>;
+  if (activeView === 'profile') return <div className="view-enter"><ProfilePage activeLevel={activeLevel} /></div>;
   if (activeView === 'settings') return <div className="view-enter"><SettingsPage profile={profile} user={user} onSignOut={onSignOut} /></div>;
   if (activeView === 'progress') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} /></div>;
   if (activeView === 'progress-statistics') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" /></div>;
@@ -31,7 +31,7 @@ const MainContent = memo(function MainContent({
     return (
       <div className="view-enter">
         <button onClick={() => onSelectTask(null)} className="flex items-center gap-1.5 text-sm text-cream-400 hover:text-sage-400 mb-4 transition">
-          <span>&larr;</span> Back to Day {selectedDay.day}
+          <span className="text-base font-bold text-cream-300">&larr;</span> Back to Day {selectedDay.day}
         </button>
         <div className="paper-card p-6">
           <div className="flex items-center gap-2 mb-3">

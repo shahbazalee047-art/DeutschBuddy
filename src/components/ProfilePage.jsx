@@ -1,9 +1,9 @@
 import { useAuth } from '../contexts/AuthContext';
 import { IconBolt, IconFire, IconCheck, IconGraduation } from './Icons';
 
-export default function ProfilePage() {
+export default function ProfilePage({ activeLevel = 'A1' }) {
   const { user, profile } = useAuth();
-  const localData = JSON.parse(localStorage.getItem(`db_progress_${profile?.selected_pacing || 'A1'}`) || '{}');
+  const localData = JSON.parse(localStorage.getItem(`db_progress_${activeLevel}`) || '{}');
   const xp = localData.xp || 0;
 
   return (

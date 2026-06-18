@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSearch, IconBolt, IconUser, IconSettings, IconLogOut } from './Icons';
+import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSearch, IconBolt, IconFire, IconUser, IconSettings, IconLogOut } from './Icons';
 
 const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool, onNotifications, hasUnreadNotifications }) {
   const { user, profile, signOut } = useAuth();
@@ -72,10 +72,17 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
                 ))}
               </div>
 
+              {streak > 0 && (
+                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-400/10 border border-amber-400/20">
+                  <IconFire className={`w-4 h-4 text-amber-400 ${streak >= 3 ? 'animate-streak-blaze' : ''}`} />
+                  <span className="text-xs font-bold text-amber-400 tabular-nums">{streak}</span>
+                </div>
+              )}
+
               <div className="flex items-center gap-2">
                 <button onClick={onNotifications}
                   className="flex items-center justify-center w-11 h-11 rounded-xl text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative">
-                  <IconBell className="w-6 h-6" />
+                  <IconBell className={`w-6 h-6 ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`} />
                   {hasUnreadNotifications && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error" />}
                 </button>
 

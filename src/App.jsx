@@ -9,6 +9,8 @@ import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 const QuickGermanTool = lazy(() => import('./components/QuickGermanTool'));
 const RightPanel = lazy(() => import('./components/RightPanel'));
+import { CardSkeleton, ListSkeleton } from './components/Skeleton';
+import XpToast from './components/XpToast';
 
 import MainContent from './components/MainContent';
 import NotificationPanel from './components/NotificationPanel';
@@ -44,6 +46,7 @@ function Dashboard() {
   const [activeView, setActiveView] = useState('dashboard');
   const [showCelebration, setShowCelebration] = useState(false);
   const [todayXP, setTodayXP] = useState(0);
+  const [xpToast, setXpToast] = useState(null);
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showSidebarVerbLookup, setShowSidebarVerbLookup] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -51,6 +54,19 @@ function Dashboard() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifVersion, setNotifVersion] = useState(0);
   const profileMenuRef = useRef(null);
+  const isProcessingBack = useRef(false);
+  const activeViewRef = useRef(activeView);
+  const selectedTaskRef = useRef(selectedTask);
+  const selectedDayRef = useRef(selectedDay);
+  const handleBackNavRef = useRef(null);
+  const showQuickToolRef = useRef(false);
+  const showSidebarVerbLookupRef = useRef(false);
+
+  useEffect(() => { activeViewRef.current = activeView; }, [activeView]);
+  useEffect(() => { selectedTaskRef.current = selectedTask; }, [selectedTask]);
+  useEffect(() => { selectedDayRef.current = selectedDay; }, [selectedDay]);
+  useEffect(() => { showQuickToolRef.current = showQuickTool; }, [showQuickTool]);
+  useEffect(() => { showSidebarVerbLookupRef.current = showSidebarVerbLookup; }, [showSidebarVerbLookup]);
 
   const hasUnreadNotifications = useMemo(() => {
     try {
@@ -98,6 +114,7 @@ function Dashboard() {
     if (selectedTask) {
       completeTask(selectedTask.id, selectedTask.xp, selectedDay.weekId);
       setTodayXP(prev => prev + selectedTask.xp);
+      setXpToast(selectedTask.xp);
       const currentWeek = levelData.weeks.find(w => w.id === selectedDay.weekId);
       if (currentWeek) {
         const allDone = currentWeek.days.every(day => day.tasks.every(t => progress.completedTasks.includes(t.id) || t.id === selectedTask.id));
@@ -149,20 +166,38 @@ function Dashboard() {
     }
   }, [selectedTask, selectedDay]);
 
+  useEffect(() => { handleBackNavRef.current = handleBackNavigation; }, [handleBackNavigation]);
+
   const handleSignOutFromApp = useCallback(async () => { try { await signOut(); } catch { /* ignore */ } navigate('/login'); }, [signOut, navigate]);
 
   useEffect(() => {
     const handlePopState = () => {
+      if (isProcessingBack.current) return;
+      if (showSidebarVerbLookupRef.current) {
+        isProcessingBack.current = true;
+        setShowSidebarVerbLookup(false);
+        setShowSidebar(true);
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        return;
+      }
+      if (showQuickToolRef.current) {
+        isProcessingBack.current = true;
+        setShowQuickTool(false);
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        return;
+      }
       const path = window.location.pathname;
       if (path === '/dashboard' || path === '/') {
-        if (selectedTask || selectedDay || historyStack.length > 0) {
-          handleBackNavigation();
+        if (selectedTaskRef.current || selectedDayRef.current || historyRef.current.length > 0) {
+          isProcessingBack.current = true;
+          handleBackNavRef.current();
+          setTimeout(() => { isProcessingBack.current = false; }, 300);
         }
       }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [selectedDay, selectedTask, historyStack.length, handleBackNavigation]);
+  }, []);
 
   useEffect(() => {
     let capacitorBackHandler = null;
@@ -171,14 +206,30 @@ function Dashboard() {
         const { App } = await import('@capacitor/core');
         if (App && typeof App.addListener === 'function') {
           capacitorBackHandler = await App.addListener('backButton', () => {
-            if (selectedTask || selectedDay || historyRef.current.length > 0) {
-              handleBackNavigation();
-            } else if (activeView !== 'dashboard') {
+            if (isProcessingBack.current) return;
+            if (showSidebarVerbLookupRef.current) {
+              isProcessingBack.current = true;
+              setShowSidebarVerbLookup(false);
+              setShowSidebar(true);
+              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              return;
+            }
+            if (showQuickToolRef.current) {
+              isProcessingBack.current = true;
+              setShowQuickTool(false);
+              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              return;
+            }
+            if (selectedTaskRef.current || selectedDayRef.current || historyRef.current.length > 0) {
+              isProcessingBack.current = true;
+              handleBackNavRef.current();
+              setTimeout(() => { isProcessingBack.current = false; }, 300);
+            } else if (activeViewRef.current !== 'dashboard') {
+              isProcessingBack.current = true;
               setActiveView('dashboard');
               setSelectedDay(null);
               setSelectedTask(null);
-            } else if (App.exitApp && typeof App.exitApp === 'function') {
-              App.exitApp();
+              setTimeout(() => { isProcessingBack.current = false; }, 300);
             }
           });
         }
@@ -192,15 +243,15 @@ function Dashboard() {
         capacitorBackHandler.remove();
       }
     };
-  }, [selectedTask, selectedDay, activeView, historyStack.length, handleBackNavigation]);
+  }, []);
 
   const mainContentProps = useMemo(() => ({
-    activeView, selectedDay, selectedTask, currentWeek,
+    activeView, activeLevel, selectedDay, selectedTask, currentWeek,
     progress, levelData, visibleWeeks, unlockedWeeks,
     profile, user, onSignOut: handleSignOutFromApp,
     onSelectDay: handleSelectDay, onSelectTask: handleSelectTask,
     onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
-  }), [activeView, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
+  }), [activeView, activeLevel, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
 
   if (loading) {
     return (
@@ -216,6 +267,7 @@ function Dashboard() {
 
   return (
       <div className="min-h-screen bg-forest-900">
+      {xpToast && <XpToast xp={xpToast} onComplete={() => setXpToast(null)} />}
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress?.xp || 0} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
@@ -237,20 +289,20 @@ function Dashboard() {
 
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-forest-900/95 backdrop-blur-xl border-b border-border/40">
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-14 px-3">
+        <div className="relative flex items-center justify-center h-14 px-3">
           <button onClick={() => setShowSidebar(true)}
-            className="justify-self-start w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-cream-200 hover:bg-forest-800 transition">
+            className="absolute left-3 w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-cream-200 hover:bg-forest-800 transition">
             <IconMenu className="w-5 h-5" />
           </button>
           <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-            className="flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
             <span className="text-[1.6rem] leading-none">🇩🇪</span>
             <span className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>Deutsch</span>
             <span className="text-xl text-sage-400" style={{ fontFamily: 'DM Serif Display, serif' }}>Buddy</span>
           </Link>
-          <div className="justify-self-end flex items-center gap-1.5">
+          <div className="absolute right-3 flex items-center gap-1.5">
             <button onClick={() => setShowNotifications(true)}
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative">
+              className={`w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
               <IconBell className="w-5 h-5" />
               {hasUnreadNotifications && <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />}
             </button>
@@ -304,7 +356,7 @@ function Dashboard() {
                   <div className="text-[10px] font-bold text-sage-400 uppercase tracking-widest animate-sage-glow">Continue where you left off</div>
                   <div className="text-sm font-semibold text-cream-300 mt-1">Week {nextDay.weekId}, Day {nextDay.day}</div>
                 </div>
-                <span className="text-cream-500 group-hover:text-sage-400 transition text-lg">→</span>
+                <span className="text-cream-300 group-hover:text-sage-400 transition text-xl font-bold">→</span>
               </button>
             )}
 
@@ -317,13 +369,13 @@ function Dashboard() {
 
         {/* Desktop: Two-column layout */}
         <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2"><Suspense fallback={<div className="text-cream-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense></div>
-          <div className="lg:col-span-1"><Suspense fallback={<div className="text-cream-500 text-sm">Loading...</div>}><RightPanel progress={progress} streak={progress.streak} /></Suspense></div>
+          <div className="lg:col-span-2"><Suspense fallback={<CardSkeleton />}><MainContent {...mainContentProps} /></Suspense></div>
+          <div className="lg:col-span-1"><Suspense fallback={<CardSkeleton />}><RightPanel progress={progress} streak={progress.streak} activeLevel={activeLevel} /></Suspense></div>
         </div>
 
         {/* Mobile: Single column */}
         <div className="lg:hidden">
-          <Suspense fallback={<div className="text-cream-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense>
+          <Suspense fallback={<ListSkeleton count={2} />}><MainContent {...mainContentProps} /></Suspense>
         </div>
       </main>
 

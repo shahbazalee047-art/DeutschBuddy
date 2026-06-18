@@ -2,13 +2,13 @@ import { useSpeech } from '../hooks/useSpeech';
 import { IconSpeaker, IconSpeakerX } from './Icons';
 
 export default function SpeakerButton({ text, language = 'de-DE', onAudioEnd, onAudioError }) {
-  const { isSpeaking, error, playAudio, stopAudio } = useSpeech(language, onAudioEnd, onAudioError);
+  const { isSpeaking, error, speak, stop } = useSpeech(language, onAudioEnd, onAudioError);
 
   const handleToggle = () => {
     if (isSpeaking) {
-      stopAudio();
+      stop();
     } else {
-      playAudio(text);
+      speak(text);
     }
   };
 

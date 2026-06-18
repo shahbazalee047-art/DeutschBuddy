@@ -55,8 +55,8 @@ export default function JourneyMap({ currentWeek, weeks }) {
                   </div>
                 )}
               </div>
-              <IconChevronRight className={`w-4 h-4 transition-all duration-200 ${
-                week.completed ? 'text-sage-400/60' : 'text-cream-500/20'
+              <IconChevronRight className={`w-5 h-5 transition-all duration-200 ${
+                week.completed ? 'text-sage-400' : 'text-cream-500/40'
               }`} />
             </div>
           ))}

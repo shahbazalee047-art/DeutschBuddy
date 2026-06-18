@@ -259,7 +259,7 @@ export default function CommunitySection({ user }) {
                 className={`flex items-center gap-1 text-[12px] transition active:scale-90 ${
                   upvotedIds.has(post.id) ? 'text-sage-400' : 'text-cream-500 hover:text-sage-400'
                 }`}>
-                <IconArrowUp className="w-3.5 h-3.5" /><span>{post.upvotes}</span>
+                <IconArrowUp className="w-4 h-4 text-current" /><span>{post.upvotes}</span>
               </button>
               <button className="flex items-center gap-1 text-[12px] text-cream-500 hover:text-sky-400 transition active:scale-90">
                 <IconMessageCircle className="w-3.5 h-3.5" /><span>{post.comments}</span>

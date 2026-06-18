@@ -14,7 +14,7 @@ const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], on
   return (
     <div className="fade-in">
       <button onClick={onBack} className="flex items-center gap-1.5 text-sm text-cream-400 hover:text-sage-400 mb-5 transition">
-        <span>&larr;</span> Back to Week {week.id}
+        <span className="text-base font-bold text-cream-300">&larr;</span> Back to Week {week.id}
       </button>
 
       <div className="glass-card p-5 mb-5">
