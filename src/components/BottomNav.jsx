@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import { IconHome, IconChart, IconTrophy, IconChat, IconBook } from './Icons';
 
-export default function BottomNav({ activeView, onViewChange }) {
+const BottomNav = memo(function BottomNav({ activeView, onViewChange }) {
   const items = [
     { id: 'dashboard', label: 'Dashboard', icon: IconHome },
     { id: 'progress', label: 'Progress', icon: IconChart },
@@ -33,4 +34,6 @@ export default function BottomNav({ activeView, onViewChange }) {
       </div>
     </nav>
   );
-}
+});
+
+export default BottomNav;

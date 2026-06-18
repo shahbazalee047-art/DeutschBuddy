@@ -15,9 +15,7 @@ const ProfilePage = lazy(() => import('./components/ProfilePage'));
 const QuickGermanTool = lazy(() => import('./components/QuickGermanTool'));
 const RightPanel = lazy(() => import('./components/RightPanel'));
 
-import WeeklyModule from './components/WeeklyModule';
-import DailyTasks from './components/DailyTasks';
-import TaskRenderer from './components/TaskRenderer';
+import MainContent from './components/MainContent';
 import NotificationPanel from './components/NotificationPanel';
 import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
@@ -70,24 +68,27 @@ function Dashboard() {
   const historyRef = useRef(historyStack);
   historyRef.current = historyStack;
 
-  function handleToggleTrackMode(mode) { setLocalTrackMode(mode); setTrackMode(mode); }
+  const handleToggleTrackMode = useCallback((mode) => { setLocalTrackMode(mode); setTrackMode(mode); }, [setTrackMode]);
 
-  const levelData = activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data);
+  const levelData = useMemo(() => 
+    activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data),
+  [activeLevel, trackMode]);
   const unlockedWeeks = progress.unlockedWeeks || [1];
   const visibleWeeks = levelData.weeks;
 
-  const handleSelectDay = (weekId, day) => {
+  const handleSelectDay = useCallback((weekId, day) => {
     setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
     setSelectedDay({ weekId, day });
     setSelectedTask(null);
     setActiveView('dashboard');
-  };
-  const handleSelectTask = (task) => {
+  }, []);
+
+  const handleSelectTask = useCallback((task) => {
     setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask }]);
     setSelectedTask(task);
-  };
+  }, [activeView, selectedDay, selectedTask]);
 
-  const handleCompleteTask = () => {
+  const handleCompleteTask = useCallback(() => {
     if (selectedTask) {
       completeTask(selectedTask.id, selectedTask.xp, selectedDay.weekId);
       setTodayXP(prev => prev + selectedTask.xp);
@@ -98,18 +99,18 @@ function Dashboard() {
       }
     }
     setSelectedTask(null);
-  };
+  }, [selectedTask, selectedDay, completeTask, levelData, progress.completedTasks, unlockedWeeks, unlockWeek]);
 
-  const handleBackToWeek = () => { setSelectedDay(null); setSelectedTask(null); };
+  const handleBackToWeek = useCallback(() => { setSelectedDay(null); setSelectedTask(null); }, []);
   const currentWeek = levelData.weeks.find(w => w.id === selectedDay?.weekId);
 
-  const getNextIncompleteDay = () => {
+  const getNextIncompleteDay = useCallback(() => {
     for (const week of visibleWeeks) {
       if (!unlockedWeeks.includes(week.id)) continue;
       for (const day of week.days) { if (!day.tasks.every(t => progress.completedTasks.includes(t.id))) return { weekId: week.id, day: day.day }; }
     }
     return null;
-  };
+  }, [visibleWeeks, unlockedWeeks, progress.completedTasks]);
   const nextDay = getNextIncompleteDay();
 
   const handleViewChange = useCallback((view) => {
@@ -199,44 +200,13 @@ function Dashboard() {
     );
   }
 
-  function renderMainContent() {
-    if (activeView === 'community') return <CommunitySection user={user} />;
-    if (activeView === 'profile') return <ProfilePage />;
-    if (activeView === 'settings') return <SettingsPage profile={profile} user={user} onSignOut={handleSignOutFromApp} />;
-    if (activeView === 'progress') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />;
-    if (activeView === 'progress-statistics') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" />;
-    if (activeView === 'progress-skills') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" />;
-    if (activeView === 'progress-calendar') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" />;
-    if (activeView === 'badges') return <BadgeGallery badges={progress.badges || []} />;
-    if (activeView === 'resources') return <ResourceLibrary resources={[...new Map(levelData.weeks.flatMap(w => w.resources || []).map(r => [r.name, r])).values()]} />;
-    if (selectedTask) {
-      return (
-        <div className="fade-in">
-          <button onClick={() => setSelectedTask(null)} className="flex items-center gap-1.5 text-sm text-zinc-400 hover:text-lime-400 mb-4 transition">
-            <span>&larr;</span> Back to Day {selectedDay.day}
-          </button>
-          <div className="paper-card p-6">
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[11px] font-bold text-lime-600 bg-lime-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider border border-lime-500/20">{selectedTask.type}</span>
-              <span className="text-xs font-bold text-cyan-400">+{selectedTask.xp} XP</span>
-            </div>
-            <h2 className="text-lg font-bold text-zinc-100 mb-1">{selectedTask.title}</h2>
-            <p className="text-sm text-zinc-400 mb-5">{selectedTask.description}</p>
-            <TaskRenderer task={selectedTask} onComplete={handleCompleteTask} />
-          </div>
-        </div>
-      );
-    }
-    if (selectedDay && currentWeek) return <DailyTasks week={currentWeek} day={selectedDay.day} completedTasks={progress.completedTasks} onSelectTask={handleSelectTask} onBack={handleBackToWeek} />;
-
-    return (
-      <div className="space-y-4">
-        {visibleWeeks.map(week => (
-          <WeeklyModule key={week.id} week={week} completedTasks={progress.completedTasks} onSelectDay={handleSelectDay} selectedDay={selectedDay} isUnlocked={unlockedWeeks.includes(week.id)} />
-        ))}
-      </div>
-    );
-  }
+  const mainContentProps = useMemo(() => ({
+    activeView, selectedDay, selectedTask, currentWeek,
+    progress, levelData, visibleWeeks, unlockedWeeks,
+    profile, user, onSignOut: handleSignOutFromApp,
+    onSelectDay: handleSelectDay, onSelectTask: handleSelectTask,
+    onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
+  }), [activeView, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek]);
 
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
@@ -341,13 +311,13 @@ function Dashboard() {
 
         {/* Desktop: Two-column layout */}
         <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2"><Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}>{renderMainContent()}</Suspense></div>
+          <div className="lg:col-span-2"><Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense></div>
           <div className="lg:col-span-1"><Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><RightPanel progress={progress} streak={progress.streak} /></Suspense></div>
         </div>
 
         {/* Mobile: Single column */}
         <div className="lg:hidden">
-          <Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}>{renderMainContent()}</Suspense>
+          <Suspense fallback={<div className="text-zinc-500 text-sm">Loading...</div>}><MainContent {...mainContentProps} /></Suspense>
         </div>
       </main>
 

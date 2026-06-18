@@ -25,7 +25,7 @@
   --color-card: #20202A;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   margin: 0;
@@ -74,7 +74,7 @@ input, textarea, select {
   padding: 0 16px;
   font-size: 16px;
   color: #D4D4D8;
-  transition: all 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 .paper-input:focus {
   outline: none;
@@ -92,10 +92,11 @@ input, textarea, select {
   border: none;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(163, 230, 53, 0.3);
-  transition: all 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
   font-size: 16px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  will-change: transform;
 }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(163, 230, 53, 0.4); }
 .btn-primary:active { transform: scale(0.98); }
@@ -109,10 +110,11 @@ input, textarea, select {
   height: 56px;
   border: 2px solid #A3E635;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform 0.2s, background 0.2s;
   font-size: 16px;
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  will-change: transform;
 }
 .btn-secondary:hover { background: rgba(163, 230, 53, 0.1); }
 
@@ -124,7 +126,8 @@ input, textarea, select {
 
 .day-circle {
   width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-  font-weight: 600; font-size: 14px; transition: all 0.2s;
+  font-weight: 600; font-size: 14px; transition: transform 0.2s, background 0.2s, border-color 0.2s;
+  will-change: transform;
 }
 .day-circle-completed { background: #A3E635; color: #18181B; }
 .day-circle-current { background: #20202A; border: 3px solid #06B6D4; color: #06B6D4; }
@@ -142,7 +145,7 @@ input, textarea, select {
 @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes confettiFall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg); opacity: 0; } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-@keyframes limeGlow { 0%, 100% { box-shadow: 0 0 8px rgba(163, 230, 53, 0.3); } 50% { box-shadow: 0 0 20px rgba(163, 230, 53, 0.6); } }
+@keyframes limeGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 @keyframes cyanPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
 
 .animate-float { animation: float 3s ease-in-out infinite; }
@@ -163,6 +166,21 @@ input, textarea, select {
 .safe-area-top {
   padding-top: env(safe-area-inset-top, 0px);
 }
+
+/* Smooth view transitions */
+.view-enter { animation: viewFadeIn 0.2s ease-out; }
+@keyframes viewFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.content-card { transition: transform 0.15s, border-color 0.15s; will-change: transform; }
+.content-card:active { transform: scale(0.98); }
+
+@media (hover: hover) {
+  .content-card:hover { border-color: rgba(163, 230, 53, 0.2); }
+}
+
+/* Instant touch feedback */
+.tap-feedback { transition: transform 0.1s, opacity 0.1s; }
+.tap-feedback:active { transform: scale(0.96); opacity: 0.8; }
 
 [data-theme="light"] body,
 [data-theme="light"] {

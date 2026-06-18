@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { getDayCompletion } from '../utils/progress';
 import { IconFire, IconBookOpen, IconEdit, IconHelpCircle, IconCards, IconLink, IconPencil, IconShuffle, IconMic, IconFeather, IconClipboard, IconTheater, IconSparkles, IconHeadphones, IconBolt, IconBook, IconCheck } from './Icons';
 
-export default function DailyTasks({ week, day, completedTasks = [], onSelectTask, onBack }) {
+const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], onSelectTask, onBack }) {
   const dayData = week?.days?.find(d => d.day === day);
   if (!dayData) return null;
   const completed = getDayCompletion(dayData.tasks, completedTasks);
@@ -65,4 +66,6 @@ export default function DailyTasks({ week, day, completedTasks = [], onSelectTas
       </div>
     </div>
   );
-}
+});
+
+export default DailyTasks;

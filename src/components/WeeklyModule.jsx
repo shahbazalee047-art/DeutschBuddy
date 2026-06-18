@@ -1,7 +1,8 @@
+import { memo } from 'react';
 import { getWeekCompletion } from '../utils/progress';
 import { IconLock } from './Icons';
 
-export default function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked }) {
+const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked }) {
   const completion = getWeekCompletion(week.days, completedTasks);
   const isComplete = completion === 100;
   const weekXP = week.days.reduce((acc, day) => acc + day.tasks.filter(t => completedTasks.includes(t.id)).reduce((a, t) => a + t.xp, 0), 0);
@@ -61,4 +62,6 @@ export default function WeeklyModule({ week, completedTasks, onSelectDay, select
       </div>
     </div>
   );
-}
+});
+
+export default WeeklyModule;
