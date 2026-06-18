@@ -6,7 +6,7 @@ const progressSections = [
   { id: 'calendar', label: 'Activity Calendar', icon: '📅' },
 ];
 
-export default function MobileSidebar({ isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange, xp, onProgressTab }) {
+export default function MobileSidebar({ isOpen, onClose, activeView, activeProgressTab, onViewChange, activeLevel, onLevelChange, xp, onProgressTab }) {
   function handleProgressTab(tabId) {
     if (onProgressTab) onProgressTab(tabId);
     onViewChange('progress');
@@ -36,7 +36,7 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
           {progressSections.map(item => (
             <button key={item.id} onClick={() => handleProgressTab(item.id)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] mb-0.5 ${
-                activeView === 'progress'
+                activeView === 'progress' && activeProgressTab === item.id
                   ? 'text-zinc-900 bg-lime-500 shadow-sm'
                   : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
               }`}>

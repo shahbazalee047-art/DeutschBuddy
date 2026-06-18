@@ -149,6 +149,8 @@ function Dashboard() {
               setActiveView('dashboard');
               setSelectedDay(null);
               setSelectedTask(null);
+            } else if (App.exitApp && typeof App.exitApp === 'function') {
+              App.exitApp();
             }
           });
         }
@@ -214,7 +216,7 @@ function Dashboard() {
   return (
     <div className="min-h-screen" style={{ background: '#18181B' }}>
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
-      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onProgressTab={setActiveProgressTab} />}
+      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} activeProgressTab={activeProgressTab} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress.xp} onProgressTab={setActiveProgressTab} />}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => setShowNotifications(false)} onNavigate={(action) => {
         if (typeof action === 'string') {
           handleViewChange(action);
