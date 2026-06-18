@@ -25,6 +25,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { IconBell, IconBolt, IconWave, IconUser, IconSettings, IconLogOut, IconMenu } from './components/Icons';
 import { DayCompleteCelebration } from './components/ConfettiEffect';
 import Footer from './components/Footer';
+import SettingsPage from './components/SettingsPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -132,6 +133,8 @@ function Dashboard() {
     }
   }, [selectedTask, selectedDay]);
 
+  async function handleSignOutFromApp() { try { await signOut(); } catch {} navigate('/login'); }
+
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname;
@@ -190,6 +193,7 @@ function Dashboard() {
   function renderMainContent() {
     if (activeView === 'community') return <CommunitySection user={user} />;
     if (activeView === 'profile') return <ProfilePage />;
+    if (activeView === 'settings') return <SettingsPage profile={profile} user={user} onSignOut={handleSignOutFromApp} />;
     if (activeView === 'progress') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />;
     if (activeView === 'progress-statistics') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" />;
     if (activeView === 'progress-skills') return <ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" />;
@@ -278,9 +282,9 @@ function Dashboard() {
                   </div>
                   <button onClick={() => { setActiveView('profile'); setShowProfileMenu(false); setSelectedDay(null); setSelectedTask(null); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
-                  <button onClick={() => { setActiveView('progress'); setShowProfileMenu(false); }}
+                  <button onClick={() => { setActiveView('settings'); setShowProfileMenu(false); }}
                     className="w-full text-left px-4 py-2.5 text-sm text-zinc-300 hover:bg-zinc-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
-                  <button onClick={async () => { try { await signOut(); } catch {} navigate('/login'); }}
+                  <button onClick={handleSignOutFromApp}
                     className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
                 </div>
               )}
