@@ -1,7 +1,9 @@
 import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { IconChart, IconTarget, IconCalendar, IconX, IconBolt, IconSearch, IconLightbulb, IconFlag, IconSparkles } from './Icons';
+import { IconChart, IconTarget, IconCalendar, IconX, IconBolt, IconSearch, IconSparkles } from './Icons';
 import SpeedBlitz from './SpeedBlitz';
+import GenderDungeon from './GenderDungeon';
+import PictureMatch from './PictureMatch';
 
 const progressSections = [
   { id: 'progress-statistics', label: 'Learning Statistics', icon: IconChart },
@@ -9,43 +11,7 @@ const progressSections = [
   { id: 'progress-calendar', label: 'Activity Calendar', icon: IconCalendar },
 ];
 
-const dailyTips = [
-  { tip: 'German compound nouns take the gender of the last word. "der Hand-schuh" is masculine.', tag: 'Grammar' },
-  { tip: 'The word "doch" has no English equivalent — it means a firm "yes" to a negative question.', tag: 'Vocabulary' },
-  { tip: 'In German, all months are masculine: der Januar, der Februar, der März...', tag: 'Grammar' },
-  { tip: '"Entschuldigung" means both "sorry" and "excuse me".', tag: 'Culture' },
-  { tip: 'German separable prefixes (ab-, an-, auf-, aus-, ein-) split in main clauses.', tag: 'Grammar' },
-  { tip: 'The verb "lassen" can mean both "to let" and "to have something done".', tag: 'Grammar' },
-  { tip: 'German has 3 genders: der, die, das. Always learn nouns with their article!', tag: 'Vocabulary' },
-  { tip: 'Word order in German: verb is always the second element in a main clause.', tag: 'Grammar' },
-  { tip: '"Bitte" means please, you\'re welcome, and pardon — context is everything.', tag: 'Vocabulary' },
-  { tip: 'German numbers: 21 is einundzwanzig (one-and-twenty), not twenty-one.', tag: 'Vocabulary' },
-];
-
-const didYouKnow = [
-  'Bread is sacred in Germany. There are over 3,200 officially registered types of bread.',
-  'The longest German word is "Rechtsschutzversicherungsgesellschaften" with 39 letters.',
-  'Berlin has more bridges than Venice, about 1,700 bridges.',
-  'Germans invented the printing press, the car, aspirin, and the Christmas tree tradition.',
-  'The word "Kindergarten" comes from German and means "children\'s garden".',
-  'Germany has over 1,500 types of beer and 1,300 breweries.',
-  'The first printed book (Gutenberg Bible) was printed in German-speaking Mainz.',
-  'German is the most widely spoken native language in the European Union.',
-  '"Donaudampfschifffahrtsgesellschaftskapitän" is a real German word for a Danube steamship captain.',
-  'There is a German word for the fear of losing your phone: "Handyphobie".',
-];
-
-function getDailyIndex(array) {
-  const now = new Date();
-  const startOfYear = new Date(now.getFullYear(), 0, 0);
-  const diff = now - startOfYear;
-  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
-  return dayOfYear % array.length;
-}
-
 export default function MobileSidebar({ isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange, xp, onVerbLookup }) {
-  const tip = useMemo(() => dailyTips[getDailyIndex(dailyTips)], []);
-  const fact = useMemo(() => didYouKnow[getDailyIndex(didYouKnow)], []);
 
   function handleNav(view) {
     onViewChange(view);
@@ -109,32 +75,13 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
           </button>
         </div>
 
-        {/* Speed Blitz */}
+        {/* Games */}
         <div className="p-3 pt-2 border-t border-border">
           <p className="text-[10px] font-bold text-cream-500 uppercase tracking-widest px-3 mb-2">Games</p>
-          <SpeedBlitz level={activeLevel} compact />
-        </div>
-
-        {/* Tip of the Day */}
-        <div className="p-3 pt-2 border-t border-border">
-          <div className="mx-3 rounded-2xl p-3 border border-sky-400/20 bg-sky-400/5">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <IconLightbulb className="w-3.5 h-3.5 text-sky-400" />
-              <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider flex-1">Tip of the Day</span>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-sage-400/20 bg-sage-400/10 text-sage-400">{tip.tag}</span>
-            </div>
-            <p className="text-[12px] text-cream-400 leading-relaxed">{tip.tip}</p>
-          </div>
-        </div>
-
-        {/* Did You Know */}
-        <div className="p-3 pt-0 border-b border-border">
-          <div className="mx-3 rounded-2xl p-3 border border-sage-400/20 bg-sage-400/5">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <IconFlag className="w-3.5 h-3.5 text-sage-400" />
-              <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider">Did You Know?</span>
-            </div>
-            <p className="text-[12px] text-cream-400 leading-relaxed">{fact}</p>
+          <div className="space-y-3">
+            <SpeedBlitz level={activeLevel} compact />
+            <GenderDungeon compact />
+            <PictureMatch level={activeLevel} compact />
           </div>
         </div>
 

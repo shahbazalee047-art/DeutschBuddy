@@ -170,5 +170,29 @@ export function useProgress(level) {
     } catch (err) { console.error('Set track mode error:', err); }
   }, [user]);
 
-  return { progress, loading, completeTask, unlockWeek, setTrackMode, refetch: fetchProgress };
+  const recoverStreak = useCallback(async () => {
+    if (!user || !level) return;
+    const today = new Date().toDateString();
+    const newState = {
+      ...progress,
+      lastStudyDate: today,
+    };
+    setProgress(prev => ({ ...prev, lastStudyDate: today }));
+    saveLocalProgress(level, newState);
+    try {
+      await supabase.from('progress').upsert({
+        user_id: user.id,
+        level,
+        last_study_date: today,
+        streak: progress.streak,
+        xp: progress.xp,
+        completed_tasks: progress.completedTasks,
+        badges: progress.badges,
+        unlocked_weeks: progress.unlockedWeeks,
+        weekly_xp: progress.weeklyXP,
+      }, { onConflict: 'user_id,level' });
+    } catch (err) { console.error('Streak recovery error:', err); }
+  }, [user, level, progress]);
+
+  return { progress, loading, completeTask, unlockWeek, setTrackMode, recoverStreak, refetch: fetchProgress };
 }

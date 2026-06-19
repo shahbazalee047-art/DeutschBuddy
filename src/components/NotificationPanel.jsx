@@ -1,5 +1,43 @@
 import { useState, useMemo, useCallback } from 'react';
-import { IconClock, IconTrophy, IconChart, IconArrowRight, IconClipboard, IconFire, IconSparkles } from './Icons';
+import { IconClock, IconTrophy, IconChart, IconArrowRight, IconClipboard, IconFire, IconSparkles, IconLightbulb, IconFlag } from './Icons';
+
+const dailyTips = [
+  { tip: 'German compound nouns take the gender of the last word. "der Hand-schuh" is masculine.', tag: 'Grammar' },
+  { tip: 'The word "doch" has no English equivalent — it means a firm "yes" to a negative question.', tag: 'Vocabulary' },
+  { tip: 'In German, all months are masculine: der Januar, der Februar, der März...', tag: 'Grammar' },
+  { tip: '"Entschuldigung" means both "sorry" and "excuse me".', tag: 'Culture' },
+  { tip: 'German separable prefixes (ab-, an-, auf-, aus-, ein-) split in main clauses.', tag: 'Grammar' },
+  { tip: 'The verb "lassen" can mean both "to let" and "to have something done".', tag: 'Grammar' },
+  { tip: 'German has 3 genders: der, die, das. Always learn nouns with their article!', tag: 'Vocabulary' },
+  { tip: 'Word order in German: verb is always the second element in a main clause.', tag: 'Grammar' },
+  { tip: '"Bitte" means please, you\'re welcome, and pardon — context is everything.', tag: 'Vocabulary' },
+  { tip: 'German numbers: 21 is einundzwanzig (one-and-twenty), not twenty-one.', tag: 'Vocabulary' },
+];
+
+const facts = [
+  'Bread is sacred in Germany. There are over 3,200 officially registered types of bread.',
+  'The longest German word is "Rechtsschutzversicherungsgesellschaften" with 39 letters.',
+  'Berlin has more bridges than Venice, about 1,700 bridges.',
+  'Germans invented the printing press, the car, aspirin, and the Christmas tree tradition.',
+  'The word "Kindergarten" comes from German and means "children\'s garden".',
+  'Germany has over 1,500 types of beer and 1,300 breweries.',
+  'The first printed book (Gutenberg Bible) was printed in German-speaking Mainz.',
+  'German is the most widely spoken native language in the European Union.',
+  '"Donaudampfschifffahrtsgesellschaftskapitän" is a real German word for a Danube steamship captain.',
+  'There is a German word for the fear of losing your phone: "Handyphobie".',
+];
+
+function getDailyIndex(array) {
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 0);
+  const diff = now - startOfYear;
+  const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+  return dayOfYear % array.length;
+}
+
+function getRandomFact(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
 
 const staticNotifications = [
   { id: 1, type: 'reminder', icon: IconClock, title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: '#D4A574', action: { type: 'view', target: 'dashboard' } },
@@ -100,7 +138,34 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
           action: { type: 'view', target: 'dashboard' },
         });
       }
+
+      const diff = Math.floor((new Date(today) - new Date(lastStudyDate)) / (1000 * 60 * 60 * 24));
+      if (diff >= 3 && (progress?.streak || 0) > 0) {
+        dynamic.push({
+          id: 'dyn-guardian', type: 'reminder', icon: IconFire,
+          title: '⚠️ Streak at risk!',
+          message: `You haven't studied in ${diff} days. Answer 3 questions to save your ${progress.streak}-day streak.`,
+          time: 'Just now', color: '#D4A574',
+          action: { type: 'guardian' },
+        });
+      }
     }
+
+    const tip = dailyTips[getDailyIndex(dailyTips)];
+    dynamic.push({
+      id: 'dyn-tip', type: 'reminder', icon: IconLightbulb,
+      title: `Tip of the Day — ${tip.tag}`,
+      message: tip.tip,
+      time: 'Just now', color: '#6BA3BE',
+    });
+
+    const fact = getRandomFact(facts);
+    dynamic.push({
+      id: 'dyn-fact', type: 'reminder', icon: IconFlag,
+      title: 'Did You Know?',
+      message: fact,
+      time: 'Just now', color: '#7FB069',
+    });
 
     return dynamic;
   }, [progress, visibleWeeks, unlockedWeeks]);

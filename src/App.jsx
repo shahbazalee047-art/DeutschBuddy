@@ -11,6 +11,7 @@ const QuickGermanTool = lazy(() => import('./components/QuickGermanTool'));
 const RightPanel = lazy(() => import('./components/RightPanel'));
 import { CardSkeleton, ListSkeleton } from './components/Skeleton';
 import XpToast from './components/XpToast';
+import StreakGuardian from './components/StreakGuardian';
 
 import MainContent from './components/MainContent';
 import NotificationPanel from './components/NotificationPanel';
@@ -49,6 +50,7 @@ function Dashboard() {
   const [xpToast, setXpToast] = useState(null);
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showSidebarVerbLookup, setShowSidebarVerbLookup] = useState(false);
+  const [showStreakGuardian, setShowStreakGuardian] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -84,7 +86,7 @@ function Dashboard() {
   }, [showProfileMenu]);
   const [historyStack, setHistoryStack] = useState([]);
 
-  const { progress, loading, completeTask, unlockWeek, setTrackMode } = useProgress(activeLevel);
+  const { progress, loading, completeTask, unlockWeek, setTrackMode, recoverStreak } = useProgress(activeLevel);
   const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
 
   const historyRef = useRef(historyStack);
@@ -278,9 +280,19 @@ function Dashboard() {
           handleViewChange(action.target);
         } else if (action.type === 'day') {
           handleSelectDay(action.weekId, action.day);
+        } else if (action.type === 'guardian') {
+          setShowStreakGuardian(true);
         }
       }} progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} unlockedWeeks={unlockedWeeks} />}
       <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
+      {showStreakGuardian && (
+        <StreakGuardian
+          levelData={levelData}
+          completedTasks={progress?.completedTasks || []}
+          onSuccess={() => { recoverStreak(); setShowStreakGuardian(false); }}
+          onClose={() => setShowStreakGuardian(false)}
+        />
+      )}
 
       {/* Desktop Navbar */}
       <div className="hidden lg:block">

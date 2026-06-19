@@ -1,5 +1,7 @@
 import { IconBolt, IconTarget, IconTrophy, IconDiamond } from './Icons';
 import SpeedBlitz from './SpeedBlitz';
+import GenderDungeon from './GenderDungeon';
+import PictureMatch from './PictureMatch';
 
 function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth = 8 }) {
   const radius = (size - strokeWidth) / 2;
@@ -50,6 +52,12 @@ export default function RightPanel({ progress, streak, activeLevel }) {
     <div className="space-y-4">
       {/* Speed Blitz */}
       <SpeedBlitz level={activeLevel} />
+
+      {/* Gender Dungeon */}
+      <GenderDungeon />
+
+      {/* Picture Match */}
+      <PictureMatch level={activeLevel} />
 
       {/* Stats */}
       <div className="glass-card p-4">

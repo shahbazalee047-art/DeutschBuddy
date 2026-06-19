@@ -1,13 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { IconZap, IconStar, IconTrophy } from './Icons';
-import { a1Words, a2Words } from '../data/speedBlitzWords';
+import { IconTrophy, IconImage } from './Icons';
+import { a1Pictures, a2Pictures } from '../data/pictureWords';
 
-const WORD_BANKS = { A1: a1Words, A2: a2Words };
+const PICTURE_BANKS = { A1: a1Pictures, A2: a2Pictures };
 const MAX_MISTAKES = 5;
-const BASE_TIME = 5;
-const MIN_TIME = 1.5;
-const TIME_STEP = 0.3;
-const SCORE_PER_STEP = 5;
 
 function shuffle(arr) {
   const a = [...arr];
@@ -18,115 +14,69 @@ function shuffle(arr) {
   return a;
 }
 
-function getWordTime(score) {
-  return Math.max(MIN_TIME, BASE_TIME - Math.floor(score / SCORE_PER_STEP) * TIME_STEP);
-}
-
 function loadLeaderboard(level) {
   try {
-    return JSON.parse(localStorage.getItem(`speedblitz_lb_${level}`) || '[]');
+    return JSON.parse(localStorage.getItem(`picture_match_lb_${level}`) || '[]');
   } catch { return []; }
 }
 
 function saveLeaderboard(level, entries) {
-  localStorage.setItem(`speedblitz_lb_${level}`, JSON.stringify(entries.slice(0, 10)));
+  localStorage.setItem(`picture_match_lb_${level}`, JSON.stringify(entries.slice(0, 10)));
 }
 
-export default function SpeedBlitz({ level = 'A1', compact }) {
+export default function PictureMatch({ level = 'A1', compact }) {
   const [state, setState] = useState('idle');
   const [score, setScore] = useState(0);
   const [mistakes, setMistakes] = useState(0);
   const [current, setCurrent] = useState(null);
   const [options, setOptions] = useState([]);
   const [feedback, setFeedback] = useState(null);
-  const [streak, setStreak] = useState(0);
-  const [wordTimeLeft, setWordTimeLeft] = useState(BASE_TIME);
   const [leaderboard, setLeaderboard] = useState(() => loadLeaderboard(level));
 
-  const wordTimerRef = useRef(null);
-  const wordPool = useRef([]);
+  const pool = useRef([]);
   const scoreRef = useRef(0);
 
   useEffect(() => {
     setLeaderboard(loadLeaderboard(level));
   }, [level]);
 
-  const words = WORD_BANKS[level] || a1Words;
+  const pictures = PICTURE_BANKS[level] || a1Pictures;
+  const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
 
   const nextQuestion = useCallback(() => {
-    if (wordPool.current.length < 4) {
-      wordPool.current = shuffle(words);
+    if (pool.current.length < 4) {
+      pool.current = shuffle(pictures);
     }
-    const correct = wordPool.current.pop();
-    const wrong = shuffle(words.filter(w => w.de !== correct.de)).slice(0, 3);
+    const correct = pool.current.pop();
+    const wrong = shuffle(pictures.filter(p => p.de !== correct.de)).slice(0, 3);
     const opts = shuffle([correct, ...wrong]);
     setCurrent(correct);
     setOptions(opts);
     setFeedback(null);
-  }, [words]);
-
-  const handleMistake = useCallback(() => {
-    setMistakes(prev => {
-      if (prev + 1 >= MAX_MISTAKES) {
-        return MAX_MISTAKES;
-      }
-      return prev + 1;
-    });
-    setStreak(0);
-    setFeedback('timeout');
-    setTimeout(() => nextQuestion(), 400);
-  }, [nextQuestion]);
+  }, [pictures]);
 
   const startGame = useCallback(() => {
     setScore(0);
     setMistakes(0);
-    setStreak(0);
     setState('playing');
     setFeedback(null);
     scoreRef.current = 0;
-    wordPool.current = shuffle(words);
+    pool.current = shuffle(pictures);
     nextQuestion();
-  }, [words, nextQuestion]);
+  }, [pictures, nextQuestion]);
 
   const finishGame = useCallback(() => {
     setState('finished');
     setCurrent(null);
     setOptions([]);
     setFeedback(null);
-    clearInterval(wordTimerRef.current);
   }, []);
 
-  // Handle game over when mistakes reach max
   useEffect(() => {
     if (state === 'playing' && mistakes >= MAX_MISTAKES) {
       finishGame();
     }
   }, [mistakes, state, finishGame]);
-
-  // Word timer: counts down per-word and auto-advances on expire
-  useEffect(() => {
-    if (state !== 'playing' || !current || feedback) return;
-
-    const currentWordTime = getWordTime(scoreRef.current);
-    setWordTimeLeft(currentWordTime);
-
-    const interval = 50;
-    const step = interval / 1000;
-
-    wordTimerRef.current = setInterval(() => {
-      setWordTimeLeft(prev => {
-        const next = prev - step;
-        if (next <= 0) {
-          clearInterval(wordTimerRef.current);
-          handleMistake();
-          return 0;
-        }
-        return next;
-      });
-    }, interval);
-
-    return () => clearInterval(wordTimerRef.current);
-  }, [state, current, feedback, handleMistake]);
 
   useEffect(() => {
     if (state === 'finished') {
@@ -136,48 +86,39 @@ export default function SpeedBlitz({ level = 'A1', compact }) {
       saveLeaderboard(level, entries);
       setLeaderboard(entries);
     }
-  }, [state, level]); // intentional: run when state becomes 'finished'
+  }, [state, level]);
 
-  const handleAnswer = useCallback((word) => {
+  const handleAnswer = useCallback((item) => {
     if (feedback) return;
 
-    if (word.en === current.en) {
+    if (item.de === current.de) {
       setFeedback('correct');
       setScore(prev => {
         scoreRef.current = prev + 1;
         return prev + 1;
       });
-      setStreak(prev => prev + 1);
-      clearInterval(wordTimerRef.current);
       setTimeout(() => nextQuestion(), 350);
     } else {
       setFeedback('wrong');
       setMistakes(prev => prev + 1);
-      setStreak(0);
-      clearInterval(wordTimerRef.current);
       setTimeout(() => nextQuestion(), 500);
     }
   }, [current, feedback, nextQuestion]);
-
-  const wordTime = getWordTime(score);
-  const timerPct = (wordTimeLeft / wordTime) * 100;
-  const timerColor = timerPct > 50 ? 'bg-sage-400' : timerPct > 25 ? 'bg-amber-400' : 'bg-error';
-  const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
 
   const cardClass = compact ? 'rounded-2xl border border-border bg-forest-800/60 p-3' : 'glass-card p-4';
 
   return (
     <div className={cardClass}>
       <div className="flex items-center gap-2 mb-3">
-        <IconZap className="w-4 h-4 text-amber-400" />
-        <h4 className="text-sm font-bold text-cream-200" style={{ fontFamily: 'DM Serif Display, serif' }}>Speed Blitz</h4>
+        <IconImage className="w-4 h-4 text-sky-400" />
+        <h4 className="text-sm font-bold text-cream-200" style={{ fontFamily: 'DM Serif Display, serif' }}>Picture Match</h4>
       </div>
 
       {state === 'idle' && (
         <div className="text-center">
-          <div className="text-3xl mb-2">⚡</div>
-          <p className="text-[11px] text-cream-500 mb-1">Answer before time runs out. <span className="text-error">5 mistakes</span> and it's over.</p>
-          <p className="text-[10px] text-cream-500 mb-3">Speed increases as your score grows.</p>
+          <div className="text-3xl mb-2">🖼️</div>
+          <p className="text-[11px] text-cream-500 mb-1">See the picture, pick the right German word!</p>
+          <p className="text-[10px] text-cream-500 mb-1">{MAX_MISTAKES} mistakes and it's over.</p>
           {bestScore > 0 && (
             <p className="text-[10px] text-amber-400 font-bold mb-3">
               <IconTrophy className="w-3 h-3 inline -mt-0.5 mr-0.5" />
@@ -210,32 +151,18 @@ export default function SpeedBlitz({ level = 'A1', compact }) {
 
       {state === 'playing' && current && (
         <div>
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider">
               Score: <span className="text-cream-200">{score}</span>
             </span>
-            <div className="flex items-center gap-2">
-              {streak >= 2 && <span className="text-[10px] font-bold text-amber-400">🔥 {streak}</span>}
-              <span className="text-[10px] font-bold text-error">
-                ❌ {mistakes}/{MAX_MISTAKES}
-              </span>
-            </div>
+            <span className="text-[10px] font-bold text-error">
+              ❌ {mistakes}/{MAX_MISTAKES}
+            </span>
           </div>
 
-          <div className="w-full h-1.5 rounded-full bg-forest-700 mb-3 overflow-hidden">
-            <div className={`h-full rounded-full transition-all duration-[50ms] linear ${timerColor}`}
-              style={{ width: `${timerPct}%` }} />
-          </div>
-
-          <div className={`text-center mb-3 p-3 rounded-xl border transition-colors ${
-            feedback === 'correct' ? 'border-sage-400/40 bg-sage-400/10' :
-            feedback === 'wrong' ? 'border-error/40 bg-error/10' :
-            feedback === 'timeout' ? 'border-amber-400/40 bg-amber-400/10' :
-            'border-border bg-forest-800/30'
-          }`}>
-            {!feedback && <p className="text-[10px] text-cream-500 mb-0.5">Translate</p>}
-            {feedback === 'timeout' && <p className="text-[10px] text-amber-400 font-bold mb-0.5">Time's up!</p>}
-            <p className="text-xl font-bold text-cream-100">{current.de}</p>
+          <div className="text-center mb-4 p-4 rounded-xl border border-border bg-forest-800/40">
+            <span className="text-5xl block mb-1">{current.emoji}</span>
+            <p className="text-[10px] text-cream-500">What is this?</p>
           </div>
 
           <div className="grid grid-cols-2 gap-1.5">
@@ -244,35 +171,31 @@ export default function SpeedBlitz({ level = 'A1', compact }) {
                 disabled={!!feedback}
                 className={`p-2 rounded-lg text-xs font-semibold transition-all active:scale-95 border ${
                   feedback
-                    ? opt.en === current.en
+                    ? opt.de === current.de
                       ? 'border-sage-400 bg-sage-400/20 text-sage-300'
                       : 'border-border/50 bg-forest-800/50 text-cream-600'
                     : 'border-border bg-forest-800/50 text-cream-300 hover:border-cream-400/30 hover:bg-forest-800 hover:text-cream-200'
                 }`}>
-                {opt.en}
+                {opt.de}
               </button>
             ))}
           </div>
 
           <div className="mt-3 flex items-center justify-center gap-1 text-[9px] text-cream-600">
-            <IconZap className="w-3 h-3" />
-            <span>Speed: {wordTime.toFixed(1)}s</span>
+            <span>{pictures.length - pool.current.length}/{pictures.length}</span>
           </div>
         </div>
       )}
 
       {state === 'finished' && (
         <div className="text-center">
-          {score === bestScore && score > 0 && (
-            <div className={`text-3xl mb-1 ${score >= 10 ? 'animate-bounce' : ''}`}>
-              {score >= 20 ? '🏆' : score >= 12 ? '🌟' : score >= 5 ? '👍' : '💪'}
-            </div>
-          )}
+          <div className={`text-3xl mb-1 ${score >= 10 ? 'animate-bounce' : ''}`}>
+            {score >= 20 ? '👑' : score >= 12 ? '🏆' : score >= 5 ? '🌟' : '💪'}
+          </div>
           <p className="text-2xl font-bold text-cream-100">{score}</p>
           <p className="text-[11px] text-cream-500 mb-1">
-            {score === bestScore && score > 0 ? '🥇 New Personal Best!' : 'Nice try!'}
+            {score === bestScore && score > 0 ? '🥇 New Personal Best!' : score > 5 ? 'Great job!' : 'Keep practicing!'}
           </p>
-          <p className="text-[10px] text-cream-600 mb-3">Mistakes: {mistakes} / {MAX_MISTAKES}</p>
 
           <button onClick={startGame}
             className="mb-3 px-5 py-2 rounded-xl bg-amber-400 text-forest-900 text-xs font-bold hover:bg-amber-300 transition active:scale-95 shadow-sm shadow-amber-400/20">
