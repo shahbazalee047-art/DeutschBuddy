@@ -1,4 +1,4 @@
-const CACHE_NAME = 'deutschbuddy-v2';
+const CACHE_VERSION = 'deutschbuddy-v3';
 const STATIC_ASSETS = [
   '/',
   '/login',
@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_VERSION).then((cache) => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
@@ -17,25 +17,42 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
+      Promise.all(
+        keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
+  // Skip cross-origin requests and API calls
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/rest/v1/') || url.pathname.startsWith('/auth/v1/')) return;
+
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
-          return response;
-        }
-        return caches.match(event.request).then((cached) => cached || response);
-      })
-      .catch(() => caches.match(event.request).then((cached) => cached || caches.match('/')))
+    caches.match(event.request).then((cached) => {
+      const fetchPromise = fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.ok) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_VERSION).then((cache) => cache.put(event.request, clone));
+          }
+          return networkResponse;
+        })
+        .catch(() => cached);
+
+      // Return cached version immediately if available, otherwise wait for network
+      return cached || fetchPromise;
+    })
   );
+});
+
+// Notify clients when a new service worker takes over
+self.addEventListener('controllerchange', () => {
+  self.clients.matchAll().then((clients) => {
+    clients.forEach((client) => client.postMessage({ type: 'SW_UPDATED' }));
+  });
 });

@@ -2,9 +2,6 @@ import { useState, useEffect, useRef, useCallback, useMemo, lazy, Suspense } fro
 import { Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useProgress } from './hooks/useProgress';
-import a1Data from './data/a1Data';
-import a1FastTrackData from './data/a1FastTrackData';
-import a2Data from './data/a2Data';
 import Navbar from './components/Navbar';
 import BottomNav from './components/BottomNav';
 const QuickGermanTool = lazy(() => import('./components/QuickGermanTool'));
@@ -18,7 +15,7 @@ import NotificationPanel from './components/NotificationPanel';
 import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
 import ProtectedRoute from './components/ProtectedRoute';
-import { IconBell, IconWave, IconUser, IconSettings, IconMenu, IconFire } from './components/Icons';
+import { IconBell, IconWave, IconUser, IconSettings, IconMenu, IconFire, IconWarning, IconRefresh } from './components/Icons';
 import DayCompleteCelebration from './components/ConfettiEffect';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
@@ -80,6 +77,16 @@ function DashboardContent() {
   const [notifVersion, setNotifVersion] = useState(0);
   const [historyStack, setHistoryStack] = useState([]);
   const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
+  const [levelData, setLevelData] = useState(null);
+
+  useEffect(() => {
+    if (profile?.selected_pacing && profile.selected_pacing !== trackMode) {
+      setLocalTrackMode(profile.selected_pacing);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- trackMode intentionally excluded: we sync FROM profile TO local state only
+  }, [profile?.selected_pacing]);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   const profileMenuRef = useRef(null);
   const isProcessingBack = useRef(false);
@@ -120,11 +127,35 @@ function DashboardContent() {
 
   const handleToggleTrackMode = useCallback((mode) => { setLocalTrackMode(mode); setTrackMode(mode); }, [setTrackMode]);
 
-  const levelData = useMemo(() =>
-    activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data),
-  [activeLevel, trackMode]);
+  useEffect(() => {
+    let cancelled = false;
+    setDataLoading(true);
+    async function loadData() {
+      try {
+        let module;
+        if (activeLevel === 'A1' && trackMode === 'fast') {
+          module = await import('./data/a1FastTrackData.js');
+        } else if (activeLevel === 'A1') {
+          module = await import('./data/a1Data.js');
+        } else {
+          module = await import('./data/a2Data.js');
+        }
+        if (!cancelled) {
+          setLevelData(module.default || module);
+        }
+      } catch (err) {
+        console.error('Failed to load curriculum data:', err);
+        if (!cancelled) { setLevelData(null); setLoadError(true); }
+      } finally {
+        if (!cancelled) setDataLoading(false);
+      }
+    }
+    loadData();
+    return () => { cancelled = true; };
+  }, [activeLevel, trackMode]);
+
+  const visibleWeeks = useMemo(() => levelData?.weeks || [], [levelData]);
   const unlockedWeeks = useMemo(() => progress && progress.unlockedWeeks ? progress.unlockedWeeks : [1], [progress]);
-  const visibleWeeks = levelData.weeks;
 
   const getNextIncompleteDay = useCallback(() => {
     for (const week of visibleWeeks) {
@@ -148,7 +179,7 @@ function DashboardContent() {
 
   const handleCompleteTask = useCallback(() => {
     if (selectedTask) {
-      completeTask(selectedTask.id, selectedTask.xp, selectedDay.weekId);
+      completeTask(selectedTask.id, selectedTask.xp, selectedDay.weekId, selectedDay.day);
       setTodayXP(prev => prev + selectedTask.xp);
       setXpToast(selectedTask.xp);
       const currentWeek = levelData.weeks.find(w => w.id === selectedDay.weekId);
@@ -281,7 +312,7 @@ function DashboardContent() {
   }), [activeView, activeLevel, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
 
   useEffect(() => {
-    if (!loading && progress) {
+    if (!loading && !dataLoading && progress && levelData) {
       const next = getNextIncompleteDay();
       if (next) {
         setTimeout(() => {
@@ -294,9 +325,41 @@ function DashboardContent() {
         }, 100);
       }
     }
-  }, [loading, progress, getNextIncompleteDay]);
+  }, [loading, dataLoading, progress, levelData, getNextIncompleteDay]);
 
-  if (loading) {
+  if (loadError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4 bg-forest-900">
+        <div className="glass-card p-8 max-w-md w-full text-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center bg-red-500/10">
+            <IconWarning className="w-10 h-10 text-red-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-cream-100 mb-2" style={{ fontFamily: 'DM Serif Display, serif' }}>
+            Failed to Load Curriculum
+          </h2>
+          <p className="text-sm text-cream-400 mb-6">
+            We couldn&apos;t load the lesson data. Please check your connection and try again.
+          </p>
+          <div className="flex justify-center gap-3">
+            <button
+              onClick={() => { setLoadError(false); setDataLoading(true); }}
+              className="px-5 py-2.5 rounded-xl bg-sage-400 text-forest-900 font-semibold hover:bg-sage-400/90 transition-all duration-200 flex items-center gap-2 active:scale-95"
+            >
+              <IconRefresh className="w-4 h-4" /> Try Again
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-5 py-2.5 rounded-xl bg-forest-800 text-cream-200 font-semibold border border-border hover:bg-forest-700 transition-all duration-200 flex items-center gap-2 active:scale-95"
+            >
+              <IconRefresh className="w-4 h-4" /> Reload Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || dataLoading || !levelData) {
     return <LoadingScreen />;
   }
 
@@ -319,7 +382,7 @@ function DashboardContent() {
         </div>
       )}
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
-      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress?.xp || 0} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
+      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => { setShowNotifications(false); setNotifVersion(v => v + 1); }} onNavigate={(action) => {
         if (typeof action === 'string') {
@@ -331,8 +394,8 @@ function DashboardContent() {
         } else if (action.type === 'guardian') {
           setShowStreakGuardian(true);
         }
-      }} progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} unlockedWeeks={unlockedWeeks} />}
-      <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} />
+      }} progress={progress} visibleWeeks={visibleWeeks} unlockedWeeks={unlockedWeeks} />}
+      <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} onComplete={() => setShowCelebration(false)} />
       {showStreakGuardian && (
         <StreakGuardian
           levelData={levelData}

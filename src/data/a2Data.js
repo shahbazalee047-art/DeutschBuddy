@@ -1,81 +1,9 @@
-function makeWeek(id, title, icon, theme, resources, daysData) {
-  return { id, title, icon, theme, unlocked: false, resources, days: daysData };
-}
-
 function makeDay(day, title, tasks) {
   return { day, title, tasks };
 }
 
 function makeTask(id, type, title, description, xp, content) {
   return { id, type, title, description, xp, content };
-}
-
-function makePlaceholderTasks(weekNum, dayNum, grammarTopic, vocabTopic) {
-  return [
-    makeTask(`a2w${weekNum}d${dayNum}t1`, 'flashcards', 'Warm Up', 'Review previous vocabulary', 5, { cards: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t2`, 'grammar', `Grammar: ${grammarTopic}`, 'Learn new grammar', 15, { rule: '', examples: [], note: '' }),
-    makeTask(`a2w${weekNum}d${dayNum}t3`, 'vocabulary', `Vocabulary: ${vocabTopic}`, 'New words', 15, { items: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t4`, dayNum === 7 ? 'review' : 'quiz', dayNum === 7 ? 'Week Review' : 'Practice Quiz', 'Test knowledge', 10, { questions: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t5`, 'listening', 'Listening Practice', 'Listen and answer', 10, { clip: {}, questions: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t6`, 'speaking', 'Speaking Practice', 'Practice pronunciation', 10, { prompt: '', tips: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t7`, 'quickwin', 'Quick Win', 'End on a fun note!', 5, {}),
-  ];
-}
-
-function makeExamTasks(weekNum, dayNum) {
-  const examTitles = ['Lesen', 'Hören', 'Schreiben', 'Sprechen', 'Grammar', 'Full Mock', 'Complete'];
-  const isSkill = dayNum <= 4;
-  return [
-    makeTask(`a2w${weekNum}d${dayNum}t1`, isSkill ? 'quiz' : 'review', isSkill ? `${examTitles[dayNum-1]} Practice` : 'Final Review', 'Exam-style practice', 20, { questions: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t2`, 'quiz', 'Grammar Review', 'Review all A2 grammar', 15, { questions: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t3`, 'speaking', 'Speaking Practice', 'Practice exam speaking', 10, { prompt: '', tips: [] }),
-    makeTask(`a2w${weekNum}d${dayNum}t4`, 'quickwin', dayNum === 7 ? '🎉 Course Complete!' : 'Quick Win', 'Celebrate your progress!', 5, {}),
-  ];
-}
-
-const grammarTopics = ['family modal verbs', 'comparatives', 'dative prepositions', 'complex sentences', 'weil clauses', 'exam grammar'];
-const vocabTopics = ['family', 'food', 'work', 'travel', 'health', 'exam'];
-const weekTitles = [
-  'Familie & Soziales — Family & Social Life',
-  'Essen & Restaurant — Food & Dining',
-  'Arbeit & Beruf — Work & Professions',
-  'Verkehr & Reisen — Transportation & Travel',
-  'Wetter & Natur — Weather, Nature & Health',
-  'Prüfung — A2 Mock Exam',
-];
-const weekIcons = ['👨\u200D👩\u200D👧\u200D👦', '🍽️', '💼', '✈️', '🌤️', '📝'];
-const weekThemes = [
-  'Family vocabulary, expanded modal verbs',
-  'Dining out, comparative/superlative forms',
-  'Workplace language, dative prepositions',
-  'Travel vocabulary, complex sentences',
-  'Weather, health, weil clauses, opinions',
-  'Full A2 mock exam: Lesen, Hören, Schreiben, Sprechen',
-];
-
-function makeWeeks3to8() {
-  const weeks = [];
-  for (let i = 0; i < 6; i++) {
-    const weekNum = i + 3;
-    const isExam = i === 5;
-    const days = [];
-    for (let d = 0; d < 7; d++) {
-      const dayNum = d + 1;
-      let title;
-      if (isExam) {
-        title = `A2 Exam: ${['Lesen', 'Hören', 'Schreiben', 'Sprechen', 'Grammar', 'Full Mock', 'Complete'][d]}`;
-      } else {
-        title = d === 6 ? `Mini Challenge: Week ${weekNum} Review` : `Week ${weekNum} — Day ${dayNum}`;
-      }
-      const tasks = isExam ? makeExamTasks(weekNum, dayNum) : makePlaceholderTasks(weekNum, dayNum, grammarTopics[i], vocabTopics[i]);
-      days.push(makeDay(dayNum, title, tasks));
-    }
-    weeks.push(makeWeek(weekNum, weekTitles[i], weekIcons[i], weekThemes[i], [
-      { name: 'Nicos Weg', url: 'https://learngerman.dw.com/en/overview', description: `Lesson ${weekNum} resources` },
-      { name: 'Easy German', url: 'https://www.youtube.com/@EasyGerman', description: 'Real-life conversations' },
-    ], days));
-  }
-  return weeks;
 }
 
 const a2Data = {

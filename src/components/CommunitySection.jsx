@@ -1,22 +1,21 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
-import { IconChat, IconSearch, IconMessageCircle, IconArrowUp, IconCheck, IconPlus } from './Icons';
+import {
+  IconChat, IconSearch, IconMessageCircle, IconArrowUp, IconCheck, IconPlus,
+  IconX
+} from './Icons';
 
 const samplePosts = [
-  { id: 'sample-1', user: 'Maria K.', level: 'A2', avatar: 'M', title: 'Difference between "war" and "war gewesen"?', category: 'Grammar', content: 'I\'m confused about when to use Präteritum vs Perfekt in spoken German. Can someone explain the key differences?', upvotes: 24, comments: 8, time: '2h ago', solved: false },
-  { id: 'sample-2', user: 'Tom L.', level: 'A1', avatar: 'T', title: 'Best way to memorize noun genders?', category: 'Vocabulary', content: 'I keep forgetting if it\'s der, die, or das. Any tips for remembering noun genders?', upvotes: 18, comments: 12, time: '5h ago', solved: true },
-  { id: 'sample-3', user: 'Sophie M.', level: 'A2', avatar: 'S', title: 'Pronunciation of "ch" sound', category: 'Pronunciation', content: 'The "ch" in "ich" vs "Bach" is so confusing. Can someone explain the difference?', upvotes: 31, comments: 15, time: '1d ago', solved: false },
-  { id: 'sample-4', user: 'Ahmed R.', level: 'A1', avatar: 'A', title: 'How to introduce yourself in German', category: 'General', content: 'I\'m just starting and want to know the basic phrases for introducing myself.', upvotes: 12, comments: 6, time: '3h ago', solved: true },
-  { id: 'sample-5', user: 'Lisa W.', level: 'A2', avatar: 'L', title: 'German Christmas traditions explained', category: 'Culture', content: 'Can someone explain the Advent calendar tradition and why Germans put shoes outside on Dec 5th?', upvotes: 28, comments: 11, time: '6h ago', solved: false },
-  { id: 'sample-6', user: 'James P.', level: 'A1', avatar: 'J', title: 'When to use "du" vs "Sie"?', category: 'Grammar', content: 'I understand the basic rule but when exactly should I switch from formal to informal?', upvotes: 35, comments: 20, time: '4h ago', solved: true },
-  { id: 'sample-7', user: 'Yuki T.', level: 'A2', avatar: 'Y', title: 'Tips for German listening comprehension', category: 'Pronunciation', content: 'I can read German well but struggle with understanding spoken German. Any tips?', upvotes: 22, comments: 9, time: '12h ago', solved: false },
-  { id: 'sample-8', user: 'Carlos M.', level: 'A1', avatar: 'C', title: 'Best resources for learning German numbers', category: 'Vocabulary', content: 'Numbers above 20 are tricky. How do you remember the German number system?', upvotes: 15, comments: 7, time: '8h ago', solved: true },
+  { id: 'sample-1', user: 'Maria K.', level: 'A2', avatar: 'M', title: 'Difference between "war" and "war gewesen"?', category: 'Grammar', content: 'I\'m confused about when to use Präteritum vs Perfekt in spoken German. Can someone explain the key differences?', upvotes: 24, comments: 8, time: '2h ago', solved: false, userId: null },
+  { id: 'sample-2', user: 'Tom L.', level: 'A1', avatar: 'T', title: 'Best way to memorize noun genders?', category: 'Vocabulary', content: 'I keep forgetting if it\'s der, die, or das. Any tips for remembering noun genders?', upvotes: 18, comments: 12, time: '5h ago', solved: true, userId: null },
+  { id: 'sample-3', user: 'Sophie M.', level: 'A2', avatar: 'S', title: 'Pronunciation of "ch" sound', category: 'Pronunciation', content: 'The "ch" in "ich" vs "Bach" is so confusing. Can someone explain the difference?', upvotes: 31, comments: 15, time: '1d ago', solved: false, userId: null },
+  { id: 'sample-4', user: 'Ahmed R.', level: 'A1', avatar: 'A', title: 'How to introduce yourself in German', category: 'General', content: 'I\'m just starting and want to know the basic phrases for introducing myself.', upvotes: 12, comments: 6, time: '3h ago', solved: true, userId: null },
 ];
 
 const categories = ['All', 'Grammar', 'Vocabulary', 'Pronunciation', 'Culture', 'General'];
 
 function formatTime(dateStr) {
-  if (!dateStr || dateStr.endsWith('ago')) return dateStr || 'Just now';
+  if (!dateStr || String(dateStr).endsWith('ago')) return dateStr || 'Just now';
   const now = Date.now();
   const then = new Date(dateStr).getTime();
   const diff = now - then;
@@ -39,52 +38,88 @@ export default function CommunitySection({ user }) {
   const [createForm, setCreateForm] = useState({ title: '', content: '', category: 'General' });
   const [submitting, setSubmitting] = useState(false);
   const [usingFallback, setUsingFallback] = useState(false);
+  const [activePost, setActivePost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [commentLoading, setCommentLoading] = useState(false);
+  const [commentText, setCommentText] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+
+  const mapPost = useCallback((p) => ({
+    id: p.id,
+    user: p.profiles?.full_name || 'Anonymous',
+    level: p.level,
+    avatar: (p.profiles?.full_name || 'A').charAt(0).toUpperCase(),
+    title: p.title,
+    category: p.category,
+    content: p.content,
+    upvotes: p.upvotes || 0,
+    comments: p.comment_count || 0,
+    time: p.created_at,
+    solved: p.solved,
+    userId: p.user_id,
+    raw: p,
+  }), []);
 
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('community_posts')
-        .select('*, profiles:user_id(full_name, email)')
+        .select('*, profiles:user_id(id, full_name, avatar_url)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       if (data && data.length > 0) {
-        setPosts(data.map(p => ({
-          id: p.id,
-          user: p.profiles?.full_name || p.profiles?.email?.split('@')[0] || 'Anonymous',
-          level: p.level,
-          avatar: (p.profiles?.full_name || p.profiles?.email || 'A').charAt(0).toUpperCase(),
-          title: p.title,
-          category: p.category,
-          content: p.content,
-          upvotes: p.upvotes || 0,
-          comments: p.comment_count || 0,
-          time: p.created_at,
-          solved: p.solved,
-          userId: p.user_id,
-        })));
+        setPosts(data.map(mapPost));
         setUsingFallback(false);
       } else {
         setPosts(samplePosts);
         setUsingFallback(true);
       }
 
-      const { data: upvoted } = await supabase
-        .from('community_upvotes')
-        .select('post_id');
-      if (upvoted) setUpvotedIds(new Set(upvoted.map(u => u.post_id)));
-
+      if (user) {
+        const { data: upvoted } = await supabase
+          .from('community_upvotes')
+          .select('post_id')
+          .eq('user_id', user.id);
+        if (upvoted) setUpvotedIds(new Set(upvoted.map(u => u.post_id)));
+      }
     } catch {
       setPosts(samplePosts);
       setUsingFallback(true);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user, mapPost]);
 
   useEffect(() => { fetchPosts(); }, [fetchPosts]);
+
+  const fetchComments = useCallback(async (postId) => {
+    if (usingFallback || !postId) return;
+    setCommentLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('community_comments')
+        .select('*, profiles:user_id(id, full_name, avatar_url)')
+        .eq('post_id', postId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setComments(data.map(c => ({
+        id: c.id,
+        user: c.profiles?.full_name || 'Anonymous',
+        avatar: (c.profiles?.full_name || 'A').charAt(0).toUpperCase(),
+        content: c.content,
+        time: c.created_at,
+        userId: c.user_id,
+      })));
+    } catch {
+      setComments([]);
+    } finally {
+      setCommentLoading(false);
+    }
+  }, [usingFallback]);
 
   const handleUpvote = async (postId) => {
     if (usingFallback || !user) return;
@@ -99,7 +134,7 @@ export default function CommunitySection({ user }) {
 
     try {
       if (isUpvoted) {
-        await supabase.from('community_upvotes').delete().match({ post_id: postId, user_id: user.id });
+        await supabase.from('community_upvotes').delete().eq('post_id', postId).eq('user_id', user.id);
       } else {
         await supabase.from('community_upvotes').insert({ post_id: postId, user_id: user.id });
       }
@@ -124,24 +159,11 @@ export default function CommunitySection({ user }) {
         content: createForm.content.trim(),
         category: createForm.category,
         level: 'All',
-      }).select('*, profiles:user_id(full_name, email)').single();
+      }).select('*, profiles:user_id(id, full_name, avatar_url)').single();
 
       if (error) throw error;
       if (data) {
-        setPosts(prev => [{
-          id: data.id,
-          user: data.profiles?.full_name || user.email?.split('@')[0] || 'You',
-          level: data.level,
-          avatar: (data.profiles?.full_name || user.email || 'Y').charAt(0).toUpperCase(),
-          title: data.title,
-          category: data.category,
-          content: data.content,
-          upvotes: 0,
-          comments: 0,
-          time: data.created_at,
-          solved: false,
-          userId: data.user_id,
-        }, ...prev]);
+        setPosts(prev => [mapPost(data), ...prev]);
       }
       setShowCreateModal(false);
       setCreateForm({ title: '', content: '', category: 'General' });
@@ -150,6 +172,43 @@ export default function CommunitySection({ user }) {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleCreateComment = async (e) => {
+    e.preventDefault();
+    if (!user || !activePost || !commentText.trim()) return;
+    setCommentSubmitting(true);
+    try {
+      const { data, error } = await supabase.from('community_comments').insert({
+        user_id: user.id,
+        post_id: activePost.id,
+        content: commentText.trim(),
+      }).select('*, profiles:user_id(id, full_name, avatar_url)').single();
+
+      if (error) throw error;
+      if (data) {
+        setComments(prev => [...prev, {
+          id: data.id,
+          user: data.profiles?.full_name || user.full_name || 'You',
+          avatar: (data.profiles?.full_name || user.full_name || 'Y').charAt(0).toUpperCase(),
+          content: data.content,
+          time: data.created_at,
+          userId: data.user_id,
+        }]);
+        setPosts(prev => prev.map(p => p.id === activePost.id ? { ...p, comments: p.comments + 1 } : p));
+      }
+      setCommentText('');
+    } catch {
+      alert('Failed to add comment. Please try again.');
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
+
+  const openPost = (post) => {
+    if (usingFallback) return;
+    setActivePost(post);
+    fetchComments(post.id);
   };
 
   const filtered = activeCategory === 'All' ? posts : posts.filter(p => p.category === activeCategory);
@@ -180,7 +239,7 @@ export default function CommunitySection({ user }) {
                 className="w-full h-12 px-4 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50" required />
               <textarea placeholder="What's on your mind?" value={createForm.content} onChange={e => setCreateForm(p => ({ ...p, content: e.target.value }))}
                 className="w-full h-32 px-4 py-3 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50 resize-none" required />
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {categories.filter(c => c !== 'All').map(cat => (
                   <button key={cat} type="button" onClick={() => setCreateForm(p => ({ ...p, category: cat }))}
                     className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
@@ -196,6 +255,98 @@ export default function CommunitySection({ user }) {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Post Detail Modal */}
+      {activePost && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setActivePost(null)}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl scale-in bg-card border border-border" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-forest-900" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>{activePost.avatar}</div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[13px] font-semibold text-cream-200">{activePost.user}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10">{activePost.level}</span>
+                  </div>
+                  <span className="text-[11px] text-cream-500">{formatTime(activePost.time)}</span>
+                </div>
+              </div>
+              <button onClick={() => setActivePost(null)} className="p-2 rounded-xl hover:bg-forest-800 text-cream-400 transition"><IconX className="w-5 h-5" /></button>
+            </div>
+
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-400/20 text-sky-400" style={{ background: 'rgba(107, 163, 190, 0.1)' }}>{activePost.category}</span>
+            <h2 className="text-lg font-bold text-cream-100 mt-3 mb-2">{activePost.title}</h2>
+            <p className="text-[13px] text-cream-400 whitespace-pre-wrap">{activePost.content}</p>
+
+            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border/50">
+              <button onClick={() => handleUpvote(activePost.id)}
+                className={`flex items-center gap-1 text-[12px] transition active:scale-90 ${
+                  upvotedIds.has(activePost.id) ? 'text-sage-400' : 'text-cream-500 hover:text-sage-400'
+                }`}>
+                <IconArrowUp className="w-4 h-4 text-current" /><span>{activePost.upvotes}</span>
+              </button>
+              <span className="flex items-center gap-1 text-[12px] text-cream-500">
+                <IconMessageCircle className="w-3.5 h-3.5" /><span>{activePost.comments}</span>
+              </span>
+              {activePost.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10"><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
+            </div>
+
+            {/* Comments */}
+            <div className="mt-6 pt-4 border-t border-border/50">
+              <h3 className="text-sm font-bold text-cream-200 mb-3">Comments</h3>
+              {commentLoading ? (
+                <div className="space-y-3">
+                  {[1, 2].map(i => (
+                    <div key={i} className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full skeleton" />
+                      <div className="flex-1 space-y-2">
+                        <div className="h-3 w-24 skeleton" />
+                        <div className="h-3 w-full skeleton" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : comments.length === 0 ? (
+                <p className="text-sm text-cream-500">No comments yet. Be the first to respond!</p>
+              ) : (
+                <div className="space-y-4">
+                  {comments.map(comment => (
+                    <div key={comment.id} className="flex gap-3">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-forest-900 shrink-0" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>{comment.avatar}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[12px] font-semibold text-cream-200">{comment.user}</span>
+                          <span className="text-[10px] text-cream-500">{formatTime(comment.time)}</span>
+                        </div>
+                        <p className="text-[13px] text-cream-400 mt-0.5 whitespace-pre-wrap">{comment.content}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {user ? (
+                <form onSubmit={handleCreateComment} className="mt-4 flex gap-2">
+                  <input
+                    value={commentText}
+                    onChange={e => setCommentText(e.target.value)}
+                    placeholder="Write a comment..."
+                    className="flex-1 h-11 px-4 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50"
+                    required
+                  />
+                  <button type="submit" disabled={commentSubmitting}
+                    className="px-4 h-11 rounded-xl text-sm font-bold text-forest-900 transition-all active:scale-95 disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>
+                    {commentSubmitting ? '...' : 'Reply'}
+                  </button>
+                </form>
+              ) : (
+                <p className="text-sm text-cream-500 mt-4">Sign in to leave a comment.</p>
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -251,8 +402,8 @@ export default function CommunitySection({ user }) {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-400/20 text-sky-400" style={{ background: 'rgba(107, 163, 190, 0.1)' }}>{post.category}</span>
             </div>
 
-            <h3 className="text-[14px] font-bold text-cream-200 mb-2">{post.title}</h3>
-            <p className="text-[13px] text-cream-400 line-clamp-2">{post.content}</p>
+            <h3 className="text-[14px] font-bold text-cream-200 mb-2 cursor-pointer hover:text-sage-400 transition" onClick={() => openPost(post)}>{post.title}</h3>
+            <p className="text-[13px] text-cream-400 line-clamp-2 cursor-pointer" onClick={() => openPost(post)}>{post.content}</p>
 
             <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/50">
               <button onClick={() => handleUpvote(post.id)}
@@ -261,7 +412,7 @@ export default function CommunitySection({ user }) {
                 }`}>
                 <IconArrowUp className="w-4 h-4 text-current" /><span>{post.upvotes}</span>
               </button>
-              <button className="flex items-center gap-1 text-[12px] text-cream-500 hover:text-sky-400 transition active:scale-90">
+              <button onClick={() => openPost(post)} className="flex items-center gap-1 text-[12px] text-cream-500 hover:text-sky-400 transition active:scale-90">
                 <IconMessageCircle className="w-3.5 h-3.5" /><span>{post.comments}</span>
               </button>
               {post.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10"><IconCheck className="w-2.5 h-2.5" /> Solved</span>}

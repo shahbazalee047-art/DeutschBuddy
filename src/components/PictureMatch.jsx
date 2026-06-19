@@ -32,6 +32,7 @@ export default function PictureMatch({ level = 'A1', compact }) {
   const [options, setOptions] = useState([]);
   const [feedback, setFeedback] = useState(null);
   const [leaderboard, setLeaderboard] = useState(() => loadLeaderboard(level));
+  const [poolRemaining, setPoolRemaining] = useState(0);
 
   const pool = useRef([]);
   const scoreRef = useRef(0);
@@ -53,6 +54,7 @@ export default function PictureMatch({ level = 'A1', compact }) {
     setCurrent(correct);
     setOptions(opts);
     setFeedback(null);
+    setPoolRemaining(pool.current.length);
   }, [pictures]);
 
   const startGame = useCallback(() => {
@@ -62,6 +64,7 @@ export default function PictureMatch({ level = 'A1', compact }) {
     setFeedback(null);
     scoreRef.current = 0;
     pool.current = shuffle(pictures);
+    setPoolRemaining(pool.current.length);
     nextQuestion();
   }, [pictures, nextQuestion]);
 
@@ -182,7 +185,7 @@ export default function PictureMatch({ level = 'A1', compact }) {
           </div>
 
           <div className="mt-3 flex items-center justify-center gap-1 text-[9px] text-cream-600">
-            <span>{pictures.length - pool.current.length}/{pictures.length}</span>
+            <span>{pictures.length - poolRemaining}/{pictures.length}</span>
           </div>
         </div>
       )}

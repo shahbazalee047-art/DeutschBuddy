@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { getWeekCompletion } from '../utils/progress';
-import { IconBolt, IconFire, IconChart, IconCheck, IconTarget, IconCalendar, IconBookOpen, IconFeather, IconHeadphones, IconMic, IconEdit, IconBook, IconClock, IconGraduation } from './Icons';
+import { IconBolt, IconFire, IconChart, IconCheck, IconTarget, IconBookOpen, IconFeather, IconHeadphones, IconMic, IconEdit, IconBook, IconClock, IconGraduation } from './Icons';
 
 export default function ProgressDashboard({ progress, levelData, visibleWeeks, mode }) {
   const levelWeeks = visibleWeeks || levelData.weeks;
@@ -19,7 +18,7 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
 
   const calendarDays = Array.from({ length: 30 }, (_, i) => ({
     day: i + 1,
-    studied: i < (progress.completedTasks?.length || 0) && Math.random() > 0.3,
+    studied: i < (progress.completedTasks?.length || 0) && ((i * 7) % 11 > 2),
     today: i === new Date().getDate() - 1,
   }));
 

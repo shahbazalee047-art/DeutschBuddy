@@ -1,6 +1,5 @@
-import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { IconChart, IconTarget, IconCalendar, IconX, IconBolt, IconSearch, IconSparkles } from './Icons';
+import { IconChart, IconTarget, IconCalendar, IconX, IconSearch } from './Icons';
 import SpeedBlitz from './SpeedBlitz';
 import GenderDungeon from './GenderDungeon';
 import PictureMatch from './PictureMatch';
@@ -11,7 +10,7 @@ const progressSections = [
   { id: 'progress-calendar', label: 'Activity Calendar', icon: IconCalendar },
 ];
 
-export default function MobileSidebar({ isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange, xp, onVerbLookup }) {
+export default function MobileSidebar({ isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange, onVerbLookup }) {
 
   function handleNav(view) {
     onViewChange(view);

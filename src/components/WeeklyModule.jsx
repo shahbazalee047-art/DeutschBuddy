@@ -1,6 +1,5 @@
 import { memo } from 'react';
 import { getWeekCompletion } from '../utils/progress';
-import { IconLock } from './Icons';
 
 const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked }) {
   const completion = getWeekCompletion(week.days, completedTasks);
@@ -47,7 +46,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
           {isUnlocked && (
             <div className="absolute top-1/2 left-10 right-10 h-0.5 -translate-y-1/2 rounded-full" style={{ background: 'linear-gradient(90deg, #7FB06933, #7FB06933)' }} />
           )}
-          {week.days.map((day, idx) => {
+          {week.days.map((day) => {
             const dayDone = day.tasks.every(t => completedTasks.includes(t.id));
             const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
             return (

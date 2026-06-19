@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { IconZap, IconStar, IconTrophy } from './Icons';
+import { IconZap, IconTrophy } from './Icons';
 import { a1Words, a2Words } from '../data/speedBlitzWords';
 
 const WORD_BANKS = { A1: a1Words, A2: a2Words };

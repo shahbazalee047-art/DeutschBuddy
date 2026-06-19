@@ -9,10 +9,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const mountedRef = useRef(true);
   const profileFetchedRef = useRef(false);
+  const userIdRef = useRef(null);
 
   const fetchProfile = useCallback(async (userId, forceRefresh = false) => {
     if (!userId) return;
-    if (profileFetchedRef.current && !forceRefresh && profile?.id === userId) return;
+    if (profileFetchedRef.current && !forceRefresh && userIdRef.current === userId) return;
+
+    userIdRef.current = userId;
 
     try {
       const { data, error } = await supabase
@@ -24,7 +27,7 @@ export function AuthProvider({ children }) {
       if (error) {
         console.error('fetchProfile error:', error);
         if (error.code === 'PGRST116') {
-          setProfile(null);
+          if (mountedRef.current) setProfile(null);
         }
       } else {
         if (mountedRef.current) {
@@ -39,7 +42,7 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     }
-  }, [profile?.id]);
+  }, []);
 
   useEffect(() => {
     mountedRef.current = true;
@@ -61,13 +64,17 @@ export function AuthProvider({ children }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!mountedRef.current) return;
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        profileFetchedRef.current = false;
-        fetchProfile(session.user.id);
+      const nextUser = session?.user ?? null;
+      setUser(nextUser);
+      if (nextUser) {
+        if (userIdRef.current !== nextUser.id) {
+          profileFetchedRef.current = false;
+        }
+        fetchProfile(nextUser.id);
       } else {
         setProfile(null);
         profileFetchedRef.current = false;
+        userIdRef.current = null;
         setLoading(false);
       }
     });
@@ -106,6 +113,7 @@ export function AuthProvider({ children }) {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     profileFetchedRef.current = false;
+    userIdRef.current = null;
   }
 
   async function resetPassword(email) {

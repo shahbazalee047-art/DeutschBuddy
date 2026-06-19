@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import SpeakerButton from './SpeakerButton';
 import { IconLink, IconCheck, IconFlag, IconMessageCircle, IconSparkles } from './Icons';
 export default function Matching({ content, onComplete }) {
   const [sel, setSel] = useState(null); const [matched, setMatched] = useState([]); const [shuffled, setShuffled] = useState([]);
-  const pairs = content.pairs || [];
-  useEffect(() => { if (pairs.length) setShuffled([...pairs].sort(() => Math.random() - 0.5)); }, [pairs.length]);
+  const pairs = useMemo(() => content.pairs || [], [content.pairs]);
+  useEffect(() => { if (pairs.length) setShuffled([...pairs].sort(() => Math.random() - 0.5)); }, [pairs]);
   if (!pairs.length) return <Empty onComplete={onComplete} />;
   function clickDE(i) { if (!matched.includes(i)) setSel(i); }
   function clickEN(item) { if (sel === null) return; if (pairs[sel].english === item.english) { setMatched(p => [...p, sel]); setSel(null); if (matched.length + 1 === pairs.length) setTimeout(onComplete, 600); } else setSel(null); }

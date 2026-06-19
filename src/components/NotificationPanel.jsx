@@ -53,7 +53,7 @@ function saveReadIds(set) {
   localStorage.setItem('db_notif_read', JSON.stringify([...set]));
 }
 
-export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, levelData, visibleWeeks, unlockedWeeks }) {
+export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, visibleWeeks, unlockedWeeks }) {
   const [readIds, setReadIds] = useState(loadReadIds);
 
   const markRead = useCallback((id) => {

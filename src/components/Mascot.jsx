@@ -1,4 +1,5 @@
-import { IconSparkles, IconLeaf } from './Icons';
+import { useState } from 'react';
+import { IconLeaf } from './Icons';
 
 export default function Mascot() {
   const moods = [
@@ -8,7 +9,7 @@ export default function Mascot() {
     { emoji: '🌟', label: 'You Rock' },
   ];
 
-  const currentMood = moods[Math.floor(Math.random() * moods.length)];
+  const [currentMood] = useState(() => moods[Math.floor(Math.random() * moods.length)]);
 
   return (
     <div className="glass-card p-4">

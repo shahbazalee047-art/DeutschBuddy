@@ -30,7 +30,7 @@ export default function JourneyMap({ currentWeek, weeks }) {
         
         {/* Weeks */}
         <div className="space-y-4 pl-0">
-          {weeks.map((week, idx) => (
+          {weeks.map((week) => (
             <div key={week.id} className="flex items-center gap-3">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 z-10 ${

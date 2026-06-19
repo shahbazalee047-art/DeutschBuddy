@@ -6,7 +6,7 @@ const wins = [
   { type: 'fact', text: 'The longest German word has 39 letters: Rechtsschutzversicherungsgesellschaften.' },
   { type: 'meme', word: 'Handschuh', meaning: 'Glove (literally: hand shoe)' },
 ];
-export default function Fun({ content, onComplete }) {
+export default function Fun({ onComplete }) {
   const [cur, setCur] = useState(null);
   useEffect(() => { setCur(wins[Math.floor(Math.random() * wins.length)]); }, []);
   if (!cur) return null;

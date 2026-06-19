@@ -1,11 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SpeakerButton from './SpeakerButton';
 import { IconShuffle, IconSparkles, IconHeart } from './Icons';
+
+function shuffleString(str) {
+  return str.split('').sort(() => Math.random() - 0.5).join('');
+}
+
 export default function Scramble({ content, onComplete }) {
   const [idx, setIdx] = useState(0); const [input, setInput] = useState(''); const [show, setShow] = useState(false); const [score, setScore] = useState(0);
   const words = content.words || [];
+  const w = words[idx];
+  const [shuffled, setShuffled] = useState(() => w ? shuffleString(w.scrambled) : '');
+
+  useEffect(() => {
+    if (w) setShuffled(shuffleString(w.scrambled));
+  }, [w, w?.scrambled]);
+
   if (!words.length) return <Empty onComplete={onComplete} />;
-  const w = words[idx]; const isLast = idx === words.length - 1; const shuffled = w.scrambled.split('').sort(() => Math.random() - 0.5);
+  const isLast = idx === words.length - 1;
   function submit() { const ok = input.trim().toLowerCase() === w.answer.toLowerCase(); if (ok) setScore(p => p + 1); setShow(true); setTimeout(() => { if (isLast) onComplete(); else { setIdx(p => p + 1); setInput(''); setShow(false); } }, 1200); }
   return (
     <div className="fade-in">

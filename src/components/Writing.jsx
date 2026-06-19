@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { IconFeather, IconEdit, IconSparkles } from './Icons';
+import { IconFeather, IconEdit } from './Icons';
 export default function Writing({ content, onComplete }) {
   const [text, setText] = useState(''); const [done, setDone] = useState(false);
   function submit() { if (text.trim().length > 0) { setDone(true); onComplete(); } }

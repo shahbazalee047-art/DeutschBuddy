@@ -2,14 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
-function calculateStreak(lastStudyDate) {
+function calculateStreakDelta(lastStudyDate) {
   if (!lastStudyDate) return 1;
   const today = new Date().toDateString();
   const last = new Date(lastStudyDate);
   const diff = Math.floor((new Date(today) - last) / (1000 * 60 * 60 * 24));
   if (diff === 0) return 0;
   if (diff === 1) return 1;
-  return 0;
+  return -1; // break streak if gap > 1 day
 }
 
 function checkBadges(xp, streak, completedCount, existingBadges) {
@@ -42,22 +42,26 @@ function getDefaultProgress() {
   };
 }
 
-function loadLocalProgress(level) {
+function getLocalKey(userId, level) {
+  return userId ? `db_progress_${userId}_${level}` : `db_progress_${level}`;
+}
+
+function loadLocalProgress(userId, level) {
   try {
-    const data = localStorage.getItem(`db_progress_${level}`);
+    const data = localStorage.getItem(getLocalKey(userId, level));
     return data ? JSON.parse(data) : null;
   } catch { return null; }
 }
 
-function saveLocalProgress(level, progress) {
-  try { localStorage.setItem(`db_progress_${level}`, JSON.stringify(progress)); } catch { /* ignore */ }
+function saveLocalProgress(userId, level, progress) {
+  try { localStorage.setItem(getLocalKey(userId, level), JSON.stringify(progress)); } catch { /* ignore */ }
 }
 
 export function useProgress(level) {
   const { user } = useAuth();
   const [progress, setProgress] = useState(() => {
     if (!user) return getDefaultProgress();
-    const local = loadLocalProgress(level);
+    const local = loadLocalProgress(user.id, level);
     return local || getDefaultProgress();
   });
   const [loading, setLoading] = useState(true);
@@ -109,12 +113,12 @@ export function useProgress(level) {
           weeklyXP: data.weekly_xp || {},
         });
       } else {
-        const local = loadLocalProgress(currentLevel);
+        const local = loadLocalProgress(currentUser.id, currentLevel);
         if (local) setProgress(local);
       }
     } catch (err) {
       console.error('fetchProgress exception:', err);
-      const local = loadLocalProgress(currentLevel);
+      const local = loadLocalProgress(currentUser?.id, currentLevel);
       if (local) setProgress(local);
     } finally {
       setLoading(false);
@@ -125,7 +129,7 @@ export function useProgress(level) {
     fetchProgress();
   }, [user, level, fetchProgress]);
 
-  const completeTask = useCallback(async (taskId, xpAmount, weekId) => {
+  const completeTask = useCallback(async (taskId, xpAmount, weekId, dayNumber = 0) => {
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
 
@@ -133,9 +137,10 @@ export function useProgress(level) {
 
     const currentProgress = progressRef.current;
     const today = new Date().toDateString();
+    const streakDelta = calculateStreakDelta(currentProgress.lastStudyDate);
     const newStreak = currentProgress.lastStudyDate === today
       ? currentProgress.streak
-      : currentProgress.streak + calculateStreak(currentProgress.lastStudyDate);
+      : (streakDelta === -1 ? 1 : currentProgress.streak + streakDelta);
 
     const newXP = currentProgress.xp + xpAmount;
     const newCompletedTasks = [...new Set([...currentProgress.completedTasks, taskId])];
@@ -147,7 +152,7 @@ export function useProgress(level) {
 
     const newState = {
       xp: newXP,
-      streak: Math.max(newStreak, 1),
+      streak: Math.max(newStreak, 0),
       lastStudyDate: today,
       completedTasks: newCompletedTasks,
       badges: newBadges,
@@ -155,7 +160,7 @@ export function useProgress(level) {
     };
 
     setProgress(prev => ({ ...prev, ...newState }));
-    saveLocalProgress(currentLevel, { ...currentProgress, ...newState });
+    saveLocalProgress(currentUser.id, currentLevel, { ...currentProgress, ...newState });
 
     try {
       const { error: upsertError } = await supabase
@@ -164,7 +169,7 @@ export function useProgress(level) {
           user_id: currentUser.id,
           level: currentLevel,
           xp: newXP,
-          streak: Math.max(newStreak, 1),
+          streak: Math.max(newStreak, 0),
           last_study_date: today,
           completed_tasks: newCompletedTasks,
           badges: newBadges,
@@ -185,7 +190,7 @@ export function useProgress(level) {
         user_id: currentUser.id,
         level: currentLevel,
         week_id: weekId,
-        day_number: 0,
+        day_number: dayNumber,
         task_id: taskId,
         task_type: 'task',
         score: xpAmount,
@@ -212,7 +217,7 @@ export function useProgress(level) {
 
     const newUnlocked = [...currentProgress.unlockedWeeks, weekId];
     setProgress(prev => ({ ...prev, unlockedWeeks: newUnlocked }));
-    saveLocalProgress(currentLevel, { ...currentProgress, unlockedWeeks: newUnlocked });
+    saveLocalProgress(currentUser.id, currentLevel, { ...currentProgress, unlockedWeeks: newUnlocked });
 
     try {
       const { error: upsertError } = await supabase
@@ -261,7 +266,7 @@ export function useProgress(level) {
       lastStudyDate: today,
     };
     setProgress(prev => ({ ...prev, lastStudyDate: today }));
-    saveLocalProgress(currentLevel, newState);
+    saveLocalProgress(currentUser.id, currentLevel, newState);
     try {
       await supabase.from('progress').upsert({
         user_id: currentUser.id,

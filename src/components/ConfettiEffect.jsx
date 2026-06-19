@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 
-export default function DayCompleteCelebration({ show = false, xpEarned = 0 }) {
+export default function DayCompleteCelebration({ show = false, xpEarned = 0, onComplete }) {
   const canvasRef = useRef(null);
   const animRef = useRef(null);
 
@@ -54,6 +54,8 @@ export default function DayCompleteCelebration({ show = false, xpEarned = 0 }) {
 
       if (progress < 1) {
         animRef.current = requestAnimationFrame(animate);
+      } else if (onComplete) {
+        onComplete();
       }
     }
 
@@ -62,14 +64,21 @@ export default function DayCompleteCelebration({ show = false, xpEarned = 0 }) {
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [show]);
+  }, [show, onComplete]);
 
   if (!show) return null;
 
   return (
-    <canvas
-      ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-50"
-    />
+    <>
+      <canvas
+        ref={canvasRef}
+        className="fixed inset-0 pointer-events-none z-50"
+      />
+      {xpEarned > 0 && (
+        <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none text-center animate-xp-toast">
+          <div className="text-5xl font-bold text-sage-400" style={{ fontFamily: 'DM Serif Display, serif', textShadow: '0 0 30px rgba(127, 176, 105, 0.5)' }}>+{xpEarned} XP</div>
+        </div>
+      )}
+    </>
   );
 }

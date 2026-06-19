@@ -18,6 +18,8 @@ export default function SpeakerButton({ text, language = 'de-DE', onAudioEnd, on
     <button
       onClick={handleToggle}
       disabled={!text || isSpeaking}
+      title={error ? 'Speech unavailable' : isSpeaking ? 'Stop' : 'Listen'}
+      aria-label={error ? 'Speech unavailable' : isSpeaking ? 'Stop speaking' : 'Listen'}
       className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isSpeaking ? 'bg-sage-400 text-forest-900 animate-pulse' : 'bg-amber-400/10 text-amber-400 hover:bg-amber-400/20'}`}
     >
       <SpeakerIcon className="w-5 h-5" />

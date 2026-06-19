@@ -18,6 +18,7 @@ function poly(points) { return ['polyline', { points }]; }
 function c(x, y, r) { return ['circle', { cx: x, cy: y, r }]; }
 function r(x, y, w, h, rx) { const a = { x, y, width: w, height: h }; if (rx !== undefined) a.rx = rx; return ['rect', a]; }
 
+export const IconRefresh = (props) => si('g', props, [poly('23 4 23 10 17 10'), poly('1 20 1 14 7 14'), p('M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15')]);
 export const IconHome = (props) => si('g', props, [p('M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z'), poly('9 22 9 12 15 12 15 22')]);
 export const IconChart = (props) => si('g', props, [l('18 20 18 10'), l('12 20 12 4'), l('6 20 6 14')]);
 export const IconTrophy = (props) => si('g', props, [p('M6 9H4.5a2.5 2.5 0 0 1 0-5H6'), p('M18 9h1.5a2.5 2.5 0 0 0 0-5H18'), p('M4 22h16'), p('M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'), p('M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'), p('M18 2H6v7a6 6 0 0 0 12 0V2Z')]);
