@@ -105,7 +105,7 @@ export default function PictureMatch({ level = 'A1', compact }) {
     }
   }, [current, feedback, nextQuestion]);
 
-  const cardClass = compact ? 'rounded-2xl border border-border bg-forest-800/60 p-3' : 'glass-card p-4';
+  const cardClass = compact ? 'rounded-xl border border-border bg-forest-800/60 p-2' : 'glass-card p-4';
 
   return (
     <div className={cardClass}>

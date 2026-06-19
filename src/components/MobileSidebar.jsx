@@ -23,7 +23,7 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
   return (
     <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] shadow-2xl slide-in overflow-y-auto bg-forest-900 border-r border-border/30" onClick={e => e.stopPropagation()}>
+      <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] shadow-2xl slide-in overflow-y-auto bg-forest-900 border-r border-border/30 pb-20" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-border">
           <Link to="/" onClick={() => { onViewChange('dashboard'); onClose(); }}
             className="flex items-center gap-2">
@@ -78,7 +78,7 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
         {/* Games */}
         <div className="p-3 pt-2 border-t border-border">
           <p className="text-[10px] font-bold text-cream-500 uppercase tracking-widest px-3 mb-2">Games</p>
-          <div className="space-y-3">
+          <div className="space-y-2">
             <SpeedBlitz level={activeLevel} compact />
             <GenderDungeon compact />
             <PictureMatch level={activeLevel} compact />

@@ -50,7 +50,7 @@ function loadLocalProgress(level) {
 }
 
 function saveLocalProgress(level, progress) {
-  try { localStorage.setItem(`db_progress_${level}`, JSON.stringify(progress)); } catch {}
+  try { localStorage.setItem(`db_progress_${level}`, JSON.stringify(progress)); } catch { /* ignore */ }
 }
 
 export function useProgress(level) {
@@ -109,12 +109,12 @@ export function useProgress(level) {
           weeklyXP: data.weekly_xp || {},
         });
       } else {
-        const local = loadLocalProgress(level);
+        const local = loadLocalProgress(currentLevel);
         if (local) setProgress(local);
       }
     } catch (err) {
       console.error('fetchProgress exception:', err);
-      const local = loadLocalProgress(level);
+      const local = loadLocalProgress(currentLevel);
       if (local) setProgress(local);
     } finally {
       setLoading(false);
@@ -155,7 +155,7 @@ export function useProgress(level) {
     };
 
     setProgress(prev => ({ ...prev, ...newState }));
-    saveLocalProgress(level, { ...progress, ...newState });
+    saveLocalProgress(currentLevel, { ...currentProgress, ...newState });
 
     try {
       const { error: upsertError } = await supabase
@@ -212,7 +212,7 @@ export function useProgress(level) {
 
     const newUnlocked = [...currentProgress.unlockedWeeks, weekId];
     setProgress(prev => ({ ...prev, unlockedWeeks: newUnlocked }));
-    saveLocalProgress(level, { ...progress, unlockedWeeks: newUnlocked });
+    saveLocalProgress(currentLevel, { ...currentProgress, unlockedWeeks: newUnlocked });
 
     try {
       const { error: upsertError } = await supabase

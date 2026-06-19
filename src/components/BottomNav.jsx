@@ -25,7 +25,7 @@ const BottomNav = memo(function BottomNav({ activeView, onViewChange }) {
                 active ? 'scale-110' : 'text-cream-500 hover:text-cream-300'
               }`}>
               {active && (
-                <span className="absolute inset-0 rounded-2xl mx-2 opacity-10" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }} />
+                <span className="absolute inset-x-1 top-1 bottom-1 rounded-xl opacity-10" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }} />
               )}
               <span className={`relative ${active ? 'text-sage-400' : ''}`}>
                 <item.icon className={`w-5 h-5 ${active ? 'drop-shadow-sm' : ''}`} style={active ? { filter: 'drop-shadow(0 0 4px rgba(127, 176, 105, 0.4))' } : {}} />

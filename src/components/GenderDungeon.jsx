@@ -145,7 +145,7 @@ export default function GenderDungeon({ compact }) {
   }, [state]);
 
   const barColor = progress > 0.75 ? 'bg-error' : progress > 0.5 ? 'bg-amber-400' : 'bg-sage-400';
-  const cardClass = compact ? 'rounded-2xl border border-border bg-forest-800/60 p-3' : 'glass-card p-4';
+  const cardClass = compact ? 'rounded-xl border border-border bg-forest-800/60 p-2' : 'glass-card p-4';
 
   return (
     <div className={cardClass}>

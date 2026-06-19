@@ -18,7 +18,7 @@ import NotificationPanel from './components/NotificationPanel';
 import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
 import ProtectedRoute from './components/ProtectedRoute';
-import { IconBell, IconWave, IconUser, IconSettings, IconMenu } from './components/Icons';
+import { IconBell, IconWave, IconUser, IconSettings, IconMenu, IconFire } from './components/Icons';
 import DayCompleteCelebration from './components/ConfettiEffect';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
@@ -26,10 +26,25 @@ import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 
-function Dashboard() {
-  const { user, profile, signOut } = useAuth();
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-forest-900">
+      <div className="flex flex-col items-center gap-4 scale-in">
+        <div className="text-5xl animate-float">🇩🇪</div>
+        <div className="w-10 h-10 border-3 border-forest-700 border-t-sage-400 rounded-full animate-spin" />
+        <p className="text-cream-400 text-sm font-medium">Loading DeutschBuddy...</p>
+      </div>
+    </div>
+  );
+}
 
-  // Safety check for auth state
+function AuthCheck({ children }) {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-forest-900">
@@ -40,7 +55,14 @@ function Dashboard() {
       </div>
     );
   }
+
+  return children;
+}
+
+function DashboardContent() {
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
+
   const [activeLevel, setActiveLevel] = useState('A1');
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -48,6 +70,7 @@ function Dashboard() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [todayXP, setTodayXP] = useState(0);
   const [xpToast, setXpToast] = useState(null);
+  const [resumeNotification, setResumeNotification] = useState(null);
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showSidebarVerbLookup, setShowSidebarVerbLookup] = useState(false);
   const [showStreakGuardian, setShowStreakGuardian] = useState(false);
@@ -55,6 +78,9 @@ function Dashboard() {
   const [showSidebar, setShowSidebar] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifVersion, setNotifVersion] = useState(0);
+  const [historyStack, setHistoryStack] = useState([]);
+  const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
+
   const profileMenuRef = useRef(null);
   const isProcessingBack = useRef(false);
   const activeViewRef = useRef(activeView);
@@ -63,19 +89,24 @@ function Dashboard() {
   const handleBackNavRef = useRef(null);
   const showQuickToolRef = useRef(false);
   const showSidebarVerbLookupRef = useRef(false);
+  const historyRef = useRef(historyStack);
 
   useEffect(() => { activeViewRef.current = activeView; }, [activeView]);
   useEffect(() => { selectedTaskRef.current = selectedTask; }, [selectedTask]);
   useEffect(() => { selectedDayRef.current = selectedDay; }, [selectedDay]);
   useEffect(() => { showQuickToolRef.current = showQuickTool; }, [showQuickTool]);
   useEffect(() => { showSidebarVerbLookupRef.current = showSidebarVerbLookup; }, [showSidebarVerbLookup]);
+  useEffect(() => { historyRef.current = historyStack; }, [historyStack]);
 
-  const hasUnreadNotifications = useMemo(() => {
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
+
+  useEffect(() => {
     try {
       const readIds = new Set(JSON.parse(localStorage.getItem('db_notif_read') || '[]'));
       const knownIds = [1, 2, 5];
-      return knownIds.some(id => !readIds.has(id));
-    } catch { return false; }
+      const hasUnread = knownIds.some(id => !readIds.has(id));
+      setTimeout(() => setHasUnreadNotifications(hasUnread), 0);
+    } catch { setTimeout(() => setHasUnreadNotifications(false), 0); }
   }, [notifVersion]);
 
   useEffect(() => {
@@ -84,21 +115,24 @@ function Dashboard() {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, [showProfileMenu]);
-  const [historyStack, setHistoryStack] = useState([]);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode, recoverStreak } = useProgress(activeLevel);
-  const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
-
-  const historyRef = useRef(historyStack);
-  historyRef.current = historyStack;
 
   const handleToggleTrackMode = useCallback((mode) => { setLocalTrackMode(mode); setTrackMode(mode); }, [setTrackMode]);
 
-  const levelData = useMemo(() => 
+  const levelData = useMemo(() =>
     activeLevel === 'A1' && trackMode === 'fast' ? a1FastTrackData : (activeLevel === 'A1' ? a1Data : a2Data),
   [activeLevel, trackMode]);
-  const unlockedWeeks = useMemo(() => progress?.unlockedWeeks || [1], [progress?.unlockedWeeks]);
+  const unlockedWeeks = useMemo(() => progress && progress.unlockedWeeks ? progress.unlockedWeeks : [1], [progress]);
   const visibleWeeks = levelData.weeks;
+
+  const getNextIncompleteDay = useCallback(() => {
+    for (const week of visibleWeeks) {
+      if (!unlockedWeeks.includes(week.id)) continue;
+      for (const day of week.days) { if (!day.tasks.every(t => progress.completedTasks.includes(t.id))) return { weekId: week.id, day: day.day }; }
+    }
+    return null;
+  }, [visibleWeeks, unlockedWeeks, progress.completedTasks]);
 
   const handleSelectDay = useCallback((weekId, day) => {
     setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
@@ -128,15 +162,6 @@ function Dashboard() {
 
   const handleBackToWeek = useCallback(() => { setSelectedDay(null); setSelectedTask(null); }, []);
   const currentWeek = levelData.weeks.find(w => w.id === selectedDay?.weekId);
-
-  const getNextIncompleteDay = useCallback(() => {
-    for (const week of visibleWeeks) {
-      if (!unlockedWeeks.includes(week.id)) continue;
-      for (const day of week.days) { if (!day.tasks.every(t => progress.completedTasks.includes(t.id))) return { weekId: week.id, day: day.day }; }
-    }
-    return null;
-  }, [visibleWeeks, unlockedWeeks, progress.completedTasks]);
-  const nextDay = getNextIncompleteDay();
 
   const handleViewChange = useCallback((view) => {
     setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask, level: activeLevel }]);
@@ -255,21 +280,44 @@ function Dashboard() {
     onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
   }), [activeView, activeLevel, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
 
+  useEffect(() => {
+    if (!loading && progress) {
+      const next = getNextIncompleteDay();
+      if (next) {
+        setTimeout(() => {
+          const currentProgress = progress;
+          const currentNext = getNextIncompleteDay();
+          if (currentNext && currentProgress === progress) {
+            setResumeNotification(currentNext);
+            setTimeout(() => setResumeNotification(null), 5000);
+          }
+        }, 100);
+      }
+    }
+  }, [loading, progress, getNextIncompleteDay]);
+
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-forest-900">
-        <div className="flex flex-col items-center gap-4 scale-in">
-          <div className="text-5xl animate-float">🇩🇪</div>
-          <div className="w-10 h-10 border-3 border-forest-700 border-t-sage-400 rounded-full animate-spin" />
-          <p className="text-cream-400 text-sm font-medium">Loading DeutschBuddy...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return (
-      <div className="min-h-screen bg-forest-900">
+    <div className="min-h-screen bg-forest-900">
       {xpToast && <XpToast xp={xpToast} onComplete={() => setXpToast(null)} />}
+      {resumeNotification && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 animate-slideUp">
+          <button onClick={() => { handleSelectDay(resumeNotification.weekId, resumeNotification.day); setResumeNotification(null); }}
+            className="glass-card px-4 py-3 flex items-center gap-3 hover:border-sage-400/30 transition-all cursor-pointer group max-w-sm">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-sage-400/10 border border-sage-400/20">
+              <span className="text-lg">▶</span>
+            </div>
+            <div className="text-left">
+              <p className="text-[10px] font-bold text-sage-400 uppercase tracking-wider">Pick up where you left off</p>
+              <p className="text-sm font-semibold text-cream-200">Week {resumeNotification.weekId}, Day {resumeNotification.day}</p>
+            </div>
+            <span className="text-cream-400 group-hover:text-sage-400 transition ml-2">→</span>
+          </button>
+        </div>
+      )}
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} xp={progress?.xp || 0} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
@@ -301,26 +349,32 @@ function Dashboard() {
 
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-forest-900/95 backdrop-blur-xl border-b border-border/40">
-        <div className="relative flex items-center justify-center h-14 px-3">
-          <button onClick={() => setShowSidebar(true)}
-            className="absolute left-3 w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-cream-200 hover:bg-forest-800 transition">
-            <IconMenu className="w-5 h-5" />
-          </button>
-          <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-            className="flex items-center gap-2 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-            <span className="text-[1.6rem] leading-none">🇩🇪</span>
-            <span className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>Deutsch</span>
-            <span className="text-xl text-sage-400" style={{ fontFamily: 'DM Serif Display, serif' }}>Buddy</span>
-          </Link>
-          <div className="absolute right-3 flex items-center gap-1.5">
+        <div className="flex items-center justify-between h-16 px-2">
+          <div className="flex items-center gap-1">
+            <button onClick={() => setShowSidebar(true)}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-cream-400 hover:text-cream-200 hover:bg-forest-800 transition">
+              <IconMenu className="w-6 h-6" />
+            </button>
+            <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
+              className="flex items-center gap-1 cursor-pointer active:scale-95 transition-all duration-150 select-none">
+              <span className="text-[1.5rem] leading-none">🇩🇪</span>
+              <span className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>Deutsch</span>
+              <span className="text-xl text-sage-400" style={{ fontFamily: 'DM Serif Display, serif' }}>Buddy</span>
+            </Link>
+          </div>
+          <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-amber-400/10 border border-amber-400/20 min-w-[48px] justify-center">
+              <IconFire className={`w-6 h-6 text-amber-400 ${progress?.streak >= 3 ? 'animate-streak-blaze' : progress?.streak > 0 ? '' : 'opacity-40'}`} />
+              <span className={`text-sm font-bold tabular-nums ${progress?.streak > 0 ? 'text-amber-400' : 'text-amber-400/50'}`}>{progress?.streak || 0}</span>
+            </div>
             <button onClick={() => setShowNotifications(true)}
               className={`w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
-              <IconBell className="w-5 h-5" />
-              {hasUnreadNotifications && <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-error" />}
+              <IconBell className="w-6 h-6" />
+              {hasUnreadNotifications && <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-error" />}
             </button>
             <div className="relative" ref={profileMenuRef}>
               <button onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-sage-400 to-amber-400 flex items-center justify-center text-forest-900 text-xs font-bold ring-2 ring-sage-400/30 active:scale-90 transition-transform">
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-sage-400 to-amber-400 flex items-center justify-center text-forest-900 text-[10px] font-bold ring-2 ring-sage-400/30 active:scale-90 transition-transform">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
               </button>
               {showProfileMenu && (
@@ -358,20 +412,6 @@ function Dashboard() {
               {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-sky-400/10 text-sky-400 border border-sky-400/20">A2: Fixed 8-week track</span>}
             </div>
 
-            {nextDay && (
-              <button onClick={() => handleSelectDay(nextDay.weekId, nextDay.day)}
-                className="w-full mb-6 glass-card p-5 flex items-center gap-4 text-left hover:border-sage-400/20 transition-all group">
-                <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl shadow-lg" style={{ background: 'linear-gradient(135deg, #7FB069, #D4A574)', boxShadow: '0 4px 12px rgba(127, 176, 105, 0.2)' }}>
-                  <span>▶</span>
-                </div>
-                <div className="flex-1">
-                  <div className="text-[10px] font-bold text-sage-400 uppercase tracking-widest animate-sage-glow">Continue where you left off</div>
-                  <div className="text-sm font-semibold text-cream-300 mt-1">Week {nextDay.weekId}, Day {nextDay.day}</div>
-                </div>
-                <span className="text-cream-300 group-hover:text-sage-400 transition text-xl font-bold">→</span>
-              </button>
-            )}
-
             <div className="glass-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? '#7FB069' : '#6BA3BE'}`, paddingLeft: '20px' }}>
               <h2 className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>{levelData.title}</h2>
               <p className="text-sm text-cream-500 mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
@@ -401,6 +441,14 @@ function Dashboard() {
         <Footer />
       </div>
     </div>
+  );
+}
+
+function Dashboard() {
+  return (
+    <AuthCheck>
+      <DashboardContent />
+    </AuthCheck>
   );
 }
 

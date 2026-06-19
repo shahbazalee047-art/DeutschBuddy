@@ -164,7 +164,7 @@ export default function SpeedBlitz({ level = 'A1', compact }) {
   const timerColor = timerPct > 50 ? 'bg-sage-400' : timerPct > 25 ? 'bg-amber-400' : 'bg-error';
   const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
 
-  const cardClass = compact ? 'rounded-2xl border border-border bg-forest-800/60 p-3' : 'glass-card p-4';
+  const cardClass = compact ? 'rounded-xl border border-border bg-forest-800/60 p-2' : 'glass-card p-4';
 
   return (
     <div className={cardClass}>

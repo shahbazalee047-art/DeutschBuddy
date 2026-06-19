@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef, memo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSearch, IconBolt, IconFire, IconUser, IconSettings, IconLogOut } from './Icons';
+import { IconHome, IconChart, IconTrophy, IconChat, IconBook, IconBell, IconSearch, IconFire, IconUser, IconSettings } from './Icons';
 
-const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, xp, streak, onQuickTool, onNotifications, hasUnreadNotifications }) {
+const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onLevelChange, streak, onQuickTool, onNotifications, hasUnreadNotifications }) {
   const { user, profile, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -58,7 +58,7 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
               ))}
             </nav>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3">
               <div className="flex rounded-xl overflow-hidden border border-border">
                 {['A1', 'A2'].map(lvl => (
                   <button key={lvl} onClick={() => onLevelChange(lvl)}
@@ -72,42 +72,38 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
                 ))}
               </div>
 
-              {streak > 0 && (
-                <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-400/10 border border-amber-400/20">
-                  <IconFire className={`w-4 h-4 text-amber-400 ${streak >= 3 ? 'animate-streak-blaze' : ''}`} />
-                  <span className="text-xs font-bold text-amber-400 tabular-nums">{streak}</span>
-                </div>
-              )}
+              <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-400/10 border border-amber-400/20 min-w-[52px] justify-center">
+                <IconFire className={`w-4 h-4 text-amber-400 ${streak >= 3 ? 'animate-streak-blaze' : streak > 0 ? '' : 'opacity-40'}`} />
+                <span className={`text-xs font-bold tabular-nums ${streak > 0 ? 'text-amber-400' : 'text-amber-400/50'}`}>{streak}</span>
+              </div>
 
-              <div className="flex items-center gap-2">
-                <button onClick={onNotifications}
-                  className="flex items-center justify-center w-11 h-11 rounded-xl text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative">
-                  <IconBell className={`w-6 h-6 ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`} />
-                  {hasUnreadNotifications && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error" />}
+              <button onClick={onNotifications}
+                className="flex items-center justify-center w-11 h-11 rounded-xl text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative">
+                <IconBell className={`w-6 h-6 ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`} />
+                {hasUnreadNotifications && <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-error" />}
+              </button>
+
+              <button onClick={onQuickTool}
+                className="flex items-center justify-center w-10 h-10 rounded-xl text-cream-400 hover:text-sky-400 hover:bg-sky-400/10 transition">
+                <IconSearch className="w-5 h-5" />
+              </button>
+
+              <div className="relative" ref={menuRef}>
+                <button onClick={() => setMenuOpen(!menuOpen)}
+                  className="w-11 h-11 rounded-full bg-gradient-to-br from-sage-400 to-amber-400 text-forest-900 flex items-center justify-center text-sm font-bold hover:shadow-lg hover:shadow-sage-400/30 transition ring-2 ring-sage-400/40 active:scale-90">
+                  {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
                 </button>
-
-                <button onClick={onQuickTool}
-                  className="flex items-center justify-center w-10 h-10 rounded-xl text-cream-400 hover:text-sky-400 hover:bg-sky-400/10 transition">
-                  <IconSearch className="w-5 h-5" />
-                </button>
-
-                <div className="relative" ref={menuRef}>
-                  <button onClick={() => setMenuOpen(!menuOpen)}
-                    className="w-11 h-11 rounded-full bg-gradient-to-br from-sage-400 to-amber-400 text-forest-900 flex items-center justify-center text-sm font-bold hover:shadow-lg hover:shadow-sage-400/30 transition ring-2 ring-sage-400/40 active:scale-90">
-                    {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
-                  </button>
-                  {menuOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border bg-card">
-                      <div className="px-4 py-3 border-b border-border">
-                        <p className="text-sm font-semibold text-cream-200 truncate">{profile?.full_name || 'Learner'}</p>
-                        <p className="text-[11px] text-cream-500 truncate">{user?.email}</p>
-                      </div>
-                      <button onClick={() => { onViewChange('profile'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
-                      <button onClick={() => { onViewChange('settings'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
-                      <button onClick={handleSignOut} className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
+                {menuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border bg-card">
+                    <div className="px-4 py-3 border-b border-border">
+                      <p className="text-sm font-semibold text-cream-200 truncate">{profile?.full_name || 'Learner'}</p>
+                      <p className="text-[11px] text-cream-500 truncate">{user?.email}</p>
                     </div>
-                  )}
-                </div>
+                    <button onClick={() => { onViewChange('profile'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
+                    <button onClick={() => { onViewChange('settings'); setMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
+                    <button onClick={handleSignOut} className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
