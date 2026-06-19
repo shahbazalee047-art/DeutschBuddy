@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
@@ -7,53 +7,84 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const mountedRef = useRef(true);
+  const profileFetchedRef = useRef(false);
 
-  useEffect(() => {
-    let mounted = true;
+  const fetchProfile = useCallback(async (userId, forceRefresh = false) => {
+    if (!userId) return;
+    if (profileFetchedRef.current && !forceRefresh && profile?.id === userId) return;
 
-    supabase.auth.getSession()
-      .then(({ data: { session } }) => {
-        if (!mounted) return;
-        setUser(session?.user ?? null);
-        if (session?.user) fetchProfile(session.user.id);
-        else setLoading(false);
-      })
-      .catch((err) => {
-        console.error('getSession error:', err);
-        if (mounted) setLoading(false);
-      });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!mounted) return;
-      setUser(session?.user ?? null);
-      if (session?.user) fetchProfile(session.user.id);
-      else {
-        setProfile(null);
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
-  }, []);
-
-  async function fetchProfile(userId) {
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single();
-      if (error) console.error('fetchProfile error:', error);
-      setProfile(data);
+
+      if (error) {
+        console.error('fetchProfile error:', error);
+        if (error.code === 'PGRST116') {
+          setProfile(null);
+        }
+      } else {
+        if (mountedRef.current) {
+          setProfile(data);
+          profileFetchedRef.current = true;
+        }
+      }
     } catch (err) {
       console.error('fetchProfile exception:', err);
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
-  }
+  }, [profile?.id]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => {
+        if (!mountedRef.current) return;
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchProfile(session.user.id);
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('getSession error:', err);
+        if (mountedRef.current) setLoading(false);
+      });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mountedRef.current) return;
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        profileFetchedRef.current = false;
+        fetchProfile(session.user.id);
+      } else {
+        setProfile(null);
+        profileFetchedRef.current = false;
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      mountedRef.current = false;
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
+
+  const refreshProfile = useCallback(() => {
+    if (user) {
+      profileFetchedRef.current = false;
+      return fetchProfile(user.id, true);
+    }
+    return Promise.resolve();
+  }, [user, fetchProfile]);
 
   async function signUp(email, password, fullName) {
     const { data, error } = await supabase.auth.signUp({
@@ -74,6 +105,7 @@ export function AuthProvider({ children }) {
   async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
+    profileFetchedRef.current = false;
   }
 
   async function resetPassword(email) {
@@ -97,7 +129,7 @@ export function AuthProvider({ children }) {
     signOut,
     resetPassword,
     updatePassword,
-    refreshProfile: () => user && fetchProfile(user.id),
+    refreshProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

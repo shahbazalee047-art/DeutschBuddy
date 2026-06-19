@@ -32,6 +32,9 @@ create table if not exists public.progress (
   unique(user_id, level)
 );
 
+-- Index for faster lookups
+create index if not exists idx_progress_user_level on public.progress(user_id, level);
+
 -- Quiz and exercise results
 create table if not exists public.exercise_results (
   id uuid default uuid_generate_v4() primary key,

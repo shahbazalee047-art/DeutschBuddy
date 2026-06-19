@@ -3,7 +3,7 @@
 > **Repository:** `shahbazalee047-art/DeutschBuddy`  
 > **Live URL:** https://deutsch-buddy-murex.vercel.app  
 > **Supabase Project:** `jqytrdjfojogyoxmknmg.supabase.co`  
-> **Last Updated:** June 18, 2026  
+> **Last Updated:** June 20, 2026  
 
 ---
 
@@ -192,6 +192,12 @@ App
 - **Config Updates**: `index.html` theme-color → `#18181B`, `manifest.json` → `#18181B` / `#A3E635`
 - **Build**: `npm run build` passes, 111 modules, ~2s build time
 
+#### Phase 6: Auth & Progress Reliability Improvements (Current Session)
+- **AuthContext Refactor**: Migrated from plain function to `useCallback`/`useRef` pattern. Added `mountedRef` to prevent state updates after unmount, `profileFetchedRef` to deduplicate profile fetches, and `refreshProfile` for manual refresh. Error handling per-operation with `PGRST116` (no-rows) tolerance.
+- **useProgress Refactor**: Replaced direct `user`/`level`/`progress` dependencies with `useRef` snapshots to avoid stale closure bugs. Added `Set`-based deduplication of `completedTasks`. Added `exercise_results` insert on task completion. Error handling with auto-refetch (`fetchProgress()`) on upsert failure. `recoverStreak` added to restore broken streaks.
+- **SQL Enhancements**: Added `idx_progress_user_level` composite index for faster lookups. Comprehensive RLS policies for `DELETE` and `UPDATE` on all tables. Recreated `handle_new_user()` trigger to auto-create both A1 and A2 progress rows on signup, with `ON CONFLICT DO NOTHING` safety.
+- **Resolved merge conflict** in `useProgress.js`, combining ref-based stability with `saveLocalProgress`, `recoverStreak`, and enhanced error handling.
+
 #### Bug Fixes (Commits: 7facdc2, d9810a6, ef5db95, d129b13)
 - Mobile bottom navigation added
 - Resource library populated with 12 fallback resources
@@ -318,15 +324,17 @@ progress (
   weekly_xp jsonb DEFAULT '{}'
 )
 
--- Exercise results
+-- Exercise results (with FK to progress for referential integrity)
 exercise_results (
   id uuid PRIMARY KEY,
   user_id uuid REFERENCES profiles,
   level text,
   week_id integer,
+  day_number integer,
   task_id text,
   task_type text,
   score integer,
+  max_score integer,
   completed boolean
 )
 
@@ -344,10 +352,13 @@ exam_scores (
 )
 ```
 
+### Indexes
+- `idx_progress_user_level` on `progress(user_id, level)` — optimizes per-user/per-level progress queries
+
 ### Row Level Security
 - All tables have RLS enabled
-- Users can only read/write their own data (`auth.uid() = id` or `auth.uid() = user_id`)
-- Auto-profile creation via database trigger on signup
+- Users can only read/write/update/delete their own data (`auth.uid() = id` or `auth.uid() = user_id`)
+- Auto-profile creation via database trigger on signup (also auto-creates A1 + A2 progress rows)
 
 ---
 
@@ -409,6 +420,12 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 | 669 kB main chunk warning | Code splitting via React.lazy + dynamic data imports | Phase 5 |
 | BottomNav safe-area-bottom missing | Added `.safe-area-bottom` CSS utility and class | Phase 5 |
 | Did You Know localStorage stale on login | Fixed to store new index in localStorage | Phase 5 |
+| AuthContext stale closures on auth state change | Migrated to useCallback/useRef pattern | Phase 6 |
+| useProgress stale closure bugs with async operations | Replaced direct deps with useRef snapshots | Phase 6 |
+| useProgress exercise_results not tracking tasks | Added insert on task completion | Phase 6 |
+| Progress upsert silently failing | Added error logging and auto-refetch on failure | Phase 6 |
+| RLS policies missing DELETE/UPDATE grants | Added comprehensive policies for all CRUD operations | Phase 6 |
+| New users missing A2 progress row | handle_new_user() trigger now creates both A1 and A2 rows | Phase 6 |
 
 ### Remaining Known Issues
 - Notification items could be more dynamically routable
@@ -425,7 +442,9 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 - **No em/en dashes** in UI text
 - **A1 fast track**: Separate data file `a1FastTrackData.js` (6 weeks)
 - **A2 fixed**: 8-week track, no fast option
-- **Supabase RLS**: Must be applied via SQL Editor in Supabase dashboard
+- **Supabase RLS**: Must be applied via SQL Editor in Supabase dashboard. The updated `fix-rls.sql` now includes DELETE/UPDATE policies and the `handle_new_user()` trigger for auto-creating A1 + A2 progress rows.
+- **AuthContext**: Uses `useCallback` + `useRef` pattern to prevent stale closures. The `refreshProfile` function is memoized and exposed via context.
+- **useProgress**: All async callbacks read `user`, `level`, and `progress` via refs (`userRef`, `levelRef`, `progressRef`) instead of closure deps. This prevents stale-state bugs during rapid task completion or concurrent operations.
 - **Vercel**: Auto-deploys from GitHub push to `main` branch
 - **PWA**: Installable, offline-capable, standalone mode
 

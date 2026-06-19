@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -61,22 +61,37 @@ export function useProgress(level) {
     return local || getDefaultProgress();
   });
   const [loading, setLoading] = useState(true);
+  const progressRef = useRef(progress);
+  const userRef = useRef(user);
+  const levelRef = useRef(level);
 
   useEffect(() => {
-    if (!user || !level) {
+    progressRef.current = progress;
+  }, [progress]);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  useEffect(() => {
+    levelRef.current = level;
+  }, [level]);
+
+  const fetchProgress = useCallback(async () => {
+    const currentUser = userRef.current;
+    const currentLevel = levelRef.current;
+
+    if (!currentUser || !currentLevel) {
       setLoading(false);
       return;
     }
-    fetchProgress();
-  }, [user, level]);
 
-  async function fetchProgress() {
     try {
       const { data, error } = await supabase
         .from('progress')
         .select('*')
-        .eq('user_id', user.id)
-        .eq('level', level)
+        .eq('user_id', currentUser.id)
+        .eq('level', currentLevel)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -104,22 +119,30 @@ export function useProgress(level) {
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    fetchProgress();
+  }, [user, level, fetchProgress]);
 
   const completeTask = useCallback(async (taskId, xpAmount, weekId) => {
-    if (!user || !level) return;
+    const currentUser = userRef.current;
+    const currentLevel = levelRef.current;
 
+    if (!currentUser || !currentLevel) return;
+
+    const currentProgress = progressRef.current;
     const today = new Date().toDateString();
-    const newStreak = progress.lastStudyDate === today
-      ? progress.streak
-      : progress.streak + calculateStreak(progress.lastStudyDate);
+    const newStreak = currentProgress.lastStudyDate === today
+      ? currentProgress.streak
+      : currentProgress.streak + calculateStreak(currentProgress.lastStudyDate);
 
-    const newXP = progress.xp + xpAmount;
-    const newCompletedTasks = [...progress.completedTasks, taskId];
-    const newBadges = checkBadges(newXP, newStreak, newCompletedTasks.length, progress.badges);
+    const newXP = currentProgress.xp + xpAmount;
+    const newCompletedTasks = [...new Set([...currentProgress.completedTasks, taskId])];
+    const newBadges = checkBadges(newXP, newStreak, newCompletedTasks.length, currentProgress.badges);
 
     const weekKey = `W${weekId}`;
-    const newWeeklyXP = { ...progress.weeklyXP };
+    const newWeeklyXP = { ...currentProgress.weeklyXP };
     newWeeklyXP[weekKey] = (newWeeklyXP[weekKey] || 0) + xpAmount;
 
     const newState = {
@@ -135,11 +158,11 @@ export function useProgress(level) {
     saveLocalProgress(level, { ...progress, ...newState });
 
     try {
-      await supabase
+      const { error: upsertError } = await supabase
         .from('progress')
         .upsert({
-          user_id: user.id,
-          level,
+          user_id: currentUser.id,
+          level: currentLevel,
           xp: newXP,
           streak: Math.max(newStreak, 1),
           last_study_date: today,
@@ -147,52 +170,120 @@ export function useProgress(level) {
           badges: newBadges,
           weekly_xp: newWeeklyXP,
         }, { onConflict: 'user_id,level' });
+
+      if (upsertError) {
+        console.error('Progress upsert error:', upsertError);
+        fetchProgress();
+      }
     } catch (err) {
       console.error('Progress save error:', err);
+      fetchProgress();
     }
-  }, [user, level, progress]);
+
+    try {
+      const { error: exerciseError } = await supabase.from('exercise_results').insert({
+        user_id: currentUser.id,
+        level: currentLevel,
+        week_id: weekId,
+        day_number: 0,
+        task_id: taskId,
+        task_type: 'task',
+        score: xpAmount,
+        max_score: xpAmount,
+        completed: true,
+      });
+
+      if (exerciseError) {
+        console.error('Exercise result save error:', exerciseError);
+      }
+    } catch (err) {
+      console.error('Exercise result save error:', err);
+    }
+  }, [fetchProgress]);
 
   const unlockWeek = useCallback(async (weekId) => {
-    if (!user || !level) return;
-    if (progress.unlockedWeeks.includes(weekId)) return;
-    const newUnlocked = [...progress.unlockedWeeks, weekId];
+    const currentUser = userRef.current;
+    const currentLevel = levelRef.current;
+
+    if (!currentUser || !currentLevel) return;
+
+    const currentProgress = progressRef.current;
+    if (currentProgress.unlockedWeeks.includes(weekId)) return;
+
+    const newUnlocked = [...currentProgress.unlockedWeeks, weekId];
     setProgress(prev => ({ ...prev, unlockedWeeks: newUnlocked }));
     saveLocalProgress(level, { ...progress, unlockedWeeks: newUnlocked });
+
     try {
-      await supabase.from('progress').upsert({ user_id: user.id, level, unlocked_weeks: newUnlocked }, { onConflict: 'user_id,level' });
-    } catch (err) { console.error('Unlock week error:', err); }
-  }, [user, level, progress.unlockedWeeks]);
+      const { error: upsertError } = await supabase
+        .from('progress')
+        .upsert({
+          user_id: currentUser.id,
+          level: currentLevel,
+          unlocked_weeks: newUnlocked,
+        }, { onConflict: 'user_id,level' });
+
+      if (upsertError) {
+        console.error('Unlock week error:', upsertError);
+        fetchProgress();
+      }
+    } catch (err) {
+      console.error('Unlock week error:', err);
+      fetchProgress();
+    }
+  }, [fetchProgress]);
 
   const setTrackMode = useCallback(async (mode) => {
-    if (!user) return;
+    const currentUser = userRef.current;
+    if (!currentUser) return;
     try {
-      await supabase.from('profiles').upsert({ id: user.id, selected_pacing: mode }, { onConflict: 'id' });
-    } catch (err) { console.error('Set track mode error:', err); }
-  }, [user]);
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert({ id: currentUser.id, selected_pacing: mode }, { onConflict: 'id' });
+
+      if (upsertError) {
+        console.error('Set track mode error:', upsertError);
+      }
+    } catch (err) {
+      console.error('Set track mode error:', err);
+    }
+  }, []);
 
   const recoverStreak = useCallback(async () => {
-    if (!user || !level) return;
+    const currentUser = userRef.current;
+    const currentLevel = levelRef.current;
+    const currentProgress = progressRef.current;
+
+    if (!currentUser || !currentLevel) return;
     const today = new Date().toDateString();
     const newState = {
-      ...progress,
+      ...currentProgress,
       lastStudyDate: today,
     };
     setProgress(prev => ({ ...prev, lastStudyDate: today }));
-    saveLocalProgress(level, newState);
+    saveLocalProgress(currentLevel, newState);
     try {
       await supabase.from('progress').upsert({
-        user_id: user.id,
-        level,
+        user_id: currentUser.id,
+        level: currentLevel,
         last_study_date: today,
-        streak: progress.streak,
-        xp: progress.xp,
-        completed_tasks: progress.completedTasks,
-        badges: progress.badges,
-        unlocked_weeks: progress.unlockedWeeks,
-        weekly_xp: progress.weeklyXP,
+        streak: currentProgress.streak,
+        xp: currentProgress.xp,
+        completed_tasks: currentProgress.completedTasks,
+        badges: currentProgress.badges,
+        unlocked_weeks: currentProgress.unlockedWeeks,
+        weekly_xp: currentProgress.weeklyXP,
       }, { onConflict: 'user_id,level' });
     } catch (err) { console.error('Streak recovery error:', err); }
-  }, [user, level, progress]);
+  }, []);
 
-  return { progress, loading, completeTask, unlockWeek, setTrackMode, recoverStreak, refetch: fetchProgress };
+  return {
+    progress,
+    loading,
+    completeTask,
+    unlockWeek,
+    setTrackMode,
+    recoverStreak,
+    refetch: fetchProgress,
+  };
 }
