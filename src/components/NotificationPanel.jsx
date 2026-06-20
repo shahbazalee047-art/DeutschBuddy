@@ -35,10 +35,6 @@ function getDailyIndex(array) {
   return dayOfYear % array.length;
 }
 
-function getRandomFact(array) {
-  return array[Math.floor(Math.random() * array.length)];
-}
-
 const staticNotifications = [
   { id: 1, type: 'reminder', icon: IconClock, title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: 'var(--gold-light)', action: { type: 'view', target: 'dashboard' } },
   { id: 2, type: 'achievement', icon: IconTrophy, title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: 'var(--gold)', action: { type: 'view', target: 'badges' } },
@@ -56,6 +52,7 @@ function saveReadIds(set) {
 export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, visibleWeeks, unlockedWeeks }) {
   const [readIds, setReadIds] = useState(loadReadIds);
   const [selectedDetail, setSelectedDetail] = useState(null);
+  const dailyFact = facts[getDailyIndex(facts)];
 
   const markRead = useCallback((id) => {
     setReadIds(prev => {
@@ -160,7 +157,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
       time: 'Just now', color: 'var(--gold-light)',
     });
 
-    const fact = getRandomFact(facts);
+    const fact = dailyFact;
     dynamic.push({
       id: 'dyn-fact', type: 'fact', icon: IconFlag,
       title: 'Did You Know?',
@@ -169,7 +166,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
     });
 
     return dynamic;
-  }, [progress, visibleWeeks, unlockedWeeks]);
+  }, [progress, visibleWeeks, unlockedWeeks, dailyFact]);
 
   const allNotifications = useMemo(() => {
     const all = [...dynamicNotifications, ...staticNotifications];

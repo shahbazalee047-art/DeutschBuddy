@@ -3,10 +3,12 @@ import { getWeekCompletion } from '../utils/progress';
 import { IconCheck } from './Icons';
 
 const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked }) {
-  const completion = getWeekCompletion(week.days, completedTasks);
+  const safeDays = Array.isArray(week?.days) ? week.days : [];
+  const safeCompleted = Array.isArray(completedTasks) ? completedTasks : [];
+  const completion = getWeekCompletion(safeDays, safeCompleted);
   const isComplete = completion === 100;
-  const weekXP = week.days.reduce((acc, day) => acc + day.tasks.filter(t => completedTasks.includes(t.id)).reduce((a, t) => a + t.xp, 0), 0);
-  const totalWeekXP = week.days.reduce((acc, day) => acc + day.tasks.reduce((a, t) => a + t.xp, 0), 0);
+  const weekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).filter(t => safeCompleted.includes(t.id)).reduce((a, t) => a + (t.xp || 0), 0), 0);
+  const totalWeekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).reduce((a, t) => a + (t.xp || 0), 0), 0);
 
   return (
     <div className={`paper-card transition-all duration-300 overflow-hidden ${!isUnlocked ? 'opacity-60' : 'hover:border-gold/20 hover:shadow-lg'}`}>
@@ -47,8 +49,9 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
           {isUnlocked && (
             <div className="absolute top-1/2 left-10 right-10 h-0.5 -translate-y-1/2" style={{ background: 'rgba(196,146,74,0.15)' }} />
           )}
-          {week.days.map((day) => {
-            const dayDone = day.tasks.every(t => completedTasks.includes(t.id));
+          {safeDays.map((day) => {
+            const tasks = day?.tasks || [];
+            const dayDone = tasks.length > 0 && tasks.every(t => safeCompleted.includes(t.id));
             const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
             return (
               <button key={day.day} onClick={() => onSelectDay(week.id, day.day)}

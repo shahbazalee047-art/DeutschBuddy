@@ -14,6 +14,15 @@ import ListeningTask from './ListeningTask';
 import QuickWin from './QuickWin';
 
 export default function TaskRenderer({ task, onComplete }) {
+  if (!task || typeof task !== 'object' || !task.type || !task.content) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-text-muted mb-4">This task is unavailable.</p>
+        <button onClick={onComplete} className="btn-primary px-6">Continue</button>
+      </div>
+    );
+  }
+
   const props = { content: task.content, onComplete };
   switch (task.type) {
     case 'vocabulary': return <Vocabulary {...props} />;

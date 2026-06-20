@@ -24,8 +24,8 @@ drop policy if exists "profiles_insert_own" on public.profiles;
 drop policy if exists "profiles_update_own" on public.profiles;
 drop policy if exists "profiles_delete_own" on public.profiles;
 
-create policy "Users can view community profiles" on public.profiles
-  for select using (true);
+create policy "Users can view own profile" on public.profiles
+  for select using (auth.uid() = id);
 
 create policy "Users can insert own profile" on public.profiles
   for insert with check (auth.uid() = id);

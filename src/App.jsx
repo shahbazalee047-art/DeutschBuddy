@@ -556,7 +556,7 @@ const [todayXP, setTodayXP] = useState(0);
       </main>
 
       {/* Mobile Bottom Nav */}
-      <div className="lg:hidden pb-16">
+      <div className="lg:hidden pb-safe">
         <BottomNav activeView={activeView} onViewChange={handleViewChange} />
       </div>
 

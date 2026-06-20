@@ -24,10 +24,19 @@ const MainContent = memo(function MainContent({
   if (activeView === 'progress-calendar') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" /></div>;
   if (activeView === 'badges') return <div className="view-enter"><BadgeGallery badges={progress.badges || []} /></div>;
   if (activeView === 'resources') {
-    const unique = [...new Map(levelData.weeks.flatMap(w => w.resources || []).map(r => [r.name, r])).values()];
+    const weeks = levelData?.weeks || [];
+    const unique = [...new Map(weeks.flatMap(w => w.resources || []).map(r => [r.name, r])).values()];
     return <div className="view-enter"><ResourceLibrary resources={unique} /></div>;
   }
   if (selectedTask) {
+    if (!selectedTask.type || !selectedTask.content) {
+      return (
+        <div className="view-enter text-center py-12">
+          <p className="text-text-muted mb-4">This task could not be loaded.</p>
+          <button onClick={() => onSelectTask(null)} className="btn-primary px-6">Go Back</button>
+        </div>
+      );
+    }
     return (
       <div className="view-enter">
         <button onClick={() => onSelectTask(null)} className="btn-text mb-4">

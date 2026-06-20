@@ -11,8 +11,13 @@ export default function DayCompleteCelebration({ show = false, xpEarned = 0, onC
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
     const colors = ['var(--gold)', 'var(--gold-light)', 'var(--gold-light)', '#F4A261', '#E76F51'];
     const pieces = Array.from({ length: 80 }, () => ({
@@ -62,6 +67,7 @@ export default function DayCompleteCelebration({ show = false, xpEarned = 0, onC
     animRef.current = requestAnimationFrame(animate);
 
     return () => {
+      window.removeEventListener('resize', resize);
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
   }, [show, onComplete]);

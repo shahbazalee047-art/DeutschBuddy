@@ -2,14 +2,18 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
+function getUTCDateString(date = new Date()) {
+  return date.toISOString().split('T')[0];
+}
+
 function calculateStreakDelta(lastStudyDate) {
   if (!lastStudyDate) return 1;
-  const today = new Date().toDateString();
-  const last = new Date(lastStudyDate);
-  const diff = Math.floor((new Date(today) - last) / (1000 * 60 * 60 * 24));
-  if (diff === 0) return 0;
-  if (diff === 1) return 1;
-  return -1; // break streak if gap > 1 day
+  const today = getUTCDateString();
+  const last = lastStudyDate.slice(0, 10);
+  if (last === today) return 0;
+  const yesterday = getUTCDateString(new Date(Date.now() - 86400000));
+  if (last === yesterday) return 1;
+  return -1;
 }
 
 function checkBadges(xp, streak, completedCount, existingBadges) {
@@ -49,7 +53,18 @@ function getLocalKey(userId, level) {
 function loadLocalProgress(userId, level) {
   try {
     const data = localStorage.getItem(getLocalKey(userId, level));
-    return data ? JSON.parse(data) : null;
+    if (!data) return null;
+    const parsed = JSON.parse(data);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return {
+      xp: Number(parsed.xp) || 0,
+      streak: Number(parsed.streak) || 0,
+      lastStudyDate: parsed.lastStudyDate || null,
+      completedTasks: Array.isArray(parsed.completedTasks) ? parsed.completedTasks : [],
+      badges: Array.isArray(parsed.badges) ? parsed.badges : [],
+      unlockedWeeks: Array.isArray(parsed.unlockedWeeks) ? parsed.unlockedWeeks : [1],
+      weeklyXP: parsed.weeklyXP && typeof parsed.weeklyXP === 'object' ? parsed.weeklyXP : {},
+    };
   } catch { return null; }
 }
 
@@ -61,8 +76,7 @@ export function useProgress(level) {
   const { user } = useAuth();
   const [progress, setProgress] = useState(() => {
     if (!user) return getDefaultProgress();
-    const local = loadLocalProgress(user.id, level);
-    return local || getDefaultProgress();
+    return loadLocalProgress(user.id, level) || getDefaultProgress();
   });
   const [loading, setLoading] = useState(true);
   const progressRef = useRef(progress);
@@ -80,6 +94,15 @@ export function useProgress(level) {
   useEffect(() => {
     levelRef.current = level;
   }, [level]);
+
+  // Reset state synchronously when level changes so stale progress isn't shown
+  useEffect(() => {
+    if (!user) {
+      setProgress(getDefaultProgress());
+      return;
+    }
+    setProgress(loadLocalProgress(user.id, level) || getDefaultProgress());
+  }, [user, level]);
 
   const fetchProgress = useCallback(async () => {
     const currentUser = userRef.current;
@@ -135,46 +158,51 @@ export function useProgress(level) {
 
     if (!currentUser || !currentLevel) return;
 
-    const currentProgress = progressRef.current;
-    const today = new Date().toDateString();
-    const streakDelta = calculateStreakDelta(currentProgress.lastStudyDate);
-    const newStreak = currentProgress.lastStudyDate === today
-      ? currentProgress.streak
-      : (streakDelta === -1 ? 1 : currentProgress.streak + streakDelta);
+    let upsertPayload = null;
 
-    const newXP = currentProgress.xp + xpAmount;
-    const newCompletedTasks = [...new Set([...currentProgress.completedTasks, taskId])];
-    const newBadges = checkBadges(newXP, newStreak, newCompletedTasks.length, currentProgress.badges);
+    setProgress(prev => {
+      const today = getUTCDateString();
+      const streakDelta = calculateStreakDelta(prev.lastStudyDate);
+      const newStreak = prev.lastStudyDate === today
+        ? prev.streak
+        : (streakDelta === -1 ? 1 : prev.streak + streakDelta);
 
-    const weekKey = `W${weekId}`;
-    const newWeeklyXP = { ...currentProgress.weeklyXP };
-    newWeeklyXP[weekKey] = (newWeeklyXP[weekKey] || 0) + xpAmount;
+      const newXP = prev.xp + xpAmount;
+      const newCompletedTasks = [...new Set([...prev.completedTasks, taskId])];
+      const newBadges = checkBadges(newXP, Math.max(newStreak, 0), newCompletedTasks.length, prev.badges);
+      const weekKey = `W${weekId}`;
+      const newWeeklyXP = { ...prev.weeklyXP, [weekKey]: (prev.weeklyXP[weekKey] || 0) + xpAmount };
 
-    const newState = {
-      xp: newXP,
-      streak: Math.max(newStreak, 0),
-      lastStudyDate: today,
-      completedTasks: newCompletedTasks,
-      badges: newBadges,
-      weeklyXP: newWeeklyXP,
-    };
+      const next = {
+        xp: newXP,
+        streak: Math.max(newStreak, 0),
+        lastStudyDate: today,
+        completedTasks: newCompletedTasks,
+        badges: newBadges,
+        unlockedWeeks: prev.unlockedWeeks,
+        weeklyXP: newWeeklyXP,
+      };
 
-    setProgress(prev => ({ ...prev, ...newState }));
-    saveLocalProgress(currentUser.id, currentLevel, { ...currentProgress, ...newState });
+      upsertPayload = {
+        user_id: currentUser.id,
+        level: currentLevel,
+        xp: next.xp,
+        streak: next.streak,
+        last_study_date: today,
+        completed_tasks: next.completedTasks,
+        badges: next.badges,
+        unlocked_weeks: next.unlockedWeeks,
+        weekly_xp: next.weeklyXP,
+      };
+
+      saveLocalProgress(currentUser.id, currentLevel, next);
+      return next;
+    });
 
     try {
       const { error: upsertError } = await supabase
         .from('progress')
-        .upsert({
-          user_id: currentUser.id,
-          level: currentLevel,
-          xp: newXP,
-          streak: Math.max(newStreak, 0),
-          last_study_date: today,
-          completed_tasks: newCompletedTasks,
-          badges: newBadges,
-          weekly_xp: newWeeklyXP,
-        }, { onConflict: 'user_id,level' });
+        .upsert(upsertPayload, { onConflict: 'user_id,level' });
 
       if (upsertError) {
         console.error('Progress upsert error:', upsertError);
@@ -212,21 +240,27 @@ export function useProgress(level) {
 
     if (!currentUser || !currentLevel) return;
 
-    const currentProgress = progressRef.current;
-    if (currentProgress.unlockedWeeks.includes(weekId)) return;
+    let upsertPayload = null;
 
-    const newUnlocked = [...currentProgress.unlockedWeeks, weekId];
-    setProgress(prev => ({ ...prev, unlockedWeeks: newUnlocked }));
-    saveLocalProgress(currentUser.id, currentLevel, { ...currentProgress, unlockedWeeks: newUnlocked });
+    setProgress(prev => {
+      if (prev.unlockedWeeks.includes(weekId)) return prev;
+      const newUnlocked = [...prev.unlockedWeeks, weekId];
+      upsertPayload = {
+        user_id: currentUser.id,
+        level: currentLevel,
+        unlocked_weeks: newUnlocked,
+      };
+      const next = { ...prev, unlockedWeeks: newUnlocked };
+      saveLocalProgress(currentUser.id, currentLevel, next);
+      return next;
+    });
+
+    if (!upsertPayload) return;
 
     try {
       const { error: upsertError } = await supabase
         .from('progress')
-        .upsert({
-          user_id: currentUser.id,
-          level: currentLevel,
-          unlocked_weeks: newUnlocked,
-        }, { onConflict: 'user_id,level' });
+        .upsert(upsertPayload, { onConflict: 'user_id,level' });
 
       if (upsertError) {
         console.error('Unlock week error:', upsertError);
@@ -257,27 +291,34 @@ export function useProgress(level) {
   const recoverStreak = useCallback(async () => {
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
-    const currentProgress = progressRef.current;
 
     if (!currentUser || !currentLevel) return;
-    const today = new Date().toDateString();
-    const newState = {
-      ...currentProgress,
-      lastStudyDate: today,
-    };
-    setProgress(prev => ({ ...prev, lastStudyDate: today }));
-    saveLocalProgress(currentUser.id, currentLevel, newState);
+
+    const today = getUTCDateString();
+
+    setProgress(prev => {
+      // Recovery resets streak to 1 if it was broken, otherwise keeps it.
+      const wasBroken = calculateStreakDelta(prev.lastStudyDate) === -1;
+      const next = {
+        ...prev,
+        lastStudyDate: today,
+        streak: wasBroken ? 1 : prev.streak,
+      };
+      saveLocalProgress(currentUser.id, currentLevel, next);
+      return next;
+    });
+
     try {
       await supabase.from('progress').upsert({
         user_id: currentUser.id,
         level: currentLevel,
         last_study_date: today,
-        streak: currentProgress.streak,
-        xp: currentProgress.xp,
-        completed_tasks: currentProgress.completedTasks,
-        badges: currentProgress.badges,
-        unlocked_weeks: currentProgress.unlockedWeeks,
-        weekly_xp: currentProgress.weeklyXP,
+        streak: progressRef.current.streak,
+        xp: progressRef.current.xp,
+        completed_tasks: progressRef.current.completedTasks,
+        badges: progressRef.current.badges,
+        unlocked_weeks: progressRef.current.unlockedWeeks,
+        weekly_xp: progressRef.current.weeklyXP,
       }, { onConflict: 'user_id,level' });
     } catch (err) { console.error('Streak recovery error:', err); }
   }, []);

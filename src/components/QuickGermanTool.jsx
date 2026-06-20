@@ -133,7 +133,7 @@ export default function QuickGermanTool({ onClose }) {
                   Verb Lookup
                 </h3>
               </div>
-              <button onClick={onClose} className="w-8 h-8  bg-bg-dark/60/50 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
+              <button onClick={onClose} className="w-8 h-8 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
@@ -143,7 +143,7 @@ export default function QuickGermanTool({ onClose }) {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search verb (e.g. 'laufen' or 'to run')..."
-                className="w-full p-3  border border-gold/20 bg-bg-dark/80 text-text-on-dark placeholder:text-text-on-dark-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-200 text-sm"
+                className="w-full p-3 border border-gold/20 bg-bg-dark/80 text-text-on-dark placeholder:text-text-on-dark-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-200 text-sm"
                 autoFocus
               />
               <div className="mt-3 space-y-1">
@@ -151,7 +151,7 @@ export default function QuickGermanTool({ onClose }) {
                   <button
                     key={v.german}
                     onClick={() => handleSelect(v)}
-                    className="w-full flex items-center justify-between px-4 py-2.5  text-sm text-left hover:bg-bg-dark/60 transition"
+                    className="w-full flex items-center justify-between px-4 py-2.5 text-sm text-left hover:bg-bg-dark/60 transition"
                   >
                     <span className="text-gold font-medium">{v.german}</span>
                     <span className="text-text-on-dark-muted">{v.english}</span>
@@ -167,7 +167,7 @@ export default function QuickGermanTool({ onClose }) {
           <div className="glass-card">
             <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gold/20">
               <div className="flex items-center gap-2">
-                <button onClick={handleBack} className="w-8 h-8  bg-bg-dark/60/50 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
+                <button onClick={handleBack} className="w-8 h-8 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div>
@@ -177,7 +177,7 @@ export default function QuickGermanTool({ onClose }) {
                   <p className="text-xs text-text-on-dark-muted">{selectedVerb.english}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="w-8 h-8  bg-bg-dark/60/50 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
+              <button onClick={onClose} className="w-8 h-8 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
@@ -195,7 +195,7 @@ export default function QuickGermanTool({ onClose }) {
                 </thead>
                 <tbody>
                   {pronouns.map(p => (
-                    <tr key={p} className="border-b border-gold/20/20 last:border-0">
+                    <tr key={p} className="border-b border-gold/20 last:border-0">
                       <td className="px-4 sm:px-5 py-2.5 text-text-on-dark-muted font-medium whitespace-nowrap">{p}</td>
                       {tenses.map(t => (
                         <td key={t} className="px-3 sm:px-4 py-2.5 text-text-on-dark whitespace-nowrap">

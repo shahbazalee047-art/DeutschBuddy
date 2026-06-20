@@ -389,6 +389,10 @@ button { font-family: 'DM Sans', sans-serif; }
 
 .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .safe-area-top { padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe { padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px)); }
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.min-h-safe { min-height: 100dvh; }
+.h-safe { height: 100dvh; }
 
 .view-enter { animation: viewFadeIn 0.2s ease-out; }
 @keyframes viewFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
