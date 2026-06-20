@@ -87,6 +87,7 @@ function DashboardContent() {
   }, [profile?.selected_pacing]);
   const [dataLoading, setDataLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [retryKey, setRetryKey] = useState(0);
 
   const profileMenuRef = useRef(null);
   const isProcessingBack = useRef(false);
@@ -130,6 +131,7 @@ function DashboardContent() {
   useEffect(() => {
     let cancelled = false;
     setDataLoading(true);
+    setLoadError(false);
     async function loadData() {
       try {
         let module;
@@ -152,7 +154,7 @@ function DashboardContent() {
     }
     loadData();
     return () => { cancelled = true; };
-  }, [activeLevel, trackMode]);
+  }, [activeLevel, trackMode, retryKey]);
 
   const visibleWeeks = useMemo(() => levelData?.weeks || [], [levelData]);
   const unlockedWeeks = useMemo(() => progress && progress.unlockedWeeks ? progress.unlockedWeeks : [1], [progress]);
@@ -342,7 +344,7 @@ function DashboardContent() {
           </p>
           <div className="flex justify-center gap-3">
             <button
-              onClick={() => { setLoadError(false); setDataLoading(true); }}
+              onClick={() => { setLoadError(false); setRetryKey(k => k + 1); }}
               className="px-5 py-2.5 rounded-xl bg-sage-400 text-forest-900 font-semibold hover:bg-sage-400/90 transition-all duration-200 flex items-center gap-2 active:scale-95"
             >
               <IconRefresh className="w-4 h-4" /> Try Again
