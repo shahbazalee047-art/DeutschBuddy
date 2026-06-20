@@ -65,9 +65,8 @@ function DashboardContent() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
   const [showCelebration, setShowCelebration] = useState(false);
-  const [todayXP, setTodayXP] = useState(0);
+const [todayXP, setTodayXP] = useState(0);
   const [xpToast, setXpToast] = useState(null);
-  const [resumeNotification, setResumeNotification] = useState(null);
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showSidebarVerbLookup, setShowSidebarVerbLookup] = useState(false);
   const [showStreakGuardian, setShowStreakGuardian] = useState(false);
@@ -158,14 +157,6 @@ function DashboardContent() {
 
   const visibleWeeks = useMemo(() => levelData?.weeks || [], [levelData]);
   const unlockedWeeks = useMemo(() => progress && progress.unlockedWeeks ? progress.unlockedWeeks : [1], [progress]);
-
-  const getNextIncompleteDay = useCallback(() => {
-    for (const week of visibleWeeks) {
-      if (!unlockedWeeks.includes(week.id)) continue;
-      for (const day of week.days) { if (!day.tasks.every(t => progress.completedTasks.includes(t.id))) return { weekId: week.id, day: day.day }; }
-    }
-    return null;
-  }, [visibleWeeks, unlockedWeeks, progress.completedTasks]);
 
   const handleSelectDay = useCallback((weekId, day) => {
     setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
@@ -313,22 +304,6 @@ function DashboardContent() {
     onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
   }), [activeView, activeLevel, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
 
-  useEffect(() => {
-    if (!loading && !dataLoading && progress && levelData) {
-      const next = getNextIncompleteDay();
-      if (next) {
-        setTimeout(() => {
-          const currentProgress = progress;
-          const currentNext = getNextIncompleteDay();
-          if (currentNext && currentProgress === progress) {
-            setResumeNotification(currentNext);
-            setTimeout(() => setResumeNotification(null), 5000);
-          }
-        }, 100);
-      }
-    }
-  }, [loading, dataLoading, progress, levelData, getNextIncompleteDay]);
-
   if (loadError) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4 bg-forest-900">
@@ -368,21 +343,6 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-forest-900">
       {xpToast && <XpToast xp={xpToast} onComplete={() => setXpToast(null)} />}
-      {resumeNotification && (
-        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 animate-slideUp">
-          <button onClick={() => { handleSelectDay(resumeNotification.weekId, resumeNotification.day); setResumeNotification(null); }}
-            className="glass-card px-4 py-3 flex items-center gap-3 hover:border-sage-400/30 transition-all cursor-pointer group max-w-sm">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-sage-400/10 border border-sage-400/20">
-              <span className="text-lg">▶</span>
-            </div>
-            <div className="text-left">
-              <p className="text-[10px] font-bold text-sage-400 uppercase tracking-wider">Pick up where you left off</p>
-              <p className="text-sm font-semibold text-cream-200">Week {resumeNotification.weekId}, Day {resumeNotification.day}</p>
-            </div>
-            <span className="text-cream-400 group-hover:text-sage-400 transition ml-2">→</span>
-          </button>
-        </div>
-      )}
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
