@@ -22,6 +22,10 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
+import SpeedBlitz from './components/SpeedBlitz';
+import GenderDungeon from './components/GenderDungeon';
+import PictureMatch from './components/PictureMatch';
+import GamePanel from './components/GamePanel';
 
 function LoadingScreen() {
   return (
@@ -69,6 +73,9 @@ const [todayXP, setTodayXP] = useState(0);
   const [xpToast, setXpToast] = useState(null);
   const [showQuickTool, setShowQuickTool] = useState(false);
   const [showSidebarVerbLookup, setShowSidebarVerbLookup] = useState(false);
+  const [showSpeedBlitz, setShowSpeedBlitz] = useState(false);
+  const [showGenderDungeon, setShowGenderDungeon] = useState(false);
+  const [showPictureMatch, setShowPictureMatch] = useState(false);
   const [showStreakGuardian, setShowStreakGuardian] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -96,6 +103,9 @@ const [todayXP, setTodayXP] = useState(0);
   const handleBackNavRef = useRef(null);
   const showQuickToolRef = useRef(false);
   const showSidebarVerbLookupRef = useRef(false);
+  const showSpeedBlitzRef = useRef(false);
+  const showGenderDungeonRef = useRef(false);
+  const showPictureMatchRef = useRef(false);
   const historyRef = useRef(historyStack);
 
   useEffect(() => { activeViewRef.current = activeView; }, [activeView]);
@@ -103,6 +113,9 @@ const [todayXP, setTodayXP] = useState(0);
   useEffect(() => { selectedDayRef.current = selectedDay; }, [selectedDay]);
   useEffect(() => { showQuickToolRef.current = showQuickTool; }, [showQuickTool]);
   useEffect(() => { showSidebarVerbLookupRef.current = showSidebarVerbLookup; }, [showSidebarVerbLookup]);
+  useEffect(() => { showSpeedBlitzRef.current = showSpeedBlitz; }, [showSpeedBlitz]);
+  useEffect(() => { showGenderDungeonRef.current = showGenderDungeon; }, [showGenderDungeon]);
+  useEffect(() => { showPictureMatchRef.current = showPictureMatch; }, [showPictureMatch]);
   useEffect(() => { historyRef.current = historyStack; }, [historyStack]);
 
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
@@ -231,6 +244,27 @@ const [todayXP, setTodayXP] = useState(0);
         setTimeout(() => { isProcessingBack.current = false; }, 300);
         return;
       }
+      if (showSpeedBlitzRef.current) {
+        isProcessingBack.current = true;
+        setShowSpeedBlitz(false);
+        setShowSidebar(true);
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        return;
+      }
+      if (showGenderDungeonRef.current) {
+        isProcessingBack.current = true;
+        setShowGenderDungeon(false);
+        setShowSidebar(true);
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        return;
+      }
+      if (showPictureMatchRef.current) {
+        isProcessingBack.current = true;
+        setShowPictureMatch(false);
+        setShowSidebar(true);
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        return;
+      }
       if (showQuickToolRef.current) {
         isProcessingBack.current = true;
         setShowQuickTool(false);
@@ -261,6 +295,27 @@ const [todayXP, setTodayXP] = useState(0);
             if (showSidebarVerbLookupRef.current) {
               isProcessingBack.current = true;
               setShowSidebarVerbLookup(false);
+              setShowSidebar(true);
+              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              return;
+            }
+            if (showSpeedBlitzRef.current) {
+              isProcessingBack.current = true;
+              setShowSpeedBlitz(false);
+              setShowSidebar(true);
+              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              return;
+            }
+            if (showGenderDungeonRef.current) {
+              isProcessingBack.current = true;
+              setShowGenderDungeon(false);
+              setShowSidebar(true);
+              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              return;
+            }
+            if (showPictureMatchRef.current) {
+              isProcessingBack.current = true;
+              setShowPictureMatch(false);
               setShowSidebar(true);
               setTimeout(() => { isProcessingBack.current = false; }, 300);
               return;
@@ -344,8 +399,11 @@ const [todayXP, setTodayXP] = useState(0);
     <div className="min-h-screen bg-bg-primary">
       {xpToast && <XpToast xp={xpToast} onComplete={() => setXpToast(null)} />}
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
-      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
+      {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} onOpenSpeedBlitz={() => { setShowSidebar(false); setShowSpeedBlitz(true); }} onOpenGenderDungeon={() => { setShowSidebar(false); setShowGenderDungeon(true); }} onOpenPictureMatch={() => { setShowSidebar(false); setShowPictureMatch(true); }} />}
       {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
+      {showSpeedBlitz && <GamePanel title="Wortblitz" onClose={() => { setShowSpeedBlitz(false); setShowSidebar(true); }}><SpeedBlitz level={activeLevel} /></GamePanel>}
+      {showGenderDungeon && <GamePanel title="Der Die Das Dungeon" onClose={() => { setShowGenderDungeon(false); setShowSidebar(true); }}><GenderDungeon /></GamePanel>}
+      {showPictureMatch && <GamePanel title="Bild Memory" onClose={() => { setShowPictureMatch(false); setShowSidebar(true); }}><PictureMatch level={activeLevel} /></GamePanel>}
       {showNotifications && <NotificationPanel isOpen={showNotifications} onClose={() => { setShowNotifications(false); setNotifVersion(v => v + 1); }} onNavigate={(action) => {
         if (typeof action === 'string') {
           handleViewChange(action);

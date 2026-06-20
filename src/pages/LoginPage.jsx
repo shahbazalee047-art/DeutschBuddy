@@ -32,7 +32,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h1 className="text-3xl font-bold text-text-on-dark mb-2 text-center" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.5px' }}>Welcome back!</h1>
+          <h1 className="text-3xl font-bold text-text-on-dark mb-2 text-center" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.5px' }}>Welcome!</h1>
           <p className="text-text-on-dark-muted text-center mb-8" style={{ fontSize: '16px' }}>Continue your German learning journey</p>
 
           <div className="p-8 border border-border bg-bg-white">

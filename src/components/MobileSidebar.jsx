@@ -1,8 +1,5 @@
 import { Link } from 'react-router-dom';
-import { IconChart, IconTarget, IconCalendar, IconX, IconSearch } from './Icons';
-import SpeedBlitz from './SpeedBlitz';
-import GenderDungeon from './GenderDungeon';
-import PictureMatch from './PictureMatch';
+import { IconChart, IconTarget, IconCalendar, IconX, IconSearch, IconZap, IconImage, IconTrophy } from './Icons';
 
 const progressSections = [
   { id: 'progress-statistics', label: 'Learning Statistics', icon: IconChart },
@@ -10,10 +7,18 @@ const progressSections = [
   { id: 'progress-calendar', label: 'Activity Calendar', icon: IconCalendar },
 ];
 
-export default function MobileSidebar({ isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange, onVerbLookup }) {
+export default function MobileSidebar({
+  isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange,
+  onVerbLookup, onOpenSpeedBlitz, onOpenGenderDungeon, onOpenPictureMatch
+}) {
 
   function handleNav(view) {
     onViewChange(view);
+    onClose();
+  }
+
+  function handleOpenGame(openFn) {
+    openFn();
     onClose();
   }
 
@@ -77,10 +82,22 @@ export default function MobileSidebar({ isOpen, onClose, activeView, onViewChang
         {/* Games */}
         <div className="p-3 pt-2 border-t border-gold/20">
           <p className="text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest px-3 mb-2">Games</p>
-          <div className="space-y-2">
-            <SpeedBlitz level={activeLevel} compact />
-            <GenderDungeon compact />
-            <PictureMatch level={activeLevel} compact />
+          <div className="grid grid-cols-3 gap-2 px-3">
+            <button onClick={() => handleOpenGame(onOpenSpeedBlitz)}
+              className="aspect-square flex flex-col items-center justify-center gap-1.5 p-2 bg-bg-dark-mid border border-gold/20 text-text-on-dark-muted hover:text-text-on-dark hover:bg-gold/10 hover:border-gold/40 transition active:scale-[0.98]">
+              <IconZap className="w-6 h-6 text-gold-light" />
+              <span className="text-[10px] font-semibold leading-tight text-center">Wortblitz</span>
+            </button>
+            <button onClick={() => handleOpenGame(onOpenGenderDungeon)}
+              className="aspect-square flex flex-col items-center justify-center gap-1.5 p-2 bg-bg-dark-mid border border-gold/20 text-text-on-dark-muted hover:text-text-on-dark hover:bg-gold/10 hover:border-gold/40 transition active:scale-[0.98]">
+              <IconTrophy className="w-6 h-6 text-gold-light" />
+              <span className="text-[10px] font-semibold leading-tight text-center">Der Die Das Dungeon</span>
+            </button>
+            <button onClick={() => handleOpenGame(onOpenPictureMatch)}
+              className="aspect-square flex flex-col items-center justify-center gap-1.5 p-2 bg-bg-dark-mid border border-gold/20 text-text-on-dark-muted hover:text-text-on-dark hover:bg-gold/10 hover:border-gold/40 transition active:scale-[0.98]">
+              <IconImage className="w-6 h-6 text-gold-light" />
+              <span className="text-[10px] font-semibold leading-tight text-center">Bild Memory</span>
+            </button>
           </div>
         </div>
 
