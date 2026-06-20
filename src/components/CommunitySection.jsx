@@ -276,7 +276,7 @@ export default function CommunitySection({ user }) {
               <button onClick={() => setActivePost(null)} className="p-2 hover:bg-bg-secondary text-text-muted transition"><IconX className="w-5 h-5" /></button>
             </div>
 
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gold/20 text-gold" className="bg-gold/10">{activePost.category}</span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gold/20 text-gold bg-gold/10">{activePost.category}</span>
             <h2 className="text-lg font-bold text-text-dark mt-3 mb-2">{activePost.title}</h2>
             <p className="text-[13px] text-text-muted whitespace-pre-wrap">{activePost.content}</p>
 
@@ -350,15 +350,17 @@ export default function CommunitySection({ user }) {
       )}
 
       {/* Category Filter */}
-      <div className="flex gap-2 overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
-        {categories.map(cat => (
-          <button key={cat} onClick={() => setActiveCategory(cat)}
-            className={`px-4 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all active:scale-95 ${
-              activeCategory === cat ? 'text-text-on-dark bg-gold shadow-md shadow-gold/20' : 'bg-bg-secondary text-text-muted border border-border hover:text-text-body'
-            }`}>
-            {cat}
-          </button>
-        ))}
+      <div className="w-full max-w-full overflow-x-auto pb-2" style={{ scrollbarWidth: 'none' }}>
+        <div className="flex gap-2 w-max">
+          {categories.map(cat => (
+            <button key={cat} onClick={() => setActiveCategory(cat)}
+              className={`px-4 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                activeCategory === cat ? 'text-text-on-dark bg-gold shadow-md shadow-gold/20' : 'bg-bg-secondary text-text-muted border border-border hover:text-text-body'
+              }`}>
+              {cat}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Posts List */}
@@ -397,7 +399,7 @@ export default function CommunitySection({ user }) {
             </div>
 
             <div className="mb-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gold/20 text-gold" className="bg-gold/10">{post.category}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gold/20 text-gold bg-gold/10">{post.category}</span>
             </div>
 
             <h3 className="text-[14px] font-bold text-text-body mb-2 cursor-pointer hover:text-gold transition" onClick={() => openPost(post)}>{post.title}</h3>
