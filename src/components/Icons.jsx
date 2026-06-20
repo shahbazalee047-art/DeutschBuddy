@@ -75,6 +75,8 @@ export const IconCertificate = (props) => si('g', props, [c(12, 8, 6), p('M15.47
 export const IconArrowLeft = (props) => si('g', props, [l('19 12 5 12'), poly('12 19 5 12 12 5')]);
 export const IconArrowUp = (props) => si('g', props, [l('12 19 12 5'), poly('5 12 12 5 19 12')]);
 export const IconArrowRight = (props) => si('g', props, [l('5 12 19 12'), poly('12 5 19 12 12 19')]);
+export const IconEye = (props) => si('g', props, [p('M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'), c(12, 12, 3)]);
+export const IconEyeOff = (props) => si('g', props, [p('M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24'), l('1 1 22 22')]);
 export const IconX = (props) => si('g', props, [l('18 6 6 18'), l('6 6 18 18')]);
 export const IconMenu = (props) => si('g', props, [l('3 12 21 12'), l('3 6 21 6'), l('3 18 21 18')]);
 export const IconPlus = (props) => si('g', props, [l('12 5 12 19'), l('5 12 19 12')]);

@@ -15,16 +15,18 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
       <div className="paper-card overflow-hidden">
         <div className="h-28" style={{ background: 'var(--gold)' }} />
         <div className="px-6 pb-6 -mt-14">
-          <div className="flex items-end gap-3">
-            <div className="w-20 h-20 rounded-full bg-gold flex items-center justify-center text-3xl font-bold text-text-on-dark border-4 border-bg-white shadow-lg shrink-0">
+          <div className="flex items-end gap-4">
+            <div className="w-20 h-20 rounded-full bg-gold flex items-center justify-center text-3xl font-bold text-text-on-dark border-4 border-bg-white shadow-lg shrink-0" style={{ borderRadius: '50%' }}>
               {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
             </div>
-            <div className="min-w-0 pb-0.5">
-              <h2 className="text-xl font-bold text-text-dark leading-tight" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{profile?.full_name || 'Learner'}</h2>
+            <div className="min-w-0 pb-1">
+              <h2 className="text-xl font-bold text-text-dark leading-tight truncate" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{profile?.full_name || 'Learner'}</h2>
               <p className="text-[12px] text-text-muted truncate">{user?.email}</p>
-              <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-[11px] font-bold border border-gold/20 text-gold bg-gold/10">
-                <IconGraduation className="w-3.5 h-3.5" /> A1 Learner
-              </div>
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border border-gold/20 text-gold bg-gold/10">
+              <IconGraduation className="w-3.5 h-3.5" /> A1 Learner
             </div>
           </div>
         </div>

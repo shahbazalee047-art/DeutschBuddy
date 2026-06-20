@@ -11,6 +11,14 @@ create table if not exists public.profiles (
   email text,
   avatar_url text,
   selected_pacing text default 'standard' check (selected_pacing in ('standard', 'fast')),
+  notification_preferences jsonb default '{
+    "email_notifications": true,
+    "push_notifications": true,
+    "study_reminders": true,
+    "achievement_alerts": true,
+    "tips_and_facts": true,
+    "community_updates": false
+  }'::jsonb not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );

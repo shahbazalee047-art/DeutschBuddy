@@ -55,6 +55,7 @@ function saveReadIds(set) {
 
 export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, visibleWeeks, unlockedWeeks }) {
   const [readIds, setReadIds] = useState(loadReadIds);
+  const [selectedDetail, setSelectedDetail] = useState(null);
 
   const markRead = useCallback((id) => {
     setReadIds(prev => {
@@ -153,7 +154,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
 
     const tip = dailyTips[getDailyIndex(dailyTips)];
     dynamic.push({
-      id: 'dyn-tip', type: 'reminder', icon: IconLightbulb,
+      id: 'dyn-tip', type: 'tip', icon: IconLightbulb,
       title: `Tip of the Day — ${tip.tag}`,
       message: tip.tip,
       time: 'Just now', color: 'var(--gold-light)',
@@ -161,7 +162,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
 
     const fact = getRandomFact(facts);
     dynamic.push({
-      id: 'dyn-fact', type: 'reminder', icon: IconFlag,
+      id: 'dyn-fact', type: 'fact', icon: IconFlag,
       title: 'Did You Know?',
       message: fact,
       time: 'Just now', color: 'var(--gold)',
@@ -185,6 +186,10 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
 
   function handleNotificationClick(notification) {
     markRead(notification.id);
+    if (notification.type === 'tip' || notification.type === 'fact') {
+      setSelectedDetail(notification);
+      return;
+    }
     if (notification.action && onNavigate) {
       onNavigate(notification.action);
     }
@@ -213,33 +218,50 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
           </div>
         </div>
 
-        <div className="overflow-y-auto h-[calc(100%-64px)]">
-          {allNotifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-              <IconSparkles className="w-12 h-12 text-gold mb-4" />
-              <p className="text-text-on-dark text-sm font-medium">No notifications yet!</p>
-              <p className="text-text-on-dark-muted text-xs mt-1">Complete lessons to earn achievements.</p>
+        <div className="overflow-y-auto h-[calc(100%-64px)] relative">
+          {selectedDetail ? (
+            <div className="absolute inset-0 bg-bg-dark-mid z-10 p-6 slide-in">
+              <button onClick={() => setSelectedDetail(null)} className="btn-text flex items-center gap-2 mb-6">
+                <span className="text-lg">←</span> Back to Notifications
+              </button>
+              <div className="w-14 h-14 flex items-center justify-center mb-4" style={{ background: `${selectedDetail.color}15` }}>
+                {typeof selectedDetail.icon === 'function' ? <selectedDetail.icon className="w-7 h-7" style={{ color: selectedDetail.color }} /> : <span className="text-2xl">{selectedDetail.icon}</span>}
+              </div>
+              <h3 className="text-2xl font-bold text-text-on-dark mb-3" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{selectedDetail.title}</h3>
+              <p className="text-[15px] text-text-on-dark leading-relaxed">{selectedDetail.message}</p>
+              <p className="text-[12px] text-text-on-dark-muted mt-6">{formatTime(selectedDetail.time)}</p>
             </div>
           ) : (
-            allNotifications.map(n => (
-              <button key={n.id} onClick={() => handleNotificationClick(n)}
-                className={`w-full text-left p-4 border-b border-gold/10 transition-all hover:bg-bg-dark/50 active:scale-[0.99] ${
-                  !n.read ? 'bg-bg-dark/30' : ''
-                }`} style={!n.read ? { borderLeft: `4px solid ${n.color}` } : {}}>
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${n.color}15` }}>{typeof n.icon === 'function' ? <n.icon className="w-5 h-5" style={{ color: n.color }} /> : <span className="text-lg">{n.icon}</span>}</div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-[13px] font-semibold text-text-on-dark truncate">{n.title}</h4>
-                      {!n.read && <div className="w-2 h-2 rounded-full bg-gold flex-shrink-0" />}
-                    </div>
-                    <p className="text-[12px] text-text-on-dark-muted mt-0.5">{n.message}</p>
-                    <p className="text-[11px] text-text-on-dark-muted mt-1">{formatTime(n.time)}</p>
-                  </div>
+            <>
+              {allNotifications.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center px-6">
+                  <IconSparkles className="w-12 h-12 text-gold mb-4" />
+                  <p className="text-text-on-dark text-sm font-medium">No notifications yet!</p>
+                  <p className="text-text-on-dark-muted text-xs mt-1">Complete lessons to earn achievements.</p>
                 </div>
-              </button>
-            ))
+              ) : (
+                allNotifications.map(n => (
+                  <button key={n.id} onClick={() => handleNotificationClick(n)}
+                    className={`w-full text-left p-4 border-b border-gold/10 transition-all hover:bg-bg-dark/50 active:scale-[0.99] ${
+                      !n.read ? 'bg-bg-dark/30' : ''
+                    }`} style={!n.read ? { borderLeft: `4px solid ${n.color}` } : {}}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 flex items-center justify-center flex-shrink-0"
+                        style={{ background: `${n.color}15` }}>{typeof n.icon === 'function' ? <n.icon className="w-5 h-5" style={{ color: n.color }} /> : <span className="text-lg">{n.icon}</span>}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h4 className="text-[13px] font-semibold text-text-on-dark truncate">{n.title}</h4>
+                          {!n.read && <div className="w-2 h-2 rounded-full bg-gold flex-shrink-0" />}
+                        </div>
+                        <p className="text-[12px] text-text-on-dark-muted mt-0.5">{n.message}</p>
+                        <p className="text-[11px] text-text-on-dark-muted mt-1">{formatTime(n.time)}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              )}
+            </>
           )}
         </div>
       </div>

@@ -2,6 +2,17 @@
 -- Run this in Supabase SQL Editor if you get permission errors
 -- This script safely drops and recreates only the policies it defines.
 
+-- Ensure notification_preferences column exists on profiles
+alter table public.profiles
+  add column if not exists notification_preferences jsonb default '{
+    "email_notifications": true,
+    "push_notifications": true,
+    "study_reminders": true,
+    "achievement_alerts": true,
+    "tips_and_facts": true,
+    "community_updates": false
+  }'::jsonb not null;
+
 -- Profiles policies
 drop policy if exists "Users can view own profile" on public.profiles;
 drop policy if exists "Users can view community profiles" on public.profiles;
