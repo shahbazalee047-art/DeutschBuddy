@@ -194,7 +194,7 @@ function DashboardContent() {
   }, [selectedTask, selectedDay, completeTask, levelData, progress.completedTasks, unlockedWeeks, unlockWeek]);
 
   const handleBackToWeek = useCallback(() => { setSelectedDay(null); setSelectedTask(null); }, []);
-  const currentWeek = levelData.weeks.find(w => w.id === selectedDay?.weekId);
+  const currentWeek = levelData?.weeks.find(w => w.id === selectedDay?.weekId);
 
   const handleViewChange = useCallback((view) => {
     setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask, level: activeLevel }]);
