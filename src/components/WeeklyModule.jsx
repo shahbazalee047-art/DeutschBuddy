@@ -52,7 +52,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
             return (
               <button key={day.day} onClick={() => onSelectDay(week.id, day.day)}
                 disabled={!isUnlocked}
-                className={`relative z-10 day-circle ${
+                className={`relative z-10 day-circle w-9 md:w-12 h-9 md:h-12 rounded-full shrink-0 text-sm md:text-base ${
                   dayDone
                     ? 'day-circle-completed'
                     : isCurrentDay
