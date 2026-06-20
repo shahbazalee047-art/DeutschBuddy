@@ -108,37 +108,37 @@ export default function PictureMatch({ level = 'A1', compact }) {
     }
   }, [current, feedback, nextQuestion]);
 
-  const cardClass = compact ? 'rounded-xl border border-border bg-forest-800/60 p-2' : 'glass-card p-4';
+  const cardClass = compact ? ' border border-border bg-bg-secondary/60 p-2' : 'paper-card p-4';
 
   return (
     <div className={cardClass}>
       <div className="flex items-center gap-2 mb-3">
-        <IconImage className="w-4 h-4 text-sky-400" />
-        <h4 className="text-sm font-bold text-cream-200" style={{ fontFamily: 'DM Serif Display, serif' }}>Picture Match</h4>
+        <IconImage className="w-4 h-4 text-gold" />
+        <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Picture Match</h4>
       </div>
 
       {state === 'idle' && (
         <div className="text-center">
           <div className="text-3xl mb-2">🖼️</div>
-          <p className="text-[11px] text-cream-500 mb-1">See the picture, pick the right German word!</p>
-          <p className="text-[10px] text-cream-500 mb-1">{MAX_MISTAKES} mistakes and it's over.</p>
+          <p className="text-[11px] text-text-muted mb-1">See the picture, pick the right German word!</p>
+          <p className="text-[10px] text-text-muted mb-1">{MAX_MISTAKES} mistakes and it's over.</p>
           {bestScore > 0 && (
-            <p className="text-[10px] text-amber-400 font-bold mb-3">
+            <p className="text-[10px] text-gold-light font-bold mb-3">
               <IconTrophy className="w-3 h-3 inline -mt-0.5 mr-0.5" />
               Best: {bestScore}
             </p>
           )}
           <button onClick={startGame}
-            className="mt-1 px-5 py-2 rounded-xl bg-amber-400 text-forest-900 text-xs font-bold hover:bg-amber-300 transition active:scale-95 shadow-sm shadow-amber-400/20">
+            className="mt-1 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
             Start Game
           </button>
           {leaderboard.length > 1 && (
             <div className="mt-4 pt-3 border-t border-border">
-              <p className="text-[9px] font-bold text-cream-500 uppercase tracking-wider mb-2">Leaderboard</p>
+              <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-2">Leaderboard</p>
               <div className="space-y-1">
                 {leaderboard.slice(0, compact ? 3 : 5).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-amber-400/10 text-amber-300' : 'text-cream-400'
+                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
@@ -155,17 +155,17 @@ export default function PictureMatch({ level = 'A1', compact }) {
       {state === 'playing' && current && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider">
-              Score: <span className="text-cream-200">{score}</span>
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
+              Score: <span className="text-text-body">{score}</span>
             </span>
             <span className="text-[10px] font-bold text-error">
               ❌ {mistakes}/{MAX_MISTAKES}
             </span>
           </div>
 
-          <div className="text-center mb-4 p-4 rounded-xl border border-border bg-forest-800/40">
+          <div className="text-center mb-4 p-4  border border-border bg-bg-secondary/40">
             <span className="text-5xl block mb-1">{current.emoji}</span>
-            <p className="text-[10px] text-cream-500">What is this?</p>
+            <p className="text-[10px] text-text-muted">What is this?</p>
           </div>
 
           <div className="grid grid-cols-2 gap-1.5">
@@ -175,16 +175,16 @@ export default function PictureMatch({ level = 'A1', compact }) {
                 className={`p-2 rounded-lg text-xs font-semibold transition-all active:scale-95 border ${
                   feedback
                     ? opt.de === current.de
-                      ? 'border-sage-400 bg-sage-400/20 text-sage-300'
-                      : 'border-border/50 bg-forest-800/50 text-cream-600'
-                    : 'border-border bg-forest-800/50 text-cream-300 hover:border-cream-400/30 hover:bg-forest-800 hover:text-cream-200'
+                      ? 'border-gold bg-gold/20 text-gold-light'
+                      : 'border-border/50 bg-bg-secondary/50 text-text-muted'
+                    : 'border-border bg-bg-secondary/50 text-text-body hover:border-cream-400/30 hover:bg-bg-secondary hover:text-text-body'
                 }`}>
                 {opt.de}
               </button>
             ))}
           </div>
 
-          <div className="mt-3 flex items-center justify-center gap-1 text-[9px] text-cream-600">
+          <div className="mt-3 flex items-center justify-center gap-1 text-[9px] text-text-muted">
             <span>{pictures.length - poolRemaining}/{pictures.length}</span>
           </div>
         </div>
@@ -195,29 +195,29 @@ export default function PictureMatch({ level = 'A1', compact }) {
           <div className={`text-3xl mb-1 ${score >= 10 ? 'animate-bounce' : ''}`}>
             {score >= 20 ? '👑' : score >= 12 ? '🏆' : score >= 5 ? '🌟' : '💪'}
           </div>
-          <p className="text-2xl font-bold text-cream-100">{score}</p>
-          <p className="text-[11px] text-cream-500 mb-1">
+          <p className="text-2xl font-bold text-text-dark">{score}</p>
+          <p className="text-[11px] text-text-muted mb-1">
             {score === bestScore && score > 0 ? '🥇 New Personal Best!' : score > 5 ? 'Great job!' : 'Keep practicing!'}
           </p>
 
           <button onClick={startGame}
-            className="mb-3 px-5 py-2 rounded-xl bg-amber-400 text-forest-900 text-xs font-bold hover:bg-amber-300 transition active:scale-95 shadow-sm shadow-amber-400/20">
+            className="mb-3 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
             Play Again
           </button>
 
           {leaderboard.length > 0 && (
             <div className="pt-3 border-t border-border">
-              <p className="text-[9px] font-bold text-cream-500 uppercase tracking-wider mb-2">Leaderboard</p>
+              <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-2">Leaderboard</p>
               <div className="space-y-1 max-h-40 overflow-y-auto">
                 {leaderboard.slice(0, compact ? 3 : 10).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-amber-400/10 text-amber-300' : 'text-cream-400'
+                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                     </span>
                     <span className="font-semibold">{entry.score}</span>
-                    <span className="text-[9px] text-cream-600">
+                    <span className="text-[9px] text-text-muted">
                       {new Date(entry.date).toLocaleDateString()}
                     </span>
                   </div>

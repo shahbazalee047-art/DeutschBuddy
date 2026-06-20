@@ -1,14 +1,15 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { IconBookOpen } from './Icons';
 
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-forest-900">
+    <div className="min-h-screen flex items-center justify-center bg-bg-primary">
       <div className="flex flex-col items-center gap-4 scale-in">
-        <div className="text-5xl animate-float">🇩🇪</div>
-        <div className="w-10 h-10 border-3 border-forest-700 rounded-full animate-spin border-t-sage-400" />
-        <p className="text-cream-400 text-sm font-medium">Loading DeutschBuddy...</p>
+        <IconBookOpen className="w-12 h-12 text-gold animate-float" />
+        <div className="w-10 h-10 border-3 border-bg-dark-mid rounded-full animate-spin border-t-gold" />
+        <p className="text-text-muted text-sm font-medium">Loading DeutschBuddy...</p>
       </div>
     </div>
   );

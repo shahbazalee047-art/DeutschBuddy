@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 import {
-  IconChat, IconSearch, IconMessageCircle, IconArrowUp, IconCheck, IconPlus,
+  IconSearch, IconMessageCircle, IconArrowUp, IconCheck, IconPlus,
   IconX
 } from './Icons';
 
@@ -217,40 +217,38 @@ export default function CommunitySection({ user }) {
     <div className="fade-in space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-3">
-            <IconChat className="w-7 h-7 text-sage-400" />
-            <h1 className="text-3xl font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.5px' }}>Community</h1>
-          </div>
-          <p className="text-cream-500 text-sm mt-1">Discuss, ask questions, and share tips</p>
-          {usingFallback && <span className="text-[11px] text-amber-400">Showing sample posts (DB not connected)</span>}
+          <span className="eyebrow">Community</span>
+          <h1 className="text-3xl font-bold text-text-dark editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.5px' }}>Discuss & <i>Share</i></h1>
+          <p className="text-text-muted text-sm mt-1">Discuss, ask questions, and share tips</p>
+          {usingFallback && <span className="text-[11px] text-gold-light">Showing sample posts (DB not connected)</span>}
         </div>
         <button onClick={() => setShowCreateModal(true)}
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-forest-900 transition-all hover:scale-110 active:scale-95" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}><IconPlus className="w-5 h-5" /></button>
+          className="w-10 h-10 flex items-center justify-center text-text-on-dark bg-gold transition-all hover:scale-110 active:scale-95"><IconPlus className="w-5 h-5" /></button>
       </div>
 
       {/* Create Post Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowCreateModal(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg rounded-2xl p-6 shadow-2xl scale-in bg-card border border-border" onClick={e => e.stopPropagation()}>
-            <h2 className="text-lg font-bold text-cream-100 mb-4" style={{ fontFamily: 'DM Serif Display, serif' }}>Create Post</h2>
+          <div className="relative w-full max-w-lg p-6 shadow-2xl scale-in bg-bg-white border border-border" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-bold text-text-dark mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Create Post</h2>
             <form onSubmit={handleCreatePost} className="space-y-4">
               <input placeholder="Title" value={createForm.title} onChange={e => setCreateForm(p => ({ ...p, title: e.target.value }))}
-                className="w-full h-12 px-4 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50" required />
+                className="w-full h-12 px-4 bg-bg-white border border-border text-text-body text-sm focus:outline-none focus:border-gold" required />
               <textarea placeholder="What's on your mind?" value={createForm.content} onChange={e => setCreateForm(p => ({ ...p, content: e.target.value }))}
-                className="w-full h-32 px-4 py-3 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50 resize-none" required />
+                className="w-full h-32 px-4 py-3 bg-bg-white border border-border text-text-body text-sm focus:outline-none focus:border-gold resize-none" required />
               <div className="flex gap-2 flex-wrap">
                 {categories.filter(c => c !== 'All').map(cat => (
                   <button key={cat} type="button" onClick={() => setCreateForm(p => ({ ...p, category: cat }))}
                     className={`px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
-                      createForm.category === cat ? 'bg-sage-400 text-forest-900' : 'bg-forest-800 text-cream-400 border border-border'
+                      createForm.category === cat ? 'bg-gold text-text-on-dark' : 'bg-bg-secondary text-text-muted border border-border'
                     }`}>{cat}</button>
                 ))}
               </div>
               <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={() => setShowCreateModal(false)} className="px-6 py-2.5 rounded-xl text-sm font-semibold text-cream-400 hover:text-cream-200 transition">Cancel</button>
+                <button type="button" onClick={() => setShowCreateModal(false)} className="btn-secondary">Cancel</button>
                 <button type="submit" disabled={submitting}
-                  className="px-6 py-2.5 rounded-xl text-sm font-bold text-forest-900 transition-all active:scale-95 disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>
+                  className="btn-primary disabled:opacity-50">
                   {submitting ? 'Posting...' : 'Post'}
                 </button>
               </div>
@@ -263,41 +261,41 @@ export default function CommunitySection({ user }) {
       {activePost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setActivePost(null)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl p-6 shadow-2xl scale-in bg-card border border-border" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl scale-in bg-bg-white border border-border" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-forest-900" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>{activePost.avatar}</div>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-text-on-dark" style={{ background: 'var(--gold)' }}></div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-semibold text-cream-200">{activePost.user}</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10">{activePost.level}</span>
+                    <span className="text-[13px] font-semibold text-text-body">{activePost.user}</span>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-gold border border-gold/20 bg-gold/10">{activePost.level}</span>
                   </div>
-                  <span className="text-[11px] text-cream-500">{formatTime(activePost.time)}</span>
+                  <span className="text-[11px] text-text-muted">{formatTime(activePost.time)}</span>
                 </div>
               </div>
-              <button onClick={() => setActivePost(null)} className="p-2 rounded-xl hover:bg-forest-800 text-cream-400 transition"><IconX className="w-5 h-5" /></button>
+              <button onClick={() => setActivePost(null)} className="p-2 hover:bg-bg-secondary text-text-muted transition"><IconX className="w-5 h-5" /></button>
             </div>
 
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-400/20 text-sky-400" style={{ background: 'rgba(107, 163, 190, 0.1)' }}>{activePost.category}</span>
-            <h2 className="text-lg font-bold text-cream-100 mt-3 mb-2">{activePost.title}</h2>
-            <p className="text-[13px] text-cream-400 whitespace-pre-wrap">{activePost.content}</p>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gold/20 text-gold" className="bg-gold/10">{activePost.category}</span>
+            <h2 className="text-lg font-bold text-text-dark mt-3 mb-2">{activePost.title}</h2>
+            <p className="text-[13px] text-text-muted whitespace-pre-wrap">{activePost.content}</p>
 
             <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border/50">
               <button onClick={() => handleUpvote(activePost.id)}
                 className={`flex items-center gap-1 text-[12px] transition active:scale-90 ${
-                  upvotedIds.has(activePost.id) ? 'text-sage-400' : 'text-cream-500 hover:text-sage-400'
+                  upvotedIds.has(activePost.id) ? 'text-gold' : 'text-text-muted hover:text-gold'
                 }`}>
                 <IconArrowUp className="w-4 h-4 text-current" /><span>{activePost.upvotes}</span>
               </button>
-              <span className="flex items-center gap-1 text-[12px] text-cream-500">
+              <span className="flex items-center gap-1 text-[12px] text-text-muted">
                 <IconMessageCircle className="w-3.5 h-3.5" /><span>{activePost.comments}</span>
               </span>
-              {activePost.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10"><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
+              {activePost.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-gold border border-gold/20 bg-gold/10"><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
             </div>
 
             {/* Comments */}
             <div className="mt-6 pt-4 border-t border-border/50">
-              <h3 className="text-sm font-bold text-cream-200 mb-3">Comments</h3>
+              <h3 className="text-sm font-bold text-text-body mb-3">Comments</h3>
               {commentLoading ? (
                 <div className="space-y-3">
                   {[1, 2].map(i => (
@@ -311,18 +309,18 @@ export default function CommunitySection({ user }) {
                   ))}
                 </div>
               ) : comments.length === 0 ? (
-                <p className="text-sm text-cream-500">No comments yet. Be the first to respond!</p>
+                <p className="text-sm text-text-muted">No comments yet. Be the first to respond!</p>
               ) : (
                 <div className="space-y-4">
                   {comments.map(comment => (
                     <div key={comment.id} className="flex gap-3">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-forest-900 shrink-0" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>{comment.avatar}</div>
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-text-on-dark shrink-0" style={{ background: 'var(--gold)' }}>{comment.avatar}</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-[12px] font-semibold text-cream-200">{comment.user}</span>
-                          <span className="text-[10px] text-cream-500">{formatTime(comment.time)}</span>
+                          <span className="text-[12px] font-semibold text-text-body">{comment.user}</span>
+                          <span className="text-[10px] text-text-muted">{formatTime(comment.time)}</span>
                         </div>
-                        <p className="text-[13px] text-cream-400 mt-0.5 whitespace-pre-wrap">{comment.content}</p>
+                        <p className="text-[13px] text-text-muted mt-0.5 whitespace-pre-wrap">{comment.content}</p>
                       </div>
                     </div>
                   ))}
@@ -335,16 +333,16 @@ export default function CommunitySection({ user }) {
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}
                     placeholder="Write a comment..."
-                    className="flex-1 h-11 px-4 rounded-xl bg-forest-800 border border-border text-cream-200 text-sm focus:outline-none focus:border-sage-400/50"
+                    className="flex-1 h-11 px-4 bg-bg-white border border-border text-text-body text-sm focus:outline-none focus:border-gold"
                     required
                   />
                   <button type="submit" disabled={commentSubmitting}
-                    className="px-4 h-11 rounded-xl text-sm font-bold text-forest-900 transition-all active:scale-95 disabled:opacity-50" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>
+                    className="btn-primary h-11 px-4 disabled:opacity-50">
                     {commentSubmitting ? '...' : 'Reply'}
                   </button>
                 </form>
               ) : (
-                <p className="text-sm text-cream-500 mt-4">Sign in to leave a comment.</p>
+                <p className="text-sm text-text-muted mt-4">Sign in to leave a comment.</p>
               )}
             </div>
           </div>
@@ -356,7 +354,7 @@ export default function CommunitySection({ user }) {
         {categories.map(cat => (
           <button key={cat} onClick={() => setActiveCategory(cat)}
             className={`px-4 py-2 rounded-full text-[12px] font-semibold whitespace-nowrap transition-all active:scale-95 ${
-              activeCategory === cat ? 'text-forest-900 bg-sage-400 shadow-md shadow-sage-400/20' : 'bg-forest-800 text-cream-400 border border-border/50 hover:text-cream-200'
+              activeCategory === cat ? 'text-text-on-dark bg-gold shadow-md shadow-gold/20' : 'bg-bg-secondary text-text-muted border border-border hover:text-text-body'
             }`}>
             {cat}
           </button>
@@ -367,7 +365,7 @@ export default function CommunitySection({ user }) {
       {loading ? (
         <div className="space-y-4">
           {[1, 2, 3].map(i => (
-            <div key={i} className="glass-card p-5">
+            <div key={i} className="paper-card p-5">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 rounded-full skeleton" />
                 <div className="flex-1"><div className="h-4 w-32 skeleton mb-1" /><div className="h-3 w-20 skeleton" /></div>
@@ -379,43 +377,43 @@ export default function CommunitySection({ user }) {
           ))}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="glass-card p-8 text-center">
-          <IconSearch className="w-12 h-12 mx-auto mb-3 text-cream-500" />
-          <p className="text-cream-400 font-medium">No posts in this category yet</p>
-          <p className="text-cream-500 text-sm mt-1">Be the first to start a discussion!</p>
+        <div className="paper-card p-8 text-center">
+          <IconSearch className="w-12 h-12 mx-auto mb-3 text-text-muted" />
+          <p className="text-text-muted font-medium">No posts in this category yet</p>
+          <p className="text-text-muted text-sm mt-1">Be the first to start a discussion!</p>
         </div>
       ) : (
         filtered.map(post => (
-          <div key={post.id} className="glass-card p-5 hover:shadow-lg transition-all hover:border-sage-400/20">
+          <div key={post.id} className="paper-card p-5 hover:shadow-lg transition-all hover:border-gold/20">
             <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-forest-900" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>{post.avatar}</div>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-text-on-dark" style={{ background: 'var(--gold)' }}>{post.avatar}</div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <span className="text-[13px] font-semibold text-cream-200 truncate">{post.user}</span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10">{post.level}</span>
+                  <span className="text-[13px] font-semibold text-text-body truncate">{post.user}</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-gold border border-gold/20 bg-gold/10">{post.level}</span>
                 </div>
-                <span className="text-[11px] text-cream-500">{formatTime(post.time)}</span>
+                <span className="text-[11px] text-text-muted">{formatTime(post.time)}</span>
               </div>
             </div>
 
             <div className="mb-2">
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-sky-400/20 text-sky-400" style={{ background: 'rgba(107, 163, 190, 0.1)' }}>{post.category}</span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full border border-gold/20 text-gold" className="bg-gold/10">{post.category}</span>
             </div>
 
-            <h3 className="text-[14px] font-bold text-cream-200 mb-2 cursor-pointer hover:text-sage-400 transition" onClick={() => openPost(post)}>{post.title}</h3>
-            <p className="text-[13px] text-cream-400 line-clamp-2 cursor-pointer" onClick={() => openPost(post)}>{post.content}</p>
+            <h3 className="text-[14px] font-bold text-text-body mb-2 cursor-pointer hover:text-gold transition" onClick={() => openPost(post)}>{post.title}</h3>
+            <p className="text-[13px] text-text-muted line-clamp-2 cursor-pointer" onClick={() => openPost(post)}>{post.content}</p>
 
             <div className="flex items-center gap-4 mt-3 pt-3 border-t border-border/50">
               <button onClick={() => handleUpvote(post.id)}
                 className={`flex items-center gap-1 text-[12px] transition active:scale-90 ${
-                  upvotedIds.has(post.id) ? 'text-sage-400' : 'text-cream-500 hover:text-sage-400'
+                  upvotedIds.has(post.id) ? 'text-gold' : 'text-text-muted hover:text-gold'
                 }`}>
                 <IconArrowUp className="w-4 h-4 text-current" /><span>{post.upvotes}</span>
               </button>
-              <button onClick={() => openPost(post)} className="flex items-center gap-1 text-[12px] text-cream-500 hover:text-sky-400 transition active:scale-90">
+              <button onClick={() => openPost(post)} className="flex items-center gap-1 text-[12px] text-text-muted hover:text-gold transition active:scale-90">
                 <IconMessageCircle className="w-3.5 h-3.5" /><span>{post.comments}</span>
               </button>
-              {post.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-sage-400 border border-sage-400/20 bg-sage-400/10"><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
+              {post.solved && <span className="inline-flex items-center gap-0.5 text-[10px] font-bold px-2 py-0.5 rounded-full text-gold border border-gold/20 bg-gold/10"><IconCheck className="w-2.5 h-2.5" /> Solved</span>}
             </div>
           </div>
         ))

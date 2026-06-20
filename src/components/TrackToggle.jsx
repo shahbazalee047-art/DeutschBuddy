@@ -6,7 +6,7 @@ export default function TrackToggle({ mode, onToggle }) {
   const isStandard = mode === 'standard';
 
   return (
-    <div className="flex items-center bg-forest-800 rounded-full p-0.5 border border-border">
+    <div className="flex items-center bg-bg-secondary rounded-full p-0.5 border border-border">
       <button
         onClick={() => onToggle && onToggle('standard')}
         disabled={!mode}
@@ -15,13 +15,13 @@ export default function TrackToggle({ mode, onToggle }) {
         <span
           className="absolute inset-0 rounded-full transition-opacity duration-300"
           style={{
-            background: 'linear-gradient(135deg, #7FB069, #6BA3BE)',
+            background: 'var(--gold)',
             opacity: isStandard ? 1 : 0,
           }}
         />
         <span className="relative z-10 flex items-center gap-1.5">
           {isSpeaking ? <IconPlayFilled className="w-5 h-5" /> : <IconPlay className="w-5 h-5" />}
-          <span className={isStandard ? 'text-forest-950' : 'text-cream-400 group-hover:text-cream-200'}>Standard</span>
+          <span className={isStandard ? 'text-text-on-dark' : 'text-text-muted group-hover:text-text-body'}>Standard</span>
         </span>
       </button>
       <button
@@ -32,13 +32,13 @@ export default function TrackToggle({ mode, onToggle }) {
         <span
           className="absolute inset-0 rounded-full transition-opacity duration-300"
           style={{
-            background: 'linear-gradient(135deg, #7FB069, #6BA3BE)',
+            background: 'var(--gold)',
             opacity: isStandard ? 0 : 1,
           }}
         />
         <span className="relative z-10 flex items-center gap-1.5">
           {isSpeaking ? <IconPlayFilled className="w-5 h-5" /> : <IconPlay className="w-5 h-5" />}
-          <span className={!isStandard ? 'text-forest-950' : 'text-cream-400 group-hover:text-cream-200'}>Fast</span>
+          <span className={!isStandard ? 'text-text-on-dark' : 'text-text-muted group-hover:text-text-body'}>Fast</span>
         </span>
       </button>
     </div>

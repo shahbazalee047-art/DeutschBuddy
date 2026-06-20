@@ -86,49 +86,49 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-md rounded-2xl shadow-2xl border border-border overflow-hidden bg-card scale-in" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-md shadow-2xl border border-border overflow-hidden bg-bg-white scale-in" onClick={e => e.stopPropagation()}>
         {!hasEnoughWords ? (
           <div className="p-6 text-center">
-            <div className="text-3xl mb-3">😴</div>
-            <p className="text-cream-200 font-bold text-sm mb-1">Not enough vocabulary yet</p>
-            <p className="text-[11px] text-cream-500 mb-4">Complete more lessons to unlock Streak Guardian.</p>
+            <div className="flex justify-center mb-3"><IconFire className="w-10 h-10 text-gold-light" /></div>
+            <p className="text-text-dark font-bold text-sm mb-1">Not enough vocabulary yet</p>
+            <p className="text-[11px] text-text-muted mb-4">Complete more lessons to unlock Streak Guardian.</p>
             <button onClick={onClose}
-              className="px-5 py-2 rounded-xl bg-forest-700 text-cream-300 text-xs font-bold hover:bg-forest-600 transition">
+              className="btn-secondary text-xs">
               Close
             </button>
           </div>
         ) : !finished ? (
           <div>
             <div className="p-5 border-b border-border flex items-center gap-2">
-              <IconFire className="w-5 h-5 text-amber-400 animate-streak-blaze" />
-              <h3 className="text-base font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>Streak Guardian</h3>
+              <IconFire className="w-5 h-5 text-gold-light animate-streak-blaze" />
+              <h3 className="text-base font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Streak Guardian</h3>
             </div>
 
             <div className="px-5 pt-4 pb-1">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
                   Question {step + 1} of 3
                 </span>
-                <span className="text-[10px] font-bold text-amber-400">🔥 Save your streak!</span>
+                <span className="text-[10px] font-bold text-gold-light flex items-center gap-1"><IconFire className="w-3 h-3" /> Save your streak!</span>
               </div>
               <div className="flex gap-1.5 mb-4">
                 {[0, 1, 2].map(i => (
-                  <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${
-                    i < answers.length ? (answers[i] ? 'bg-sage-400' : 'bg-error') :
-                    i === answers.length ? 'bg-amber-400/50' : 'bg-forest-700'
+                  <div key={i} className={`flex-1 h-1.5 transition-colors ${
+                    i < answers.length ? (answers[i] ? 'bg-gold' : 'bg-error') :
+                    i === answers.length ? 'bg-gold-light/50' : 'bg-bg-secondary'
                   }`} />
                 ))}
               </div>
             </div>
 
             <div className="px-5 pb-5">
-              <div className={`text-center mb-4 p-4 rounded-xl border transition-colors ${
+              <div className={`text-center mb-4 p-4 border transition-colors ${
                 answers.length > step ? (
-                  answers[step] ? 'border-sage-400/40 bg-sage-400/10' : 'border-error/40 bg-error/10'
-                ) : 'border-border bg-forest-800/40'
+                  answers[step] ? 'border-gold/40 bg-gold/10' : 'border-error/40 bg-error/10'
+                ) : 'border-border bg-bg-secondary/40'
               }`}>
-                <p className="text-xs text-cream-500 mb-1">What does this mean?</p>
-                <p className="text-2xl font-bold text-cream-100">{questions[step].german}</p>
+                <p className="text-xs text-text-muted mb-1">What does this mean?</p>
+                <p className="text-2xl font-bold text-text-dark">{questions[step].german}</p>
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -138,12 +138,12 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
                   return (
                     <button key={i} onClick={() => !isSelected && handleAnswer(opt)}
                       disabled={isSelected}
-                      className={`p-3 rounded-xl text-sm font-semibold transition-all active:scale-95 border ${
+                      className={`p-3 text-sm font-semibold transition-all active:scale-95 border ${
                         isSelected
                           ? isCorrect
-                            ? 'border-sage-400 bg-sage-400/20 text-sage-300'
-                            : 'border-error/50 bg-error/10 text-cream-500'
-                          : 'border-border bg-forest-800/50 text-cream-300 hover:border-cream-400/30 hover:bg-forest-800 hover:text-cream-200'
+                            ? 'border-gold bg-gold/20 text-gold-light'
+                            : 'border-error/50 bg-error/10 text-text-muted'
+                          : 'border-border bg-bg-secondary/50 text-text-body hover:border-gold/30 hover:bg-bg-secondary hover:text-text-body'
                       }`}>
                       {opt}
                     </button>
@@ -154,13 +154,13 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
           </div>
         ) : (
           <div className="p-6 text-center">
-            <div className={`text-4xl mb-3 ${allCorrect ? 'animate-bounce' : ''}`}>
-              {allCorrect ? '🎉' : '😢'}
+            <div className={`flex justify-center mb-3 ${allCorrect ? 'animate-bounce' : ''}`}>
+              <IconFire className={`w-12 h-12 ${allCorrect ? 'text-gold' : 'text-text-muted'}`} />
             </div>
-            <p className="text-lg font-bold text-cream-100 mb-1">
+            <p className="text-lg font-bold text-text-dark mb-1">
               {allCorrect ? 'Streak Saved!' : 'Streak Lost'}
             </p>
-            <p className="text-[12px] text-cream-500 mb-1">
+            <p className="text-[12px] text-text-muted mb-1">
               {allCorrect
                 ? 'You answered all 3 correctly. Your streak is safe!'
                 : `${passed}/3 correct. You need all 3 to save your streak.`}
@@ -168,17 +168,17 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
             <div className="flex items-center justify-center gap-3 my-4">
               {answers.map((a, i) => (
                 <div key={i} className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  a ? 'bg-sage-400/20 text-sage-400' : 'bg-error/20 text-error'
+                  a ? 'bg-gold/20 text-gold' : 'bg-error/20 text-error'
                 }`}>
                   {a ? <IconCheck className="w-4 h-4" /> : <IconX className="w-4 h-4" />}
                 </div>
               ))}
             </div>
             <button onClick={allCorrect ? onSuccess : onClose}
-              className={`mt-2 px-6 py-2.5 rounded-xl text-xs font-bold transition active:scale-95 shadow-sm ${
+              className={`mt-2 px-6 py-2.5 text-xs font-bold transition active:scale-95 ${
                 allCorrect
-                  ? 'bg-sage-400 text-forest-900 hover:bg-sage-300 shadow-sage-400/20'
-                  : 'bg-forest-700 text-cream-300 hover:bg-forest-600'
+                  ? 'bg-gold text-text-on-dark hover:bg-gold-light shadow-gold/20'
+                  : 'bg-bg-secondary text-text-body hover:bg-bg-secondary'
               }`}>
               {allCorrect ? 'Continue Learning' : 'Close'}
             </button>

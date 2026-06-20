@@ -9,9 +9,9 @@ export default function Skeleton({ className = '', width, height = 16, rounded =
 
 export function CardSkeleton() {
   return (
-    <div className="glass-card p-4 space-y-3">
+    <div className="paper-card p-4 space-y-3">
       <div className="flex items-center gap-3">
-        <Skeleton width={48} height={48} rounded="rounded-2xl" />
+        <Skeleton width={48} height={48} rounded="" />
         <div className="flex-1 space-y-2">
           <Skeleton width="60%" height={14} />
           <Skeleton width="40%" height={12} />
@@ -29,8 +29,8 @@ export function ListSkeleton({ count = 3 }) {
   return (
     <div className="space-y-3">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="glass-card p-4 flex items-center gap-3">
-          <Skeleton width={40} height={40} rounded="rounded-xl" />
+        <div key={i} className="paper-card p-4 flex items-center gap-3">
+          <Skeleton width={40} height={40} rounded="" />
           <div className="flex-1 space-y-1.5">
             <Skeleton width="70%" height={14} />
             <Skeleton width="50%" height={12} />

@@ -26,43 +26,41 @@ export default function BadgeGallery({ badges }) {
   return (
     <div className="fade-in space-y-5">
       <div>
-        <div className="flex items-center gap-3 mb-2">
-          <IconTrophy className="w-8 h-8 text-sage-400" />
-          <h1 className="text-3xl font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.5px' }}>Badge Gallery</h1>
-        </div>
-        <p className="text-cream-500" style={{ fontSize: '16px', lineHeight: '1.5' }}>Track your achievements and milestones</p>
+        <span className="eyebrow">Achievements</span>
+        <h1 className="text-3xl font-bold text-text-dark editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.5px' }}>Badge <i>Gallery</i></h1>
+        <p className="text-text-muted" style={{ fontSize: '16px', lineHeight: '1.5' }}>Track your achievements and milestones</p>
       </div>
 
       {/* Stats Summary */}
-      <div className="rounded-2xl p-6 text-forest-900" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }}>
-        <h3 className="text-lg font-bold mb-1" style={{ fontFamily: 'DM Serif Display, serif' }}>Your Achievements</h3>
-        <div className="text-3xl font-bold mb-2" style={{ fontFamily: 'DM Serif Display, serif' }}>{earnedCount}/{ALL_BADGES.length} Earned</div>
-        <div className="w-full h-2 rounded-full overflow-hidden mb-2" style={{ background: 'rgba(13, 26, 20, 0.3)' }}>
-          <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(earnedCount / ALL_BADGES.length) * 100}%`, background: '#0D1A14' }} />
+      <div className="p-6 text-text-on-dark bg-bg-dark">
+        <h3 className="text-lg font-bold mb-1" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your Achievements</h3>
+        <div className="text-3xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{earnedCount}/{ALL_BADGES.length} Earned</div>
+        <div className="w-full h-2 overflow-hidden mb-2 bg-bg-dark-mid">
+          <div className="h-full transition-all duration-500" style={{ width: `${(earnedCount / ALL_BADGES.length) * 100}%`, background: 'var(--gold)' }} />
         </div>
-        <p className="text-[12px] text-forest-900/70">Keep learning to unlock more!</p>
+        <p className="text-[12px] text-text-on-dark/70">Keep learning to unlock more!</p>
       </div>
 
       {/* Badge Grid */}
       <div className="flex items-center gap-2 mb-3">
-        <IconTrophy className="w-5 h-5 text-sage-400" />
-        <h4 className="text-sm font-bold text-cream-200" style={{ fontFamily: 'DM Serif Display, serif' }}>All Badges</h4>
+        <IconTrophy className="w-5 h-5 text-gold" />
+        <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>All Badges</h4>
       </div>
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
         {ALL_BADGES.map(badge => {
           const earned = badges.find(b => b.id === badge.id);
           return (
             <button key={badge.id} onClick={() => setSelectedBadge({ ...badge, earned })}
-              className={`relative group text-center p-4 rounded-2xl transition-all duration-300 active:scale-95 ${
-                earned ? 'glass-card hover:shadow-lg hover:border-sage-400/30 cursor-pointer' : 'bg-forest-800/50 border border-border opacity-50'
+              className={`relative group text-center p-4 transition-all duration-300 active:scale-95 ${
+                earned ? 'paper-card hover:shadow-lg hover:border-gold/30 cursor-pointer' : 'bg-bg-secondary border border-border opacity-50'
               }`}>
               <div className={`flex justify-center mb-2 transition-all duration-300 ${earned ? 'group-hover:scale-110' : 'grayscale opacity-50'}`}>
-                <badge.icon className={`w-7 h-7 ${earned ? 'text-sage-400' : 'text-cream-500'}`} />
+                <badge.icon className={`w-7 h-7 ${earned ? 'text-gold' : 'text-text-muted'}`} />
               </div>
-              <div className="text-[11px] font-medium text-cream-300 leading-tight">{badge.name}</div>
+              <div className="text-[11px] font-medium text-text-body leading-tight">{badge.name}</div>
               {earned && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: '#7FB069' }}>
-                  <IconCheck className="w-3 h-3 text-forest-900" />
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: 'var(--gold)' }}>
+                  <IconCheck className="w-3 h-3 text-text-on-dark" />
                 </div>
               )}
             </button>
@@ -74,17 +72,15 @@ export default function BadgeGallery({ badges }) {
       {selectedBadge && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6" onClick={() => setSelectedBadge(null)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative max-w-sm w-full p-8 text-center scale-in shadow-2xl rounded-3xl border border-border bg-card" onClick={e => e.stopPropagation()}>
-            <button onClick={() => setSelectedBadge(null)} className="absolute top-4 right-4 w-8 h-8 rounded-lg bg-forest-800 hover:bg-forest-700 flex items-center justify-center text-cream-400 transition"><IconX className="w-4 h-4" /></button>
+          <div className="relative max-w-sm w-full p-8 text-center scale-in shadow-2xl border border-border bg-bg-white" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setSelectedBadge(null)} className="absolute top-4 right-4 w-8 h-8 bg-bg-secondary hover:bg-bg-primary flex items-center justify-center text-text-muted transition"><IconX className="w-4 h-4" /></button>
             <div className={`flex justify-center mb-4 ${selectedBadge.earned ? 'animate-bounce-in' : 'grayscale opacity-50'}`}>
-              <selectedBadge.icon className={`w-14 h-14 ${selectedBadge.earned ? 'text-sage-400' : 'text-cream-500'}`} />
+              <selectedBadge.icon className={`w-14 h-14 ${selectedBadge.earned ? 'text-gold' : 'text-text-muted'}`} />
             </div>
-            <h3 className="text-xl font-bold text-cream-100 mb-2" style={{ fontFamily: 'DM Serif Display, serif' }}>{selectedBadge.name}</h3>
-            <p className="text-[14px] text-cream-400 mb-4">{selectedBadge.condition}</p>
+            <h3 className="text-xl font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{selectedBadge.name}</h3>
+            <p className="text-[14px] text-text-muted mb-4">{selectedBadge.condition}</p>
             {selectedBadge.earned ? (
-              <div className="text-[12px] text-sage-400 font-semibold">
-                ✓ Earned {new Date(selectedBadge.earned.earnedAt).toLocaleDateString()}
-              </div>
+              <div className="text-[12px] text-gold font-semibold flex items-center justify-center gap-1"><IconCheck className="w-3.5 h-3.5" /> Earned {new Date(selectedBadge.earned.earnedAt).toLocaleDateString()}</div>
             ) : (
               <div className="text-[12px] text-warning font-semibold flex items-center justify-center gap-1"><IconLock className="w-3.5 h-3.5" /> Not yet unlocked</div>
             )}

@@ -15,7 +15,7 @@ import NotificationPanel from './components/NotificationPanel';
 import MobileSidebar from './components/MobileSidebar';
 import TrackToggle from './components/TrackToggle';
 import ProtectedRoute from './components/ProtectedRoute';
-import { IconBell, IconWave, IconUser, IconSettings, IconMenu, IconFire, IconWarning, IconRefresh } from './components/Icons';
+import { IconBell, IconWave, IconUser, IconSettings, IconMenu, IconFire, IconWarning, IconRefresh, IconBookOpen } from './components/Icons';
 import DayCompleteCelebration from './components/ConfettiEffect';
 import Footer from './components/Footer';
 import LoginPage from './pages/LoginPage';
@@ -25,11 +25,11 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 
 function LoadingScreen() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-forest-900">
+    <div className="min-h-screen flex items-center justify-center bg-bg-primary">
       <div className="flex flex-col items-center gap-4 scale-in">
-        <div className="text-5xl animate-float">🇩🇪</div>
-        <div className="w-10 h-10 border-3 border-forest-700 border-t-sage-400 rounded-full animate-spin" />
-        <p className="text-cream-400 text-sm font-medium">Loading DeutschBuddy...</p>
+        <IconBookOpen className="w-12 h-12 text-gold animate-float" />
+        <div className="w-10 h-10 border-3 border-bg-dark-mid border-t-gold rounded-full animate-spin" />
+        <p className="text-text-muted text-sm font-medium">Loading DeutschBuddy...</p>
       </div>
     </div>
   );
@@ -44,10 +44,10 @@ function AuthCheck({ children }) {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-forest-900">
+      <div className="min-h-screen flex items-center justify-center p-4 bg-bg-primary">
         <div className="text-center">
-          <div className="text-5xl mb-4">🇩🇪</div>
-          <p className="text-cream-400 text-sm">Redirecting to login...</p>
+          <IconBookOpen className="w-12 h-12 mx-auto mb-4 text-gold" />
+          <p className="text-text-muted text-sm">Redirecting to login...</p>
         </div>
       </div>
     );
@@ -306,27 +306,27 @@ const [todayXP, setTodayXP] = useState(0);
 
   if (loadError) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 bg-forest-900">
-        <div className="glass-card p-8 max-w-md w-full text-center">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center bg-red-500/10">
-            <IconWarning className="w-10 h-10 text-red-400" />
+      <div className="min-h-screen flex items-center justify-center p-4 bg-bg-primary">
+        <div className="paper-card p-8 max-w-md w-full text-center">
+          <div className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center bg-error/10">
+            <IconWarning className="w-10 h-10 text-error" />
           </div>
-          <h2 className="text-2xl font-bold text-cream-100 mb-2" style={{ fontFamily: 'DM Serif Display, serif' }}>
+          <h2 className="text-2xl font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
             Failed to Load Curriculum
           </h2>
-          <p className="text-sm text-cream-400 mb-6">
+          <p className="text-sm text-text-muted mb-6">
             We couldn&apos;t load the lesson data. Please check your connection and try again.
           </p>
           <div className="flex justify-center gap-3">
             <button
               onClick={() => { setLoadError(false); setRetryKey(k => k + 1); }}
-              className="px-5 py-2.5 rounded-xl bg-sage-400 text-forest-900 font-semibold hover:bg-sage-400/90 transition-all duration-200 flex items-center gap-2 active:scale-95"
+              className="btn-primary flex items-center gap-2"
             >
               <IconRefresh className="w-4 h-4" /> Try Again
             </button>
             <button
               onClick={() => window.location.reload()}
-              className="px-5 py-2.5 rounded-xl bg-forest-800 text-cream-200 font-semibold border border-border hover:bg-forest-700 transition-all duration-200 flex items-center gap-2 active:scale-95"
+              className="btn-secondary flex items-center gap-2"
             >
               <IconRefresh className="w-4 h-4" /> Reload Page
             </button>
@@ -341,7 +341,7 @@ const [todayXP, setTodayXP] = useState(0);
   }
 
   return (
-    <div className="min-h-screen bg-forest-900">
+    <div className="min-h-screen bg-bg-primary">
       {xpToast && <XpToast xp={xpToast} onComplete={() => setXpToast(null)} />}
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && <MobileSidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} activeView={activeView} onViewChange={handleViewChange} activeLevel={activeLevel} onLevelChange={handleLevelChange} onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }} />}
@@ -373,45 +373,44 @@ const [todayXP, setTodayXP] = useState(0);
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden sticky top-0 z-40 bg-forest-900/95 backdrop-blur-xl border-b border-border/40">
+      <div className="lg:hidden sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-xl border-b border-border/40">
         <div className="flex items-center justify-between h-16 px-2">
           <div className="flex items-center gap-1">
             <button onClick={() => setShowSidebar(true)}
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-cream-400 hover:text-cream-200 hover:bg-forest-800 transition">
+              className="w-10 h-10 flex items-center justify-center text-text-muted hover:text-text-body hover:bg-bg-dark-mid transition">
               <IconMenu className="w-6 h-6" />
             </button>
             <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
               className="flex items-center gap-1 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-              <span className="text-[1.5rem] leading-none">🇩🇪</span>
-              <span className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>Deutsch</span>
-              <span className="text-xl text-sage-400" style={{ fontFamily: 'DM Serif Display, serif' }}>Buddy</span>
+              <span className="text-xl text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Deutsch</span>
+              <span className="text-xl text-gold italic" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Buddy</span>
             </Link>
           </div>
           <div className="flex items-center gap-1">
-            <div className="flex items-center gap-1 px-2 py-1.5 rounded-xl bg-amber-400/10 border border-amber-400/20 min-w-[48px] justify-center">
-              <IconFire className={`w-6 h-6 text-amber-400 ${progress?.streak >= 3 ? 'animate-streak-blaze' : progress?.streak > 0 ? '' : 'opacity-40'}`} />
-              <span className={`text-sm font-bold tabular-nums ${progress?.streak > 0 ? 'text-amber-400' : 'text-amber-400/50'}`}>{progress?.streak || 0}</span>
+            <div className="flex items-center gap-1 px-2 py-1.5 bg-gold-pale border border-gold/20 min-w-[48px] justify-center">
+              <IconFire className={`w-6 h-6 text-gold ${progress?.streak >= 3 ? 'animate-streak-blaze' : progress?.streak > 0 ? '' : 'opacity-40'}`} />
+              <span className={`text-sm font-bold tabular-nums ${progress?.streak > 0 ? 'text-gold' : 'text-gold/50'}`}>{progress?.streak || 0}</span>
             </div>
             <button onClick={() => setShowNotifications(true)}
-              className={`w-9 h-9 rounded-xl flex items-center justify-center text-cream-400 hover:text-sage-400 hover:bg-sage-400/10 transition relative ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
+              className={`w-9 h-9 flex items-center justify-center text-text-muted hover:text-gold hover:bg-gold/10 transition relative ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
               <IconBell className="w-6 h-6" />
               {hasUnreadNotifications && <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-error" />}
             </button>
             <div className="relative" ref={profileMenuRef}>
               <button onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-sage-400 to-amber-400 flex items-center justify-center text-forest-900 text-[10px] font-bold ring-2 ring-sage-400/30 active:scale-90 transition-transform">
+                className="w-9 h-9 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-text-on-dark text-[10px] font-bold ring-2 ring-gold/30 active:scale-90 transition-transform">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
               </button>
               {showProfileMenu && (
-                <div className="absolute right-0 top-full mt-2 w-56 rounded-2xl shadow-xl overflow-hidden z-50 slide-up border border-border bg-card" onClick={e => e.stopPropagation()}>
+                <div className="absolute right-0 top-full mt-2 w-56 shadow-xl overflow-hidden z-50 slide-up border border-border bg-bg-white" onClick={e => e.stopPropagation()}>
                   <div className="px-4 py-3 border-b border-border">
-                    <p className="text-sm font-semibold text-cream-200 truncate">{profile?.full_name || 'Learner'}</p>
-                    <p className="text-[11px] text-cream-500 truncate">{user?.email || ''}</p>
+                    <p className="text-sm font-semibold text-text-dark truncate">{profile?.full_name || 'Learner'}</p>
+                    <p className="text-[11px] text-text-muted truncate">{user?.email || ''}</p>
                   </div>
                   <button onClick={() => { handleViewChange('profile'); setShowProfileMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
+                    className="w-full text-left px-4 py-2.5 text-sm text-text-body hover:bg-bg-secondary transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
                   <button onClick={() => { handleViewChange('settings'); setShowProfileMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-cream-300 hover:bg-forest-800 transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
+                    className="w-full text-left px-4 py-2.5 text-sm text-text-body hover:bg-bg-secondary transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
                   <button onClick={handleSignOutFromApp}
                     className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
                 </div>
@@ -426,20 +425,21 @@ const [todayXP, setTodayXP] = useState(0);
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
           <>
             <div className="mb-6 slide-up text-center lg:text-left">
-              <h1 className="text-3xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif', letterSpacing: '-0.3px' }}>
-                Hallo, {profile?.full_name?.split(' ')[0] || 'Learner'}! <IconWave className="w-7 h-7 inline-block align-text-bottom text-sage-400 animate-sage-glow" />
+              <span className="eyebrow">Dashboard</span>
+              <h1 className="text-3xl text-text-dark editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.3px' }}>
+                Hallo, <i>{profile?.full_name?.split(' ')[0] || 'Learner'}</i>! <IconWave className="w-7 h-7 inline-block align-text-bottom text-gold animate-sage-glow" />
               </h1>
-              <p className="text-cream-500 mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
+              <p className="text-text-muted mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
             </div>
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6">
               {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
-              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-sky-400/10 text-sky-400 border border-sky-400/20">A2: Fixed 8-week track</span>}
+              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-gold-pale text-gold border border-gold/20">A2: Fixed 8-week track</span>}
             </div>
 
-            <div className="glass-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? '#7FB069' : '#6BA3BE'}`, paddingLeft: '20px' }}>
-              <h2 className="text-xl text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>{levelData.title}</h2>
-              <p className="text-sm text-cream-500 mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
+            <div className="paper-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? 'var(--gold)' : 'var(--gold-light)'}`, paddingLeft: '20px' }}>
+              <h2 className="text-xl text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{levelData.title}</h2>
+              <p className="text-sm text-text-muted mt-1" style={{ lineHeight: '1.5' }}>{levelData.description}</p>
             </div>
           </>
         )}

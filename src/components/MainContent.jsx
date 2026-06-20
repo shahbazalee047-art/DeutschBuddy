@@ -30,16 +30,16 @@ const MainContent = memo(function MainContent({
   if (selectedTask) {
     return (
       <div className="view-enter">
-        <button onClick={() => onSelectTask(null)} className="flex items-center gap-1.5 text-sm text-cream-400 hover:text-sage-400 mb-4 transition">
-          <span className="text-base font-bold text-cream-300">&larr;</span> Back to Day {selectedDay.day}
+        <button onClick={() => onSelectTask(null)} className="btn-text mb-4">
+          <span className="text-base font-bold">&larr;</span> Back to Day {selectedDay.day}
         </button>
         <div className="paper-card p-6">
           <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] font-bold text-sage-400 bg-sage-400/10 px-2.5 py-1 rounded-full uppercase tracking-wider border border-sage-400/20">{selectedTask.type}</span>
-            <span className="text-xs font-bold text-sky-400">+{selectedTask.xp} XP</span>
+            <span className="text-[11px] font-bold text-gold bg-gold/10 px-2.5 py-1 rounded-full uppercase tracking-wider border border-gold/20">{selectedTask.type}</span>
+            <span className="text-xs font-bold text-gold">+{selectedTask.xp} XP</span>
           </div>
-          <h2 className="text-lg font-bold text-cream-100 mb-1">{selectedTask.title}</h2>
-          <p className="text-sm text-cream-400 mb-5">{selectedTask.description}</p>
+          <h2 className="text-lg font-bold text-text-dark mb-1 editorial-heading">{selectedTask.title}</h2>
+          <p className="text-sm text-text-muted mb-5">{selectedTask.description}</p>
           <TaskRenderer task={selectedTask} onComplete={onCompleteTask} />
         </div>
       </div>

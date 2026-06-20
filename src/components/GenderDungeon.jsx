@@ -144,38 +144,38 @@ export default function GenderDungeon({ compact }) {
     }
   }, [state]);
 
-  const barColor = progress > 0.75 ? 'bg-error' : progress > 0.5 ? 'bg-amber-400' : 'bg-sage-400';
-  const cardClass = compact ? 'rounded-xl border border-border bg-forest-800/60 p-2' : 'glass-card p-4';
+  const barColor = progress > 0.75 ? 'bg-error' : progress > 0.5 ? 'bg-gold-light' : 'bg-gold';
+  const cardClass = compact ? ' border border-border bg-bg-secondary/60 p-2' : 'paper-card p-4';
 
   return (
     <div className={cardClass}>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-lg">🏰</span>
-        <h4 className="text-sm font-bold text-cream-200" style={{ fontFamily: 'DM Serif Display, serif' }}>Der Die Das Dungeon</h4>
+        <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Der Die Das Dungeon</h4>
       </div>
 
       {state === 'idle' && (
         <div className="text-center">
           <div className="text-3xl mb-2">⚔️</div>
-          <p className="text-[11px] text-cream-500 mb-1">Choose the correct article before time runs out!</p>
-          <p className="text-[10px] text-cream-500 mb-1">Speed increases as your score grows.</p>
+          <p className="text-[11px] text-text-muted mb-1">Choose the correct article before time runs out!</p>
+          <p className="text-[10px] text-text-muted mb-1">Speed increases as your score grows.</p>
           {bestScore > 0 && (
-            <p className="text-[10px] text-amber-400 font-bold mb-3">
+            <p className="text-[10px] text-gold-light font-bold mb-3">
               <IconTrophy className="w-3 h-3 inline -mt-0.5 mr-0.5" />
               Best: {bestScore}
             </p>
           )}
           <button onClick={startGame}
-            className="mt-1 px-5 py-2 rounded-xl bg-amber-400 text-forest-900 text-xs font-bold hover:bg-amber-300 transition active:scale-95 shadow-sm shadow-amber-400/20">
+            className="mt-1 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
             Start Game
           </button>
           {leaderboard.length > 1 && (
             <div className="mt-4 pt-3 border-t border-border">
-              <p className="text-[9px] font-bold text-cream-500 uppercase tracking-wider mb-2">Leaderboard</p>
+              <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-2">Leaderboard</p>
               <div className="space-y-1">
                 {leaderboard.slice(0, compact ? 3 : 5).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-amber-400/10 text-amber-300' : 'text-cream-400'
+                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
@@ -199,22 +199,22 @@ export default function GenderDungeon({ compact }) {
                 </span>
               ))}
             </div>
-            <span className="text-[10px] font-bold text-cream-500 uppercase tracking-wider">
-              Score: <span className="text-cream-200">{score}</span>
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
+              Score: <span className="text-text-body">{score}</span>
             </span>
           </div>
 
-          <div className={`text-center mb-3 p-4 rounded-xl border transition-colors ${
-            feedback === 'correct' ? 'border-sage-400/40 bg-sage-400/10' :
+          <div className={`text-center mb-3 p-4  border transition-colors ${
+            feedback === 'correct' ? 'border-gold/40 bg-gold/10' :
             feedback === 'wrong' ? 'border-error/40 bg-error/10' :
-            'border-border bg-forest-800/40'
+            'border-border bg-bg-secondary/40'
           }`}>
-            <p className="text-[10px] text-cream-500 mb-0.5">Select the correct article</p>
-            <p className="text-xl font-bold text-cream-100">{current.de.replace(/^(der|die|das) /, '')}</p>
-            <p className="text-[10px] text-cream-500 mt-0.5">{current.en}</p>
+            <p className="text-[10px] text-text-muted mb-0.5">Select the correct article</p>
+            <p className="text-xl font-bold text-text-dark">{current.de.replace(/^(der|die|das) /, '')}</p>
+            <p className="text-[10px] text-text-muted mt-0.5">{current.en}</p>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-forest-700 mb-3 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-bg-secondary mb-3 overflow-hidden">
             <div className={`h-full rounded-full transition-all duration-75 linear ${barColor}`}
               style={{ width: `${progress * 100}%` }} />
           </div>
@@ -225,7 +225,7 @@ export default function GenderDungeon({ compact }) {
               return (
                 <button key={g} onClick={() => handleAnswer(g)}
                   disabled={!!feedback}
-                  className={`flex-1 rounded-xl text-base font-extrabold text-white transition-all active:scale-95 border border-white/10 shadow-sm bg-gradient-to-b ${gradient} ${
+                  className={`flex-1  text-base font-extrabold text-white transition-all active:scale-95 border border-white/10 shadow-sm bg-gradient-to-b ${gradient} ${
                     feedback && g === current.gender ? 'ring-2 ring-white/40 scale-105 brightness-125' :
                     feedback && g !== current.gender ? 'opacity-40' :
                     'hover:brightness-110'
@@ -236,7 +236,7 @@ export default function GenderDungeon({ compact }) {
             })}
           </div>
 
-          <div className="mt-2 flex items-center justify-center gap-1 text-[9px] text-cream-600">
+          <div className="mt-2 flex items-center justify-center gap-1 text-[9px] text-text-muted">
             <span>⏱ {fillTime.toFixed(1)}s</span>
             <span className="mx-1">·</span>
             <span>word {score + 1}</span>
@@ -249,29 +249,29 @@ export default function GenderDungeon({ compact }) {
           <div className={`text-3xl mb-1 ${score >= 10 ? 'animate-bounce' : ''}`}>
             {score >= 20 ? '👑' : score >= 12 ? '🏆' : score >= 5 ? '🌟' : '💀'}
           </div>
-          <p className="text-2xl font-bold text-cream-100">{score}</p>
-          <p className="text-[11px] text-cream-500 mb-1">
+          <p className="text-2xl font-bold text-text-dark">{score}</p>
+          <p className="text-[11px] text-text-muted mb-1">
             {score === bestScore && score > 0 ? '🥇 New Personal Best!' : score > 5 ? 'Great run!' : 'Keep practicing!'}
           </p>
 
           <button onClick={startGame}
-            className="mb-3 px-5 py-2 rounded-xl bg-amber-400 text-forest-900 text-xs font-bold hover:bg-amber-300 transition active:scale-95 shadow-sm shadow-amber-400/20">
+            className="mb-3 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
             Play Again
           </button>
 
           {leaderboard.length > 0 && (
             <div className="pt-3 border-t border-border">
-              <p className="text-[9px] font-bold text-cream-500 uppercase tracking-wider mb-2">Leaderboard</p>
+              <p className="text-[9px] font-bold text-text-muted uppercase tracking-wider mb-2">Leaderboard</p>
               <div className="space-y-1 max-h-40 overflow-y-auto">
                 {leaderboard.slice(0, compact ? 3 : 10).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-amber-400/10 text-amber-300' : 'text-cream-400'
+                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                     </span>
                     <span className="font-semibold">{entry.score}</span>
-                    <span className="text-[9px] text-cream-600">
+                    <span className="text-[9px] text-text-muted">
                       {new Date(entry.date).toLocaleDateString()}
                     </span>
                   </div>

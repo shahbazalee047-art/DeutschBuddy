@@ -25,8 +25,9 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
   if (mode === 'statistics') {
     return (
       <div className="fade-in">
-        <div className="glass-card p-5">
-          <h3 className="text-lg font-bold text-cream-100 mb-4" style={{ fontFamily: 'DM Serif Display, serif' }}>Learning Statistics</h3>
+        <div className="paper-card p-5">
+          <span className="eyebrow">Statistics</span>
+          <h3 className="text-lg font-bold text-text-dark mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Learning <i className="text-gold-light not-italic">Insights</i></h3>
           <div className="space-y-3">
             {[
               { icon: IconClock, label: 'Total Learning Time', value: `${Math.floor(progress.completedTasks?.length * 5 / 60)}h ${Math.floor((progress.completedTasks?.length * 5) % 60)}m` },
@@ -38,10 +39,10 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
             ].map((stat, i) => (
               <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                 <div className="flex items-center gap-3">
-                  <stat.icon className="w-5 h-5 text-cream-400" />
-                  <span className="text-[14px] text-cream-300">{stat.label}</span>
+                  <stat.icon className="w-5 h-5 text-text-muted" />
+                  <span className="text-[14px] text-text-body">{stat.label}</span>
                 </div>
-                <span className="text-[14px] font-semibold text-cream-200">{stat.value}</span>
+                <span className="text-[14px] font-semibold text-text-body">{stat.value}</span>
               </div>
             ))}
           </div>
@@ -53,17 +54,18 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
   if (mode === 'skills') {
     return (
       <div className="fade-in">
-        <div className="glass-card p-5">
-          <h3 className="text-lg font-bold text-cream-100 mb-4" style={{ fontFamily: 'DM Serif Display, serif' }}>Skill Breakdown</h3>
+        <div className="paper-card p-5">
+          <span className="eyebrow">Skills</span>
+          <h3 className="text-lg font-bold text-text-dark mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Skill <i className="text-gold-light not-italic">Breakdown</i></h3>
           <div className="space-y-3">
             {skillData.map((skill, i) => (
               <div key={i} className="flex items-center gap-3">
-                <skill.icon className="w-5 h-5 flex-shrink-0 text-cream-400" />
-                <span className="text-[13px] font-semibold text-cream-200 w-24">{skill.name}</span>
-                <div className="flex-1 h-2 rounded-full overflow-hidden bg-forest-700">
-                  <div className="h-full rounded-full transition-all duration-700" style={{ width: `${skill.level}%`, background: 'linear-gradient(90deg, #7FB069, #6BA3BE)' }} />
+                <skill.icon className="w-5 h-5 flex-shrink-0 text-text-muted" />
+                <span className="text-[13px] font-semibold text-text-body w-24">{skill.name}</span>
+                <div className="flex-1 h-2 overflow-hidden bg-bg-secondary">
+                  <div className="h-full transition-all duration-700" style={{ width: `${skill.level}%`, background: 'var(--gold)' }} />
                 </div>
-                <span className="text-[12px] font-bold text-sage-400 w-10 text-right tabular-nums">{skill.level}%</span>
+                <span className="text-[12px] font-bold text-gold w-10 text-right tabular-nums">{skill.level}%</span>
               </div>
             ))}
           </div>
@@ -75,14 +77,15 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
   if (mode === 'calendar') {
     return (
       <div className="fade-in">
-        <div className="glass-card p-5">
-          <h3 className="text-lg font-bold text-cream-100 mb-4" style={{ fontFamily: 'DM Serif Display, serif' }}>Activity Calendar</h3>
+        <div className="paper-card p-5">
+          <span className="eyebrow">Calendar</span>
+          <h3 className="text-lg font-bold text-text-dark mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Activity <i className="text-gold-light not-italic">Calendar</i></h3>
           <div className="grid grid-cols-7 gap-2">
             {calendarDays.map((d, i) => (
-              <div key={i} className={`aspect-square rounded-xl flex items-center justify-center text-[11px] font-medium transition-all ${
-                d.today ? 'bg-sage-400 text-forest-900 ring-2 ring-sage-400/30' :
-                d.studied ? 'bg-sky-400/20 text-sky-400 border border-sky-400/20' :
-                'bg-forest-800/50 text-cream-500'
+              <div key={i} className={`aspect-square flex items-center justify-center text-[11px] font-medium transition-all ${
+                d.today ? 'bg-gold text-text-on-dark ring-2 ring-gold/30' :
+                d.studied ? 'bg-gold/20 text-gold border border-gold/20' :
+                'bg-bg-secondary text-text-muted'
               }`}>{d.day}</div>
             ))}
           </div>
@@ -93,30 +96,34 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, m
 
   return (
     <div className="fade-in space-y-5">
+      <div>
+        <span className="eyebrow">Overview</span>
+        <h2 className="text-2xl font-bold text-text-dark mb-4 editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your <i>Progress</i></h2>
+      </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { icon: IconBolt, value: progress.xp, label: 'Total XP', color: '#7FB069' },
-          { icon: IconFire, value: progress.streak, label: 'Day Streak', color: '#D4A574' },
-          { icon: IconChart, value: `${avgCompletion}%`, label: 'Progress', color: '#6BA3BE' },
-          { icon: IconCheck, value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: '#5CB85C' },
+          { icon: IconBolt, value: progress.xp, label: 'Total XP', color: 'var(--gold)' },
+          { icon: IconFire, value: progress.streak, label: 'Day Streak', color: 'var(--gold-light)' },
+          { icon: IconChart, value: `${avgCompletion}%`, label: 'Progress', color: 'var(--gold-light)' },
+          { icon: IconCheck, value: progress.completedTasks?.length || 0, label: 'Tasks Done', color: 'var(--success)' },
         ].map((stat, i) => (
-          <div key={i} className="glass-card p-5 text-center">
+          <div key={i} className="paper-card p-5 text-center">
             <div className="flex justify-center mb-2"><stat.icon className="w-7 h-7" style={{ color: stat.color }} /></div>
-            <div className="text-2xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: 'DM Serif Display, serif' }}>{stat.value}</div>
-            <div className="text-[11px] text-cream-500 font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
+            <div className="text-2xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{stat.value}</div>
+            <div className="text-[11px] text-text-muted font-medium mt-1 uppercase" style={{ letterSpacing: '0.5px' }}>{stat.label}</div>
           </div>
         ))}
       </div>
-      <div className="glass-card p-5">
-        <h3 className="text-lg font-bold text-cream-100 mb-4" style={{ fontFamily: 'DM Serif Display, serif' }}>Weekly Progress</h3>
+      <div className="paper-card p-5">
+        <h3 className="text-lg font-bold text-text-dark mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Weekly Progress</h3>
         <div className="space-y-3">
           {weeklyStats.map(stat => (
             <div key={stat.week} className="flex items-center gap-3">
-              <span className="text-[12px] font-bold text-cream-500 w-8 tabular-nums">W{stat.week}</span>
-              <div className="flex-1 h-3 rounded-full overflow-hidden bg-forest-700">
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'linear-gradient(90deg, #7FB069, #6BA3BE)' }} />
+              <span className="text-[12px] font-bold text-text-muted w-8 tabular-nums">W{stat.week}</span>
+              <div className="flex-1 h-3 overflow-hidden bg-bg-secondary">
+                <div className="h-full transition-all duration-700" style={{ width: `${stat.completion}%`, background: 'var(--gold)' }} />
               </div>
-              <span className="text-[12px] font-bold text-sage-400 w-10 text-right tabular-nums">{stat.completion}%</span>
+              <span className="text-[12px] font-bold text-gold w-10 text-right tabular-nums">{stat.completion}%</span>
             </div>
           ))}
         </div>

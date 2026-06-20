@@ -30,6 +30,6 @@ export default function TaskRenderer({ task, onComplete }) {
     case 'fun': return <Fun {...props} />;
     case 'listening': return <ListeningTask {...props} />;
     case 'quickwin': return <QuickWin onComplete={onComplete} />;
-    default: return <div className="text-center py-12"><p className="text-cream-400 mb-4">Content coming soon!</p><button onClick={onComplete} className="btn-primary px-6">Mark Complete</button></div>;
+    default: return <div className="text-center py-12"><p className="text-text-muted mb-4">Content coming soon!</p><button onClick={onComplete} className="btn-primary px-6">Mark Complete</button></div>;
   }
 }

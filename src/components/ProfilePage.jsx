@@ -8,18 +8,21 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
 
   return (
     <div className="fade-in max-w-2xl mx-auto space-y-5">
+      <span className="eyebrow">Profile</span>
+      <h1 className="text-3xl font-bold text-text-dark mb-5 editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your <i>Profile</i></h1>
+
       {/* Profile Header */}
-      <div className="glass-card overflow-hidden">
-        <div className="h-28 rounded-t-2xl" style={{ background: 'linear-gradient(135deg, #7FB069, #6BA3BE)' }} />
+      <div className="paper-card overflow-hidden">
+        <div className="h-28" style={{ background: 'var(--gold)' }} />
         <div className="px-6 pb-6 -mt-14">
           <div className="flex items-end gap-3">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-sage-400 to-sky-400 flex items-center justify-center text-3xl font-bold text-forest-900 border-4 border-card shadow-lg shrink-0">
+            <div className="w-20 h-20 rounded-full bg-gold flex items-center justify-center text-3xl font-bold text-text-on-dark border-4 border-bg-white shadow-lg shrink-0">
               {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <div className="min-w-0 pb-0.5">
-              <h2 className="text-xl font-bold text-cream-100 leading-tight" style={{ fontFamily: 'DM Serif Display, serif' }}>{profile?.full_name || 'Learner'}</h2>
-              <p className="text-[12px] text-cream-500 truncate">{user?.email}</p>
-              <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-[11px] font-bold border border-sage-400/20 text-sage-400 bg-sage-400/10">
+              <h2 className="text-xl font-bold text-text-dark leading-tight" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{profile?.full_name || 'Learner'}</h2>
+              <p className="text-[12px] text-text-muted truncate">{user?.email}</p>
+              <div className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 rounded-full text-[11px] font-bold border border-gold/20 text-gold bg-gold/10">
                 <IconGraduation className="w-3.5 h-3.5" /> A1 Learner
               </div>
             </div>
@@ -30,14 +33,14 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { icon: IconBolt, value: xp, label: 'XP', color: '#7FB069' },
-          { icon: IconFire, value: localData.streak || 0, label: 'Streak', color: '#D4A574' },
-          { icon: IconCheck, value: localData.completedTasks?.length || 0, label: 'Tasks', color: '#5CB85C' },
+          { icon: IconBolt, value: xp, label: 'XP', color: 'var(--gold)' },
+          { icon: IconFire, value: localData.streak || 0, label: 'Streak', color: 'var(--gold-light)' },
+          { icon: IconCheck, value: localData.completedTasks?.length || 0, label: 'Tasks', color: 'var(--success)' },
         ].map((stat, i) => (
-          <div key={i} className="glass-card p-4 text-center">
+          <div key={i} className="paper-card p-4 text-center">
             <div className="flex justify-center mb-1"><stat.icon className="w-5 h-5" style={{ color: stat.color }} /></div>
-            <div className="text-xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: 'DM Serif Display, serif' }}>{stat.value}</div>
-            <div className="text-[10px] text-cream-500 font-medium uppercase mt-0.5">{stat.label}</div>
+            <div className="text-xl font-bold tabular-nums" style={{ color: stat.color, fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{stat.value}</div>
+            <div className="text-[10px] text-text-muted font-medium uppercase mt-0.5">{stat.label}</div>
           </div>
         ))}
       </div>

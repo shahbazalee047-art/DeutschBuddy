@@ -20,7 +20,7 @@ export default function SpeakerButton({ text, language = 'de-DE', onAudioEnd, on
       disabled={!text || isSpeaking}
       title={error ? 'Speech unavailable' : isSpeaking ? 'Stop' : 'Listen'}
       aria-label={error ? 'Speech unavailable' : isSpeaking ? 'Stop speaking' : 'Listen'}
-      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isSpeaking ? 'bg-sage-400 text-forest-900 animate-pulse' : 'bg-amber-400/10 text-amber-400 hover:bg-amber-400/20'}`}
+      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${isSpeaking ? 'bg-gold text-text-on-dark animate-pulse' : 'bg-gold-light/10 text-gold-light hover:bg-gold-light/20'}`}
     >
       <SpeakerIcon className="w-5 h-5" />
     </button>

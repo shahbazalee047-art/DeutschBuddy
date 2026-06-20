@@ -13,7 +13,7 @@ function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth =
     <div className="flex flex-col items-center gap-1">
       <div className="relative" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--clr-forest-700)" strokeWidth={strokeWidth} />
+          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--bg-secondary)" strokeWidth={strokeWidth} />
           <circle
             cx={size / 2} cy={size / 2} r={radius}
             fill="none" stroke="url(#ringGradient)" strokeWidth={strokeWidth}
@@ -22,17 +22,17 @@ function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth =
           />
           <defs>
             <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#7FB069" />
-              <stop offset="100%" stopColor="#D4A574" />
+              <stop offset="0%" stopColor="var(--gold)" />
+              <stop offset="100%" stopColor="var(--gold-light)" />
             </linearGradient>
           </defs>
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <Icon className="w-5 h-5 text-sage-400" />
+          <Icon className="w-5 h-5 text-gold" />
         </div>
       </div>
-      <span className="text-[11px] font-bold text-cream-100">{label}</span>
-      <span className="text-[10px] text-cream-500">{xp}/{target} XP</span>
+      <span className="text-[11px] font-bold text-text-dark">{label}</span>
+      <span className="text-[10px] text-text-muted">{xp}/{target} XP</span>
     </div>
   );
 }
@@ -60,24 +60,24 @@ export default function RightPanel({ progress, streak, activeLevel }) {
       <PictureMatch level={activeLevel} />
 
       {/* Stats */}
-      <div className="glass-card p-4">
+      <div className="paper-card p-4">
         <div className="flex items-center gap-2 mb-4">
-          <IconBolt className="w-4 h-4 text-sage-400" />
-          <h4 className="text-sm font-bold text-cream-200" style={{ fontFamily: 'DM Serif Display, serif' }}>Your Stats</h4>
+          <IconBolt className="w-4 h-4 text-gold" />
+          <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your Stats</h4>
         </div>
         <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="rounded-2xl p-4 text-center border border-sage-400/10" style={{ background: 'rgba(127, 176, 105, 0.05)' }}>
-            <div className="text-2xl font-bold tabular-nums text-sage-400">{xp}</div>
-            <div className="text-[10px] text-cream-500 font-medium uppercase" style={{ letterSpacing: '0.5px' }}>XP Earned</div>
+          <div className="p-4 text-center border border-gold/10 bg-gold/5">
+            <div className="text-2xl font-bold tabular-nums text-gold">{xp}</div>
+            <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>XP Earned</div>
           </div>
-          <div className="rounded-2xl p-4 text-center border border-amber-400/10" style={{ background: 'rgba(212, 165, 116, 0.05)' }}>
-            <div className="text-2xl font-bold tabular-nums text-amber-400">{daysStreak}</div>
-            <div className="text-[10px] text-cream-500 font-medium uppercase" style={{ letterSpacing: '0.5px' }}>Day Streak</div>
+          <div className="p-4 text-center border border-gold-light/10 bg-gold-light/5">
+            <div className="text-2xl font-bold tabular-nums text-gold-light">{daysStreak}</div>
+            <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>Day Streak</div>
           </div>
         </div>
 
         {/* Milestone rings */}
-        <h5 className="text-[10px] font-bold text-cream-500 uppercase tracking-widest mb-3">Next Milestone</h5>
+        <h5 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3">Next Milestone</h5>
         <div className="flex justify-center gap-4">
           {milestones.concat(nextMilestone).filter((m, i, arr) => i === arr.length - 1 || m.target > xp).slice(0, 3).map(m => (
             <ProgressRing key={m.label} xp={xp} target={m.target} label={m.label} icon={m.icon} size={80} />

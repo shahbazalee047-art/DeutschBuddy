@@ -126,14 +126,14 @@ export default function QuickGermanTool({ onClose }) {
       <div className="relative w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto p-5 sm:p-6" onClick={e => e.stopPropagation()}>
         {!selectedVerb ? (
           <div className="glass-card">
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/40">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gold/20">
               <div className="flex items-center gap-2">
-                <IconSearch className="w-5 h-5 text-sage-400" />
-                <h3 className="text-base sm:text-lg font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>
+                <IconSearch className="w-5 h-5 text-gold" />
+                <h3 className="text-base sm:text-lg font-bold text-text-on-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                   Verb Lookup
                 </h3>
               </div>
-              <button onClick={onClose} className="w-8 h-8 rounded-lg bg-forest-800/50 hover:bg-forest-800 flex items-center justify-center text-cream-400 transition">
+              <button onClick={onClose} className="w-8 h-8  bg-bg-dark/60/50 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
@@ -143,7 +143,7 @@ export default function QuickGermanTool({ onClose }) {
                 value={query}
                 onChange={e => setQuery(e.target.value)}
                 placeholder="Search verb (e.g. 'laufen' or 'to run')..."
-                className="w-full p-3 rounded-xl border border-sage-400/20 bg-forest-900/80 text-cream-100 placeholder:text-cream-500/60 focus:outline-none focus:border-sage-400 focus:ring-1 focus:ring-sage-400/50 transition-all duration-200 text-sm"
+                className="w-full p-3  border border-gold/20 bg-bg-dark/80 text-text-on-dark placeholder:text-text-on-dark-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 transition-all duration-200 text-sm"
                 autoFocus
               />
               <div className="mt-3 space-y-1">
@@ -151,43 +151,43 @@ export default function QuickGermanTool({ onClose }) {
                   <button
                     key={v.german}
                     onClick={() => handleSelect(v)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl text-sm text-left hover:bg-forest-800 transition"
+                    className="w-full flex items-center justify-between px-4 py-2.5  text-sm text-left hover:bg-bg-dark/60 transition"
                   >
-                    <span className="text-sage-400 font-medium">{v.german}</span>
-                    <span className="text-cream-500">{v.english}</span>
+                    <span className="text-gold font-medium">{v.german}</span>
+                    <span className="text-text-on-dark-muted">{v.english}</span>
                   </button>
                 ))}
                 {filtered.length === 0 && (
-                  <p className="text-center text-cream-500 text-sm py-4">No verbs found</p>
+                  <p className="text-center text-text-on-dark-muted text-sm py-4">No verbs found</p>
                 )}
               </div>
             </div>
           </div>
         ) : (
           <div className="glass-card">
-            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-border/40">
+            <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gold/20">
               <div className="flex items-center gap-2">
-                <button onClick={handleBack} className="w-8 h-8 rounded-lg bg-forest-800/50 hover:bg-forest-800 flex items-center justify-center text-cream-400 transition">
+                <button onClick={handleBack} className="w-8 h-8  bg-bg-dark/60/50 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-cream-100" style={{ fontFamily: 'DM Serif Display, serif' }}>
+                  <h3 className="text-base sm:text-lg font-bold text-text-on-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                     {selectedVerb.german}
                   </h3>
-                  <p className="text-xs text-cream-500">{selectedVerb.english}</p>
+                  <p className="text-xs text-text-on-dark-muted">{selectedVerb.english}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="w-8 h-8 rounded-lg bg-forest-800/50 hover:bg-forest-800 flex items-center justify-center text-cream-400 transition">
+              <button onClick={onClose} className="w-8 h-8  bg-bg-dark/60/50 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border/40">
-                    <th className="text-left px-4 sm:px-5 py-3 text-[10px] font-bold text-cream-500 uppercase tracking-widest">Pronoun</th>
+                  <tr className="border-b border-gold/20">
+                    <th className="text-left px-4 sm:px-5 py-3 text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest">Pronoun</th>
                     {tenses.map(t => (
-                      <th key={t} className="text-left px-3 sm:px-4 py-3 text-[10px] font-bold text-cream-500 uppercase tracking-widest">
+                      <th key={t} className="text-left px-3 sm:px-4 py-3 text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest">
                         {t === 'present' ? 'Präsens' : t === 'past' ? 'Präteritum' : 'Futur I'}
                       </th>
                     ))}
@@ -195,10 +195,10 @@ export default function QuickGermanTool({ onClose }) {
                 </thead>
                 <tbody>
                   {pronouns.map(p => (
-                    <tr key={p} className="border-b border-border/20 last:border-0">
-                      <td className="px-4 sm:px-5 py-2.5 text-cream-400 font-medium whitespace-nowrap">{p}</td>
+                    <tr key={p} className="border-b border-gold/20/20 last:border-0">
+                      <td className="px-4 sm:px-5 py-2.5 text-text-on-dark-muted font-medium whitespace-nowrap">{p}</td>
                       {tenses.map(t => (
-                        <td key={t} className="px-3 sm:px-4 py-2.5 text-cream-100 whitespace-nowrap">
+                        <td key={t} className="px-3 sm:px-4 py-2.5 text-text-on-dark whitespace-nowrap">
                           {conjugations[selectedVerb.german]?.[t]?.[p] || '-'}
                         </td>
                       ))}
