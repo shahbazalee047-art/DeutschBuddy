@@ -118,6 +118,18 @@ const [todayXP, setTodayXP] = useState(0);
   useEffect(() => { showPictureMatchRef.current = showPictureMatch; }, [showPictureMatch]);
   useEffect(() => { historyRef.current = historyStack; }, [historyStack]);
 
+  // Push browser history state whenever the dashboard view or navigation state changes
+  // so the phone back gesture navigates back through views instead of closing the app.
+  useEffect(() => {
+    if (isProcessingBack.current) return;
+    if (activeView === 'dashboard' && !selectedDay && !selectedTask) return;
+    window.history.pushState(
+      { activeView, selectedDay, selectedTask, activeLevel },
+      '',
+      window.location.pathname
+    );
+  }, [activeView, selectedDay, selectedTask, activeLevel]);
+
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
   useEffect(() => {
@@ -235,8 +247,10 @@ const [todayXP, setTodayXP] = useState(0);
   const handleSignOutFromApp = useCallback(async () => { try { await signOut(); } catch { /* ignore */ } navigate('/login'); }, [signOut, navigate]);
 
   useEffect(() => {
-    const handlePopState = () => {
+    const handlePopState = (event) => {
       if (isProcessingBack.current) return;
+
+      // Close panels first
       if (showSidebarVerbLookupRef.current) {
         isProcessingBack.current = true;
         setShowSidebarVerbLookup(false);
@@ -271,13 +285,33 @@ const [todayXP, setTodayXP] = useState(0);
         setTimeout(() => { isProcessingBack.current = false; }, 300);
         return;
       }
-      const path = window.location.pathname;
-      if (path === '/dashboard' || path === '/') {
-        if (selectedTaskRef.current || selectedDayRef.current || historyRef.current.length > 0) {
-          isProcessingBack.current = true;
-          handleBackNavRef.current();
-          setTimeout(() => { isProcessingBack.current = false; }, 300);
-        }
+
+      // Restore previous dashboard view from history state
+      if (event.state?.activeView) {
+        isProcessingBack.current = true;
+        setActiveView(event.state.activeView);
+        setSelectedDay(event.state.selectedDay || null);
+        setSelectedTask(event.state.selectedTask || null);
+        if (event.state.activeLevel) setActiveLevel(event.state.activeLevel);
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        return;
+      }
+
+      // If no state and we're not on dashboard, return to dashboard
+      if (activeViewRef.current !== 'dashboard') {
+        isProcessingBack.current = true;
+        setActiveView('dashboard');
+        setSelectedDay(null);
+        setSelectedTask(null);
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        return;
+      }
+
+      // Dashboard internal back navigation
+      if (selectedTaskRef.current || selectedDayRef.current || historyRef.current.length > 0) {
+        isProcessingBack.current = true;
+        handleBackNavRef.current();
+        setTimeout(() => { isProcessingBack.current = false; }, 300);
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -292,6 +326,7 @@ const [todayXP, setTodayXP] = useState(0);
         if (App && typeof App.addListener === 'function') {
           capacitorBackHandler = await App.addListener('backButton', () => {
             if (isProcessingBack.current) return;
+
             if (showSidebarVerbLookupRef.current) {
               isProcessingBack.current = true;
               setShowSidebarVerbLookup(false);
@@ -326,11 +361,17 @@ const [todayXP, setTodayXP] = useState(0);
               setTimeout(() => { isProcessingBack.current = false; }, 300);
               return;
             }
+
+            // Internal dashboard task/day back navigation
             if (selectedTaskRef.current || selectedDayRef.current || historyRef.current.length > 0) {
               isProcessingBack.current = true;
               handleBackNavRef.current();
               setTimeout(() => { isProcessingBack.current = false; }, 300);
-            } else if (activeViewRef.current !== 'dashboard') {
+              return;
+            }
+
+            // Go back to dashboard from any other view
+            if (activeViewRef.current !== 'dashboard') {
               isProcessingBack.current = true;
               setActiveView('dashboard');
               setSelectedDay(null);

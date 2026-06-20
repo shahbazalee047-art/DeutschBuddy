@@ -1,5 +1,5 @@
 import { useAuth } from '../contexts/AuthContext';
-import { IconBolt, IconFire, IconCheck, IconGraduation } from './Icons';
+import { IconBolt, IconFire, IconCheck, IconGraduation, IconArrowLeft } from './Icons';
 
 export default function ProfilePage({ activeLevel = 'A1' }) {
   const { user, profile } = useAuth();
@@ -8,6 +8,10 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
 
   return (
     <div className="fade-in max-w-2xl mx-auto space-y-5">
+      <button onClick={() => window.history.back()} className="btn-text flex items-center gap-2 mb-2">
+        <IconArrowLeft className="w-4 h-4" /> Back
+      </button>
+
       <span className="eyebrow">Profile</span>
       <h1 className="text-3xl font-bold text-text-dark mb-5 editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your <i>Profile</i></h1>
 

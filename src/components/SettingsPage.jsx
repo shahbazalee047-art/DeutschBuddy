@@ -113,13 +113,23 @@ export default function SettingsPage({ profile, user, onSignOut }) {
     }
   };
 
-  const handleNotifChange = useCallback((key, value) => {
-    setNotifPrefs(prev => {
-      const next = { ...prev, [key]: value };
-      localStorage.setItem('db_notification_preferences', JSON.stringify(next));
-      return next;
-    });
-  }, []);
+  const handleNotifChange = useCallback(async (key, value) => {
+    const next = { ...notifPrefs, [key]: value };
+    setNotifPrefs(next);
+    localStorage.setItem('db_notification_preferences', JSON.stringify(next));
+
+    if (!user?.id) return;
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ notification_preferences: next, updated_at: new Date().toISOString() })
+        .eq('id', user.id);
+      if (error) throw error;
+      await refreshProfile();
+    } catch (err) {
+      console.error('Failed to save notification preferences:', err);
+    }
+  }, [notifPrefs, user, refreshProfile]);
 
   const handleSaveNotifications = async () => {
     if (!user?.id) return;
@@ -421,6 +431,10 @@ export default function SettingsPage({ profile, user, onSignOut }) {
 
   return (
     <div className="fade-in max-w-2xl mx-auto space-y-5">
+      <button onClick={() => window.history.back()} className="btn-text flex items-center gap-2 mb-2">
+        <IconArrowLeft className="w-4 h-4" /> Back
+      </button>
+
       <span className="eyebrow">Preferences</span>
       <h1 className="text-3xl font-bold text-text-dark mb-5 editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.5px' }}>Your <i>Settings</i></h1>
 
