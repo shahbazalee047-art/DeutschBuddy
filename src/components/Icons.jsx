@@ -69,6 +69,8 @@ export const IconHash = (props) => si('g', props, [l('4 9 16 9'), l('4 15 16 15'
 export const IconClock = (props) => si('g', props, [c(12, 12, 10), poly('12 6 12 12 16 14')]);
 export const IconAward = (props) => si('g', props, [c(12, 8, 6), p('M15.477 12.89 17 22l-5-3-5 3 1.523-9.11')]);
 export const IconChevronRight = (props) => si('g', props, [poly('9 18 15 12 9 6')]);
+export const IconChevronDown = (props) => si('g', props, [poly('6 9 12 15 18 9')]);
+export const IconChevronUp = (props) => si('g', props, [poly('6 15 12 9 18 15')]);
 export const IconLeaf = (props) => si('g', props, [p('M11 20A7 7 0 0 1 9.8 6.4C10.2 4.5 11.9 3 14 3a5 5 0 0 1 5 5c0 2.6-1.5 4.8-3.6 5.8A7 7 0 0 1 11 20Z'), p('M12 20v2')]);
 export const IconTree = (props) => si('g', props, [p('M12 22V8'), p('M8 12l4-4 4 4'), p('M12 2C8 2 4 5 4 9c0 5 4 7 8 10 4-3 8-5 8-10 0-4-4-7-8-7z')]);
 export const IconCertificate = (props) => si('g', props, [c(12, 8, 6), p('M15.477 12.89 17 22l-5-3-5 3 1.523-9.11')]);
@@ -102,3 +104,4 @@ export const IconPlay = (props) => si('g', props, [c(12, 12, 10), p('M10 8l6 4-6
 export const IconPlayFilled = (props) => si('g', props, [poly('5 3 19 12 5 21 5 3z')]);
 
 export const IconSpeakerX = (props) => si('g', props, [poly('11 5 6 9 2 9 2 15 6 15 11 19 11 5'), l('23 9 9 23'), l('9 9 23 23')]);
+export const IconGamepad = (props) => si('g', props, [r(3, 5, 18, 14, 2), c(8, 12, 2), c(16, 12, 2)]);

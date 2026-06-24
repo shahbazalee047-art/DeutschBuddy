@@ -221,14 +221,14 @@ export default function GenderDungeon({ compact }) {
 
           <div className="flex items-stretch gap-2 h-12">
             {['der', 'die', 'das'].map(g => {
-              const gradient = g === 'der' ? 'from-sky-500 to-sky-600' : g === 'die' ? 'from-rose-500 to-rose-600' : 'from-violet-500 to-violet-600';
+              const gradient = g === 'der' ? 'from-[#6FA0D0] to-[#5A8FC0]' : g === 'die' ? 'from-[#D0879A] to-[#B86F82]' : 'from-[#7DA888] to-[#5A9278]';
               return (
                 <button key={g} onClick={() => handleAnswer(g)}
                   disabled={!!feedback}
-                  className={`flex-1  text-base font-extrabold text-white transition-all active:scale-95 border border-white/10 shadow-sm bg-gradient-to-b ${gradient} ${
-                    feedback && g === current.gender ? 'ring-2 ring-white/40 scale-105 brightness-125' :
-                    feedback && g !== current.gender ? 'opacity-40' :
-                    'hover:brightness-110'
+                  className={`flex-1  text-base font-extrabold transition-all active:scale-95 border shadow-sm bg-gradient-to-b ${gradient} ${
+                    feedback && g === current.gender ? 'ring-2 scale-105 brightness-125 text-[#1C1A19]' :
+                    feedback && g !== current.gender ? 'opacity-40 text-[#F0EAE0]' :
+                    'text-[#F0EAE0] hover:brightness-110'
                   }`}>
                   {g}
                 </button>

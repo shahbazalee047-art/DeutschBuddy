@@ -18,6 +18,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { IconBell, IconWave, IconUser, IconSettings, IconMenu, IconFire, IconWarning, IconRefresh, IconBookOpen } from './components/Icons';
 import DayCompleteCelebration from './components/ConfettiEffect';
 import Footer from './components/Footer';
+import OnboardingFlow from './components/OnboardingFlow';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -64,7 +65,9 @@ function DashboardContent() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const [activeLevel, setActiveLevel] = useState('A1');
+  const [activeLevel, setActiveLevel] = useState(() => {
+    try { return localStorage.getItem('db_selected_level') || 'A1'; } catch { return 'A1'; }
+  });
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
@@ -82,7 +85,13 @@ const [todayXP, setTodayXP] = useState(0);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [notifVersion, setNotifVersion] = useState(0);
   const [historyStack, setHistoryStack] = useState([]);
-  const [trackMode, setLocalTrackMode] = useState(() => profile?.selected_pacing || 'standard');
+  const [trackMode, setLocalTrackMode] = useState(() => {
+    try {
+      return localStorage.getItem('db_selected_track') || profile?.selected_pacing || 'standard';
+    } catch {
+      return profile?.selected_pacing || 'standard';
+    }
+  });
   const [levelData, setLevelData] = useState(null);
 
   useEffect(() => {
@@ -452,6 +461,14 @@ const [todayXP, setTodayXP] = useState(0);
           handleViewChange(action.target);
         } else if (action.type === 'day') {
           handleSelectDay(action.weekId, action.day);
+        } else if (action.type === 'task' && action.taskId && levelData) {
+          handleSelectDay(action.weekId, action.day);
+          const week = levelData.weeks?.find(w => w.id === action.weekId);
+          const day = week?.days?.find(d => d.day === action.day);
+          const task = day?.tasks?.find(t => t.id === action.taskId);
+          if (task) {
+            setTimeout(() => setSelectedTask(task), 0);
+          }
         } else if (action.type === 'guardian') {
           setShowStreakGuardian(true);
         }
@@ -473,29 +490,29 @@ const [todayXP, setTodayXP] = useState(0);
 
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-xl border-b border-border/40">
-        <div className="flex items-center justify-between h-16 px-2">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between h-16 px-4">
+          <div className="flex items-center gap-1 min-w-0">
             <button onClick={() => setShowSidebar(true)}
-              className="w-10 h-10 flex items-center justify-center text-text-muted hover:text-text-body hover:bg-bg-dark-mid transition">
+              className="w-10 h-10 flex items-center justify-center text-text-muted hover:text-text-body hover:bg-bg-dark-mid transition flex-shrink-0">
               <IconMenu className="w-6 h-6" />
             </button>
             <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-              className="flex items-center gap-1 cursor-pointer active:scale-95 transition-all duration-150 select-none">
-              <span className="text-xl text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Deutsch</span>
-              <span className="text-xl text-gold italic" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Buddy</span>
+              className="flex items-center gap-1 cursor-pointer active:scale-95 transition-all duration-150 select-none min-w-0">
+              <span className="text-xl text-text-dark truncate" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Deutsch</span>
+              <span className="text-xl text-gold italic truncate" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Buddy</span>
             </Link>
           </div>
-          <div className="flex items-center gap-1">
-            <div className="flex items-center gap-1 px-2 py-1.5 bg-gold-pale border border-gold/20 min-w-[48px] justify-center">
-              <IconFire className={`w-6 h-6 text-gold ${progress?.streak >= 3 ? 'animate-streak-blaze' : progress?.streak > 0 ? '' : 'opacity-40'}`} />
-              <span className={`text-sm font-bold tabular-nums ${progress?.streak > 0 ? 'text-gold' : 'text-gold/50'}`}>{progress?.streak || 0}</span>
+          <div className="flex items-center gap-1 min-w-0">
+            <div className="flex items-center gap-1 px-2 py-1.5 bg-gold-pale border border-gold/20 min-w-0 justify-center">
+              <IconFire className={`w-6 h-6 text-gold flex-shrink-0 ${progress?.streak >= 3 ? 'animate-streak-blaze' : progress?.streak > 0 ? '' : 'opacity-40'}`} />
+              <span className={`text-sm font-bold tabular-nums truncate ${progress?.streak > 0 ? 'text-gold' : 'text-gold/50'}`}>{progress?.streak || 0}</span>
             </div>
             <button onClick={() => setShowNotifications(true)}
-              className={`w-9 h-9 flex items-center justify-center text-text-muted hover:text-gold hover:bg-gold/10 transition relative ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
+              className={`w-9 h-9 flex items-center justify-center text-text-muted hover:text-gold hover:bg-gold/10 transition relative flex-shrink-0 ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
               <IconBell className="w-6 h-6" />
               {hasUnreadNotifications && <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-error" />}
             </button>
-            <div className="relative" ref={profileMenuRef}>
+            <div className="relative flex-shrink-0" ref={profileMenuRef}>
               <button onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className="w-9 h-9 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-text-on-dark text-[10px] font-bold ring-2 ring-gold/30 active:scale-90 transition-transform">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
@@ -520,12 +537,12 @@ const [todayXP, setTodayXP] = useState(0);
       </div>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-24 lg:pb-6">
         {activeView === 'dashboard' && !selectedDay && !selectedTask && (
           <>
             <div className="mb-6 slide-up text-center lg:text-left">
               <span className="eyebrow">Dashboard</span>
-              <h1 className="text-3xl text-text-dark editorial-heading" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.3px' }}>
+              <h1 className="text-3xl text-text-dark editorial-heading text-balance" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", letterSpacing: '-0.3px' }}>
                 Hallo, <i>{profile?.full_name?.split(' ')[0] || 'Learner'}</i>! <IconWave className="w-7 h-7 inline-block align-text-bottom text-gold animate-sage-glow" />
               </h1>
               <p className="text-text-muted mt-1" style={{ fontSize: '16px', lineHeight: '1.5' }}>Ready to continue learning?</p>
@@ -533,7 +550,7 @@ const [todayXP, setTodayXP] = useState(0);
 
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mb-6">
               {activeLevel === 'A1' && <TrackToggle mode={trackMode} onToggle={handleToggleTrackMode} />}
-              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-gold-pale text-gold border border-gold/20">A2: Fixed 8-week track</span>}
+              {activeLevel === 'A2' && <span className="text-xs font-semibold px-4 py-2 rounded-full bg-gold-pale text-gold border border-gold/20 truncate min-w-0">A2: Fixed 8-week track</span>}
             </div>
 
             <div className="paper-card p-5 mb-6" style={{ borderLeft: `4px solid ${activeLevel === 'A1' ? 'var(--gold)' : 'var(--gold-light)'}`, paddingLeft: '20px' }}>
@@ -546,11 +563,11 @@ const [todayXP, setTodayXP] = useState(0);
         {/* Desktop: Two-column layout */}
         <div className="hidden lg:grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2"><Suspense fallback={<CardSkeleton />}><MainContent {...mainContentProps} /></Suspense></div>
-          <div className="lg:col-span-1"><Suspense fallback={<CardSkeleton />}><RightPanel progress={progress} streak={progress.streak} activeLevel={activeLevel} /></Suspense></div>
+          <div className="lg:col-span-1"><Suspense fallback={<CardSkeleton />}><RightPanel progress={progress} streak={progress.streak} onOpenSpeedBlitz={() => setShowSpeedBlitz(true)} onOpenGenderDungeon={() => setShowGenderDungeon(true)} onOpenPictureMatch={() => setShowPictureMatch(true)} /></Suspense></div>
         </div>
 
         {/* Mobile: Single column */}
-        <div className="lg:hidden">
+        <div className="lg:hidden pb-safe">
           <Suspense fallback={<ListSkeleton count={2} />}><MainContent {...mainContentProps} /></Suspense>
         </div>
       </main>
@@ -576,6 +593,13 @@ function Dashboard() {
   );
 }
 
+function LandingRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/onboarding" replace />;
+  return <ProtectedRoute><Dashboard /></ProtectedRoute>;
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -584,8 +608,9 @@ export default function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/onboarding" element={<OnboardingFlow />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/" element={<LandingRoute />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthProvider>

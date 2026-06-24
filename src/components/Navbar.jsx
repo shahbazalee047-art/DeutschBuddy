@@ -48,7 +48,7 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
             <nav className="flex-1 flex justify-center gap-1">
               {navLinks.map(link => (
                 <button key={link.id} onClick={() => onViewChange(link.id)}
-                  className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark ${
                     activeView === link.id ? 'text-text-on-dark bg-gold shadow-sm' : 'text-text-on-dark-muted hover:text-text-on-dark hover:bg-bg-dark-mid'
                   }`}>
                   <link.icon className="w-4 h-4" />{link.label}
@@ -57,13 +57,15 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
             </nav>
 
             <div className="flex items-center gap-3">
-              <div className="flex overflow-hidden border border-border">
+              <div className="flex overflow-hidden border border-border min-w-0">
                 {['A1', 'A2'].map(lvl => (
                   <button key={lvl} onClick={() => onLevelChange(lvl)}
-                    className={`px-3 py-1.5 text-[12px] font-bold transition-all ${
+                    className={`px-3 py-1.5 text-[12px] transition-all truncate min-w-0 ${
                       activeLevel === lvl
-                        ? 'bg-gold text-text-on-dark'
-                        : 'bg-bg-dark-mid text-text-on-dark-muted hover:text-text-on-dark'
+                        ? lvl === 'A1'
+                          ? 'bg-[#5C8AC4] text-[#F0EAE0] font-bold underline underline-offset-4 shadow-[0_0_10px_rgba(92,138,196,0.35)]'
+                          : 'bg-[#A8473F] text-[#F0EAE0] font-bold underline underline-offset-4 shadow-[0_0_10px_rgba(168,71,63,0.35)]'
+                        : 'bg-[#262320] text-[#B8B2AC] hover:text-[#F0EAE0] font-medium border border-[#3A3530]'
                     }`}>
                     {lvl}
                   </button>

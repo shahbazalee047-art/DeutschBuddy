@@ -1,0 +1,65 @@
+You are a senior frontend engineer executing a high-priority UI/UX refinement on the DeutschBuddy application (React 19 + Vite 8 + Tailwind CSS 4 + Supabase). We are adapting our "Warm Editorial Luxury" design system into an educational workspace without breaking the underlying brand DNA.
+
+CRITICAL ARCHITECTURAL CONSTRAINTS:
+- DO NOT change the core color palette tokens: Cream (#F5F0E8 / #EDE5D4), Forest Green (#1B3A35 / #0F2420), and Gold (#C4924A / #E2B87A).
+- DO NOT replace or drop Cormorant Garamond from display/decorative headings. It is the brand personality.
+- DO NOT install or import any external npm charting libraries. All visualizations must be rendered using raw, responsive SVG and pure CSS.
+- DO NOT modify or break any backend logic, Supabase authentication state flows, database hooks, or RLS policies.
+- Keep Navbar, Footer, Tables, and Auth forms completely sharp (border-radius: 0). Apply rounding ONLY to the modular learning/exercise assets.
+
+Execute the following 8 unified visual and functional specifications across the workspace files completely, writing out code files fully without shortcuts or placeholders:
+
+1. TYPOGRAPHY SCALE & CONTRAST RECALIBRATION
+- Inject these tokens into index.css:
+  --text-hero: clamp(48px, 6vw, 80px); --text-h1: clamp(32px, 4vw, 48px); --text-h2: clamp(24px, 3vw, 32px); --text-h3: 20px; --text-h4: 17px;
+  --text-body-lg: 17px; --text-body: 15px; --text-body-sm: 13px; --text-caption: 12px;
+  --lh-reading: 1.85; --lh-body: 1.7; --lh-heading: 1.2;
+  --radius-none: 0px; --radius-sm: 2px; --radius-md: 4px; --radius-pill: 100px; --radius-card: 8px; --radius-exercise: 10px; --radius-button: 6px; --radius-modal: 12px;
+- Force Grammar.jsx, Vocabulary.jsx, Writing.jsx, Speaking.jsx, ListeningTask.jsx, FillBlank.jsx, Flashcards.jsx, and Quiz.jsx body layouts to use 'DM Sans', var(--text-body-lg), and line-height var(--lh-reading).
+- In WeeklyModule.jsx and DailyTasks.jsx, keep Cormorant Garamond for titles (22px) and use DM Sans (14px) for day and task elements.
+- Replace --text-muted over cream with --text-body (#4A4438). Boost forest background muted opacity to 0.75.
+
+2. APPROACHABLE SHAPES & COMPONENT BREATHING ROOM
+- Apply --radius-card to WeeklyModule.jsx, DailyTasks.jsx step items, and Flashcards.jsx. Apply --radius-exercise to quizzes, inputs, and matching grids. Apply --radius-button to active view buttons.
+- Update tap target minimum heights: .quiz-option, .matching-tile, .scramble-word, .fill-blank-input { min-height: 52px; padding: 14px 20px; } .exercise-list { gap: 12px; } .task-item { min-height: 56px; padding: 14px 16px; }
+
+3. THREE-TIER VISUAL ROADMAP HIERARCHY & HERO ENGAGEMENT
+- WeeklyModule.jsx Refactor: Update the styling of the mapped week items within your existing rendering loop structure. Do not alter or break the loop itself or any core components like JourneyMap.jsx. Apply these classes:
+  - Active: var(--bg-dark), 4px solid left var(--gold), var(--radius-card), shadow box-shadow: 0 12px 40px rgba(196,146,74,0.15).
+  - Complete: var(--bg-primary), 1px border, 4px solid left var(--success) green border, checkmark icon top-right.
+  - Locked: var(--bg-secondary), 0.6 opacity, gray left border, lock icon banner, pointer-events-none.
+- ContinueCard.jsx: Mount a forest green block hero container above the module tracking list using useProgress data. Include an uppercase gold header tracking tag, inline custom SVG progress tracking fill rule, and a crisp uppercase "Continue →" redirect action button.
+
+4. GENEROUS NOUN GENDER CODING & LEVEL SWITCHERS
+- Vocabulary.jsx: Drop external color parameters for genders. Transition to semantic text tag flags and custom borders:
+  - Masc (der): Color #1B3A35 + border-left 3px solid var(--gold) + text tag [der].
+  - Fem (die): Color #C44A4A + border-left 3px solid var(--error) + text tag [die].
+  - Neu (das): Color #7A6E62 + border-left 3px solid var(--border-strong) + text tag [das].
+  - Tag fonts: DM Sans 500, 10px, uppercase, letter-spacing 1.5px.
+- Level Toggle: Active selector routes (A1/A2) must use font-weight: 700 and a physical text-underline style.
+
+5. GUIDED 4-STEP USER ONBOARDING DISCOVERY SYSTEM
+- OnboardingFlow.jsx: Create an onboarding system wrapped inside a fixed modal frame viewport with an interactive backdrop blur layout. Prevent platform visibility using a local storage flag ('db_onboarded').
+  - Step 1 (Welcome): Dark forest layout background, gold accent text elements, Cormorant display headers ("Your journey to German fluency"), detailed baseline value pitch, and a "Show me the path →" button.
+  - Step 2 (The Learning Path): Warm light cream panel canvas displaying an inline structural progression roadmap element: [A1 — 8 Weeks] ─── [A2 — 8 Weeks] ─── [Goethe Exam Ready] linked via a muted dashed alignment vector line. CTA button: "What will I learn? →".
+  - Step 3 (Value Proposition): Clean layout showcasing core achievement bullets using DM Sans: master real-world pronunciation with active audio support, build structured vocabulary, and train using realistic Goethe-style mock examinations. CTA button: "Get Started →".
+  - Step 4 (Track Selection): Dual comparative registration layout cards mapping out complete content checklists for A1 and A2 paths side by side, providing immediate click target links to load files and write true flags back to the initialization storage layer.
+
+6. CUSTOM INLINE SVG DATA ACCESSIBILITY
+- ProgressDashboard.jsx: Replace plain text data lines with raw inline SVG components:
+  - Circle XP Ring: Vector path calculated on a 2 * Math.PI * 50 circumference baseline, driven dynamically with transition: stroke-dasharray 1.2s cubic-bezier(0.23,1,0.32,1).
+  - Weekly Analytics Chart: An elegant 7-column vertical distribution block mapped manually across Mon–Sun progress timelines. Columns set to 24px width with an 80px maximum tracking scale limit. Keep layout shapes strictly sharp.
+  - Streak Pulse: Flame SVG layout next to an automated text block. Add keyframe pulses: @keyframes flame-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } } .streak-flame { animation: flame-pulse 2s ease-in-out infinite; }.
+  - Week Card Ring: A standalone 36px custom vector icon tracking progress percentages visually.
+
+7. IMMERSIVE, BRAND-DRIVEN FORM AUTHENTICATION ASYMMETRY
+- LoginPage.jsx & Signup Views: Split the interface into a spacious asymmetric 2-column layout grid:
+  - Left Panel (Value Side): High-contrast forest green canvas showing the branding asset tagline, a cormorant headline ("Master German with structured precision"), and 3 clear bullet point value items explaining course metrics. At the bottom, append the micro social-proof label: "Designed for Goethe exam success" in DM Sans, 13px, color rgba(245,240,232,0.4).
+  - Right Panel (Form Side): Warm light cream form container background. Force input target labels to process via DM Sans 500, 11px, letter-spacing 2px, uppercase. Elevate inputs to a prominent 52px height frame line. Render error messages inline directly below the offending input field in var(--error) color using DM Sans 300, 12px (do not use top-of-form layout banners).
+
+8. MOBILE BREAKPOINT SANITIZATION PASS
+- Force responsive grid layers to cascade downward cleanly into a single vertical content column stack below 640px screen width sizes.
+- Navbar.jsx Mobile: Apply text truncation and min-width 0 logic properties across the course tier track tags and decrease container padding limits to 16px.
+- RightPanel.jsx: Relocate the sticky metrics sidebars completely beneath primary workspace flows on small screens. Wrap the container inside an interactive mobile toggle button reading "Show Tools ↓".
+- BadgeGallery.jsx: Lock icon grids down to grid-cols-3 layouts on small mobile screen boundaries.
+- Set responsive overlay limitations across all dashboard modal views using a max-width wrapper formula of calc(100vw - 32px), shifting card inner padding scales down to 24px to completely eliminate structural scrolling anomalies.

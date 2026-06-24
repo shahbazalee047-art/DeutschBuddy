@@ -19,7 +19,7 @@ export default function DayCompleteCelebration({ show = false, xpEarned = 0, onC
     resize();
     window.addEventListener('resize', resize);
 
-    const colors = ['var(--gold)', 'var(--gold-light)', 'var(--gold-light)', '#F4A261', '#E76F51'];
+    const colors = ['#E8B73D', '#E8B73D', '#E8B73D', '#E8B73D', '#C9453F', '#F0EAE0'];
     const pieces = Array.from({ length: 80 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * -canvas.height,
@@ -82,7 +82,7 @@ export default function DayCompleteCelebration({ show = false, xpEarned = 0, onC
       />
       {xpEarned > 0 && (
         <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none text-center animate-xp-toast">
-          <div className="text-5xl font-bold text-gold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", textShadow: '0 0 30px rgba(196,146,74,0.5)' }}>+{xpEarned} XP</div>
+          <div className="text-5xl font-bold text-gold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", textShadow: '0 0 30px rgba(232,183,61,0.5)' }}>+{xpEarned} XP</div>
         </div>
       )}
     </>

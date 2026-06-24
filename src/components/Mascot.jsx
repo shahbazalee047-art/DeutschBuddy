@@ -14,7 +14,7 @@ export default function Mascot() {
   return (
     <div className="paper-card p-4">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style={{ background: 'rgba(196,146,74,0.15)' }}>
+        <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style={{ background: 'rgba(232,163,61,0.15)' }}>
           <IconLeaf className="w-7 h-7 text-gold" />
         </div>
         <div>

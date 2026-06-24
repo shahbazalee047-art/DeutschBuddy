@@ -39,13 +39,13 @@ export default function MobileSidebar({
 
         {/* Level Toggle — TOP */}
         <div className="p-3 pt-4 pb-2">
-          <div className="flex gap-2 px-3">
+          <div className="flex gap-2 px-3 min-w-0">
             {['A1', 'A2'].map(lvl => (
               <button key={lvl} onClick={() => { onLevelChange(lvl); onClose(); }}
-                className={`flex-1 py-2.5 text-[13px] font-bold transition-all active:scale-95 ${
+                className={`flex-1 py-2.5 text-[13px] transition-all active:scale-95 truncate min-w-0 ${
                   activeLevel === lvl
-                    ? 'bg-gold text-text-on-dark shadow-sm'
-                    : 'bg-bg-dark-mid text-text-on-dark-muted border border-gold/20 hover:text-text-on-dark'
+                    ? 'bg-gold text-text-on-dark shadow-sm font-bold underline underline-offset-4'
+                    : 'bg-bg-dark-mid text-text-on-dark-muted border border-gold/20 hover:text-text-on-dark font-medium'
                 }`}>
                 {lvl}
               </button>

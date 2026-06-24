@@ -3,7 +3,7 @@ const a1FastTrackData = {
   title: 'A1 — Beginner (Fast Track)',
   subtitle: 'Deutsch Anfänger — Schnellkurs',
   description: 'Master A1 German in 6 weeks. This track compresses review days and merges related topics for faster progress.',
-  color: '#3b82f6',
+  color: '#5C8AC4',
   weeks: [
     {
       id: 1,

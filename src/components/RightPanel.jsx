@@ -1,7 +1,5 @@
-import { IconBolt, IconTarget, IconTrophy, IconDiamond } from './Icons';
-import SpeedBlitz from './SpeedBlitz';
-import GenderDungeon from './GenderDungeon';
-import PictureMatch from './PictureMatch';
+import { useState } from 'react';
+import { IconBolt, IconTarget, IconTrophy, IconDiamond, IconChevronDown, IconChevronUp, IconGamepad } from './Icons';
 
 function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth = 8 }) {
   const radius = (size - strokeWidth) / 2;
@@ -37,7 +35,34 @@ function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth =
   );
 }
 
-export default function RightPanel({ progress, streak, activeLevel }) {
+function GameLauncher({ title, description, icon: Icon, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left paper-card p-4 transition-all hover:border-gold/20 active:scale-[0.98] cursor-pointer"
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 flex items-center justify-center rounded-[var(--radius-card)]" style={{ background: 'rgba(232,183,61,0.10)' }}>
+          <Icon className="w-5 h-5" style={{ color: 'var(--gold)' }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="text-[13px] font-bold text-text-body" style={{ fontFamily: "'DM Sans', sans-serif" }}>{title}</h4>
+          <p className="text-[11px] text-text-muted truncate">{description}</p>
+        </div>
+        <IconGamepad className="w-5 h-5 text-text-muted flex-shrink-0" />
+      </div>
+    </button>
+  );
+}
+
+export default function RightPanel({
+  progress,
+  streak,
+  onOpenSpeedBlitz,
+  onOpenGenderDungeon,
+  onOpenPictureMatch
+}) {
+  const [toolsOpen, setToolsOpen] = useState(false);
   const xp = progress?.xp || 0;
   const daysStreak = streak !== undefined ? streak : 0;
 
@@ -50,38 +75,65 @@ export default function RightPanel({ progress, streak, activeLevel }) {
 
   return (
     <div className="space-y-4">
-      {/* Speed Blitz */}
-      <SpeedBlitz level={activeLevel} />
+      {/* Mobile Toggle */}
+      <button
+        onClick={() => setToolsOpen(!toolsOpen)}
+        className="lg:hidden w-full flex items-center justify-between px-4 py-3 text-[12px] font-bold uppercase tracking-widest transition-all"
+        style={{ background: 'var(--bg-secondary)', color: 'var(--gold)', borderRadius: 'var(--radius-card)' }}
+      >
+        <span>Learning Tools</span>
+        {toolsOpen ? <IconChevronUp className="w-4 h-4" /> : <IconChevronDown className="w-4 h-4" />}
+      </button>
 
-      {/* Gender Dungeon */}
-      <GenderDungeon />
+      <div className={`space-y-4 ${!toolsOpen ? 'hidden lg:block' : ''}`}>
+        {/* Speed Blitz Launcher */}
+        <GameLauncher
+          title="Speed Blitz"
+          description="Fast-paced vocabulary challenge"
+          icon={IconBolt}
+          onClick={onOpenSpeedBlitz}
+        />
 
-      {/* Picture Match */}
-      <PictureMatch level={activeLevel} />
+        {/* Gender Dungeon Launcher */}
+        <GameLauncher
+          title="Gender Dungeon"
+          description="Master der, die, das"
+          icon={IconTrophy}
+          onClick={onOpenGenderDungeon}
+        />
 
-      {/* Stats */}
-      <div className="paper-card p-4">
-        <div className="flex items-center gap-2 mb-4">
-          <IconBolt className="w-4 h-4 text-gold" />
-          <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your Stats</h4>
-        </div>
-        <div className="grid grid-cols-2 gap-3 mb-5">
-          <div className="p-4 text-center border border-gold/10 bg-gold/5">
-            <div className="text-2xl font-bold tabular-nums text-gold">{xp}</div>
-            <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>XP Earned</div>
+        {/* Picture Match Launcher */}
+        <GameLauncher
+          title="Picture Memory"
+          description="Image-word matching game"
+          icon={IconTarget}
+          onClick={onOpenPictureMatch}
+        />
+
+        {/* Stats */}
+        <div className="paper-card p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <IconBolt className="w-4 h-4 text-gold" />
+            <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your Stats</h4>
           </div>
-          <div className="p-4 text-center border border-gold-light/10 bg-gold-light/5">
-            <div className="text-2xl font-bold tabular-nums text-gold-light">{daysStreak}</div>
-            <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>Day Streak</div>
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="p-4 text-center border border-gold/10 bg-gold/5">
+              <div className="text-2xl font-bold tabular-nums text-gold">{xp}</div>
+              <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>XP Earned</div>
+            </div>
+            <div className="p-4 text-center border border-gold-light/10 bg-gold-light/5">
+              <div className="text-2xl font-bold tabular-nums text-gold-light">{daysStreak}</div>
+              <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>Day Streak</div>
+            </div>
           </div>
-        </div>
 
-        {/* Milestone rings */}
-        <h5 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3">Next Milestone</h5>
-        <div className="flex justify-center gap-4">
-          {milestones.concat(nextMilestone).filter((m, i, arr) => i === arr.length - 1 || m.target > xp).slice(0, 3).map(m => (
-            <ProgressRing key={m.label} xp={xp} target={m.target} label={m.label} icon={m.icon} size={80} />
-          ))}
+          {/* Milestone rings */}
+          <h5 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3">Next Milestone</h5>
+          <div className="flex justify-center gap-4">
+            {milestones.concat(nextMilestone).filter((m, i, arr) => i === arr.length - 1 || m.target > xp).slice(0, 3).map(m => (
+              <ProgressRing key={m.label} xp={xp} target={m.target} label={m.label} icon={m.icon} size={80} />
+            ))}
+          </div>
         </div>
       </div>
     </div>

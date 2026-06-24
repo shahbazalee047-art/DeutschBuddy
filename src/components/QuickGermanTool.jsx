@@ -123,7 +123,7 @@ export default function QuickGermanTool({ onClose }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div className="relative w-full max-w-lg mx-4 max-h-[85vh] overflow-y-auto p-5 sm:p-6" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-[calc(100vw-32px)] sm:max-w-lg mx-4 max-h-[85vh] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
         {!selectedVerb ? (
           <div className="glass-card">
             <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gold/20">
@@ -133,7 +133,7 @@ export default function QuickGermanTool({ onClose }) {
                   Verb Lookup
                 </h3>
               </div>
-              <button onClick={onClose} className="w-8 h-8 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
+              <button onClick={onClose} className="w-10 h-10 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
@@ -167,7 +167,7 @@ export default function QuickGermanTool({ onClose }) {
           <div className="glass-card">
             <div className="flex items-center justify-between p-4 sm:p-5 border-b border-gold/20">
               <div className="flex items-center gap-2">
-                <button onClick={handleBack} className="w-8 h-8 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
+                <button onClick={handleBack} className="w-10 h-10 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div>
@@ -177,7 +177,7 @@ export default function QuickGermanTool({ onClose }) {
                   <p className="text-xs text-text-on-dark-muted">{selectedVerb.english}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="w-8 h-8 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition">
+              <button onClick={onClose} className="w-10 h-10 bg-bg-dark/60 hover:bg-bg-dark/60 flex items-center justify-center text-text-on-dark-muted transition focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark">
                 <IconX className="w-4 h-4" />
               </button>
             </div>

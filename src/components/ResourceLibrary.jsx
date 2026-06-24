@@ -22,13 +22,13 @@ const TYPE_ICONS = {
 };
 
 const TYPE_COLORS = {
-  video: 'bg-red-500/10 text-red-400 border-red-500/20',
-  exercise: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-  grammar: 'bg-amber-500/10 text-gold-light border-amber-500/20',
-  vocabulary: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-  listening: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-  reading: 'bg-teal-500/10 text-teal-400 border-teal-500/20',
-  podcast: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  video: 'bg-[#C9453F]/10 text-[#C9453F] border-[#C9453F]/20',
+  exercise: 'bg-[#5C8AC4]/10 text-[#5C8AC4] border-[#5C8AC4]/20',
+  grammar: 'bg-[#7DA888]/10 text-[#7DA888] border-[#7DA888]/20',
+  vocabulary: 'bg-[#D0879A]/10 text-[#D0879A] border-[#D0879A]/20',
+  listening: 'bg-[#9B7FD4]/10 text-[#B9A0E8] border-[#9B7FD4]/20',
+  reading: 'bg-[#6FA8A0]/10 text-[#8AC4BC] border-[#6FA8A0]/20',
+  podcast: 'bg-[#E8B73D]/10 text-[#E8B73D] border-[#E8B73D]/20',
 };
 
 export default function ResourceLibrary({ resources }) {

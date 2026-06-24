@@ -2,6 +2,10 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { IconBookOpen } from './Icons';
 
+function isOnboarded() {
+  try { return localStorage.getItem('db_onboarded') === 'true'; } catch { return true; }
+}
+
 export default function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
@@ -14,5 +18,6 @@ export default function ProtectedRoute({ children }) {
     </div>
   );
   if (!user) return <Navigate to="/login" replace />;
+  if (!isOnboarded()) return <Navigate to="/onboarding" replace />;
   return children;
 }

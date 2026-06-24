@@ -3,7 +3,7 @@ const a1Data = {
   title: 'A1 — Beginner',
   subtitle: 'Deutsch Anfänger',
   description: 'Master the basics of German: pronunciation, greetings, numbers, simple conversations, and everyday topics.',
-  color: '#2c3e6b',
+  color: '#5C8AC4',
   weeks: [
     {
       id: 1,

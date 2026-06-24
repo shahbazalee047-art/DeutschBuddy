@@ -86,7 +86,7 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-md shadow-2xl border border-border overflow-hidden bg-bg-white scale-in" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-[calc(100vw-32px)] sm:max-w-md shadow-2xl border border-border overflow-hidden bg-bg-white scale-in" onClick={e => e.stopPropagation()}>
         {!hasEnoughWords ? (
           <div className="p-6 text-center">
             <div className="flex justify-center mb-3"><IconFire className="w-10 h-10 text-gold-light" /></div>

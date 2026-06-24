@@ -9,6 +9,8 @@ import ResourceLibrary from './ResourceLibrary';
 import ProfilePage from './ProfilePage';
 import SettingsPage from './SettingsPage';
 
+import ContinueCard from './ContinueCard';
+
 const MainContent = memo(function MainContent({
   activeView, activeLevel, selectedDay, selectedTask, currentWeek,
   progress, levelData, visibleWeeks, unlockedWeeks,
@@ -18,10 +20,10 @@ const MainContent = memo(function MainContent({
   if (activeView === 'community') return <div className="view-enter"><CommunitySection user={user} /></div>;
   if (activeView === 'profile') return <div className="view-enter"><ProfilePage activeLevel={activeLevel} /></div>;
   if (activeView === 'settings') return <div className="view-enter"><SettingsPage profile={profile} user={user} onSignOut={onSignOut} /></div>;
-  if (activeView === 'progress') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} /></div>;
-  if (activeView === 'progress-statistics') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" /></div>;
-  if (activeView === 'progress-skills') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" /></div>;
-  if (activeView === 'progress-calendar') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" /></div>;
+  if (activeView === 'progress') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} activeLevel={activeLevel} /></div>;
+  if (activeView === 'progress-statistics') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" activeLevel={activeLevel} /></div>;
+  if (activeView === 'progress-skills') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" activeLevel={activeLevel} /></div>;
+  if (activeView === 'progress-calendar') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" activeLevel={activeLevel} /></div>;
   if (activeView === 'badges') return <div className="view-enter"><BadgeGallery badges={progress.badges || []} /></div>;
   if (activeView === 'resources') {
     const weeks = levelData?.weeks || [];
@@ -59,6 +61,9 @@ const MainContent = memo(function MainContent({
   }
   return (
     <div className="space-y-4">
+      {activeView === 'dashboard' && !selectedDay && !selectedTask && (
+        <ContinueCard progress={progress} activeLevel={activeLevel} levelData={levelData} />
+      )}
       {visibleWeeks.map(week => (
         <WeeklyModule key={week.id} week={week} completedTasks={progress.completedTasks} onSelectDay={onSelectDay} selectedDay={selectedDay} isUnlocked={unlockedWeeks.includes(week.id)} />
       ))}

@@ -1,76 +1,102 @@
-import { IconTree, IconChevronRight } from './Icons';
+import { IconCheck } from './Icons';
+
+const HERE_RING = 'rgba(240,234,224,0.40)';
 
 export default function JourneyMap({ currentWeek, weeks }) {
   const completedWeeks = weeks.filter(w => w.completed).length;
-  const progress = (completedWeeks / weeks.length) * 100;
+  const progress = weeks.length > 0 ? (completedWeeks / weeks.length) * 100 : 0;
 
   return (
-    <div className="paper-card p-4">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <IconTree className="w-4 h-4 text-gold" />
-          <h3 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-            Your Journey
-          </h3>
-        </div>
-        <span className="text-xs text-gold font-medium">
-          {completedWeeks}/{weeks.length}
-        </span>
+    <div className="focus-col">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-[var(--text-h3)] font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
+          Your Journey
+        </h2>
+        <span className="text-sm font-medium text-gold">{completedWeeks}/{weeks.length} Complete</span>
       </div>
-      
+
       <div className="relative">
-        {/* Progress line */}
-        <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gold/20" />
-        
-        {/* Progress line fill */}
-        <div
-          className="absolute left-4 top-0 w-0.5 bg-gold transition-all duration-500"
-          style={{ height: `${progress}%`, top: '0%' }}
-        />
-        
-        {/* Weeks */}
-        <div className="space-y-4 pl-0">
-          {weeks.map((week) => (
-            <div key={week.id} className="flex items-center gap-3">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-all duration-200 z-10 ${
-                  week.completed ? 'bg-gold text-text-on-dark' : 'bg-bg-secondary border border-gold/20 text-text-muted'
-                } ${currentWeek === week.id ? 'ring-2 ring-gold-light/30' : ''}`}
-              >
-                {week.completed ? (
-                  <IconTree className="w-4 h-4" />
-                ) : (
-                  <span className="text-sm font-medium">{week.day}</span>
-                )}
-              </div>
-              <div className="flex-1">
-                <div className={`text-xs font-medium transition-all duration-200 ${
-                  week.completed ? 'text-text-body' : 'text-text-muted'
-                }`}>
-                  {week.title}
-                </div>
-                {week.completed && (
-                  <div className="text-[10px] text-gold font-medium">
-                    +{week.xp} XP
+        {weeks.length === 0 ? (
+          <div className="text-center py-8 text-text-muted">No journey data available.</div>
+        ) : (
+          weeks.map((week, index) => {
+            const isCurrent = currentWeek === week.id;
+            const isCompleted = week.completed;
+            const isFuture = !isCompleted && !isCurrent;
+
+            return (
+              <div key={week.id} className="relative">
+                <div className="flex items-stretch gap-0">
+                  {index < weeks.length - 1 && (
+                    <div className="absolute left-[19px] top-10 bottom-0 w-0.5 z-0"
+                      style={{ background: isCompleted ? 'var(--gold)' : 'var(--border-default)' }}
+                    />
+                  )}
+
+                  <div className="relative z-10 flex flex-col items-center">
+                    {isCurrent && (
+                      <div
+                        className="absolute inset-0 rounded-full animate-[breath-pulse_1.5s_ease-in-out_infinite]"
+                        style={{
+                          transform: 'scale(1.35)',
+                          border: `2px solid ${HERE_RING}`,
+                          background: 'transparent',
+                        }}
+                      />
+                    )}
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
+                        isCompleted
+                          ? 'bg-gold text-[var(--cta-text)] shadow-[0_0_16px_rgba(232,183,61,0.30)]'
+                          : isCurrent
+                            ? 'bg-[var(--bg-white)] text-gold border-2 border-gold'
+                            : 'bg-[var(--card-muted)] border border-dashed border-[var(--border-locked)] text-[var(--text-locked)]'
+                      }`}
+                    >
+                      {isCompleted ? (
+                        <IconCheck className="w-5 h-5" />
+                      ) : (
+                        <span className="text-sm font-bold">{week.day}</span>
+                      )}
+                    </div>
                   </div>
-                )}
+
+                  <div className={`flex-1 pb-10 pl-4 ${isFuture ? 'opacity-60' : ''}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <h3
+                        className={`text-[15px] font-semibold transition-colors ${
+                          isCompleted ? 'text-text-dark' : isCurrent ? 'text-gold' : 'text-[var(--text-locked)]'
+                        }`}
+                        style={{ fontFamily: "'DM Sans', sans-serif" }}
+                      >
+                        {week.title}
+                      </h3>
+                      {isCompleted && (
+                        <span className="text-[11px] font-medium text-gold">+{week.xp} XP</span>
+                      )}
+                      {isCurrent && (
+                        <span className="status-dot-active text-[11px] font-medium text-gold">In Progress</span>
+                      )}
+                    </div>
+                    <p className="text-[13px] text-text-muted leading-relaxed" style={{ lineHeight: '1.5' }}>
+                      {week.theme}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <IconChevronRight className={`w-5 h-5 transition-all duration-200 ${
-                week.completed ? 'text-gold' : 'text-text-muted/40'
-              }`} />
-            </div>
-          ))}
-        </div>
+            );
+          })
+        )}
       </div>
-      
-      <div className="mt-4 pt-4 border-t border-gold/10">
-        <div className="flex justify-between text-xs mb-1">
-          <span className="text-text-muted">Weekly Progress</span>
-          <span className="text-text-body">{progress}%</span>
+
+      <div className="mt-4 pt-4 border-t border-border">
+        <div className="flex justify-between text-xs mb-2">
+          <span className="text-text-muted">Overall Progress</span>
+          <span className="text-text-body font-medium">{Math.round(progress)}%</span>
         </div>
-        <div className="w-full h-2 overflow-hidden bg-bg-secondary">
+        <div className="w-full h-2 overflow-hidden rounded-full bg-[var(--bg-secondary)]">
           <div
-            className="h-full transition-all duration-500"
+            className="h-full transition-all duration-700 rounded-full"
             style={{ width: `${progress}%`, background: 'var(--gold)' }}
           />
         </div>

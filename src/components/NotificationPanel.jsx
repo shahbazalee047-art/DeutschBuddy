@@ -82,12 +82,20 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
     })();
 
     if (nextDay) {
+      const weekForDay = visibleWeeks?.find(w => w.id === nextDay.weekId);
+      const dayObj = weekForDay?.days?.find(d => d.day === nextDay.day);
+      const pendingTasks = (dayObj?.tasks || []).filter(t => !completed.includes(t.id));
+      const nextTask = pendingTasks[0];
       dynamic.push({
         id: 'dyn-continue', type: 'continue', icon: IconArrowRight,
         title: `Continue: ${nextDay.weekTitle}`,
-        message: `Week ${nextDay.weekId}, Day ${nextDay.day} is waiting for you`,
+        message: nextTask
+          ? `Week ${nextDay.weekId}, Day ${nextDay.day}: ${nextTask.title}`
+          : `Week ${nextDay.weekId}, Day ${nextDay.day} is waiting for you`,
         time: 'Just now', color: 'var(--gold)',
-        action: { type: 'day', weekId: nextDay.weekId, day: nextDay.day },
+        action: nextTask
+          ? { type: 'task', weekId: nextDay.weekId, day: nextDay.day, taskId: nextTask.id }
+          : { type: 'day', weekId: nextDay.weekId, day: nextDay.day },
       });
     }
 
@@ -203,7 +211,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end" onClick={onClose}>
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-md h-full shadow-2xl slide-in overflow-hidden bg-bg-dark-mid border-l border-border/30" onClick={e => e.stopPropagation()}>
+      <div className="relative w-full max-w-[calc(100vw-32px)] sm:max-w-md h-full shadow-2xl slide-in overflow-hidden bg-bg-dark-mid border-l border-border/30" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-4 border-b border-gold/20">
           <div className="flex items-center gap-2">
             <h3 className="font-bold text-text-on-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Notifications</h3>
@@ -211,7 +219,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
           </div>
           <div className="flex items-center gap-2">
             <button onClick={handleMarkAllRead} className="text-[12px] text-gold font-semibold hover:text-gold-light transition">Mark all as read</button>
-            <button onClick={onClose} className="w-8 h-8 bg-bg-dark/50 hover:bg-bg-dark flex items-center justify-center text-text-on-dark-muted transition text-sm">✕</button>
+            <button onClick={onClose} className="w-10 h-10 bg-bg-dark/50 hover:bg-bg-dark flex items-center justify-center text-text-on-dark-muted transition text-sm focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark">✕</button>
           </div>
         </div>
 

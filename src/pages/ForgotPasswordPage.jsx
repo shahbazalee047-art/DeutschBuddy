@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 bg-bg-dark">
         <div className="max-w-md text-center">
-          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 border border-gold/20" style={{ background: 'rgba(196,146,74,0.1)' }}><IconMail className="w-8 h-8 text-gold" /></div>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 border border-gold/20" style={{ background: 'rgba(232,163,61,0.1)' }}><IconMail className="w-8 h-8 text-gold" /></div>
           <h1 className="text-3xl font-bold text-text-on-dark mb-3" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Check your email</h1>
           <p className="text-text-on-dark-muted mb-6" style={{ fontSize: '16px', lineHeight: '1.6' }}>We've sent a password reset link to <strong className="text-text-on-dark">{email}</strong></p>
           <Link to="/login" className="text-gold hover:text-gold-light font-semibold transition">Back to login</Link>

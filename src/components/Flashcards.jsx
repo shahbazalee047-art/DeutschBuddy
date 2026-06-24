@@ -7,19 +7,19 @@ export default function Flashcards({ content, onComplete }) {
   const card = cards[idx]; const isLast = idx === cards.length - 1;
   function next() { setFlipped(false); if (isLast) onComplete(); else { setDone(p => [...p, idx]); setIdx(p => p + 1); } }
   return (
-    <div className="fade-in">
+    <div className="fade-in reading-body">
       <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-text-dark text-lg">🃏 Flashcards</h3><span className="text-sm text-text-muted">{idx + 1}/{cards.length}</span></div>
       <div className="flex justify-center mb-4">{cards.map((_, i) => (<div key={i} className={`w-2.5 h-2.5 rounded-full mx-0.5 transition ${i === idx ? 'bg-gold' : done.includes(i) ? 'bg-success' : 'bg-bg-secondary'}`} />))}</div>
       <div onClick={() => setFlipped(!flipped)} className="relative w-full max-w-md mx-auto cursor-pointer" style={{ perspective: '1000px' }}>
         <div className="w-full min-h-[240px]  transition-all duration-500" style={{ transformStyle: 'preserve-3d', transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
-          <div className="absolute inset-0 w-full min-h-[240px]  flex flex-col items-center justify-center p-6" style={{ background: 'var(--gold)', backfaceVisibility: 'hidden', boxShadow: '0 8px 32px rgba(127, 176, 105, 0.3)' }}>
-            <div className="flex items-center gap-3"><div className="text-4xl font-bold text-text-on-dark">{card.front}</div><SpeakerButton text={card.front} size="lg" className="bg-bg-dark/20 text-text-on-dark hover:bg-bg-dark/30" /></div>
-            <div className="text-sm mt-4 text-forest-800/60">Click to flip</div>
+          <div className="absolute inset-0 w-full min-h-[240px] rounded-[var(--radius-card)] flex flex-col items-center justify-center p-6 border" style={{ background: 'var(--bg-white)', borderColor: 'var(--border-default)', backfaceVisibility: 'hidden', boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)' }}>
+            <div className="flex items-center gap-3"><div className="text-4xl font-bold" style={{ color: 'var(--text-on-dark)' }}>{card.front}</div><SpeakerButton text={card.front} size="lg" className="bg-[#1C1A19]/50" style={{ color: 'var(--text-on-dark)' }} /></div>
+            <div className="text-sm mt-4" style={{ color: 'var(--text-on-dark-muted)' }}>Click to flip</div>
           </div>
-          <div className="absolute inset-0 w-full min-h-[240px]  paper-card flex flex-col items-center justify-center p-6" style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
-            <div className="flex items-center gap-2 mb-2"><div className="text-xl font-bold text-text-dark">{card.front}</div><SpeakerButton text={card.front} size="sm" /></div>
+          <div className="absolute inset-0 w-full min-h-[240px] rounded-[var(--radius-card)] flex flex-col items-center justify-center p-6 border" style={{ background: 'var(--bg-white)', borderColor: 'var(--border-default)', backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}>
+            <div className="flex items-center gap-2 mb-2"><div className="text-xl font-bold" style={{ color: 'var(--text-on-dark)' }}>{card.front}</div><SpeakerButton text={card.front} size="sm" /></div>
             <div className="text-base mb-2 font-medium text-gold">{card.back}</div>
-            {card.example && <div className="text-xs text-text-muted italic mt-1 flex items-center gap-1">e.g., {card.example}<SpeakerButton text={card.example} size="sm" /></div>}
+            {card.example && <div className="text-xs italic mt-1 flex items-center gap-1" style={{ color: 'var(--text-on-dark-muted)' }}>e.g., {card.example}<SpeakerButton text={card.example} size="sm" /></div>}
           </div>
         </div>
       </div>

@@ -21,14 +21,14 @@ const BottomNav = memo(function BottomNav({ activeView, onViewChange }) {
           const active = isActive(item.id);
           return (
             <button key={item.id} onClick={() => onViewChange(item.id)}
-              className={`relative flex flex-col items-center justify-center gap-0.5 transition-all active:scale-90 ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark ${
                 active ? 'scale-110' : 'text-text-on-dark-muted hover:text-text-on-dark'
               }`}>
               {active && (
                 <span className="absolute inset-x-1 top-1 bottom-1 opacity-10" style={{ background: 'var(--gold)' }} />
               )}
               <span className={`relative ${active ? 'text-gold' : ''}`}>
-                <item.icon className={`w-5 h-5 ${active ? 'drop-shadow-sm' : ''}`} style={active ? { filter: 'drop-shadow(0 0 4px rgba(196,146,74,0.4))' } : {}} />
+                <item.icon className={`w-5 h-5 ${active ? 'drop-shadow-sm' : ''}`} style={active ? { filter: 'drop-shadow(0 0 4px rgba(232,163,61,0.4))' } : {}} />
               </span>
               <span className={`text-[10px] font-semibold relative ${active ? 'text-gold' : ''}`}>{item.label}</span>
               {active && <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-gold" />}

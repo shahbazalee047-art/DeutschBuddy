@@ -11,7 +11,7 @@ const a2Data = {
   title: 'A2 — Elementary',
   subtitle: 'Deutsch Grundstufe',
   description: 'Build on A1 basics: past tenses, complex sentences, travel vocabulary, and expressing opinions.',
-  color: '#ef4444',
+  color: '#A8473F',
   weeks: [
     {
       id: 1,

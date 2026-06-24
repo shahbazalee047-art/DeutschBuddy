@@ -230,7 +230,7 @@ export default function CommunitySection({ user }) {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowCreateModal(false)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-lg p-6 shadow-2xl scale-in bg-bg-white border border-border" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-[calc(100vw-32px)] sm:max-w-lg p-6 shadow-2xl scale-in bg-bg-white border border-border" onClick={e => e.stopPropagation()}>
             <h2 className="text-lg font-bold text-text-dark mb-4" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Create Post</h2>
             <form onSubmit={handleCreatePost} className="space-y-4">
               <input placeholder="Title" value={createForm.title} onChange={e => setCreateForm(p => ({ ...p, title: e.target.value }))}
@@ -261,7 +261,7 @@ export default function CommunitySection({ user }) {
       {activePost && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setActivePost(null)}>
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl scale-in bg-bg-white border border-border" onClick={e => e.stopPropagation()}>
+          <div className="relative w-full max-w-[calc(100vw-32px)] sm:max-w-2xl max-h-[90vh] overflow-y-auto p-6 shadow-2xl scale-in bg-bg-white border border-border" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-text-on-dark" style={{ background: 'var(--gold)' }}></div>
