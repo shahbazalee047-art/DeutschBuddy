@@ -66,7 +66,7 @@ const MainContent = memo(function MainContent({
   return (
     <div className="space-y-4">
       {activeView === 'dashboard' && !selectedDay && !selectedTask && (
-        <ContinueCard progress={progress} activeLevel={activeLevel} levelData={levelData} />
+        <ContinueCard progress={progress} activeLevel={activeLevel} levelData={levelData} onContinue={onSelectDay} />
       )}
       {visibleWeeks.map(week => (
         <WeeklyModule key={week.id} week={week} completedTasks={progress.completedTasks} onSelectDay={onSelectDay} selectedDay={selectedDay} isUnlocked={unlockedWeeks.includes(week.id)} />

@@ -268,7 +268,7 @@ export default function DashboardShell() {
         ) : activeView === 'review' ? (
           <Suspense fallback={<LoadingScreen />}><ReviewDeck levelData={levelData} /></Suspense>
         ) : activeView === 'dashboard' && !selectedDay ? (
-          <Suspense fallback={<LoadingScreen />}><HomePage onStartLesson={() => setActiveView('dashboard')} onViewJourney={() => setActiveView('journey')} /></Suspense>
+          <Suspense fallback={<LoadingScreen />}><HomePage onViewJourney={() => setActiveView('journey')} /></Suspense>
         ) : (
           <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-nav lg:pb-6">
             {/* Desktop: Two-column layout */}

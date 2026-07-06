@@ -3,7 +3,7 @@ import { IconBookOpen, IconSparkles, IconGamepad } from './Icons';
 
 const DAILY_TASK_TARGET = 5;
 
-export default function ContinueCard({ progress, activeLevel, levelData }) {
+export default function ContinueCard({ progress, activeLevel, levelData, onContinue }) {
   const navigate = useNavigate();
 
   const weeks = levelData?.weeks || [];
@@ -34,7 +34,9 @@ export default function ContinueCard({ progress, activeLevel, levelData }) {
   const showFreePractice = isAllComplete || (hasMetDailyTarget && !resumeTarget);
 
   function handleContinue() {
-    if (showFreePractice) {
+    if (resumeTarget && onContinue) {
+      onContinue(resumeTarget.weekId, resumeTarget.day);
+    } else if (showFreePractice) {
       navigate('/dashboard?mode=practice', { replace: true });
     } else {
       navigate('/dashboard', { replace: true });
