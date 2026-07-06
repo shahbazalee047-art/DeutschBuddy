@@ -128,6 +128,13 @@ export function DashboardProvider({ children }) {
     setSelectedTask(task);
   }, [activeView, selectedDay, selectedTask]);
 
+  const handleStartLesson = useCallback((weekId, day, task) => {
+    setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
+    setSelectedDay({ weekId, day });
+    setSelectedTask(task);
+    setActiveView('dashboard');
+  }, []);
+
   const handleCompleteTask = useCallback((result) => {
     if (selectedTask) {
       const earnedXP = result && typeof result.score === 'number' && result.maxScore > 0
@@ -363,7 +370,7 @@ export function DashboardProvider({ children }) {
     profileMenuRef,
     progress, loading, completeTask, unlockWeek, recoverStreak,
     visibleWeeks, unlockedWeeks, currentWeek,
-    handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek,
+    handleSelectDay, handleSelectTask, handleStartLesson, handleCompleteTask, handleBackToWeek,
     handleGameScore, handleViewChange, handleLevelChange, handleBackNavigation,
   }), [
     user, profile, handleSignOutFromApp,
@@ -379,7 +386,7 @@ export function DashboardProvider({ children }) {
     hasUnreadNotifications,
     progress, loading, completeTask, unlockWeek, recoverStreak,
     visibleWeeks, unlockedWeeks, currentWeek,
-    handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek,
+    handleSelectDay, handleSelectTask, handleStartLesson, handleCompleteTask, handleBackToWeek,
     handleGameScore, handleBackNavigation,
   ]);
 

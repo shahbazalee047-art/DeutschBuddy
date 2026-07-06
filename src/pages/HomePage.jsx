@@ -18,7 +18,7 @@ function getNextLesson(levelData, progress) {
 }
 
 export default function HomePage({ onStartLesson, onViewJourney }) {
-  const { profile, progress, levelData, handleSelectDay, handleSelectTask } = useDashboard();
+  const { profile, progress, levelData, handleStartLesson } = useDashboard();
 
   const nextLesson = useMemo(() => getNextLesson(levelData, progress), [levelData, progress]);
   const greeting = useMemo(() => pickPhrase(getGreetingByTime()), []);
@@ -29,8 +29,7 @@ export default function HomePage({ onStartLesson, onViewJourney }) {
 
   const handleStart = () => {
     if (nextLesson) {
-      handleSelectDay(nextLesson.week.id, nextLesson.day.day);
-      handleSelectTask(nextLesson.task);
+      handleStartLesson(nextLesson.week.id, nextLesson.day.day, nextLesson.task);
       if (onStartLesson) onStartLesson();
     } else if (onViewJourney) {
       onViewJourney();
