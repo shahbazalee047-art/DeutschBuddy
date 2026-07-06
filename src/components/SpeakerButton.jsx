@@ -3,7 +3,7 @@ import { IconSpeaker, IconSpeakerX } from './Icons';
 
 export default function SpeakerButton({
   text,
-  language = 'de-DE',
+  language = 'auto',
   onAudioEnd,
   onAudioError,
   size = 'md',

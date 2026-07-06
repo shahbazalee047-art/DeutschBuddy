@@ -69,7 +69,7 @@ export default function Quiz({ content, onComplete }) {
   const [score, setScore] = useState(0);
   const [errorInfo, setErrorInfo] = useState(null);
 
-  const qs = content.questions || [];
+  const qs = useMemo(() => content.questions || [], [content.questions]);
 
   const q = useMemo(() => qs[cur] || { question: '', options: [], correct: 0, metadata: {} }, [qs, cur]);
   const isLast = cur === qs.length - 1;
@@ -93,7 +93,7 @@ export default function Quiz({ content, onComplete }) {
 
     setTimeout(() => {
       if (isLast) {
-        onComplete();
+        onComplete({ score: isCorrect ? score + 1 : score, maxScore: qs.length });
       } else {
         setCur((p) => p + 1);
         setSel(null);
@@ -101,7 +101,7 @@ export default function Quiz({ content, onComplete }) {
         setErrorInfo(null);
       }
     }, isCorrect ? 1200 : 2500);
-  }, [show, q, isLast, onComplete]);
+  }, [show, q, isLast, score, qs.length, onComplete]);
 
   if (!hasQuestions) {
     return (

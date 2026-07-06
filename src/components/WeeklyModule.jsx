@@ -11,6 +11,24 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
   const weekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).filter(t => safeCompleted.includes(t.id)).reduce((a, t) => a + (t.xp || 0), 0), 0);
   const totalWeekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).reduce((a, t) => a + (t.xp || 0), 0), 0);
 
+  const isDayUnlocked = (day) => {
+    if (!isUnlocked) return false;
+    const idx = safeDays.findIndex(d => d.day === day.day);
+    if (idx <= 0) return true;
+    for (let i = 0; i < idx; i++) {
+      const tasks = safeDays[i].tasks || [];
+      if (tasks.length === 0) continue;
+      if (!tasks.every(t => safeCompleted.includes(t.id))) return false;
+    }
+    return true;
+  };
+
+  const handleDayClick = (day) => {
+    if (!isDayUnlocked(day)) return;
+    setExpanded(true);
+    onSelectDay(week.id, day.day);
+  };
+
   const cardState = isComplete
     ? 'complete'
     : isUnlocked
@@ -104,22 +122,25 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
               const dayDone = tasks.length > 0 && tasks.every(t => safeCompleted.includes(t.id));
               const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
               const dayHasIncomplete = tasks.length > 0 && !tasks.every(t => safeCompleted.includes(t.id));
+              const dayUnlocked = isDayUnlocked(day);
 
               return (
-                <button key={day.day} onClick={() => onSelectDay(week.id, day.day)}
-                  disabled={!isUnlocked}
+                <button key={day.day} onClick={() => handleDayClick(day)}
+                  disabled={!dayUnlocked}
                   className={`relative z-10 day-circle w-9 md:w-12 h-9 md:h-12 rounded-full shrink-0 text-sm md:text-base transition-all active:scale-90 ${
                     dayDone
                       ? 'day-circle-completed'
-                      : isCurrentDay
-                        ? 'day-circle-current ring-2 ring-gold-light/40'
-                        : isUnlocked
-                          ? 'day-circle-current'
-                          : 'day-circle-locked'
+                      : !dayUnlocked
+                        ? 'day-circle-locked'
+                        : isCurrentDay
+                          ? 'day-circle-current ring-2 ring-gold-light/40'
+                          : 'day-circle'
                   }`}>
                   {dayDone ? (
                     <IconCheck className="w-4 h-4" />
-                  ) : dayHasIncomplete && isUnlocked ? (
+                  ) : !dayUnlocked ? (
+                    <IconLock className="w-3 h-3" />
+                  ) : dayHasIncomplete ? (
                     <span className="w-2 h-2 rounded-full" style={{ background: accentColor }} />
                   ) : (
                     day.day
@@ -137,20 +158,21 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
               const tasks = day?.tasks || [];
               const dayDone = tasks.length > 0 && tasks.every(t => safeCompleted.includes(t.id));
               const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
+              const dayUnlocked = isDayUnlocked(day);
 
               return (
-                <button key={day.day} onClick={() => onSelectDay(week.id, day.day)}
-                  disabled={!isUnlocked}
+                <button key={day.day} onClick={() => handleDayClick(day)}
+                  disabled={!dayUnlocked}
                   className={`relative z-10 day-circle w-9 md:w-12 h-9 md:h-12 rounded-full shrink-0 text-sm md:text-base ${
                     dayDone
                       ? 'day-circle-completed'
-                      : isCurrentDay
-                        ? 'day-circle-current ring-2 ring-gold-light/40'
-                        : isUnlocked
-                          ? 'day-circle-current'
-                          : 'day-circle-locked'
+                      : !dayUnlocked
+                        ? 'day-circle-locked'
+                        : isCurrentDay
+                          ? 'day-circle-current ring-2 ring-gold-light/40'
+                          : 'day-circle'
                   } active:scale-90 transition-transform`}>
-                  {dayDone ? <IconCheck className="w-4 h-4" /> : day.day}
+                  {dayDone ? <IconCheck className="w-4 h-4" /> : !dayUnlocked ? <IconLock className="w-3 h-3" /> : day.day}
                 </button>
               );
             })}

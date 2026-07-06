@@ -1,3 +1,5 @@
+import { buildA1Weeks3to8 } from './a1Weeks3to8.js';
+
 const a1Data = {
   level: 'A1',
   title: 'A1 — Beginner',
@@ -862,44 +864,7 @@ const a1Data = {
         },
       ]
     },
-    ...Array.from({ length: 6 }, (_, i) => ({
-      id: i + 3,
-      title: [
-        'Tagesablauf — Daily Routines',
-        'Familie & Freunde — Family & Friends',
-        'Einkaufen — Shopping & Dining',
-        'Unterwegs — Travel & Directions',
-        'Modal & Trennbare Verben — Modal & Separable Verbs',
-        'Prüfung — A1 Mock Exam',
-      ][i],
-      icon: ['⏰', '👨‍👩‍👧‍👦', '🛒', '🗺️', '🔧', '📝'][i],
-      theme: [
-        'Daily routines, eating, working, leisure, expressing likes with mögen',
-        'Family members, describing relationships, possessive pronouns',
-        'Grocery, clothing, restaurant vocabulary, polite requests',
-        'Transportation, directions, maps, accusative case introduction',
-        'Modal verbs, separable verbs, dative case, time expressions',
-        'Full A1 mock exam: Lesen, Hören, Schreiben, Sprechen',
-      ][i],
-      unlocked: false,
-      resources: [
-        { name: 'Nicos Weg', url: 'https://learngerman.dw.com/en/overview', description: `Lesson ${i + 3} resources` },
-        { name: 'Easy German', url: 'https://www.youtube.com/@EasyGerman', description: 'Listening practice videos' },
-      ],
-      days: Array.from({ length: 7 }, (_, d) => ({
-        day: d + 1,
-        title: d === 6 ? `Mini Challenge: Week ${i + 3} Review` : `Week ${i + 3} — Day ${d + 1}`,
-        tasks: [
-          { id: `a1w${i+3}d${d+1}t1`, type: 'flashcards', title: 'Warm Up', description: 'Review previous vocabulary', xp: 5, content: { cards: [] } },
-          { id: `a1w${i+3}d${d+1}t2`, type: 'grammar', title: `Grammar: ${['routines', 'possessives', 'polite requests', 'accusative', 'modal verbs', 'exam prep'][i]}`, description: 'Learn new grammar concept', xp: 15, content: { rule: '', examples: [], note: '' } },
-          { id: `a1w${i+3}d${d+1}t3`, type: 'vocabulary', title: `Vocabulary: ${['daily life', 'family', 'shopping', 'travel', 'verbs', 'exam'][i]}`, description: 'New words and phrases', xp: 15, content: { items: [] } },
-          { id: `a1w${i+3}d${d+1}t4`, type: d === 6 ? 'review' : 'quiz', title: d === 6 ? 'Week Review Quiz' : 'Practice Quiz', description: 'Test your knowledge', xp: 10, content: { questions: [] } },
-          { id: `a1w${i+3}d${d+1}t5`, type: 'listening', title: 'Listening Practice', description: 'Listen and answer questions', xp: 10, content: { clip: {}, questions: [] } },
-          { id: `a1w${i+3}d${d+1}t6`, type: 'speaking', title: 'Speaking Practice', description: 'Practice pronunciation and phrases', xp: 10, content: { prompt: '', tips: [] } },
-          { id: `a1w${i+3}d${d+1}t7`, type: 'quickwin', title: 'Quick Win', description: 'End on a fun note!', xp: 5, content: {} },
-        ]
-      }))
-    }))
+    ...buildA1Weeks3to8()
   ]
 };
 

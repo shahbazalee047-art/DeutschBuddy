@@ -77,7 +77,7 @@ export default function FillBlank({ content, onComplete }) {
   const [errorInfo, setErrorInfo] = useState(null);
   const [showHint, setShowHint] = useState(false);
 
-  const sents = content.sentences || [];
+  const sents = useMemo(() => content.sentences || [], [content.sentences]);
 
   const s = useMemo(() => sents[cur] || { text: '', answer: '', metadata: {} }, [sents, cur]);
   const isLast = cur === sents.length - 1;
@@ -99,7 +99,7 @@ export default function FillBlank({ content, onComplete }) {
 
     setTimeout(() => {
       if (isLast) {
-        onComplete();
+        onComplete({ score: correct ? score + 1 : score, maxScore: sents.length });
       } else {
         setCur((p) => p + 1);
         setAns('');
@@ -108,7 +108,7 @@ export default function FillBlank({ content, onComplete }) {
         setShowHint(false);
       }
     }, correct ? 1200 : 2500);
-  }, [ans, s, isLast, onComplete]);
+  }, [ans, s, isLast, score, sents.length, onComplete]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !show) submit();

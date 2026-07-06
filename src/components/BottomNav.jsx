@@ -1,37 +1,51 @@
 import { memo } from 'react';
-import { IconHome, IconChart, IconTrophy, IconChat, IconBook } from './Icons';
+import { IconHome, IconMap, IconRefresh, IconTrophy, IconUser } from './Icons';
 
 const BottomNav = memo(function BottomNav({ activeView, onViewChange }) {
   const items = [
-    { id: 'dashboard', label: 'Dashboard', icon: IconHome },
-    { id: 'progress', label: 'Progress', icon: IconChart },
+    { id: 'dashboard', label: 'Learn', icon: IconHome },
+    { id: 'journey', label: 'Journey', icon: IconMap },
+    { id: 'review', label: 'Review', icon: IconRefresh },
     { id: 'badges', label: 'Badges', icon: IconTrophy },
-    { id: 'community', label: 'Community', icon: IconChat },
-    { id: 'resources', label: 'Resources', icon: IconBook },
+    { id: 'profile', label: 'Profile', icon: IconUser },
   ];
 
-  const isActive = (id) => id === 'progress'
-    ? activeView === 'progress' || activeView === 'progress-statistics' || activeView === 'progress-skills' || activeView === 'progress-calendar'
-    : activeView === id;
+  const isActive = (id) => {
+    if (id === 'progress') {
+      return activeView === 'progress' || activeView === 'progress-statistics' || activeView === 'progress-skills' || activeView === 'progress-calendar';
+    }
+    return activeView === id;
+  };
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-gold/20 pb-safe" style={{ background: 'var(--bg-dark)', backdropFilter: 'blur(20px)' }}>
+    <nav
+      className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border pb-safe bg-surface/95 backdrop-blur-xl"
+      aria-label="Primary navigation"
+    >
       <div className="grid grid-cols-5 h-16">
         {items.map(item => {
           const active = isActive(item.id);
           return (
-            <button key={item.id} onClick={() => onViewChange(item.id)}
-              className={`relative flex flex-col items-center justify-center gap-0.5 transition-transform active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark ${
-                active ? 'scale-110' : 'text-text-on-dark-muted hover:text-text-on-dark'
-              }`}>
+            <button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              className={`
+                relative flex flex-col items-center justify-center gap-1 transition-transform active:scale-95
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg-base
+                ${active ? 'text-primary' : 'text-text-muted hover:text-text-dark'}
+              `}
+              aria-label={item.label}
+              aria-current={active ? 'page' : undefined}
+            >
               {active && (
-                <span className="absolute inset-x-1 top-1 bottom-1 opacity-10" style={{ background: 'var(--gold)' }} />
+                <span className="absolute inset-x-4 top-2 bottom-2 rounded-xl bg-primary/10" />
               )}
-              <span className={`relative ${active ? 'text-gold' : ''}`}>
-                <item.icon className={`w-5 h-5 ${active ? 'drop-shadow-sm' : ''}`} style={active ? { filter: 'drop-shadow(0 0 4px rgba(232,163,61,0.4))' } : {}} />
+              <span className="relative">
+                <item.icon className="w-5 h-5" />
               </span>
-              <span className={`text-[10px] font-semibold relative ${active ? 'text-gold' : ''}`}>{item.label}</span>
-              {active && <div className="absolute -bottom-0.5 w-1 h-1 rounded-full bg-gold" />}
+              <span className={`text-[10px] font-semibold relative ${active ? 'text-primary' : ''}`}>
+                {item.label}
+              </span>
             </button>
           );
         })}

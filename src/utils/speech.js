@@ -1,30 +1,26 @@
-let germanVoice = null;
+import {
+  detectLanguage,
+  EDGE_VOICES,
+  toEdgeRate,
+  speakWithEdgeTTS,
+  speakWithWebSpeech
+} from './edgeSpeech';
 
-function getGermanVoice() {
-  if (germanVoice) return germanVoice;
-  const voices = window.speechSynthesis?.getVoices() || [];
-  germanVoice = voices.find(v => v.lang.startsWith('de')) || null;
-  return germanVoice;
-}
+export async function speakGerman(text, rate = 0.85) {
+  if (!text) return;
 
-if (typeof window !== 'undefined' && window.speechSynthesis) {
-  window.speechSynthesis.onvoiceschanged = () => {
-    germanVoice = null;
-    getGermanVoice();
-  };
-}
+  const detectedLang = detectLanguage(text);
+  const isGerman = detectedLang.toLowerCase().startsWith('de');
+  const voiceName = isGerman ? EDGE_VOICES.german : EDGE_VOICES.english;
 
-export function speakGerman(text, rate = 0.85) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'de-DE';
-  utterance.rate = rate;
-  utterance.pitch = 1;
-
-  const voice = getGermanVoice();
-  if (voice) utterance.voice = voice;
-
-  window.speechSynthesis.speak(utterance);
+  try {
+    const blob = await speakWithEdgeTTS(text, voiceName, toEdgeRate(rate));
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    await audio.play();
+    audio.onended = () => URL.revokeObjectURL(url);
+  } catch (err) {
+    console.warn('Edge TTS failed, using Web Speech fallback:', err);
+    speakWithWebSpeech(text, detectedLang, rate);
+  }
 }

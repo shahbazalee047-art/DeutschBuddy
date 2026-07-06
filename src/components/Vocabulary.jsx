@@ -57,9 +57,12 @@ export default function Vocabulary({ content, onComplete }) {
           const g = item.gender ? gc[item.gender] : null;
 
           return (
-            <button
+            <div
               key={i}
+              role="button"
+              tabIndex={0}
               onClick={() => toggle(i)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(i); } }}
               className={`w-full text-left paper-card p-4 transition-all duration-300 hover:border-gold/20 active:scale-[0.99] ${g ? g.cardClass : ''} ${
                 studied.has(i) ? 'border-gold/20' : ''
               }`}
@@ -77,7 +80,9 @@ export default function Vocabulary({ content, onComplete }) {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="font-bold text-text-dark text-lg">{item.german}</span>
-                    <SpeakerButton text={item.german} size="sm" />
+                    <span onClick={(e) => e.stopPropagation()}>
+                      <SpeakerButton text={item.german} size="sm" />
+                    </span>
                     {item.gender && g && (
                       <span
                         className={`gender-tag ${g.genderTagClass}`}
@@ -104,7 +109,7 @@ export default function Vocabulary({ content, onComplete }) {
                   )}
                 </span>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>

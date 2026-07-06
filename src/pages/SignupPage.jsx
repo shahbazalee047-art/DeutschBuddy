@@ -29,8 +29,14 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      await signUp(email, password, fullName);
-      navigate('/login');
+      const { data, error } = await signUp(email, password, fullName);
+      if (error) throw error;
+      // If email confirmation is disabled, the user/session is returned directly.
+      if (data?.session?.user) {
+        navigate('/dashboard', { replace: true });
+      } else {
+        navigate('/login', { replace: true });
+      }
     } catch (err) {
       setErrors({ form: err.message });
     } finally { setLoading(false); }

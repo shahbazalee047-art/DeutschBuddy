@@ -1,15 +1,19 @@
-import { memo } from 'react';
+import { memo, lazy, Suspense } from 'react';
 import WeeklyModule from './WeeklyModule';
 import DailyTasks from './DailyTasks';
-import TaskRenderer from './TaskRenderer';
-import ProgressDashboard from './ProgressDashboard';
-import BadgeGallery from './BadgeGallery';
-import CommunitySection from './CommunitySection';
-import ResourceLibrary from './ResourceLibrary';
-import ProfilePage from './ProfilePage';
-import SettingsPage from './SettingsPage';
-
 import ContinueCard from './ContinueCard';
+
+const TaskRenderer = lazy(() => import('./TaskRenderer'));
+const ProgressDashboard = lazy(() => import('./ProgressDashboard'));
+const BadgeGallery = lazy(() => import('./BadgeGallery'));
+const CommunitySection = lazy(() => import('./CommunitySection'));
+const ResourceLibrary = lazy(() => import('./ResourceLibrary'));
+const ProfilePage = lazy(() => import('./ProfilePage'));
+const SettingsPage = lazy(() => import('./SettingsPage'));
+
+function ViewLoader() {
+  return <div className="min-h-[16rem] flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" /></div>;
+}
 
 const MainContent = memo(function MainContent({
   activeView, activeLevel, selectedDay, selectedTask, currentWeek,
@@ -17,18 +21,18 @@ const MainContent = memo(function MainContent({
   profile, user, onSignOut,
   onSelectDay, onSelectTask, onCompleteTask, onBackToWeek
 }) {
-  if (activeView === 'community') return <div className="view-enter"><CommunitySection user={user} /></div>;
-  if (activeView === 'profile') return <div className="view-enter"><ProfilePage activeLevel={activeLevel} /></div>;
-  if (activeView === 'settings') return <div className="view-enter"><SettingsPage profile={profile} user={user} onSignOut={onSignOut} /></div>;
-  if (activeView === 'progress') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} activeLevel={activeLevel} /></div>;
-  if (activeView === 'progress-statistics') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" activeLevel={activeLevel} /></div>;
-  if (activeView === 'progress-skills') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" activeLevel={activeLevel} /></div>;
-  if (activeView === 'progress-calendar') return <div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" activeLevel={activeLevel} /></div>;
-  if (activeView === 'badges') return <div className="view-enter"><BadgeGallery badges={progress.badges || []} /></div>;
+  if (activeView === 'community') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><CommunitySection user={user} /></div></Suspense>;
+  if (activeView === 'profile') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProfilePage activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'settings') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><SettingsPage profile={profile} user={user} onSignOut={onSignOut} /></div></Suspense>;
+  if (activeView === 'progress') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'progress-statistics') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'progress-skills') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'progress-calendar') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'badges') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><BadgeGallery badges={progress.badges || []} /></div></Suspense>;
   if (activeView === 'resources') {
     const weeks = levelData?.weeks || [];
     const unique = [...new Map(weeks.flatMap(w => w.resources || []).map(r => [r.name, r])).values()];
-    return <div className="view-enter"><ResourceLibrary resources={unique} /></div>;
+    return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ResourceLibrary resources={unique} /></div></Suspense>;
   }
   if (selectedTask) {
     if (!selectedTask.type || !selectedTask.content) {
@@ -51,7 +55,7 @@ const MainContent = memo(function MainContent({
           </div>
           <h2 className="text-lg font-bold text-text-dark mb-1 editorial-heading">{selectedTask.title}</h2>
           <p className="text-sm text-text-muted mb-5">{selectedTask.description}</p>
-          <TaskRenderer task={selectedTask} onComplete={onCompleteTask} />
+          <Suspense fallback={<ViewLoader />}><TaskRenderer task={selectedTask} onComplete={onCompleteTask} /></Suspense>
         </div>
       </div>
     );

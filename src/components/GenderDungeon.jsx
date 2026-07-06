@@ -37,7 +37,7 @@ function saveLeaderboard(entries) {
   localStorage.setItem('gender_dungeon_lb', JSON.stringify(entries.slice(0, 10)));
 }
 
-export default function GenderDungeon({ compact }) {
+export default function GenderDungeon({ compact, onScore }) {
   const [state, setState] = useState('idle');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(MAX_LIVES);
@@ -51,6 +51,7 @@ export default function GenderDungeon({ compact }) {
   const lastTimeRef = useRef(null);
   const scoreRef = useRef(0);
   const livesRef = useRef(MAX_LIVES);
+  const scoreReportedRef = useRef(false);
 
   const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
 
@@ -90,6 +91,7 @@ export default function GenderDungeon({ compact }) {
     setState('playing');
     scoreRef.current = 0;
     livesRef.current = MAX_LIVES;
+    scoreReportedRef.current = false;
     wordPool.current = shuffle(ALL_WORDS);
     pickWord();
   }, [pickWord]);
@@ -141,8 +143,12 @@ export default function GenderDungeon({ compact }) {
       entries.sort((a, b) => b.score - a.score);
       saveLeaderboard(entries);
       setLeaderboard(entries);
+      if (onScore && !scoreReportedRef.current) {
+        scoreReportedRef.current = true;
+        onScore(scoreRef.current);
+      }
     }
-  }, [state]);
+  }, [state, onScore]);
 
   const barColor = progress > 0.75 ? 'bg-error' : progress > 0.5 ? 'bg-gold-light' : 'bg-gold';
   const cardClass = compact ? ' border border-border bg-bg-secondary/60 p-2' : 'paper-card p-4';

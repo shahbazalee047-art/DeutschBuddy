@@ -24,7 +24,7 @@ function saveLeaderboard(level, entries) {
   localStorage.setItem(`picture_match_lb_${level}`, JSON.stringify(entries.slice(0, 10)));
 }
 
-export default function PictureMatch({ level = 'A1', compact }) {
+export default function PictureMatch({ level = 'A1', compact, onScore }) {
   const [state, setState] = useState('idle');
   const [score, setScore] = useState(0);
   const [mistakes, setMistakes] = useState(0);
@@ -36,6 +36,7 @@ export default function PictureMatch({ level = 'A1', compact }) {
 
   const pool = useRef([]);
   const scoreRef = useRef(0);
+  const scoreReportedRef = useRef(false);
 
   useEffect(() => {
     setLeaderboard(loadLeaderboard(level));
@@ -63,6 +64,7 @@ export default function PictureMatch({ level = 'A1', compact }) {
     setState('playing');
     setFeedback(null);
     scoreRef.current = 0;
+    scoreReportedRef.current = false;
     pool.current = shuffle(pictures);
     setPoolRemaining(pool.current.length);
     nextQuestion();
@@ -88,8 +90,12 @@ export default function PictureMatch({ level = 'A1', compact }) {
       entries.sort((a, b) => b.score - a.score);
       saveLeaderboard(level, entries);
       setLeaderboard(entries);
+      if (onScore && !scoreReportedRef.current) {
+        scoreReportedRef.current = true;
+        onScore(scoreRef.current);
+      }
     }
-  }, [state, level]);
+  }, [state, level, onScore]);
 
   const handleAnswer = useCallback((item) => {
     if (feedback) return;

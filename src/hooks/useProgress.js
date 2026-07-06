@@ -16,23 +16,29 @@ function calculateStreakDelta(lastStudyDate) {
   return -1;
 }
 
-function checkBadges(xp, streak, completedCount, existingBadges) {
-  const existingIds = existingBadges.map(b => b.id);
-  const badgeDefs = [
-    { id: 'first-task', name: 'First Steps', icon: '🌟', condition: completedCount >= 1 },
-    { id: 'ten-tasks', name: 'Getting Started', icon: '🔥', condition: completedCount >= 10 },
-    { id: 'fifty-tasks', name: 'Halfway Hero', icon: '💪', condition: completedCount >= 50 },
-    { id: 'hundred-tasks', name: 'Century Club', icon: '🏆', condition: completedCount >= 100 },
-    { id: 'streak-3', name: 'On Fire', icon: '🔥', condition: streak >= 3 },
-    { id: 'streak-7', name: 'Week Warrior', icon: '⚡', condition: streak >= 7 },
-    { id: 'streak-30', name: 'Monthly Master', icon: '👑', condition: streak >= 30 },
-    { id: 'xp-100', name: 'XP Hunter', icon: '🎯', condition: xp >= 100 },
-    { id: 'xp-500', name: 'XP Champion', icon: '🏅', condition: xp >= 500 },
-    { id: 'xp-1000', name: 'XP Legend', icon: '💎', condition: xp >= 1000 },
-  ];
-  const newBadges = [...existingBadges];
-  badgeDefs.forEach(badge => {
-    if (badge.condition && !existingIds.includes(badge.id)) {
+export const BADGE_DEFINITIONS = [
+  { id: 'first-task', name: 'First Steps', icon: '🌟', condition: p => p.completedCount >= 1 },
+  { id: 'ten-tasks', name: 'Getting Started', icon: '🔥', condition: p => p.completedCount >= 10 },
+  { id: 'fifty-tasks', name: 'Halfway Hero', icon: '💪', condition: p => p.completedCount >= 50 },
+  { id: 'hundred-tasks', name: 'Century Club', icon: '🏆', condition: p => p.completedCount >= 100 },
+  { id: 'streak-3', name: 'On Fire', icon: '🔥', condition: p => p.streak >= 3 },
+  { id: 'streak-7', name: 'Week Warrior', icon: '⚡', condition: p => p.streak >= 7 },
+  { id: 'streak-30', name: 'Monthly Master', icon: '👑', condition: p => p.streak >= 30 },
+  { id: 'xp-100', name: 'XP Hunter', icon: '🎯', condition: p => p.xp >= 100 },
+  { id: 'xp-500', name: 'XP Champion', icon: '🏅', condition: p => p.xp >= 500 },
+  { id: 'xp-1000', name: 'XP Legend', icon: '💎', condition: p => p.xp >= 1000 },
+  { id: 'grammar-guru', name: 'Grammar Guru', icon: '📜', condition: p => p.completedCount >= 25 },
+  { id: 'vocab-voyager', name: 'Vocab Voyager', icon: '🚀', condition: p => p.completedCount >= 40 },
+  { id: 'night-owl', name: 'Night Owl', icon: '🦉', condition: p => p.streak >= 14 },
+  { id: 'early-bird', name: 'Early Bird', icon: '🐦', condition: p => p.streak >= 5 },
+  { id: 'perfect-score', name: 'Perfect Score', icon: '💯', condition: p => p.xp >= 2500 },
+];
+
+export function checkBadges(progressLike) {
+  const existingIds = (progressLike.badges || []).map(b => b.id);
+  const newBadges = [...(progressLike.badges || [])];
+  BADGE_DEFINITIONS.forEach(badge => {
+    if (badge.condition(progressLike) && !existingIds.includes(badge.id)) {
       newBadges.push({ ...badge, earnedAt: new Date().toISOString() });
     }
   });
@@ -62,7 +68,7 @@ function loadLocalProgress(userId, level) {
       lastStudyDate: parsed.lastStudyDate || null,
       completedTasks: Array.isArray(parsed.completedTasks) ? parsed.completedTasks : [],
       badges: Array.isArray(parsed.badges) ? parsed.badges : [],
-      unlockedWeeks: Array.isArray(parsed.unlockedWeeks) ? parsed.unlockedWeeks : [1],
+      unlockedWeeks: Array.isArray(parsed.unlockedWeeks) && parsed.unlockedWeeks.length > 0 ? parsed.unlockedWeeks : [1],
       weeklyXP: parsed.weeklyXP && typeof parsed.weeklyXP === 'object' ? parsed.weeklyXP : {},
     };
   } catch { return null; }
@@ -70,6 +76,18 @@ function loadLocalProgress(userId, level) {
 
 function saveLocalProgress(userId, level, progress) {
   try { localStorage.setItem(getLocalKey(userId, level), JSON.stringify(progress)); } catch { /* ignore */ }
+}
+
+function normalizeProgressRow(data) {
+  return {
+    xp: data.xp || 0,
+    streak: data.streak || 0,
+    lastStudyDate: data.last_study_date,
+    completedTasks: data.completed_tasks || [],
+    badges: data.badges || [],
+    unlockedWeeks: (Array.isArray(data.unlocked_weeks) && data.unlocked_weeks.length > 0) ? data.unlocked_weeks : [1],
+    weeklyXP: data.weekly_xp || {},
+  };
 }
 
 export function useProgress(level) {
@@ -83,25 +101,18 @@ export function useProgress(level) {
   const userRef = useRef(user);
   const levelRef = useRef(level);
 
-  useEffect(() => {
-    progressRef.current = progress;
-  }, [progress]);
+  useEffect(() => { progressRef.current = progress; }, [progress]);
+  useEffect(() => { userRef.current = user; }, [user]);
+  useEffect(() => { levelRef.current = level; }, [level]);
 
-  useEffect(() => {
-    userRef.current = user;
-  }, [user]);
-
-  useEffect(() => {
-    levelRef.current = level;
-  }, [level]);
-
-  // Reset state synchronously when level changes so stale progress isn't shown
+  // Reset state synchronously when user or level changes so stale progress isn't shown
   useEffect(() => {
     if (!user) {
       setProgress(getDefaultProgress());
       return;
     }
     setProgress(loadLocalProgress(user.id, level) || getDefaultProgress());
+    setLoading(true);
   }, [user, level]);
 
   const fetchProgress = useCallback(async () => {
@@ -126,15 +137,9 @@ export function useProgress(level) {
       }
 
       if (data) {
-        setProgress({
-          xp: data.xp || 0,
-          streak: data.streak || 0,
-          lastStudyDate: data.last_study_date,
-          completedTasks: data.completed_tasks || [],
-          badges: data.badges || [],
-          unlockedWeeks: data.unlocked_weeks || [1],
-          weeklyXP: data.weekly_xp || {},
-        });
+        const normalized = normalizeProgressRow(data);
+        setProgress(normalized);
+        saveLocalProgress(currentUser.id, currentLevel, normalized);
       } else {
         const local = loadLocalProgress(currentUser.id, currentLevel);
         if (local) setProgress(local);
@@ -158,51 +163,60 @@ export function useProgress(level) {
 
     if (!currentUser || !currentLevel) return;
 
-    let upsertPayload = null;
+    // Snapshot current state outside the updater to avoid stale closures
+    const prev = progressRef.current;
 
-    setProgress(prev => {
-      const today = getUTCDateString();
-      const streakDelta = calculateStreakDelta(prev.lastStudyDate);
-      const newStreak = prev.lastStudyDate === today
-        ? prev.streak
-        : (streakDelta === -1 ? 1 : prev.streak + streakDelta);
+    // Idempotency: already completed today or earlier -> record result only, no double XP
+    const alreadyCompleted = prev.completedTasks.includes(taskId);
 
-      const newXP = prev.xp + xpAmount;
-      const newCompletedTasks = [...new Set([...prev.completedTasks, taskId])];
-      const newBadges = checkBadges(newXP, Math.max(newStreak, 0), newCompletedTasks.length, prev.badges);
-      const weekKey = `W${weekId}`;
-      const newWeeklyXP = { ...prev.weeklyXP, [weekKey]: (prev.weeklyXP[weekKey] || 0) + xpAmount };
+    const today = getUTCDateString();
+    const streakDelta = calculateStreakDelta(prev.lastStudyDate);
+    const newStreak = prev.lastStudyDate === today
+      ? prev.streak
+      : Math.max(streakDelta === -1 ? 1 : prev.streak + streakDelta, 0);
 
-      const next = {
+    const newXP = alreadyCompleted ? prev.xp : prev.xp + xpAmount;
+    const newCompletedTasks = alreadyCompleted
+      ? prev.completedTasks
+      : [...new Set([...prev.completedTasks, taskId])];
+    const weekKey = `W${weekId}`;
+    const newWeeklyXP = alreadyCompleted
+      ? prev.weeklyXP
+      : { ...prev.weeklyXP, [weekKey]: (prev.weeklyXP[weekKey] || 0) + xpAmount };
+
+    const next = {
+      xp: newXP,
+      streak: newStreak,
+      lastStudyDate: today,
+      completedTasks: newCompletedTasks,
+      badges: checkBadges({
         xp: newXP,
-        streak: Math.max(newStreak, 0),
-        lastStudyDate: today,
-        completedTasks: newCompletedTasks,
-        badges: newBadges,
-        unlockedWeeks: prev.unlockedWeeks,
-        weeklyXP: newWeeklyXP,
-      };
+        streak: newStreak,
+        completedCount: newCompletedTasks.length,
+        badges: prev.badges,
+      }),
+      unlockedWeeks: prev.unlockedWeeks,
+      weeklyXP: newWeeklyXP,
+    };
 
-      upsertPayload = {
-        user_id: currentUser.id,
-        level: currentLevel,
-        xp: next.xp,
-        streak: next.streak,
-        last_study_date: today,
-        completed_tasks: next.completedTasks,
-        badges: next.badges,
-        unlocked_weeks: next.unlockedWeeks,
-        weekly_xp: next.weeklyXP,
-      };
-
-      saveLocalProgress(currentUser.id, currentLevel, next);
-      return next;
-    });
+    // Update React state, localStorage, then server
+    setProgress(next);
+    saveLocalProgress(currentUser.id, currentLevel, next);
 
     try {
       const { error: upsertError } = await supabase
         .from('progress')
-        .upsert(upsertPayload, { onConflict: 'user_id,level' });
+        .upsert({
+          user_id: currentUser.id,
+          level: currentLevel,
+          xp: next.xp,
+          streak: next.streak,
+          last_study_date: next.lastStudyDate,
+          completed_tasks: next.completedTasks,
+          badges: next.badges,
+          unlocked_weeks: next.unlockedWeeks,
+          weekly_xp: next.weeklyXP,
+        }, { onConflict: 'user_id,level' });
 
       if (upsertError) {
         console.error('Progress upsert error:', upsertError);
@@ -213,21 +227,24 @@ export function useProgress(level) {
       fetchProgress();
     }
 
+    // Always log the attempt, but avoid duplicate exercise_result rows for repeats in the same session
     try {
-      const { error: exerciseError } = await supabase.from('exercise_results').insert({
-        user_id: currentUser.id,
-        level: currentLevel,
-        week_id: weekId,
-        day_number: dayNumber,
-        task_id: taskId,
-        task_type: 'task',
-        score: xpAmount,
-        max_score: xpAmount,
-        completed: true,
-      });
+      if (!alreadyCompleted) {
+        const { error: exerciseError } = await supabase.from('exercise_results').insert({
+          user_id: currentUser.id,
+          level: currentLevel,
+          week_id: weekId,
+          day_number: dayNumber,
+          task_id: taskId,
+          task_type: 'task',
+          score: xpAmount,
+          max_score: xpAmount,
+          completed: true,
+        });
 
-      if (exerciseError) {
-        console.error('Exercise result save error:', exerciseError);
+        if (exerciseError) {
+          console.error('Exercise result save error:', exerciseError);
+        }
       }
     } catch (err) {
       console.error('Exercise result save error:', err);
@@ -240,27 +257,22 @@ export function useProgress(level) {
 
     if (!currentUser || !currentLevel) return;
 
-    let upsertPayload = null;
+    const prev = progressRef.current;
+    if (prev.unlockedWeeks.includes(weekId)) return;
 
-    setProgress(prev => {
-      if (prev.unlockedWeeks.includes(weekId)) return prev;
-      const newUnlocked = [...prev.unlockedWeeks, weekId];
-      upsertPayload = {
-        user_id: currentUser.id,
-        level: currentLevel,
-        unlocked_weeks: newUnlocked,
-      };
-      const next = { ...prev, unlockedWeeks: newUnlocked };
-      saveLocalProgress(currentUser.id, currentLevel, next);
-      return next;
-    });
+    const next = { ...prev, unlockedWeeks: [...prev.unlockedWeeks, weekId] };
 
-    if (!upsertPayload) return;
+    setProgress(next);
+    saveLocalProgress(currentUser.id, currentLevel, next);
 
     try {
       const { error: upsertError } = await supabase
         .from('progress')
-        .upsert(upsertPayload, { onConflict: 'user_id,level' });
+        .upsert({
+          user_id: currentUser.id,
+          level: currentLevel,
+          unlocked_weeks: next.unlockedWeeks,
+        }, { onConflict: 'user_id,level' });
 
       if (upsertError) {
         console.error('Unlock week error:', upsertError);
@@ -294,34 +306,49 @@ export function useProgress(level) {
 
     if (!currentUser || !currentLevel) return;
 
+    const prev = progressRef.current;
     const today = getUTCDateString();
+    const wasBroken = calculateStreakDelta(prev.lastStudyDate) === -1;
 
-    setProgress(prev => {
-      // Recovery resets streak to 1 if it was broken, otherwise keeps it.
-      const wasBroken = calculateStreakDelta(prev.lastStudyDate) === -1;
-      const next = {
-        ...prev,
-        lastStudyDate: today,
+    const next = {
+      ...prev,
+      lastStudyDate: today,
+      streak: wasBroken ? 1 : prev.streak,
+      badges: checkBadges({
+        xp: prev.xp,
         streak: wasBroken ? 1 : prev.streak,
-      };
-      saveLocalProgress(currentUser.id, currentLevel, next);
-      return next;
-    });
+        completedCount: prev.completedTasks.length,
+        badges: prev.badges,
+      }),
+    };
+
+    setProgress(next);
+    saveLocalProgress(currentUser.id, currentLevel, next);
 
     try {
-      await supabase.from('progress').upsert({
-        user_id: currentUser.id,
-        level: currentLevel,
-        last_study_date: today,
-        streak: progressRef.current.streak,
-        xp: progressRef.current.xp,
-        completed_tasks: progressRef.current.completedTasks,
-        badges: progressRef.current.badges,
-        unlocked_weeks: progressRef.current.unlockedWeeks,
-        weekly_xp: progressRef.current.weeklyXP,
-      }, { onConflict: 'user_id,level' });
-    } catch (err) { console.error('Streak recovery error:', err); }
-  }, []);
+      const { error: upsertError } = await supabase
+        .from('progress')
+        .upsert({
+          user_id: currentUser.id,
+          level: currentLevel,
+          last_study_date: next.lastStudyDate,
+          streak: next.streak,
+          xp: next.xp,
+          completed_tasks: next.completedTasks,
+          badges: next.badges,
+          unlocked_weeks: next.unlockedWeeks,
+          weekly_xp: next.weeklyXP,
+        }, { onConflict: 'user_id,level' });
+
+      if (upsertError) {
+        console.error('Streak recovery error:', upsertError);
+        fetchProgress();
+      }
+    } catch (err) {
+      console.error('Streak recovery error:', err);
+      fetchProgress();
+    }
+  }, [fetchProgress]);
 
   return {
     progress,

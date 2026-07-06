@@ -32,7 +32,7 @@ function saveLeaderboard(level, entries) {
   localStorage.setItem(`speedblitz_lb_${level}`, JSON.stringify(entries.slice(0, 10)));
 }
 
-export default function SpeedBlitz({ level = 'A1', compact }) {
+export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
   const [state, setState] = useState('idle');
   const [score, setScore] = useState(0);
   const [mistakes, setMistakes] = useState(0);
@@ -46,6 +46,7 @@ export default function SpeedBlitz({ level = 'A1', compact }) {
   const wordTimerRef = useRef(null);
   const wordPool = useRef([]);
   const scoreRef = useRef(0);
+  const scoreReportedRef = useRef(false);
 
   useEffect(() => {
     setLeaderboard(loadLeaderboard(level));
@@ -84,6 +85,7 @@ export default function SpeedBlitz({ level = 'A1', compact }) {
     setState('playing');
     setFeedback(null);
     scoreRef.current = 0;
+    scoreReportedRef.current = false;
     wordPool.current = shuffle(words);
     nextQuestion();
   }, [words, nextQuestion]);
@@ -135,8 +137,12 @@ export default function SpeedBlitz({ level = 'A1', compact }) {
       entries.sort((a, b) => b.score - a.score);
       saveLeaderboard(level, entries);
       setLeaderboard(entries);
+      if (onScore && !scoreReportedRef.current) {
+        scoreReportedRef.current = true;
+        onScore(scoreRef.current);
+      }
     }
-  }, [state, level]); // intentional: run when state becomes 'finished'
+  }, [state, level, onScore]); // intentional: run when state becomes 'finished'
 
   const handleAnswer = useCallback((word) => {
     if (feedback) return;

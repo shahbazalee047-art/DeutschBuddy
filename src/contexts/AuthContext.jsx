@@ -3,10 +3,22 @@ import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
+function getCachedUser() {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = window.localStorage.getItem('supabase.auth.token');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed?.user ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(getCachedUser);
   const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const mountedRef = useRef(true);
   const profileFetchedRef = useRef(false);
   const userIdRef = useRef(null);
@@ -37,10 +49,6 @@ export function AuthProvider({ children }) {
       }
     } catch (err) {
       console.error('fetchProfile exception:', err);
-    } finally {
-      if (mountedRef.current) {
-        setLoading(false);
-      }
     }
   }, []);
 
@@ -53,13 +61,10 @@ export function AuthProvider({ children }) {
         setUser(session?.user ?? null);
         if (session?.user) {
           fetchProfile(session.user.id);
-        } else {
-          setLoading(false);
         }
       })
       .catch((err) => {
         console.error('getSession error:', err);
-        if (mountedRef.current) setLoading(false);
       });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
