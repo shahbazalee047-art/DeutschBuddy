@@ -1,5 +1,6 @@
 import { memo, useState } from 'react';
 import { getWeekCompletion } from '../utils/progress';
+import { englishTopicTitle } from '../utils/topicTitle';
 import { IconCheck, IconLock } from './Icons';
 
 const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked, activeLevel }) {
@@ -89,7 +90,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
               </div>
               <div>
                 <span className="eyebrow" style={{ color: isUnlocked ? 'var(--gold)' : 'var(--text-locked)' }}>Week {week.id}</span>
-                <h3 className="text-[22px] font-bold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: isUnlocked ? 'var(--text-on-dark)' : 'var(--text-dark)' }}>{week.title}</h3>
+                <h3 className="text-[22px] font-bold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: isUnlocked ? 'var(--text-on-dark)' : 'var(--text-dark)' }}>{englishTopicTitle(week.title)}</h3>
                 <p className="text-[14px] font-medium" style={{ color: isUnlocked ? 'var(--text-on-dark-muted)' : 'var(--text-muted)' }}>{week.theme}</p>
               </div>
             </div>

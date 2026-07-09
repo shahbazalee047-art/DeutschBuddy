@@ -3,7 +3,7 @@
 > **Repository:** `shahbazalee047-art/DeutschBuddy`
 > **Live URL:** https://deutsch-buddy-murex.vercel.app
 > **Supabase Project:** `jqytrdjfojogyoxmknmg.supabase.co`
-> **Last Updated:** June 20, 2026
+> **Last Updated:** July 7, 2026
 
 ---
 
@@ -151,6 +151,35 @@ App
 │           └── Did You Know?
 ```
 
+### State Management & Data Flow
+
+The app uses **three React Contexts** layered at the root. `DashboardContext` is the application core (~400 lines) and is intentionally undocumented in the hierarchy diagram above — it sits *inside* the `Dashboard` wrapper, wrapping `DashboardShell`.
+
+```
+AuthProvider            (src/contexts/AuthContext.jsx)
+  └─ ThemeProvider      (src/contexts/ThemeContext.jsx)
+       └─ Routes
+            └─ DashboardProvider   (src/contexts/DashboardContext.jsx)  ← core
+                 └─ DashboardShell
+```
+
+| Context | Responsibility |
+|---------|----------------|
+| `AuthContext` | Supabase session, profile fetch (cached via refs), `signIn`/`signUp`/`signOut`/`resetPassword`/`updatePassword`. Exposes `user`, `profile`, `refreshProfile`. |
+| `ThemeContext` | Light/dark CSS-variable theming, persisted to `localStorage`. |
+| `DashboardContext` | All UI + curriculum state: `activeLevel`, `trackMode`, `selectedDay`, `selectedTask`, `activeView`, ~12 modal/sidebar toggles, curriculum lazy-loader, history stack, browser + Capacitor back-button handling, XP/celebration orchestration. |
+
+**Persistence layer — `useProgress(level)` hook** (`src/hooks/useProgress.js`):
+- Returns `{ progress, loading, completeTask, unlockWeek, setTrackMode, recoverStreak, refetch }`.
+- **Optimistic write pattern:** snapshot via `progressRef` → `setProgress(next)` → `saveLocalProgress` (localStorage `db_progress_<userId>_<level>`) → `supabase.from('progress').upsert(..., { onConflict: 'user_id,level' })` → on failure, refetch + reconcile.
+- **Idempotency:** `completeTask` skips XP/`weeklyXP`/`exercise_results` increments when the task id is already in `completedTasks` (no double-credit on repeats).
+- **Streak math** (`calculateStreakDelta`) compares against the user's *local* calendar date (see `src/utils/date.js`): same day → 0, yesterday → +1, older → reset to 1.
+- **15 badges** defined in `BADGE_DEFINITIONS`; `checkBadges()` runs on every progress mutation.
+
+**Curriculum loading** (`DashboardContext.loadData`): dynamic `import()` keyed on `[activeLevel, trackMode, retryKey]`. A1 standard → `a1SpoonfedModules.js`; A1 fast → `a1FastTrackData.js`; A2 → `a2Data.js` (A2 has no fast track — `trackMode` is intentionally ignored for A2).
+
+**Date utilities** (`src/utils/date.js`): single source of truth for `getLocalDateString`, `getYesterdayDateString`, `addDaysDateString`. Used by `useProgress`, `DashboardContext`, and `ProgressDashboard`. Local-time (not UTC) so streaks respect the learner's timezone.
+
 ---
 
 ## 4. Session History
@@ -243,6 +272,8 @@ App
 ---
 
 ## 5. Design System
+
+> **Note (July 2026):** The color tokens and CSS classes below describe the **older "Electric Lime & Midnight" theme** and are kept for history. The current production design system is **"Warm Editorial Luxury"** — see `README.md` § Design System for the live palette (cream canvas, warm gold accents, Cormorant Garamond + Inter typography) and `src/index.css` for the authoritative token definitions. The structural sections below (typography families, spacing scale, component categories) remain accurate.
 
 ### Color Palette (Dark Mode - Default)
 | Token | Value | Usage |
@@ -365,8 +396,13 @@ progress (
   completed_tasks text[] DEFAULT '{}',
   badges jsonb DEFAULT '[]',
   unlocked_weeks integer[] DEFAULT '{1}',
-  weekly_xp jsonb DEFAULT '{}'
+  weekly_xp jsonb DEFAULT '{}'        -- keyed "W<weekId>"; see semantics note below
 )
+
+#### `weekly_xp` semantics
+`weekly_xp` is a JSON object keyed `"W<weekId>"` (e.g. `"W1"`, `"W3"`). It accumulates **XP earned from first-time task completions in that curriculum week**. Repeats do **not** inflate it — `useProgress.completeTask` short-circuits via an `alreadyCompleted` guard. `ProgressDashboard` renders it as the "XP by Week" bar chart.
+
+Known minor caveat: bonus game XP (`SpeedBlitz`, `GenderDungeon`, `PictureMatch`) is attributed to week 1 via `handleGameScore → completeTask(..., weekId=1)`, so heavy game play can inflate the week-1 bar. Total XP is unaffected.
 
 -- Exercise results (with FK to progress for referential integrity)
 exercise_results (
@@ -403,6 +439,7 @@ exam_scores (
 - All tables have RLS enabled
 - Users can only read/write/update/delete their own data (`auth.uid() = id` or `auth.uid() = user_id`)
 - Auto-profile creation via database trigger on signup (also auto-creates A1 + A2 progress rows)
+- **`profiles.email` column protection:** `anon`/`authenticated` are granted SELECT only on `(id, full_name, avatar_url, selected_pacing, notification_preferences, created_at, updated_at)` via a column-level GRANT. The `email` column is unreadable by clients; the current user's email comes from the auth session. Community features read author identity via FK joins that only request the granted columns.
 
 ### Trigger: handle_new_user()
 Automatically creates profile and progress rows on signup:

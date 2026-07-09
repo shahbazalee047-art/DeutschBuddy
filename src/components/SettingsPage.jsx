@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import {
   IconUser, IconBell, IconLock, IconMoon, IconSun, IconLogOut,
-  IconArrowLeft, IconEye, IconEyeOff
+  IconArrowLeft, IconEye, IconEyeOff, IconClock
 } from './Icons';
 
 const DEFAULT_NOTIFICATIONS = {
@@ -464,6 +464,8 @@ export default function SettingsPage({ profile, user, onSignOut }) {
           </div>
         </div>
 
+        <DailyGoalControl />
+
         {settingItems.map((item, i) => (
           <div key={i} onClick={() => setActiveSection(item.section)}
             className="flex items-center justify-between py-3 px-4 hover:bg-bg-secondary transition cursor-pointer"
@@ -478,6 +480,21 @@ export default function SettingsPage({ profile, user, onSignOut }) {
             <span className="text-text-body text-base font-bold">→</span>
           </div>
         ))}
+
+        <button
+          type="button"
+          onClick={() => { try { localStorage.removeItem('db_tutorial_seen_v1'); } catch { /* ignore */ } window.location.reload(); }}
+          className="w-full flex items-center justify-between py-3 px-4 hover:bg-bg-secondary transition cursor-pointer text-left"
+        >
+          <div className="flex items-center gap-3">
+            <IconUser className="w-5 h-5 text-text-muted" />
+            <div>
+              <p className="text-sm font-semibold text-text-body">Replay Tutorial</p>
+              <p className="text-[12px] text-text-muted">See Buddy’s intro tour again</p>
+            </div>
+          </div>
+          <span className="text-text-body text-base font-bold">→</span>
+        </button>
       </div>
 
       <button onClick={onSignOut}
@@ -486,6 +503,53 @@ export default function SettingsPage({ profile, user, onSignOut }) {
         <IconLogOut className="w-5 h-5" />
         <span className="font-semibold">Sign Out</span>
       </button>
+    </div>
+  );
+}
+
+const DAILY_GOAL_OPTIONS = [
+  { value: 10, label: 'Relaxed', detail: '~5 min' },
+  { value: 20, label: 'Casual', detail: '~10 min' },
+  { value: 30, label: 'Serious', detail: '~15 min' },
+];
+
+function DailyGoalControl() {
+  const [goal, setGoal] = useState(() => {
+    try { return Number(localStorage.getItem('db_daily_goal')) || 20; } catch { return 20; }
+  });
+
+  function choose(value) {
+    setGoal(value);
+    try { localStorage.setItem('db_daily_goal', String(value)); } catch { /* ignore */ }
+  }
+
+  return (
+    <div className="py-3 px-4">
+      <div className="flex items-center gap-3 mb-3">
+        <IconClock className="w-5 h-5 text-text-muted" />
+        <div>
+          <p className="text-sm font-semibold text-text-body">Daily Goal</p>
+          <p className="text-[12px] text-text-muted">Sets the target on your home screen</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 gap-2 ml-8">
+        {DAILY_GOAL_OPTIONS.map(opt => {
+          const active = goal === opt.value;
+          return (
+            <button
+              key={opt.value}
+              onClick={() => choose(opt.value)}
+              className={`p-2.5 rounded-[var(--radius-button)] border-2 text-center transition-all active:scale-95 ${
+                active ? 'border-gold bg-gold/10' : 'border-border bg-surface hover:border-gold/30'
+              }`}
+            >
+              <p className={`text-sm font-bold ${active ? 'text-gold' : 'text-text-dark'}`}>{opt.value} XP</p>
+              <p className="text-[11px] text-text-muted">{opt.label}</p>
+              <p className="text-[10px] text-text-muted/70">{opt.detail}</p>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

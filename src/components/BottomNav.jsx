@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { IconHome, IconMap, IconRefresh, IconTrophy, IconUser } from './Icons';
 
-const BottomNav = memo(function BottomNav({ activeView, onViewChange }) {
+const BottomNav = memo(function BottomNav({ activeView, onViewChange, badges = {} }) {
   const items = [
     { id: 'dashboard', label: 'Learn', icon: IconHome },
     { id: 'journey', label: 'Journey', icon: IconMap },
@@ -25,6 +25,7 @@ const BottomNav = memo(function BottomNav({ activeView, onViewChange }) {
       <div className="grid grid-cols-5 h-16">
         {items.map(item => {
           const active = isActive(item.id);
+          const badge = badges[item.id];
           return (
             <button
               key={item.id}
@@ -42,6 +43,11 @@ const BottomNav = memo(function BottomNav({ activeView, onViewChange }) {
               )}
               <span className="relative">
                 <item.icon className="w-5 h-5" />
+                {badge ? (
+                  <span className="absolute -top-1.5 -right-2 min-w-[16px] h-4 px-1 rounded-full bg-gold text-text-on-dark text-[9px] font-bold flex items-center justify-center tabular-nums">
+                    {badge > 9 ? '9+' : badge}
+                  </span>
+                ) : null}
               </span>
               <span className={`text-[10px] font-semibold relative ${active ? 'text-primary' : ''}`}>
                 {item.label}

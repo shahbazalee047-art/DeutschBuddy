@@ -3,16 +3,7 @@ import {
   IconFire, IconCheckCircle, IconCalendar, IconTrendingUp,
   IconZap, IconTarget, IconClock, IconActivity
 } from './Icons';
-
-function getUTCDateString(date = new Date()) {
-  return date.toISOString().split('T')[0];
-}
-
-function addDays(dateStr, days) {
-  const d = new Date(dateStr + 'T00:00:00Z');
-  d.setUTCDate(d.getUTCDate() + days);
-  return getUTCDateString(d);
-}
+import { getLocalDateString, addDaysDateString } from '../utils/date';
 
 function formatNumber(n) {
   return Number(n || 0).toLocaleString();
@@ -70,16 +61,16 @@ const StatCard = memo(function StatCard({ icon: Icon, value, label, sublabel, to
 });
 
 function computeCalendarDays(lastStudyDate, streak) {
-  const today = getUTCDateString();
+  const today = getLocalDateString();
   const days = [];
   // Build a 4-week grid; mark today active if studied today, and previous days based on streak.
   for (let i = 27; i >= 0; i--) {
-    const date = addDays(today, -i);
+    const date = addDaysDateString(today, -i);
     let active = false;
     if (lastStudyDate) {
       if (date === lastStudyDate) active = true;
       else if (streak > 1 && date < lastStudyDate) {
-        const diff = Math.floor((new Date(lastStudyDate + 'T00:00:00Z') - new Date(date + 'T00:00:00Z')) / (86400000));
+        const diff = Math.floor((new Date(lastStudyDate + 'T00:00:00') - new Date(date + 'T00:00:00')) / (86400000));
         if (diff > 0 && diff < streak) active = true;
       }
     }
@@ -277,7 +268,7 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, a
         <ul className="space-y-2 text-sm text-text-body">
           <li className="flex items-start gap-2">
             <IconClock className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
-            <span>Last studied: {progress?.lastStudyDate ? new Date(progress.lastStudyDate + 'T00:00:00Z').toLocaleDateString() : 'Not yet'}</span>
+            <span>Last studied: {progress?.lastStudyDate ? new Date(progress.lastStudyDate + 'T00:00:00').toLocaleDateString() : 'Not yet'}</span>
           </li>
           <li className="flex items-start gap-2">
             <IconCheckCircle className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />

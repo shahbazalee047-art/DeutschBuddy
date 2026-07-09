@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useDashboard } from '../contexts/DashboardContext';
 import { BuddyAvatar, BuddySpeechBubble, pickPhrase, getGreetingByTime } from '../components/buddy';
 import { IconFire, IconStar, IconTrophy, IconClock, IconArrowRight } from '../components/Icons';
+import ReviseCard from '../components/ReviseCard';
 
 function getNextLesson(levelData, progress) {
   if (!levelData?.weeks) return null;
@@ -18,13 +19,18 @@ function getNextLesson(levelData, progress) {
 }
 
 export default function HomePage({ onViewJourney }) {
-  const { profile, progress, levelData, handleSelectDay } = useDashboard();
+  const { profile, progress, levelData, handleSelectDay, handleSelectTask, unlockedWeeks } = useDashboard();
 
   const nextLesson = useMemo(() => getNextLesson(levelData, progress), [levelData, progress]);
   const greeting = useMemo(() => pickPhrase(getGreetingByTime()), []);
   const streak = progress?.streak || 0;
   const xp = progress?.xp || 0;
-  const dailyGoal = 30;
+  const dailyGoal = useMemo(() => {
+    try {
+      const stored = Number(localStorage.getItem('db_daily_goal'));
+      return stored > 0 ? stored : 20;
+    } catch { return 20; }
+  }, []);
   const dailyProgress = Math.min((progress?.todayXP || 0) / dailyGoal, 1);
 
   const handleStart = () => {
@@ -33,6 +39,27 @@ export default function HomePage({ onViewJourney }) {
     } else if (onViewJourney) {
       onViewJourney();
     }
+  };
+
+  const completedSet = new Set(progress?.completedTasks || []);
+  const handleWeekClick = (week) => {
+    if (!unlockedWeeks?.includes(week.id)) return;
+    // Jump straight into the week's next incomplete lesson (or first task if the
+    // week is fully complete, so the learner can review).
+    const firstIncompleteDay = (week.days || []).find(d =>
+      (d.tasks || []).some(t => !completedSet.has(t.id))
+    ) || week.days?.[0];
+    if (!firstIncompleteDay) return;
+    const firstTask = (firstIncompleteDay.tasks || []).find(t => !completedSet.has(t.id))
+      || firstIncompleteDay.tasks?.[0];
+    handleSelectDay(week.id, firstIncompleteDay.day);
+    if (firstTask) handleSelectTask(firstTask);
+  };
+
+  // Open a task from the Revise list directly in the lesson player.
+  const handleRetryRevise = ({ task, weekId, dayNumber }) => {
+    handleSelectDay(weekId, dayNumber);
+    handleSelectTask(task);
   };
 
   return (
@@ -80,6 +107,7 @@ export default function HomePage({ onViewJourney }) {
         {/* Main CTA */}
         <button
           onClick={handleStart}
+          data-coachmark="start-lesson"
           className="w-full db-card db-card-hover p-6 text-left group relative overflow-hidden"
         >
           <div className="relative z-10">
@@ -106,6 +134,13 @@ export default function HomePage({ onViewJourney }) {
           </div>
         </button>
 
+        {/* Revise list — tasks answered wrong, surfaced for retry */}
+        <ReviseCard
+          reviseTasks={progress?.reviseTasks || []}
+          levelData={levelData}
+          onRetry={handleRetryRevise}
+        />
+
         {/* Journey preview */}
         {levelData?.weeks && (
           <div className="db-card p-4">
@@ -121,16 +156,21 @@ export default function HomePage({ onViewJourney }) {
                   d.tasks.every(t => progress.completedTasks.includes(t.id))
                 );
                 const isCurrent = nextLesson?.week.id === week.id;
+                const isLocked = !unlockedWeeks?.includes(week.id);
                 return (
-                  <div
+                  <button
                     key={week.id}
+                    onClick={() => handleWeekClick(week)}
+                    disabled={isLocked}
+                    aria-label={`Week ${week.id}: ${week.title}${isLocked ? ' (locked)' : isCompleted ? ' (completed)' : ''}`}
                     className={`
-                      flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold
-                      ${isCompleted ? 'bg-success text-white' : isCurrent ? 'bg-primary text-white ring-4 ring-primary/20' : 'bg-bg-secondary text-text-muted'}
+                      flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-transform
+                      ${isLocked ? 'cursor-not-allowed' : 'hover:scale-110 active:scale-95 cursor-pointer'}
+                      ${isCompleted ? 'bg-success text-white' : isCurrent ? 'bg-primary text-white ring-4 ring-primary/20' : isLocked ? 'bg-bg-secondary text-text-muted opacity-50' : 'bg-bg-secondary text-text-dark hover:text-primary'}
                     `}
                   >
                     {isCompleted ? '✓' : i + 1}
-                  </div>
+                  </button>
                 );
               })}
             </div>

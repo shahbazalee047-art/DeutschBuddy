@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { getDayCompletion } from '../utils/progress';
+import { germanTopicTitle } from '../utils/topicTitle';
 import { IconFire, IconBookOpen, IconEdit, IconHelpCircle, IconCards, IconLink, IconPencil, IconShuffle, IconMic, IconFeather, IconClipboard, IconTheater, IconSparkles, IconHeadphones, IconBolt, IconBook, IconCheck } from './Icons';
 
 const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], onSelectTask, onBack, activeLevel }) {
@@ -8,6 +9,7 @@ const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], on
   const completed = getDayCompletion(dayData.tasks, completedTasks);
   const total = dayData.tasks.length;
   const allDone = completed === total;
+  const topicDe = germanTopicTitle(week?.title);
 
   const typeIcons = { warmup: IconFire, vocabulary: IconBookOpen, grammar: IconEdit, quiz: IconHelpCircle, flashcards: IconCards, matching: IconLink, fillblank: IconPencil, scramble: IconShuffle, speaking: IconMic, writing: IconFeather, review: IconClipboard, roleplay: IconTheater, fun: IconSparkles, listening: IconHeadphones, quickwin: IconBolt };
 
@@ -24,6 +26,9 @@ const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], on
           <div>
             <span className="eyebrow">Week {week.id} &middot; Day {day}</span>
             <h2 className="text-[22px] font-bold text-text-dark mt-1" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{dayData.title}</h2>
+            {topicDe && (
+              <p className="text-[13px] font-semibold mt-1" style={{ color: 'var(--gold)', fontStyle: 'italic' }}>{topicDe}</p>
+            )}
           </div>
           <div className="text-right">
             <div className="text-sm text-text-muted tabular-nums">{completed}/{total}</div>

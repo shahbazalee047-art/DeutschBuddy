@@ -1,6 +1,7 @@
 import { useDashboard } from '../contexts/DashboardContext';
 import { BuddyAvatar } from '../components/buddy';
 import { IconLock, IconCheck, IconPlay } from '../components/Icons';
+import { englishTopicTitle } from '../utils/topicTitle';
 
 const JOURNEY_LOCATIONS = [
   { id: 'home', title: 'Home', emoji: '🏠' },
@@ -85,7 +86,7 @@ export default function JourneyPage({ onStartLesson }) {
                     <div className="flex items-start justify-between">
                       <div>
                         <p className="text-xs font-bold text-primary uppercase tracking-wide">{location.title}</p>
-                        <h3 className="font-bold text-text-dark">{week.title}</h3>
+                        <h3 className="font-bold text-text-dark">{englishTopicTitle(week.title)}</h3>
                         <p className="text-sm text-text-muted mt-1">{week.description}</p>
                       </div>
                       {!isUnlocked && <IconLock className="w-5 h-5 text-text-muted" />}

@@ -32,6 +32,7 @@ create table if not exists public.progress (
   streak integer default 0 not null,
   last_study_date date,
   completed_tasks text[] default '{}' not null,
+  revise_tasks text[] default '{}' not null,
   badges jsonb default '[]' not null,
   unlocked_weeks integer[] default '{1}' not null,
   weekly_xp jsonb default '{}' not null,
@@ -84,7 +85,7 @@ create table if not exists public.community_posts (
   title text not null,
   content text not null,
   category text not null default 'General',
-  level text default 'All',
+  level text default 'All' check (level in ('All', 'A1', 'A2')),
   solved boolean default false not null,
   upvotes integer default 0 not null,
   comment_count integer default 0 not null,
@@ -136,7 +137,7 @@ create policy "Users can view community profiles"
   on public.profiles for select
   using (true);
 
-comment on policy "Users can view community profiles" on public.profiles is 'Exposes id, full_name, and avatar_url to everyone. Email should not be selected in client queries.';
+comment on policy "Users can view community profiles" on public.profiles is 'Exposes id, full_name, and avatar_url to everyone. The email column is protected by a column-level REVOKE (see below).';
 
 create policy "Users can insert own profile"
   on public.profiles for insert
@@ -150,6 +151,19 @@ create policy "Users can update own profile"
 create policy "Users can delete own profile"
   on public.profiles for delete
   using (auth.uid() = id);
+
+-- Column-level access control: prevent anon/authenticated roles from reading
+-- the `email` column of any profile. RLS controls row access; column-level
+-- GRANTs control column access. Email is copied from auth.users by the
+-- handle_new_user trigger (a SECURITY DEFINER function that bypasses GRANTs),
+-- so signup still works. Clients read the current user's email from the auth
+-- session, never from this table.
+revoke select on public.profiles from anon, authenticated;
+grant select (id, full_name, avatar_url, selected_pacing, notification_preferences, created_at, updated_at)
+  on public.profiles to anon, authenticated;
+
+comment on table public.profiles is
+  'Email column is hidden from anon/authenticated via column-level GRANT. Use the auth session for the current user email; never expose other users emails.';
 
 -- Progress policies
 create policy "Users can view own progress"

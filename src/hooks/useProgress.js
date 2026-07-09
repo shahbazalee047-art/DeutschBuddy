@@ -1,17 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-
-function getUTCDateString(date = new Date()) {
-  return date.toISOString().split('T')[0];
-}
+import { getLocalDateString, getYesterdayDateString } from '../utils/date';
 
 function calculateStreakDelta(lastStudyDate) {
   if (!lastStudyDate) return 1;
-  const today = getUTCDateString();
+  const today = getLocalDateString();
   const last = lastStudyDate.slice(0, 10);
   if (last === today) return 0;
-  const yesterday = getUTCDateString(new Date(Date.now() - 86400000));
+  const yesterday = getYesterdayDateString();
   if (last === yesterday) return 1;
   return -1;
 }
@@ -47,7 +44,7 @@ export function checkBadges(progressLike) {
 
 function getDefaultProgress() {
   return {
-    xp: 0, streak: 0, lastStudyDate: null, completedTasks: [], badges: [],
+    xp: 0, streak: 0, lastStudyDate: null, completedTasks: [], reviseTasks: [], badges: [],
     unlockedWeeks: [1], weeklyXP: {},
   };
 }
@@ -67,6 +64,7 @@ function loadLocalProgress(userId, level) {
       streak: Number(parsed.streak) || 0,
       lastStudyDate: parsed.lastStudyDate || null,
       completedTasks: Array.isArray(parsed.completedTasks) ? parsed.completedTasks : [],
+      reviseTasks: Array.isArray(parsed.reviseTasks) ? parsed.reviseTasks : [],
       badges: Array.isArray(parsed.badges) ? parsed.badges : [],
       unlockedWeeks: Array.isArray(parsed.unlockedWeeks) && parsed.unlockedWeeks.length > 0 ? parsed.unlockedWeeks : [1],
       weeklyXP: parsed.weeklyXP && typeof parsed.weeklyXP === 'object' ? parsed.weeklyXP : {},
@@ -84,6 +82,7 @@ function normalizeProgressRow(data) {
     streak: data.streak || 0,
     lastStudyDate: data.last_study_date,
     completedTasks: data.completed_tasks || [],
+    reviseTasks: Array.isArray(data.revise_tasks) ? data.revise_tasks : [],
     badges: data.badges || [],
     unlockedWeeks: (Array.isArray(data.unlocked_weeks) && data.unlocked_weeks.length > 0) ? data.unlocked_weeks : [1],
     weeklyXP: data.weekly_xp || {},
@@ -157,7 +156,7 @@ export function useProgress(level) {
     fetchProgress();
   }, [user, level, fetchProgress]);
 
-  const completeTask = useCallback(async (taskId, xpAmount, weekId, dayNumber = 0) => {
+  const completeTask = useCallback(async (taskId, xpAmount, weekId, dayNumber = 0, result = null) => {
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
 
@@ -169,7 +168,7 @@ export function useProgress(level) {
     // Idempotency: already completed today or earlier -> record result only, no double XP
     const alreadyCompleted = prev.completedTasks.includes(taskId);
 
-    const today = getUTCDateString();
+    const today = getLocalDateString();
     const streakDelta = calculateStreakDelta(prev.lastStudyDate);
     const newStreak = prev.lastStudyDate === today
       ? prev.streak
@@ -184,11 +183,26 @@ export function useProgress(level) {
       ? prev.weeklyXP
       : { ...prev.weeklyXP, [weekKey]: (prev.weeklyXP[weekKey] || 0) + xpAmount };
 
+    // Revise routing: scored tasks (result.maxScore > 0) with any wrong answer go to
+    // the revise list; mastering a previously-revised task (full score) clears it.
+    // This runs inside the same atomic update so there is no stale-state race.
+    let nextReviseTasks = Array.isArray(prev.reviseTasks) ? prev.reviseTasks : [];
+    if (result && typeof result.score === 'number' && result.maxScore > 0) {
+      if (result.score < result.maxScore) {
+        if (!nextReviseTasks.includes(taskId)) {
+          nextReviseTasks = [...nextReviseTasks, taskId];
+        }
+      } else if (nextReviseTasks.includes(taskId)) {
+        nextReviseTasks = nextReviseTasks.filter(id => id !== taskId);
+      }
+    }
+
     const next = {
       xp: newXP,
       streak: newStreak,
       lastStudyDate: today,
       completedTasks: newCompletedTasks,
+      reviseTasks: nextReviseTasks,
       badges: checkBadges({
         xp: newXP,
         streak: newStreak,
@@ -213,6 +227,7 @@ export function useProgress(level) {
           streak: next.streak,
           last_study_date: next.lastStudyDate,
           completed_tasks: next.completedTasks,
+          revise_tasks: next.reviseTasks,
           badges: next.badges,
           unlocked_weeks: next.unlockedWeeks,
           weekly_xp: next.weeklyXP,
@@ -307,7 +322,7 @@ export function useProgress(level) {
     if (!currentUser || !currentLevel) return;
 
     const prev = progressRef.current;
-    const today = getUTCDateString();
+    const today = getLocalDateString();
     const wasBroken = calculateStreakDelta(prev.lastStudyDate) === -1;
 
     const next = {
@@ -326,6 +341,9 @@ export function useProgress(level) {
     saveLocalProgress(currentUser.id, currentLevel, next);
 
     try {
+      // Upsert only the fields that recoverStreak actually changes; let the
+      // server preserve everything else. This matches unlockWeek's minimal
+      // pattern and avoids clobbering concurrently-written fields.
       const { error: upsertError } = await supabase
         .from('progress')
         .upsert({
@@ -333,11 +351,7 @@ export function useProgress(level) {
           level: currentLevel,
           last_study_date: next.lastStudyDate,
           streak: next.streak,
-          xp: next.xp,
-          completed_tasks: next.completedTasks,
           badges: next.badges,
-          unlocked_weeks: next.unlockedWeeks,
-          weekly_xp: next.weeklyXP,
         }, { onConflict: 'user_id,level' });
 
       if (upsertError) {

@@ -579,56 +579,95 @@ button { font-family: 'Inter', system-ui, sans-serif; }
 }
 .animate-pulse-soft { animation: pulse-soft 2s ease-in-out infinite; }
 
-/* Buddy mascot animations */
-@keyframes buddy-breathe {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-2px) scale(1.01); }
-}
-@keyframes buddy-hop {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-@keyframes buddy-spin {
-  0% { transform: rotate(0deg) scale(1); }
-  25% { transform: rotate(-8deg) scale(1.05); }
-  75% { transform: rotate(8deg) scale(1.05); }
-  100% { transform: rotate(0deg) scale(1); }
-}
-@keyframes buddy-tilt {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-6deg); }
-}
-@keyframes buddy-think {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
-@keyframes buddy-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-@keyframes buddy-sigh {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(2px) scale(0.98); }
-}
-@keyframes buddy-run {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-3px) rotate(-3deg); }
-  75% { transform: translateX(3px) rotate(3deg); }
-}
-@keyframes buddy-wave {
-  0%, 100% { transform: rotate(0deg); }
-  50% { transform: rotate(-5deg); }
+/* Spotlight coachmark ring pulse */
+@keyframes coachmarkPulse {
+  0%, 100% { box-shadow: 0 0 0 9999px rgba(15, 20, 32, 0.55), 0 0 0 0 rgba(232, 183, 61, 0.0); }
+  50% { box-shadow: 0 0 0 9999px rgba(15, 20, 32, 0.55), 0 0 0 10px rgba(232, 183, 61, 0.18); }
 }
 
-.buddy-breathe { animation: buddy-breathe 3s ease-in-out infinite; }
-.buddy-hop { animation: buddy-hop 0.6s ease-in-out 2; }
-.buddy-spin { animation: buddy-spin 0.6s ease-in-out; }
-.buddy-tilt { animation: buddy-tilt 1s ease-in-out infinite; }
-.buddy-think { animation: buddy-think 1.2s ease-in-out infinite; }
-.buddy-bob { animation: buddy-bob 0.8s ease-in-out infinite; }
-.buddy-sigh { animation: buddy-sigh 2s ease-in-out infinite; }
-.buddy-run { animation: buddy-run 0.5s linear infinite; }
-.buddy-wave { animation: buddy-wave 0.8s ease-in-out 3; }
+/* Buddy mascot animations — natural motion with squash-and-stretch.
+   All pivot from the bottom center so the character stays grounded. */
+.buddy-anim { transform-origin: 50% 92%; will-change: transform; }
+
+@keyframes buddy-breathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-1.5px) scale(1.012); }
+}
+.buddy-breathe { animation: buddy-breathe 3.4s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
+/* Happy hop: anticipation squash → stretch at apex → land squash → settle */
+@keyframes buddy-hop {
+  0%   { transform: translateY(0) scale(1, 1); }
+  12%  { transform: translateY(0) scale(1.12, 0.84); }      /* crouch */
+  32%  { transform: translateY(-16px) scale(0.9, 1.12); }   /* stretch up */
+  52%  { transform: translateY(0) scale(1.14, 0.82); }      /* land squash */
+  68%  { transform: translateY(-7px) scale(0.96, 1.06); }   /* tiny rebound */
+  84%  { transform: translateY(0) scale(1.04, 0.94); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+.buddy-hop { animation: buddy-hop 1.1s cubic-bezier(0.3, 0, 0.4, 1) 2; }
+
+/* Celebrate: excited pop + wiggle */
+@keyframes buddy-spin {
+  0%, 100% { transform: scale(1, 1) rotate(0deg); }
+  25%      { transform: scale(1.08, 0.94) rotate(-6deg); }
+  50%      { transform: scale(0.94, 1.08) rotate(0deg); }
+  75%      { transform: scale(1.06, 0.96) rotate(6deg); }
+}
+.buddy-spin { animation: buddy-spin 0.7s cubic-bezier(0.3, 0, 0.5, 1) 2; }
+
+/* Encourage: curious inquisitive tilt, slow */
+@keyframes buddy-tilt {
+  0%, 100% { transform: rotate(0deg) scale(1, 1); }
+  35%      { transform: rotate(-7deg) scale(1.02, 0.98); }
+  70%      { transform: rotate(4deg) scale(1, 1); }
+}
+.buddy-tilt { animation: buddy-tilt 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
+/* Thinking: slight rise + lean, pondering */
+@keyframes buddy-think {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-3px) rotate(-4deg); }
+}
+.buddy-think { animation: buddy-think 2.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
+/* Listening: gentle nod */
+@keyframes buddy-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-3px) rotate(2deg); }
+}
+.buddy-bob { animation: buddy-bob 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite; }
+
+/* Sad: deflate + droop */
+@keyframes buddy-sigh {
+  0%   { transform: translateY(0) scale(1, 1) rotate(0deg); }
+  30%  { transform: translateY(2px) scale(1.02, 0.92) rotate(-2deg); }
+  100% { transform: translateY(2px) scale(1.0, 0.94) rotate(-2deg); }
+}
+.buddy-sigh { animation: buddy-sigh 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate; }
+
+/* Loading: eager side-to-side wobble */
+@keyframes buddy-run {
+  0%, 100% { transform: translateX(0) rotate(-2deg); }
+  25%      { transform: translateX(-2px) scale(1.02, 0.98) rotate(-4deg); }
+  75%      { transform: translateX(2px) scale(1.02, 0.98) rotate(4deg); }
+}
+.buddy-run { animation: buddy-run 0.45s cubic-bezier(0.3, 0, 0.7, 1) infinite; }
+
+/* Greeting wave: enthusiastic paw wave */
+@keyframes buddy-wave {
+  0%, 100% { transform: rotate(0deg) scale(1, 1); }
+  20%      { transform: rotate(-9deg) scale(1.03, 0.97); }
+  40%      { transform: rotate(3deg) scale(0.99, 1.01); }
+  60%      { transform: rotate(-7deg) scale(1.02, 0.98); }
+  80%      { transform: rotate(2deg) scale(1, 1); }
+}
+.buddy-wave { animation: buddy-wave 0.9s cubic-bezier(0.3, 0, 0.5, 1) 3; }
+
+@media (prefers-reduced-motion: reduce) {
+  .buddy-breathe, .buddy-hop, .buddy-spin, .buddy-tilt, .buddy-think,
+  .buddy-bob, .buddy-sigh, .buddy-run, .buddy-wave { animation: none; }
+}
 
 .buddy-svg { overflow: visible; }
 

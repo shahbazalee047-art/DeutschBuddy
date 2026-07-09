@@ -69,4 +69,24 @@ describe('DashboardShell Start Lesson flow', () => {
       expect(screen.queryAllByText(/Your First German Sentences/i).length).toBeGreaterThanOrEqual(1);
     }, { timeout: 5000 });
   });
+
+  it('opens lesson content directly when a week circle is clicked', async () => {
+    render(
+      <DashboardProvider>
+        <DashboardShell />
+      </DashboardProvider>
+    );
+
+    // Wait for HomePage and the week-1 circle to render
+    const weekOneCircle = await screen.findByRole('button', { name: /^Week 1:/i }, { timeout: 5000 });
+    expect(weekOneCircle).not.toBeDisabled();
+
+    fireEvent.click(weekOneCircle);
+
+    // The circle should jump straight into the LessonPlayer (lesson content),
+    // identifiable by its "Exit lesson" button — not the DailyTasks list.
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /exit lesson/i })).toBeInTheDocument();
+    }, { timeout: 5000 });
+  });
 });

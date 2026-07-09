@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo } from 'react';
+import { lazy, Suspense, useMemo, useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useDashboard } from '../contexts/DashboardContext';
 import Navbar from './Navbar';
@@ -9,6 +9,8 @@ const HomePage = lazy(() => import('../pages/HomePage'));
 const JourneyPage = lazy(() => import('../pages/JourneyPage'));
 const ReviewDeck = lazy(() => import('../components/ReviewDeck'));
 const LessonPlayer = lazy(() => import('../components/lesson/LessonPlayer'));
+const WelcomeTutorial = lazy(() => import('./WelcomeTutorial'));
+const Coachmark = lazy(() => import('./Coachmark'));
 import SkipLink from './SkipLink';
 import XpToast from './XpToast';
 import { CardSkeleton, ListSkeleton } from './Skeleton';
@@ -59,6 +61,50 @@ export default function DashboardShell() {
     setSelectedDay, setSelectedTask, setActiveView,
   } = dashboard;
 
+  // First-time tutorial: show once per device after the dashboard has loaded.
+  const [showTutorial, setShowTutorial] = useState(false);
+  const [showStartCoachmark, setShowStartCoachmark] = useState(false);
+  useEffect(() => {
+    if (dataLoading || loadError || !levelData) return;
+    if (selectedTask) return; // don't interrupt a deep-link into a lesson
+    try {
+      if (localStorage.getItem('db_tutorial_seen_v1') !== '1') {
+        setShowTutorial(true);
+      }
+    } catch { /* ignore */ }
+  }, [dataLoading, loadError, levelData, selectedTask]);
+
+  // When the tutorial closes, point the learner at the Start Lesson button —
+  // but only if they haven't completed a task yet and haven't seen this hint.
+  const handleTutorialClose = useCallback(() => {
+    setShowTutorial(false);
+    try {
+      const coachmarkSeen = localStorage.getItem('db_coachmark_seen_v1') === '1';
+      const hasCompletedTasks = (progress?.completedTasks?.length || 0) > 0;
+      if (!coachmarkSeen && !hasCompletedTasks) {
+        setShowStartCoachmark(true);
+      }
+    } catch { /* ignore */ }
+  }, [progress]);
+
+  function handleCoachmarkClose() {
+    setShowStartCoachmark(false);
+    try { localStorage.setItem('db_coachmark_seen_v1', '1'); } catch { /* ignore */ }
+  }
+
+  // If the learner enters a lesson while the tutorial or coachmark is open,
+  // dismiss the overlays so they don't sit on top of the lesson content.
+  useEffect(() => {
+    if ((selectedTask || selectedDay) && (showTutorial || showStartCoachmark)) {
+      setShowTutorial(false);
+      setShowStartCoachmark(false);
+      try {
+        localStorage.setItem('db_tutorial_seen_v1', '1');
+        localStorage.setItem('db_coachmark_seen_v1', '1');
+      } catch { /* ignore */ }
+    }
+  }, [selectedTask, selectedDay, showTutorial, showStartCoachmark]);
+
   const mainContentProps = useMemo(() => ({
     activeView, activeLevel, selectedDay, selectedTask, currentWeek,
     progress, levelData, visibleWeeks, unlockedWeeks,
@@ -106,6 +152,22 @@ export default function DashboardShell() {
   return (
     <div className="min-h-dvh bg-bg-primary">
       <SkipLink targetId="main-content" />
+      {showTutorial && (
+        <Suspense fallback={null}>
+          <WelcomeTutorial onClose={handleTutorialClose} />
+        </Suspense>
+      )}
+      {showStartCoachmark && activeView === 'dashboard' && !selectedDay && !selectedTask && (
+        <Suspense fallback={null}>
+          <Coachmark
+            targetSelector="[data-coachmark='start-lesson']"
+            title="Start here"
+            body="Tap this button to jump straight into your first German lesson. Buddy will guide you through it."
+            cta="Got it"
+            onClose={handleCoachmarkClose}
+          />
+        </Suspense>
+      )}
       {xpToast && <XpToast xp={xpToast} onComplete={() => dashboard.setXpToast(null)} />}
       {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
       {showSidebar && (
@@ -259,6 +321,7 @@ export default function DashboardShell() {
               task={selectedTask}
               tasks={currentWeek?.days?.find(d => d.day === selectedDay?.day)?.tasks || [selectedTask]}
               currentIndex={(currentWeek?.days?.find(d => d.day === selectedDay?.day)?.tasks || []).findIndex(t => t.id === selectedTask.id)}
+              topicTitle={currentWeek?.title}
               onComplete={handleCompleteTask}
               onExit={() => { setSelectedTask(null); setSelectedDay(null); }}
             />
@@ -286,7 +349,11 @@ export default function DashboardShell() {
       </main>
 
       {/* Mobile Bottom Nav */}
-      <BottomNav activeView={activeView} onViewChange={handleViewChange} />
+      <BottomNav
+        activeView={activeView}
+        onViewChange={handleViewChange}
+        badges={progress?.reviseTasks?.length ? { dashboard: progress.reviseTasks.length } : {}}
+      />
 
       {/* Desktop Footer */}
       <div className="hidden lg:block">

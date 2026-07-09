@@ -2,12 +2,9 @@ import { createContext, useContext, useState, useEffect, useRef, useCallback, us
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { useProgress } from '../hooks/useProgress';
+import { getLocalDateString } from '../utils/date';
 
 const DashboardContext = createContext(null);
-
-function getUTCDateString(date = new Date()) {
-  return date.toISOString().split('T')[0];
-}
 
 export function DashboardProvider({ children }) {
   const { user, profile, signOut } = useAuth();
@@ -88,11 +85,14 @@ export function DashboardProvider({ children }) {
     async function loadData() {
       try {
         let module;
+        // Fast track only exists for A1. A2 has no compressed curriculum, so it
+        // always falls back to the standard 8-week course regardless of trackMode.
         if (activeLevel === 'A1' && trackMode === 'fast') {
           module = await import('../data/a1FastTrackData.js');
         } else if (activeLevel === 'A1') {
           module = await import('../data/a1SpoonfedModules.js');
         } else {
+          // activeLevel === 'A2' — standard track only
           module = await import('../data/a2Data.js');
         }
         if (!cancelled) {
@@ -140,13 +140,16 @@ export function DashboardProvider({ children }) {
       const earnedXP = result && typeof result.score === 'number' && result.maxScore > 0
         ? Math.max(1, Math.round(selectedTask.xp * (result.score / result.maxScore)))
         : selectedTask.xp;
-      completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day);
+      completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day, result);
       setTodayXP(prev => prev + earnedXP);
       setXpToast(earnedXP);
       const currentWeekData = levelData?.weeks.find(w => w.id === selectedDay.weekId);
       if (currentWeekData) {
+        // Project the next completed set so the check is robust against batched updates
+        // and doesn't rely on closure state that may be one render behind.
+        const projectedCompleted = new Set([...progress.completedTasks, selectedTask.id]);
         const allDone = currentWeekData.days.every(day =>
-          day.tasks.every(t => progress.completedTasks.includes(t.id) || t.id === selectedTask.id)
+          day.tasks.every(t => projectedCompleted.has(t.id))
         );
         if (allDone) {
           setShowCelebration(true);
@@ -167,7 +170,7 @@ export function DashboardProvider({ children }) {
   const handleGameScore = useCallback((game, score) => {
     const xp = Math.min(Math.max(Math.floor(score / 2), 0), 50);
     if (xp <= 0) return;
-    const today = getUTCDateString();
+    const today = getLocalDateString();
     const taskId = `game-${game}-${today}`;
     completeTask(taskId, xp, 1, 1);
     setTodayXP(prev => prev + xp);

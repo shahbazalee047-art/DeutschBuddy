@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { IconBookOpen, IconSparkles, IconGamepad } from './Icons';
+import { englishTopicTitle } from '../utils/topicTitle';
 
 const DAILY_TASK_TARGET = 5;
 
@@ -74,7 +75,7 @@ export default function ContinueCard({ progress, activeLevel, levelData, onConti
 
           <p className="text-[15px] leading-relaxed" style={{ color: 'var(--text-on-dark-muted)' }}>
             {resumeTarget
-              ? `Next up: ${resumeTarget.task.title} · ${resumeTarget.weekTitle}`
+              ? `Next up: ${resumeTarget.task.title} · ${englishTopicTitle(resumeTarget.weekTitle)}`
               : isAllComplete
                 ? 'Outstanding! You have completed all available tasks. Explore free practice to reinforce what you have learned.'
                 : `You have met your daily goal of ${DAILY_TASK_TARGET} tasks! Continue practicing or take a well-deserved break.`}

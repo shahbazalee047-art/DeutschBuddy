@@ -24,6 +24,9 @@ dist-ssr
 *.sw?
 .env 
 
+# Buddy mascot raw source images (regeneration inputs — not served)
+public/buddy/raw/
+
 # Generator artifacts
 src/data/*.bak
 src/data/*_header.js

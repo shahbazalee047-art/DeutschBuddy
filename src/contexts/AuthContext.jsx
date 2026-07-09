@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, full_name, avatar_url, selected_pacing, notification_preferences, created_at, updated_at')
         .eq('id', userId)
         .single();
 

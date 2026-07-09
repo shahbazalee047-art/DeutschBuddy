@@ -2,9 +2,10 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import TaskRenderer from '../TaskRenderer';
 import { BuddyAvatar, BuddySpeechBubble, pickPhrase } from '../buddy';
+import { germanTopicTitle } from '../../utils/topicTitle';
 import { IconX } from '../Icons';
 
-export default function LessonPlayer({ task, tasks, currentIndex, onComplete, onExit }) {
+export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, onComplete, onExit }) {
   const containerRef = useRef(null);
   const [buddyState, setBuddyState] = useState('idle');
   const [buddyPhrase, setBuddyPhrase] = useState('');
@@ -13,6 +14,7 @@ export default function LessonPlayer({ task, tasks, currentIndex, onComplete, on
 
   const total = tasks?.length || 1;
   const progress = useMemo(() => ((currentIndex + 1) / total) * 100, [currentIndex, total]);
+  const topicDe = useMemo(() => germanTopicTitle(topicTitle), [topicTitle]);
 
   const triggerBuddy = useCallback((state, phraseCategory, tone = 'neutral', duration = 2000) => {
     setBuddyState(state);
@@ -77,6 +79,15 @@ export default function LessonPlayer({ task, tasks, currentIndex, onComplete, on
 
         <div className="w-10" />
       </div>
+
+      {/* Topic name (German) — revealed inside the lesson */}
+      {topicDe && (
+        <div className="px-4 pt-3 bg-surface">
+          <p className="max-w-2xl mx-auto text-[12px] font-semibold tracking-wide" style={{ color: 'var(--gold)', fontStyle: 'italic' }}>
+            {topicDe}
+          </p>
+        </div>
+      )}
 
       {/* Buddy corner */}
       <div className="absolute top-16 right-4 z-20 flex flex-col items-end">
