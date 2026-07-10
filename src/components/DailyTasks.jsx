@@ -1,12 +1,13 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { getDayCompletion } from '../utils/progress';
 import { germanTopicTitle } from '../utils/topicTitle';
 import { IconFire, IconBookOpen, IconEdit, IconHelpCircle, IconCards, IconLink, IconPencil, IconShuffle, IconMic, IconFeather, IconClipboard, IconTheater, IconSparkles, IconHeadphones, IconBolt, IconBook, IconCheck } from './Icons';
 
 const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], onSelectTask, onBack, activeLevel }) {
   const dayData = week?.days?.find(d => d.day === day);
+  const completedSet = useMemo(() => new Set(Array.isArray(completedTasks) ? completedTasks : []), [completedTasks]);
   if (!dayData) return null;
-  const completed = getDayCompletion(dayData.tasks, completedTasks);
+  const completed = getDayCompletion(dayData.tasks, completedSet);
   const total = dayData.tasks.length;
   const allDone = completed === total;
   const topicDe = germanTopicTitle(week?.title);
@@ -47,7 +48,7 @@ const DailyTasks = memo(function DailyTasks({ week, day, completedTasks = [], on
 
       <div className="space-y-3">
         {dayData.tasks.map((task, index) => {
-          const done = completedTasks.includes(task.id);
+          const done = completedSet.has(task.id);
           const hasIncomplete = !done;
 
           return (

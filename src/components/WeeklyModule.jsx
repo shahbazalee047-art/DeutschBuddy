@@ -1,4 +1,4 @@
-import { memo, useState } from 'react';
+import { memo, useState, useMemo } from 'react';
 import { getWeekCompletion } from '../utils/progress';
 import { englishTopicTitle } from '../utils/topicTitle';
 import { IconCheck, IconLock } from './Icons';
@@ -6,10 +6,12 @@ import { IconCheck, IconLock } from './Icons';
 const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked, activeLevel }) {
   const [expanded, setExpanded] = useState(false);
   const safeDays = Array.isArray(week?.days) ? week.days : [];
-  const safeCompleted = Array.isArray(completedTasks) ? completedTasks : [];
-  const completion = getWeekCompletion(safeDays, safeCompleted);
+  // Build a Set once (deps on the stable prop) so every per-day / per-task
+  // lookup is O(1) instead of O(n).
+  const completedSet = useMemo(() => new Set(Array.isArray(completedTasks) ? completedTasks : []), [completedTasks]);
+  const completion = getWeekCompletion(safeDays, completedSet);
   const isComplete = completion === 100;
-  const weekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).filter(t => safeCompleted.includes(t.id)).reduce((a, t) => a + (t.xp || 0), 0), 0);
+  const weekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).filter(t => completedSet.has(t.id)).reduce((a, t) => a + (t.xp || 0), 0), 0);
   const totalWeekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).reduce((a, t) => a + (t.xp || 0), 0), 0);
 
   const isDayUnlocked = (day) => {
@@ -19,7 +21,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
     for (let i = 0; i < idx; i++) {
       const tasks = safeDays[i].tasks || [];
       if (tasks.length === 0) continue;
-      if (!tasks.every(t => safeCompleted.includes(t.id))) return false;
+      if (!tasks.every(t => completedSet.has(t.id))) return false;
     }
     return true;
   };
@@ -52,7 +54,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
       // default to first incomplete day
       const firstIncomplete = safeDays.find(day => {
         const tasks = day.tasks || [];
-        return tasks.length > 0 && !tasks.every(t => safeCompleted.includes(t.id));
+        return tasks.length > 0 && !tasks.every(t => completedSet.has(t.id));
       });
       if (firstIncomplete) onSelectDay(week.id, firstIncomplete.day);
     }
@@ -120,9 +122,9 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
             <div className="absolute top-1/2 left-10 right-10 h-0.5 -translate-y-1/2" style={{ background: 'rgba(232,163,61,0.15)' }} />
             {safeDays.map((day) => {
               const tasks = day?.tasks || [];
-              const dayDone = tasks.length > 0 && tasks.every(t => safeCompleted.includes(t.id));
+              const dayDone = tasks.length > 0 && tasks.every(t => completedSet.has(t.id));
               const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
-              const dayHasIncomplete = tasks.length > 0 && !tasks.every(t => safeCompleted.includes(t.id));
+              const dayHasIncomplete = tasks.length > 0 && !tasks.every(t => completedSet.has(t.id));
               const dayUnlocked = isDayUnlocked(day);
 
               return (
@@ -157,7 +159,7 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
             <div className="absolute top-1/2 left-10 right-10 h-0.5 -translate-y-1/2" style={{ background: 'rgba(232,163,61,0.15)' }} />
             {safeDays.map((day) => {
               const tasks = day?.tasks || [];
-              const dayDone = tasks.length > 0 && tasks.every(t => safeCompleted.includes(t.id));
+              const dayDone = tasks.length > 0 && tasks.every(t => completedSet.has(t.id));
               const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
               const dayUnlocked = isDayUnlocked(day);
 

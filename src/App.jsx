@@ -5,6 +5,7 @@ import { DashboardProvider } from './contexts/DashboardContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import DashboardShell from './components/DashboardShell';
 import LoadingSpinner from './components/LoadingSpinner';
+import UpdateToast from './components/UpdateToast';
 
 const OnboardingPage = lazy(() => import('./pages/OnboardingPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -36,6 +37,7 @@ function LandingRoute() {
 export default function App() {
   return (
     <AuthProvider>
+      <UpdateToast />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/login" element={<LoginPage />} />

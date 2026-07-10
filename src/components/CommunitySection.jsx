@@ -63,11 +63,19 @@ export default function CommunitySection({ user }) {
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('community_posts')
-        .select('*, profiles:user_id(id, full_name, avatar_url)')
-        .order('created_at', { ascending: false });
+      // Posts + the current user's upvotes are independent — fetch in parallel.
+      const [postsRes, upvotesRes] = await Promise.all([
+        supabase
+          .from('community_posts')
+          .select('id, title, content, category, level, solved, upvotes, comment_count, created_at, user_id, profiles:user_id(id, full_name, avatar_url)')
+          .order('created_at', { ascending: false })
+          .limit(50),
+        user
+          ? supabase.from('community_upvotes').select('post_id').eq('user_id', user.id)
+          : Promise.resolve({ data: null }),
+      ]);
 
+      const { data, error } = postsRes;
       if (error) throw error;
 
       if (data && data.length > 0) {
@@ -78,13 +86,7 @@ export default function CommunitySection({ user }) {
         setUsingFallback(true);
       }
 
-      if (user) {
-        const { data: upvoted } = await supabase
-          .from('community_upvotes')
-          .select('post_id')
-          .eq('user_id', user.id);
-        if (upvoted) setUpvotedIds(new Set(upvoted.map(u => u.post_id)));
-      }
+      if (upvotesRes.data) setUpvotedIds(new Set(upvotesRes.data.map(u => u.post_id)));
     } catch {
       setPosts(samplePosts);
       setUsingFallback(true);

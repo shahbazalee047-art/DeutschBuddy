@@ -11,7 +11,9 @@ function getListeningText(clip) {
 export default function ListeningTask({ content, onComplete }) {
   const [ans, setAns] = useState({});
   const [sub, setSub] = useState(false);
-  const qs = content.questions || [];
+  const qs = useMemo(() => (content.questions || []).filter(
+    q => q && Array.isArray(q.options) && q.options.length > 0 && typeof q.correct === 'number' && q.correct < q.options.length
+  ), [content.questions]);
   const clip = useMemo(() => content.clip || {}, [content.clip]);
   const audioText = useMemo(() => getListeningText(clip), [clip]);
 

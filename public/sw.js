@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'deutschbuddy-v4';
+const CACHE_VERSION = 'deutschbuddy-v5';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 const FONT_CACHE = `${CACHE_VERSION}-fonts`;
@@ -7,8 +7,16 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/buddy-icon-192.png',
+  '/buddy-icon-512.png',
+  // Buddy mascot — used on home, lessons, tutorial, review. Precache so the
+  // mascot renders offline on first use after install.
+  '/buddy/buddy-square-512.webp',
+  '/buddy/buddy-happy.webp',
+  '/buddy/buddy-celebrate.webp',
+  '/buddy/buddy-thinking.webp',
+  '/buddy/buddy-sad.webp',
+  '/buddy/buddy-waving.webp'
 ];
 
 self.addEventListener('install', (event) => {
@@ -30,10 +38,12 @@ self.addEventListener('activate', (event) => {
 
 function isStaticAsset(url) {
   return url.pathname.startsWith('/assets/') ||
+    url.pathname.startsWith('/buddy/') ||
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.css') ||
     url.pathname.endsWith('.svg') ||
     url.pathname.endsWith('.png') ||
+    url.pathname.endsWith('.webp') ||
     url.pathname.endsWith('.json');
 }
 

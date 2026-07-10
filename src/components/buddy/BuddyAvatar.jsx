@@ -214,7 +214,6 @@ const BuddyAvatar = memo(function BuddyAvatar({
         <BuddySvg state={state} size={size} />
       ) : (
         <img
-          key={src}
           src={src}
           alt=""
           width={size}

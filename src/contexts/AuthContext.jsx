@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext(null);
@@ -98,7 +98,10 @@ export function AuthProvider({ children }) {
     return Promise.resolve();
   }, [user, fetchProfile]);
 
-  async function signUp(email, password, fullName) {
+  // Auth methods close only over the stable supabase client, so they're stable
+  // across renders — keeping the context value referentially stable and
+  // preventing memoized consumers (Navbar) from re-rendering needlessly.
+  const signUp = useCallback(async (email, password, fullName) => {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -106,34 +109,34 @@ export function AuthProvider({ children }) {
     });
     if (error) throw error;
     return data;
-  }
+  }, []);
 
-  async function signIn(email, password) {
+  const signIn = useCallback(async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
-  }
+  }, []);
 
-  async function signOut() {
+  const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     profileFetchedRef.current = false;
     userIdRef.current = null;
-  }
+  }, []);
 
-  async function resetPassword(email) {
+  const resetPassword = useCallback(async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) throw error;
-  }
+  }, []);
 
-  async function updatePassword(newPassword) {
+  const updatePassword = useCallback(async (newPassword) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) throw error;
-  }
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     profile,
     loading,
@@ -143,7 +146,7 @@ export function AuthProvider({ children }) {
     resetPassword,
     updatePassword,
     refreshProfile,
-  };
+  }), [user, profile, loading, signUp, signIn, signOut, resetPassword, updatePassword, refreshProfile]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

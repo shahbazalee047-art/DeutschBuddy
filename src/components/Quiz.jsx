@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import SpeakerButton from './SpeakerButton';
-import { IconHelpCircle, IconCheck, IconX, IconSparkles, IconLightbulb } from './Icons';
+import { IconHelpCircle, IconCheck, IconX, IconSparkles, IconLightbulb, IconArrowRight } from './Icons';
 
 const UMLAUT_MAP = { 'ä': 'a', 'ö': 'o', 'ü': 'u', 'ß': 'ss' };
 
@@ -69,11 +69,33 @@ export default function Quiz({ content, onComplete }) {
   const [score, setScore] = useState(0);
   const [errorInfo, setErrorInfo] = useState(null);
 
-  const qs = useMemo(() => content.questions || [], [content.questions]);
+  const qs = useMemo(() => (content.questions || []).filter(
+    q => q && Array.isArray(q.options) && q.options.length > 0 && typeof q.correct === 'number' && q.correct < q.options.length
+  ), [content.questions]);
 
   const q = useMemo(() => qs[cur] || { question: '', options: [], correct: 0, metadata: {} }, [qs, cur]);
   const isLast = cur === qs.length - 1;
   const hasQuestions = qs.length > 0;
+
+  const advanceTimer = useRef(null);
+  const scoreRef = useRef(0);
+
+  // Clear any pending auto-advance on unmount.
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
+
+  // Reads scoreRef (not the `score` closure) so the timeout path and the manual
+  // Next path both report the same correct total. Without this, the manual Next
+  // button double-counts the final question (score closure is fresh there).
+  const advance = useCallback(() => {
+    if (isLast) {
+      onComplete({ score: scoreRef.current, maxScore: qs.length });
+    } else {
+      setCur((p) => p + 1);
+      setSel(null);
+      setShow(false);
+      setErrorInfo(null);
+    }
+  }, [isLast, qs.length, onComplete]);
 
   const handlePick = useCallback((i) => {
     if (show) return;
@@ -84,6 +106,7 @@ export default function Quiz({ content, onComplete }) {
 
     if (isCorrect) {
       setScore((p) => p + 1);
+      scoreRef.current += 1; // synchronous so advance() sees it on either path
       setShow(true);
     } else {
       const err = analyzeGermanError(q.options[i], q.options[q.correct], q.metadata || {});
@@ -91,17 +114,15 @@ export default function Quiz({ content, onComplete }) {
       setShow(true);
     }
 
-    setTimeout(() => {
-      if (isLast) {
-        onComplete({ score: isCorrect ? score + 1 : score, maxScore: qs.length });
-      } else {
-        setCur((p) => p + 1);
-        setSel(null);
-        setShow(false);
-        setErrorInfo(null);
-      }
-    }, isCorrect ? 1200 : 2500);
-  }, [show, q, isLast, score, qs.length, onComplete]);
+    // Auto-advance as a fallback; the Next button cancels this and goes immediately.
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(advance, isCorrect ? 2200 : 5000);
+  }, [show, q, advance]);
+
+  const next = useCallback(() => {
+    if (advanceTimer.current) { clearTimeout(advanceTimer.current); advanceTimer.current = null; }
+    advance();
+  }, [advance]);
 
   if (!hasQuestions) {
     return (
@@ -202,6 +223,15 @@ export default function Quiz({ content, onComplete }) {
           ) : (
             <span>Fast richtig! Almost there!</span>
           )}
+        </div>
+      )}
+
+      {show && (
+        <div className="flex justify-center mt-4">
+          <button onClick={next} className="btn-primary px-8 py-3 text-sm flex items-center gap-2 active:scale-95">
+            {isLast ? 'Finish' : 'Next'}
+            <IconArrowRight className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

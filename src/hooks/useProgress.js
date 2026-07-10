@@ -217,35 +217,29 @@ export function useProgress(level) {
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
 
-    try {
-      const { error: upsertError } = await supabase
-        .from('progress')
-        .upsert({
-          user_id: currentUser.id,
-          level: currentLevel,
-          xp: next.xp,
-          streak: next.streak,
-          last_study_date: next.lastStudyDate,
-          completed_tasks: next.completedTasks,
-          revise_tasks: next.reviseTasks,
-          badges: next.badges,
-          unlocked_weeks: next.unlockedWeeks,
-          weekly_xp: next.weeklyXP,
-        }, { onConflict: 'user_id,level' });
+    // The progress upsert and the exercise_results insert are independent —
+    // run them in parallel to halve the latency the user feels on completion.
+    const upsertPromise = supabase
+      .from('progress')
+      .upsert({
+        user_id: currentUser.id,
+        level: currentLevel,
+        xp: next.xp,
+        streak: next.streak,
+        last_study_date: next.lastStudyDate,
+        completed_tasks: next.completedTasks,
+        revise_tasks: next.reviseTasks,
+        badges: next.badges,
+        unlocked_weeks: next.unlockedWeeks,
+        weekly_xp: next.weeklyXP,
+      }, { onConflict: 'user_id,level' })
+      .then(({ error }) => {
+        if (error) { console.error('Progress upsert error:', error); fetchProgress(); }
+      });
 
-      if (upsertError) {
-        console.error('Progress upsert error:', upsertError);
-        fetchProgress();
-      }
-    } catch (err) {
-      console.error('Progress save error:', err);
-      fetchProgress();
-    }
-
-    // Always log the attempt, but avoid duplicate exercise_result rows for repeats in the same session
-    try {
-      if (!alreadyCompleted) {
-        const { error: exerciseError } = await supabase.from('exercise_results').insert({
+    // Log the attempt (avoid duplicate rows for repeats in the same session).
+    const exercisePromise = !alreadyCompleted
+      ? supabase.from('exercise_results').insert({
           user_id: currentUser.id,
           level: currentLevel,
           week_id: weekId,
@@ -255,14 +249,16 @@ export function useProgress(level) {
           score: xpAmount,
           max_score: xpAmount,
           completed: true,
-        });
+        }).then(({ error }) => {
+          if (error) console.error('Exercise result save error:', error);
+        })
+      : Promise.resolve();
 
-        if (exerciseError) {
-          console.error('Exercise result save error:', exerciseError);
-        }
-      }
+    try {
+      await Promise.all([upsertPromise, exercisePromise]);
     } catch (err) {
-      console.error('Exercise result save error:', err);
+      console.error('Progress save error:', err);
+      fetchProgress();
     }
   }, [fetchProgress]);
 

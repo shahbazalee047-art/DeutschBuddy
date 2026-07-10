@@ -28,6 +28,10 @@ const GamePanel = lazy(() => import('./GamePanel'));
 const DayCompleteCelebration = lazy(() => import('./ConfettiEffect'));
 const Footer = lazy(() => import('./Footer'));
 
+// Stable empty object so memoized nav components don't re-render when there are
+// no badges to show (identity never changes).
+const EMPTY_BADGES = {};
+
 function LoadingScreen() {
   return <LoadingSpinner message="Buddy is fetching your lessons..." />;
 }
@@ -37,7 +41,7 @@ export default function DashboardShell() {
   const {
     user, profile,
     activeLevel, activeView, selectedDay, selectedTask,
-    showCelebration, todayXP, xpToast,
+    showCelebration, todayXP, xpToast, setXpToast, setShowCelebration,
     showQuickTool, setShowQuickTool,
     showSidebarVerbLookup, setShowSidebarVerbLookup,
     showSpeedBlitz, setShowSpeedBlitz,
@@ -113,6 +117,56 @@ export default function DashboardShell() {
     onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
   }), [activeView, activeLevel, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
 
+  // Stabilized handlers so memoized children (Navbar, BottomNav, MobileSidebar,
+  // GamePanel, NotificationPanel) don't re-render on every DashboardShell render.
+  // All close only over stable useState setters, so empty deps are correct.
+  const handleOpenQuickTool = useCallback(() => setShowQuickTool(true), [setShowQuickTool]);
+  const handleCloseQuickTool = useCallback(() => setShowQuickTool(false), [setShowQuickTool]);
+  const handleOpenNotifications = useCallback(() => setShowNotifications(true), [setShowNotifications]);
+  const handleCloseSidebar = useCallback(() => setShowSidebar(false), [setShowSidebar]);
+  const handleOpenVerbLookup = useCallback(() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }, [setShowSidebar, setShowSidebarVerbLookup]);
+  const handleOpenSpeedBlitz = useCallback(() => { setShowSidebar(false); setShowSpeedBlitz(true); }, [setShowSidebar, setShowSpeedBlitz]);
+  const handleOpenGenderDungeon = useCallback(() => { setShowSidebar(false); setShowGenderDungeon(true); }, [setShowSidebar, setShowGenderDungeon]);
+  const handleOpenPictureMatch = useCallback(() => { setShowSidebar(false); setShowPictureMatch(true); }, [setShowSidebar, setShowPictureMatch]);
+  const handleCloseSidebarVerbLookup = useCallback(() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }, [setShowSidebarVerbLookup, setShowSidebar]);
+  const handleCloseSpeedBlitz = useCallback(() => { setShowSpeedBlitz(false); setShowSidebar(true); }, [setShowSpeedBlitz, setShowSidebar]);
+  const handleCloseGenderDungeon = useCallback(() => { setShowGenderDungeon(false); setShowSidebar(true); }, [setShowGenderDungeon, setShowSidebar]);
+  const handleClosePictureMatch = useCallback(() => { setShowPictureMatch(false); setShowSidebar(true); }, [setShowPictureMatch, setShowSidebar]);
+  const handleScoreSpeedBlitz = useCallback((score) => handleGameScore('speedblitz', score), [handleGameScore]);
+  const handleScoreGenderDungeon = useCallback((score) => handleGameScore('genderdungeon', score), [handleGameScore]);
+  const handleScorePictureMatch = useCallback((score) => handleGameScore('picturematch', score), [handleGameScore]);
+  const handleCloseNotifications = useCallback(() => { setShowNotifications(false); setNotifVersion(v => v + 1); }, [setShowNotifications, setNotifVersion]);
+  const handleCloseXpToast = useCallback(() => setXpToast(null), [setXpToast]);
+  const handleCloseCelebration = useCallback(() => setShowCelebration(false), [setShowCelebration]);
+  const handleStreakGuardianSuccess = useCallback(() => { recoverStreak(); setShowStreakGuardian(false); }, [recoverStreak, setShowStreakGuardian]);
+  const handleStreakGuardianClose = useCallback(() => setShowStreakGuardian(false), [setShowStreakGuardian]);
+  const handleNotificationNavigate = useCallback((action) => {
+    if (typeof action === 'string') {
+      handleViewChange(action);
+    } else if (action.type === 'view') {
+      handleViewChange(action.target);
+    } else if (action.type === 'day') {
+      handleSelectDay(action.weekId, action.day);
+    } else if (action.type === 'task' && action.taskId && levelData) {
+      handleSelectDay(action.weekId, action.day);
+      const week = levelData.weeks?.find(w => w.id === action.weekId);
+      const day = week?.days?.find(d => d.day === action.day);
+      const task = day?.tasks?.find(t => t.id === action.taskId);
+      if (task) {
+        setTimeout(() => setSelectedTask(task), 0);
+      }
+    } else if (action.type === 'guardian') {
+      setShowStreakGuardian(true);
+    }
+  }, [handleViewChange, handleSelectDay, levelData, setSelectedTask, setShowStreakGuardian]);
+
+  // BottomNav badge — memoized so the object identity is stable unless the
+  // revise count actually changes.
+  const bottomNavBadges = useMemo(() => {
+    const n = progress?.reviseTasks?.length || 0;
+    return n ? { dashboard: n } : EMPTY_BADGES;
+  }, [progress?.reviseTasks?.length]);
+
   if (loadError) {
     return (
       <div className="min-h-dvh flex items-center justify-center p-4 bg-bg-base">
@@ -168,41 +222,41 @@ export default function DashboardShell() {
           />
         </Suspense>
       )}
-      {xpToast && <XpToast xp={xpToast} onComplete={() => dashboard.setXpToast(null)} />}
-      {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={() => setShowQuickTool(false)} /></Suspense>}
+      {xpToast && <XpToast xp={xpToast} onComplete={handleCloseXpToast} />}
+      {showQuickTool && <Suspense fallback={null}><QuickGermanTool onClose={handleCloseQuickTool} /></Suspense>}
       {showSidebar && (
         <MobileSidebar
           isOpen={showSidebar}
-          onClose={() => setShowSidebar(false)}
+          onClose={handleCloseSidebar}
           activeView={activeView}
           onViewChange={handleViewChange}
           activeLevel={activeLevel}
           onLevelChange={handleLevelChange}
-          onVerbLookup={() => { setShowSidebar(false); setShowSidebarVerbLookup(true); }}
-          onOpenSpeedBlitz={() => { setShowSidebar(false); setShowSpeedBlitz(true); }}
-          onOpenGenderDungeon={() => { setShowSidebar(false); setShowGenderDungeon(true); }}
-          onOpenPictureMatch={() => { setShowSidebar(false); setShowPictureMatch(true); }}
+          onVerbLookup={handleOpenVerbLookup}
+          onOpenSpeedBlitz={handleOpenSpeedBlitz}
+          onOpenGenderDungeon={handleOpenGenderDungeon}
+          onOpenPictureMatch={handleOpenPictureMatch}
         />
       )}
-      {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={() => { setShowSidebarVerbLookup(false); setShowSidebar(true); }} /></Suspense>}
+      {showSidebarVerbLookup && <Suspense fallback={null}><QuickGermanTool onClose={handleCloseSidebarVerbLookup} /></Suspense>}
       {showSpeedBlitz && (
         <Suspense fallback={<LoadingScreen />}>
-          <GamePanel title="Wortblitz" onClose={() => { setShowSpeedBlitz(false); setShowSidebar(true); }}>
-            <SpeedBlitz level={activeLevel} onScore={(score) => handleGameScore('speedblitz', score)} />
+          <GamePanel title="Wortblitz" onClose={handleCloseSpeedBlitz}>
+            <SpeedBlitz level={activeLevel} onScore={handleScoreSpeedBlitz} />
           </GamePanel>
         </Suspense>
       )}
       {showGenderDungeon && (
         <Suspense fallback={<LoadingScreen />}>
-          <GamePanel title="Der Die Das Dungeon" onClose={() => { setShowGenderDungeon(false); setShowSidebar(true); }}>
-            <GenderDungeon onScore={(score) => handleGameScore('genderdungeon', score)} />
+          <GamePanel title="Der Die Das Dungeon" onClose={handleCloseGenderDungeon}>
+            <GenderDungeon onScore={handleScoreGenderDungeon} />
           </GamePanel>
         </Suspense>
       )}
       {showPictureMatch && (
         <Suspense fallback={<LoadingScreen />}>
-          <GamePanel title="Bild Memory" onClose={() => { setShowPictureMatch(false); setShowSidebar(true); }}>
-            <PictureMatch level={activeLevel} onScore={(score) => handleGameScore('picturematch', score)} />
+          <GamePanel title="Bild Memory" onClose={handleClosePictureMatch}>
+            <PictureMatch level={activeLevel} onScore={handleScorePictureMatch} />
           </GamePanel>
         </Suspense>
       )}
@@ -210,26 +264,8 @@ export default function DashboardShell() {
         <Suspense fallback={null}>
           <NotificationPanel
             isOpen={showNotifications}
-            onClose={() => { setShowNotifications(false); setNotifVersion(v => v + 1); }}
-            onNavigate={(action) => {
-              if (typeof action === 'string') {
-                handleViewChange(action);
-              } else if (action.type === 'view') {
-                handleViewChange(action.target);
-              } else if (action.type === 'day') {
-                handleSelectDay(action.weekId, action.day);
-              } else if (action.type === 'task' && action.taskId && levelData) {
-                handleSelectDay(action.weekId, action.day);
-                const week = levelData.weeks?.find(w => w.id === action.weekId);
-                const day = week?.days?.find(d => d.day === action.day);
-                const task = day?.tasks?.find(t => t.id === action.taskId);
-                if (task) {
-                  setTimeout(() => setSelectedTask(task), 0);
-                }
-              } else if (action.type === 'guardian') {
-                setShowStreakGuardian(true);
-              }
-            }}
+            onClose={handleCloseNotifications}
+            onNavigate={handleNotificationNavigate}
             progress={progress}
             visibleWeeks={visibleWeeks}
             unlockedWeeks={unlockedWeeks}
@@ -237,15 +273,15 @@ export default function DashboardShell() {
         </Suspense>
       )}
       <Suspense fallback={null}>
-        <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} onComplete={() => dashboard.setShowCelebration(false)} />
+        <DayCompleteCelebration show={showCelebration} xpEarned={todayXP} onComplete={handleCloseCelebration} />
       </Suspense>
       {showStreakGuardian && (
         <Suspense fallback={null}>
           <StreakGuardian
             levelData={levelData}
             completedTasks={progress?.completedTasks || []}
-            onSuccess={() => { recoverStreak(); setShowStreakGuardian(false); }}
-            onClose={() => setShowStreakGuardian(false)}
+            onSuccess={handleStreakGuardianSuccess}
+            onClose={handleStreakGuardianClose}
           />
         </Suspense>
       )}
@@ -259,8 +295,8 @@ export default function DashboardShell() {
           onLevelChange={handleLevelChange}
           xp={progress?.xp || 0}
           streak={progress?.streak || 0}
-          onQuickTool={() => setShowQuickTool(true)}
-          onNotifications={() => setShowNotifications(true)}
+          onQuickTool={handleOpenQuickTool}
+          onNotifications={handleOpenNotifications}
           hasUnreadNotifications={hasUnreadNotifications}
         />
       </div>
@@ -352,7 +388,7 @@ export default function DashboardShell() {
       <BottomNav
         activeView={activeView}
         onViewChange={handleViewChange}
-        badges={progress?.reviseTasks?.length ? { dashboard: progress.reviseTasks.length } : {}}
+        badges={bottomNavBadges}
       />
 
       {/* Desktop Footer */}

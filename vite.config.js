@@ -119,7 +119,6 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules/framer-motion')) return 'framer-motion';
             if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/react-router')) return 'vendor-ui';
             if (id.includes('node_modules/@supabase') || id.includes('src/lib/supabase.js')) return 'supabase';
-            if (id.includes('node_modules/lucide-react') || id.includes('node_modules/react-icons')) return 'icons';
             if (id.includes('src/data/a1SpoonfedModules.js')) return 'curriculum-a1';
             if (id.includes('src/data/a1FastTrackData.js')) return 'curriculum-a1-fast';
             if (id.includes('src/data/a2Data.js')) return 'curriculum-a2';

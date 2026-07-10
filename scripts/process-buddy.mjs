@@ -39,12 +39,8 @@ async function removeBackground(input) {
 
 console.log('Processing base mascot…');
 
-// 1. Optimized original (background kept — for splash / large display)
-await sharp(SRC).webp({ quality: 92 }).toFile(`${OUT}/buddy-full.webp`);
-console.log('  ✓ buddy-full.webp');
-
-// 2. Base — transparent. Prefer a user-provided transparent image (real alpha,
-//    cleaner edges) over chroma-keying Buddy.png.
+// Base — transparent. Prefer a user-provided transparent image (real alpha,
+// cleaner edges) over chroma-keying Buddy.png.
 async function hasAlpha(p) {
   try { const m = await sharp(p).metadata(); return m.hasAlpha; } catch { return false; }
 }
@@ -56,34 +52,11 @@ if (fs.existsSync(USER_TRANSPARENT) && await hasAlpha(USER_TRANSPARENT)) {
 } else {
   transparentPipeline = await removeBackground(SRC);
 }
-await transparentPipeline.clone().webp({ quality: 92 }).toFile(`${OUT}/buddy-transparent.webp`);
 await transparentPipeline.clone()
   .resize(512, 512, { fit: 'cover', position: 'center' })
   .webp({ quality: 92 })
   .toFile(`${OUT}/buddy-square-512.webp`);
-console.log('  ✓ buddy-transparent.webp + buddy-square-512.webp');
-
-// 3. Circular-masked avatars. Prefer a user-provided circle image if present
-//    (re-encode + mask), else generate from the base.
-const circleSvg = (size) => Buffer.from(
-  `<svg width="${size}" height="${size}"><circle cx="${size / 2}" cy="${size / 2}" r="${size / 2}" fill="white"/></svg>`
-);
-async function makeCircle(inputPath, size) {
-  await sharp(inputPath)
-    .resize(size, size, { fit: 'cover', position: 'center' })
-    .composite([{ input: circleSvg(size), blend: 'dest-in' }])
-    .png({ compressionLevel: 9 })
-    .toFile(`${OUT}/buddy-circle-${size}.png`);
-}
-for (const size of [512, 192]) {
-  const userCircle = `${OUT}/buddy-circle-${size}.webp`;
-  if (fs.existsSync(userCircle)) {
-    await makeCircle(userCircle, size);
-  } else {
-    await makeCircle(SRC, size);
-  }
-}
-console.log('  ✓ buddy-circle-{512,192}.png');
+console.log('  ✓ buddy-square-512.webp');
 
 // 4. Emotion variants — process any Buddy-<state>.* sources.
 //    Scans public/buddy/ first, then public/buddy/raw/ (so re-runs still find them

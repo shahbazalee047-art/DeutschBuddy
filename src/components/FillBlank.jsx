@@ -1,6 +1,6 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import SpeakerButton from './SpeakerButton';
-import { IconEdit, IconSparkles, IconHeart, IconLightbulb } from './Icons';
+import { IconEdit, IconSparkles, IconHeart, IconLightbulb, IconArrowRight } from './Icons';
 
 const UMLAUT_MAP = { 'ä': 'a', 'ö': 'o', 'ü': 'u', 'ß': 'ss' };
 
@@ -77,38 +77,56 @@ export default function FillBlank({ content, onComplete }) {
   const [errorInfo, setErrorInfo] = useState(null);
   const [showHint, setShowHint] = useState(false);
 
-  const sents = useMemo(() => content.sentences || [], [content.sentences]);
+  const sents = useMemo(() => (content.sentences || []).filter(
+    s => s && typeof s.answer === 'string' && s.answer.length > 0
+  ), [content.sentences]);
 
   const s = useMemo(() => sents[cur] || { text: '', answer: '', metadata: {} }, [sents, cur]);
   const isLast = cur === sents.length - 1;
   const hasSentences = sents.length > 0;
-  const isCorrect = ans.trim().toLowerCase() === s.answer.toLowerCase();
+  const isCorrect = ans.trim().toLowerCase() === (s.answer || '').toLowerCase();
+
+  const advanceTimer = useRef(null);
+  const scoreRef = useRef(0);
+  useEffect(() => () => { if (advanceTimer.current) clearTimeout(advanceTimer.current); }, []);
+
+  // Reads scoreRef so the timeout path and the manual Next path report the same
+  // correct total (avoids the manual-Next double-count on the last question).
+  const advance = useCallback(() => {
+    if (isLast) {
+      onComplete({ score: scoreRef.current, maxScore: sents.length });
+    } else {
+      setCur((p) => p + 1);
+      setAns('');
+      setShow(false);
+      setErrorInfo(null);
+      setShowHint(false);
+    }
+  }, [isLast, sents.length, onComplete]);
 
   const submit = useCallback(() => {
-    const correct = ans.trim().toLowerCase() === s.answer.toLowerCase();
+    const correct = ans.trim().toLowerCase() === (s.answer || '').toLowerCase();
 
     if (correct) {
       setScore((p) => p + 1);
+      scoreRef.current += 1; // synchronous so advance() sees it on either path
       setShow(true);
       setErrorInfo(null);
     } else {
-      const err = analyzeGermanError(ans, s.answer, s.metadata || {});
+      const err = analyzeGermanError(ans, s.answer || '', s.metadata || {});
       setErrorInfo(err);
       setShow(true);
     }
 
-    setTimeout(() => {
-      if (isLast) {
-        onComplete({ score: correct ? score + 1 : score, maxScore: sents.length });
-      } else {
-        setCur((p) => p + 1);
-        setAns('');
-        setShow(false);
-        setErrorInfo(null);
-        setShowHint(false);
-      }
-    }, correct ? 1200 : 2500);
-  }, [ans, s, isLast, score, sents.length, onComplete]);
+    // Auto-advance fallback; the Next button cancels this and advances immediately.
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(advance, correct ? 2200 : 5000);
+  }, [ans, s, advance]);
+
+  const next = useCallback(() => {
+    if (advanceTimer.current) { clearTimeout(advanceTimer.current); advanceTimer.current = null; }
+    advance();
+  }, [advance]);
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !show) submit();
@@ -159,6 +177,11 @@ export default function FillBlank({ content, onComplete }) {
               onKeyDown={handleKeyDown}
               disabled={show}
               placeholder="Type your answer..."
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              autoCapitalize="off"
+              inputMode="text"
               className={`w-full max-w-md paper-input text-center text-lg font-medium fill-blank-input ${
                 show && !isCorrect ? 'border-[var(--error)]' : ''
               }`}
@@ -213,6 +236,15 @@ export default function FillBlank({ content, onComplete }) {
               Answer: "{s.answer}" <IconHeart className="w-4 h-4" />
             </span>
           )}
+        </div>
+      )}
+
+      {show && (
+        <div className="flex justify-center mt-4">
+          <button onClick={next} className="btn-primary px-8 py-3 text-sm flex items-center gap-2 active:scale-95">
+            {isLast ? 'Finish' : 'Next'}
+            <IconArrowRight className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

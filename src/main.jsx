@@ -9,6 +9,12 @@ import App from './App.jsx'
 window.addEventListener('unhandledrejection', (event) => {
   if (event.reason?.message?.includes('Failed to fetch dynamically imported module')) {
     event.preventDefault();
+    // Guard against an infinite reload loop when the deployed chunk itself is
+    // broken: reload at most once per session, then leave the rejection alone.
+    try {
+      if (sessionStorage.getItem('db_chunk_reload_attempted') === '1') return;
+      sessionStorage.setItem('db_chunk_reload_attempted', '1');
+    } catch { /* ignore */ }
     window.location.reload();
   }
 });

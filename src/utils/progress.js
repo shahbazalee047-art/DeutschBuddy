@@ -44,16 +44,24 @@ export function calculateStreak(lastStudyDate) {
   return 0;
 }
 
+// Accept either an Array or a Set of completed task ids. Callers should pass a
+// memoized Set for O(1) lookups in render-heavy components (WeeklyModule, etc.).
+function toSet(completed) {
+  return completed instanceof Set ? completed : new Set(completed || []);
+}
+
 export function getWeekCompletion(weekDays, completedTasks) {
-  const totalTasks = weekDays.reduce((acc, day) => acc + day.tasks.length, 0);
+  const set = toSet(completedTasks);
+  const totalTasks = weekDays.reduce((acc, day) => acc + ((day.tasks || []).length), 0);
   const completed = weekDays.reduce((acc, day) =>
-    acc + day.tasks.filter(t => completedTasks.includes(t.id)).length, 0
+    acc + (day.tasks || []).filter(t => set.has(t.id)).length, 0
   );
   return totalTasks > 0 ? Math.round((completed / totalTasks) * 100) : 0;
 }
 
 export function getDayCompletion(dayTasks, completedTasks) {
-  return dayTasks.filter(t => completedTasks.includes(t.id)).length;
+  const set = toSet(completedTasks);
+  return dayTasks.filter(t => set.has(t.id)).length;
 }
 
 export function checkBadges(xp, streak, completedTasks, existingBadges) {

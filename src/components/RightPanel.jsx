@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { IconBolt, IconTarget, IconTrophy, IconDiamond, IconChevronDown, IconChevronUp, IconGamepad } from './Icons';
 
 function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth = 8 }) {
@@ -6,6 +6,8 @@ function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth =
   const circumference = 2 * Math.PI * radius;
   const progress = Math.min(xp / target, 1);
   const offset = circumference * (1 - progress);
+  // Unique id per instance so multiple rings don't share a <defs> id.
+  const gradId = useId();
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -14,12 +16,12 @@ function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth =
           <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--bg-secondary)" strokeWidth={strokeWidth} />
           <circle
             cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke="url(#ringGradient)" strokeWidth={strokeWidth}
+            fill="none" stroke={`url(#${gradId})`} strokeWidth={strokeWidth}
             strokeDasharray={circumference} strokeDashoffset={offset}
             strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
           />
           <defs>
-            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" stopColor="var(--gold)" />
               <stop offset="100%" stopColor="var(--gold-light)" />
             </linearGradient>

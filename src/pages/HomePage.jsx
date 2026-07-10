@@ -153,7 +153,7 @@ export default function HomePage({ onViewJourney }) {
             <div className="flex items-center gap-2 overflow-x-auto pb-2">
               {levelData.weeks.slice(0, 6).map((week, i) => {
                 const isCompleted = progress?.completedTasks?.length > 0 && week.days.every(d =>
-                  d.tasks.every(t => progress.completedTasks.includes(t.id))
+                  d.tasks.every(t => completedSet.has(t.id))
                 );
                 const isCurrent = nextLesson?.week.id === week.id;
                 const isLocked = !unlockedWeeks?.includes(week.id);
