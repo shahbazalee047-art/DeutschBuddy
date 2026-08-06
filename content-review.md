@@ -2232,12 +2232,19 @@ Note: der -> dem, die -> der, das -> dem, ein -> einem
 | German | English | Pronunciation |
 |---|---|---|
 | -ung (die) | die Zeitung (newspaper), die Wohnung (apartment) | — |
+  *Always feminine*
 | -keit (die) | die Schönheit (beauty), die Gesundheit (health) | — |
+  *Always feminine*
 | -heit (die) | die Freiheit (freedom), die Gesundheit (health) | — |
+  *Always feminine*
 | -chen (das) | das Mädchen (girl), das Häuschen (little house) | — |
+  *Always neuter*
 | -lein (das) | das Fräulein (miss), das Büchlein (booklet) | — |
+  *Always neuter*
 | -ling (der) | der Frühling (spring), der Schmetterling (butterfly) | — |
+  *Always masculine*
 | -ismus (der) | der Kapitalismus, der Tourismus | — |
+  *Always masculine*
 
 **Quiz**
 1. Words ending in "-ung" are always...
