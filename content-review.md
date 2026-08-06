@@ -7,6 +7,7 @@ Content extracted verbatim from the app's curriculum data for review. Organized 
 1. **A1 Spoon-Fed Curriculum**
 2. **A1 Fast-Track Curriculum**
 3. **A2 Curriculum**
+4. **Supplementary Content** — gender word banks, picture vocabulary, speed-blitz word banks, verb conjugations, onboarding sample vocabulary (sorted A–Z)
 
 ## A1 Spoon-Fed Curriculum — 10 weeks
 
@@ -5164,6 +5165,946 @@ Tips:
 - You are ready to start B1 level!
 - Continue practicing daily to maintain your skills.
 
+## Supplementary Content
+
+Word banks and tool content used across the app, complete and sorted A–Z by German word.
+
+### Gender Word Banks (der / die / das)
+
+**Der — masculine** (76 words)
+
+| German | English |
+|---|---|
+| der Abend | evening |
+| der Anfang | beginning |
+| der Apfel | apple |
+| der Arm | arm |
+| der Arzt | doctor |
+| der Bahnhof | train station |
+| der Becher | cup / mug |
+| der Berg | mountain |
+| der Bruder | brother |
+| der Bus | bus |
+| der Chef | boss |
+| der Computer | computer |
+| der Fahrer | driver |
+| der Fernseher | television |
+| der Finger | finger |
+| der Fisch | fish |
+| der Flughafen | airport |
+| der Fluss | river |
+| der Freund | friend |
+| der Frühling | spring |
+| der Fuß | foot |
+| der Garten | garden |
+| der Herbst | autumn |
+| der Herd | stove |
+| der Himmel | sky |
+| der Hund | dog |
+| der Junge | boy |
+| der Kaffee | coffee |
+| der Käse | cheese |
+| der Koch | cook / chef |
+| der Kollege | colleague |
+| der Kopf | head |
+| der Korb | basket |
+| der Kühlschrank | refrigerator |
+| der Laden | shop |
+| der Lehrer | teacher |
+| der Löffel | spoon |
+| der Magen | stomach |
+| der Mann | man |
+| der Markt | market |
+| der Monat | month |
+| der Mond | moon |
+| der Morgen | morning |
+| der Nachmittag | afternoon |
+| der Name | name |
+| der Ofen | oven |
+| der Park | park |
+| der Platz | place / square |
+| der Preis | price |
+| der Regen | rain |
+| der Reis | rice |
+| der Rücken | back |
+| der Saft | juice |
+| der Samstag | Saturday |
+| der Schlüssel | key |
+| der Schnee | snow |
+| der Schrank | cupboard |
+| der Sohn | son |
+| der Sommer | summer |
+| der Sonntag | Sunday |
+| der Stift | pen |
+| der Student | student |
+| der Stuhl | chair |
+| der Supermarkt | supermarket |
+| der Tee | tea |
+| der Teller | plate |
+| der Tisch | table |
+| der Unterricht | lesson / class |
+| der Urlaub | vacation |
+| der Vater | father |
+| der Verkäufer | salesperson |
+| der Wald | forest |
+| der Wein | wine |
+| der Wind | wind |
+| der Winter | winter |
+| der Zug | train |
+
+**Die — feminine** (70 words)
+
+| German | English |
+|---|---|
+| die Adresse | address |
+| die Antwort | answer |
+| die Arbeit | work |
+| die Aufgabe | task / assignment |
+| die Blume | flower |
+| die Brille | glasses |
+| die Brücke | bridge |
+| die Butter | butter |
+| die Cola | cola / soda |
+| die E-Mail | email |
+| die Ecke | corner |
+| die Familie | family |
+| die Farbe | color |
+| die Flasche | bottle |
+| die Frage | question |
+| die Frau | woman |
+| die Freundin | friend (female) |
+| die Gabel | fork |
+| die Geschichte | history / story |
+| die Gruppe | group |
+| die Hand | hand |
+| die Hilfe | help |
+| die Hose | pants |
+| die Idee | idea |
+| die Insel | island |
+| die Jacke | jacket |
+| die Karte | card / map / ticket |
+| die Katze | cat |
+| die Kirche | church |
+| die Klasse | class / grade |
+| die Küche | kitchen |
+| die Lampe | lamp |
+| die Milch | milk |
+| die Minute | minute |
+| die Mitte | middle |
+| die Musik | music |
+| die Mutter | mother |
+| die Nachricht | message / news |
+| die Nase | nose |
+| die Nummer | number |
+| die Pizza | pizza |
+| die Post | mail / post office |
+| die Regel | rule |
+| die Reise | trip / journey |
+| die Schachtel | box |
+| die Schule | school |
+| die Schwester | sister |
+| die Seite | page / side |
+| die Sonne | sun |
+| die Sprache | language |
+| die Stadt | city |
+| die Straße | street |
+| die Stunde | hour / lesson |
+| die Suppe | soup |
+| die Tasche | bag |
+| die Tasse | cup |
+| die Telefonnummer | phone number |
+| die Tochter | daughter |
+| die Treppe | stairs |
+| die Tür | door |
+| die Türkei | Turkey |
+| die Tüte | bag (plastic) |
+| die Uhr | clock / watch |
+| die Universität | university |
+| die Wand | wall |
+| die Woche | week |
+| die Wohnung | apartment |
+| die Wurst | sausage |
+| die Zeitschrift | magazine |
+| die Zeitung | newspaper |
+
+**Das — neuter** (71 words)
+
+| German | English |
+|---|---|
+| das Abendessen | dinner |
+| das Auto | car |
+| das Baby | baby |
+| das Badezimmer | bathroom |
+| das Beispiel | example |
+| das Bett | bed |
+| das Bier | beer |
+| das Bild | picture |
+| das Brot | bread |
+| das Buch | book |
+| das Büro | office |
+| das Ei | egg |
+| das Ende | end |
+| das Ergebnis | result |
+| das Fahrrad | bicycle |
+| das Fenster | window |
+| das Fleisch | meat |
+| das Flugzeug | airplane |
+| das Frühstück | breakfast |
+| das Gefühl | feeling |
+| das Geld | money |
+| das Gemüse | vegetables |
+| das Geschenk | gift |
+| das Glas | glass |
+| das Glück | luck / happiness |
+| das Handy | mobile phone |
+| das Haus | house |
+| das Heft | notebook |
+| das Hotel | hotel |
+| das Huhn | chicken |
+| das Interesse | interest |
+| das Jahr | year |
+| das Kind | child |
+| das Kino | cinema |
+| das Konzert | concert |
+| das Krankenhaus | hospital |
+| das Lied | song |
+| das Mädchen | girl |
+| das Mal | time (occurrence) |
+| das Meer | sea |
+| das Messer | knife |
+| das Mittagessen | lunch |
+| das Museum | museum |
+| das Obst | fruit |
+| das Öl | oil |
+| das Paar | pair / couple |
+| das Papier | paper |
+| das Pech | bad luck |
+| das Pferd | horse |
+| das Problem | problem |
+| das Radio | radio |
+| das Restaurant | restaurant |
+| das Salz | salt |
+| das Schiff | ship |
+| das Schlafzimmer | bedroom |
+| das Schwein | pig |
+| das Schwimmbad | swimming pool |
+| das Spiel | game |
+| das Stadion | stadium |
+| das Stück | piece |
+| das Taxi | taxi |
+| das Telefon | telephone |
+| das Theater | theater |
+| das Thema | topic |
+| das Ticket | ticket |
+| das Tier | animal |
+| das Wasser | water |
+| das Wetter | weather |
+| das Wohnzimmer | living room |
+| das Wort | word |
+| das Zimmer | room |
+
+### Picture Vocabulary (A1 / A2)
+
+**A1** (107 pictures)
+
+| Picture | German | English |
+|---|---|---|
+| 🔵 | blau | blue |
+| 🟤 | braun | brown |
+| 👁️ | das Auge | eye |
+| 🚗 | das Auto | car |
+| 👶 | das Baby | baby |
+| 🛏️ | das Bett | bed |
+| 🍺 | das Bier | beer |
+| 🍞 | das Brot | bread |
+| 📚 | das Buch | book |
+| 🥚 | das Ei | egg |
+| 🍦 | das Eis | ice cream |
+| 🚲 | das Fahrrad | bicycle |
+| 🥩 | das Fleisch | meat |
+| ✈️ | das Flugzeug | airplane |
+| 🧠 | das Gehirn | brain |
+| 💰 | das Geld | money |
+| 🥦 | das Gemüse | vegetables |
+| 🎁 | das Geschenk | gift |
+| 📱 | das Handy | mobile phone |
+| 🏠 | das Haus | house |
+| ❤️ | das Herz | heart |
+| 🐔 | das Huhn | chicken |
+| 🐇 | das Kaninchen | rabbit |
+| 🏥 | das Krankenhaus | hospital |
+| 👧 | das Mädchen | girl |
+| 🌊 | das Meer | sea |
+| 🔪 | das Messer | knife |
+| 🐎 | das Pferd | horse |
+| 🐑 | das Schaf | sheep |
+| ⛵ | das Schiff | ship |
+| 🐖 | das Schwein | pig |
+| 🎮 | das Spiel | game |
+| 🏟️ | das Stadion | stadium |
+| 🍎 | der Apfel | apple |
+| 🐻 | der Bär | bear |
+| 🏀 | der Basketball | basketball |
+| ⛰️ | der Berg | mountain |
+| ✉️ | der Brief | letter |
+| 🚌 | der Bus | bus |
+| 💻 | der Computer | computer |
+| 💎 | der Diamant | diamond |
+| 📺 | der Fernseher | television |
+| 🐟 | der Fisch | fish |
+| 🦶 | der Fuß | foot |
+| ⚽ | der Fußball | soccer ball |
+| 🎂 | der Geburtstag | birthday |
+| 🐕 | der Hund | dog |
+| 👒 | der Hut | hat |
+| 👦 | der Junge | boy |
+| ☕ | der Kaffee | coffee |
+| 🧀 | der Käse | cheese |
+| 🧳 | der Koffer | suitcase |
+| 🍰 | der Kuchen | cake |
+| 🏪 | der Laden | shop |
+| 🥄 | der Löffel | spoon |
+| 🎈 | der Luftballon | balloon |
+| 👨 | der Mann | man |
+| 🧥 | der Mantel | coat |
+| 🌙 | der Mond | moon |
+| 🌧️ | der Regen | rain |
+| ☂️ | der Regenschirm | umbrella |
+| 💍 | der Ring | ring |
+| 🎒 | der Rucksack | backpack |
+| 🔑 | der Schlüssel | key |
+| 🗝️ | der Schlüssel | key |
+| ❄️ | der Schnee | snow |
+| 👟 | der Schuh | shoe |
+| ⭐ | der Stern | star |
+| 🏖️ | der Strand | beach |
+| 🪑 | der Stuhl | chair |
+| 🧸 | der Teddybär | teddy bear |
+| 🐦 | der Vogel | bird |
+| 🌲 | der Wald | forest |
+| 🍷 | der Wein | wine |
+| 🚂 | der Zug | train |
+| 🛁 | die Badewanne | bathtub |
+| 🍌 | die Banane | banana |
+| 🏦 | die Bank | bank |
+| 🌹 | die Blume | flower |
+| 🚿 | die Dusche | shower |
+| 🍓 | die Erdbeere | strawberry |
+| 👩 | die Frau | woman |
+| 🍴 | die Gabel | fork |
+| 🔔 | die Glocke | bell |
+| 👋 | die Hand | hand |
+| 📷 | die Kamera | camera |
+| 🐈 | die Katze | cat |
+| 🕯️ | die Kerze | candle |
+| ⛪ | die Kirche | church |
+| 🐄 | die Kuh | cow |
+| 💡 | die Lampe | lamp |
+| 🐭 | die Maus | mouse |
+| 🥛 | die Milch | milk |
+| 🎵 | die Musik | music |
+| 👃 | die Nase | nose |
+| 🍊 | die Orange | orange |
+| 🍝 | die Pasta | pasta |
+| ✂️ | die Schere | scissors |
+| 🏫 | die Schule | school |
+| 🌞 | die Sonne | sun |
+| 🕶️ | die Sonnenbrille | sunglasses |
+| ⌚ | die Uhr | watch / clock |
+| 🟡 | gelb | yellow |
+| 🟢 | grün | green |
+| 🔴 | rot | red |
+| ⚫ | schwarz | black |
+| ⬜ | weiß | white |
+
+**A2** (98 pictures)
+
+| Picture | German | English |
+|---|---|---|
+| 🍁 | das Ahornblatt | maple leaf |
+| 🖼️ | das Bild | picture |
+| 🎳 | das Bowling | bowling |
+| 🧊 | das Eis | ice |
+| 🔥 | das Feuer | fire |
+| 📯 | das Horn | horn |
+| 🎠 | das Karussell | carousel |
+| 🎹 | das Klavier | piano |
+| 🧻 | das Klopapier | toilet paper |
+| 🐊 | das Krokodil | crocodile |
+| ⚗️ | das Labor | laboratory |
+| 🎤 | das Mikrofon | microphone |
+| 🔬 | das Mikroskop | microscope |
+| 🧩 | das Puzzle | puzzle |
+| 📻 | das Radio | radio |
+| 🎡 | das Riesenrad | ferris wheel |
+| 🧂 | das Salz | salt |
+| 🥁 | das Schlagzeug | drums |
+| 🏰 | das Schloss | castle |
+| ⚔️ | das Schwert | sword |
+| 🛹 | das Skateboard | skateboard |
+| 🔭 | das Teleskop | telescope |
+| 🎭 | das Theater | theater |
+| 🦅 | der Adler | eagle |
+| 🧹 | der Besen | broom |
+| ⚡ | der Blitz | lightning |
+| 🥊 | der Boxhandschuh | boxing glove |
+| 🐬 | der Delfin | dolphin |
+| 🍩 | der Donut | donut |
+| 🖨️ | der Drucker | printer |
+| 🪣 | der Eimer | bucket |
+| 🐘 | der Elefant | elephant |
+| 🧨 | der Feuerwerkskörper | firework |
+| 🎞️ | der Film | film |
+| 🎬 | der Film | movie |
+| 🦊 | der Fuchs | fox |
+| 🔨 | der Hammer | hammer |
+| 🦌 | der Hirsch | deer |
+| 🍯 | der Honig | honey |
+| 🌵 | der Kaktus | cactus |
+| 🥋 | der Kampfsportanzug | martial arts uniform |
+| 🍪 | der Keks | cookie |
+| 🧭 | der Kompass | compass |
+| 🧺 | der Korb | basket |
+| 🦁 | der Löwe | lion |
+| 🧲 | der Magnet | magnet |
+| 🌽 | der Mais | corn |
+| 🖥️ | der Monitor | monitor |
+| 🏹 | der Pfeil | arrow / bow |
+| 🍄 | der Pilz | mushroom |
+| 🐧 | der Pinguin | penguin |
+| 📽️ | der Projektor | projector |
+| 🌈 | der Regenbogen | rainbow |
+| ♟️ | der Schach | chess |
+| 🛡️ | der Schild | shield |
+| 🦋 | der Schmetterling | butterfly |
+| 🔧 | der Schraubenschlüssel | wrench |
+| 🪛 | der Schraubenzieher | screwdriver |
+| 🪞 | der Spiegel | mirror |
+| 💧 | der Tropfen | drop |
+| 🗼 | der Turm | tower |
+| 🌋 | der Vulkan | volcano |
+| 🌀 | der Wirbelsturm | hurricane |
+| 🐺 | der Wolf | wolf |
+| 🎲 | der Würfel | dice |
+| 🎪 | der Zirkus | circus |
+| 🎢 | die Achterbahn | roller coaster |
+| 🪓 | die Axt | axe |
+| 🏗️ | die Baustelle | construction site |
+| 🐝 | die Biene | bee |
+| 💣 | die Bombe | bomb |
+| 📀 | die CD | CD |
+| 💾 | die Diskette | floppy disk |
+| 🥜 | die Erdnuss | peanut |
+| 🎻 | die Geige | violin |
+| 🎸 | die Gitarre | guitar |
+| 🥇 | die Goldmedaille | gold medal |
+| 🥒 | die Gurke | cucumber |
+| 🏝️ | die Insel | island |
+| 🥕 | die Karotte | carrot |
+| 🗺️ | die Karte | map |
+| 🎧 | die Kopfhörer | headphones |
+| 🧴 | die Lotion | lotion |
+| 🖱️ | die Maus | mouse (computer) |
+| 🎖️ | die Medaille | medal |
+| 🛼 | die Rollschuhe | roller skates |
+| 🪚 | die Säge | saw |
+| 🐌 | die Schnecke | snail |
+| 🎿 | die Ski | skis |
+| 🌻 | die Sonnenblume | sunflower |
+| 🗿 | die Statue | statue |
+| ⌨️ | die Tastatur | keyboard |
+| 🍇 | die Traube | grape |
+| 🎺 | die Trompete | trumpet |
+| 🏆 | die Trophäe | trophy |
+| 🎯 | die Zielscheibe | target |
+| 🍋 | die Zitrone | lemon |
+| 🧅 | die Zwiebel | onion |
+
+### Speed-Blitz Word Banks (A1 / A2)
+
+**A1** (149 words)
+
+| German | English |
+|---|---|
+| acht | eight |
+| alt | old |
+| arbeiten | to work |
+| Auf Wiedersehen | Goodbye (formal) |
+| Bitte | Please / You're welcome |
+| bitte schön | you are welcome |
+| blau | blue |
+| braun | brown |
+| da | there |
+| Danke | Thank you |
+| das Abendessen | the dinner |
+| das Auto | the car |
+| das Bett | the bed |
+| das Brot | the bread |
+| das Buch | the book |
+| das Essen | the food |
+| das Fahrrad | the bicycle |
+| das Fenster | the window |
+| das Frühstück | the breakfast |
+| das Haus | the house |
+| das Kind | the child |
+| das Land | the country |
+| das Mädchen | the girl |
+| das Mittagessen | the lunch |
+| das Papier | the paper |
+| das Wasser | the water |
+| das Wetter | the weather |
+| der Apfel | the apple |
+| der Bruder | the brother |
+| der Bus | the bus |
+| der Freund | the friend |
+| der Hund | the dog |
+| der Junge | the boy |
+| der Käse | the cheese |
+| der Mann | the man |
+| der Name | the name |
+| der Platz | the square / place |
+| der Regen | the rain |
+| der Schnee | the snow |
+| der Sohn | the son |
+| der Stift | the pen |
+| der Stuhl | the chair |
+| der Tisch | the table |
+| der Vater | the father |
+| der Zug | the train |
+| die Banane | the banana |
+| die Familie | the family |
+| die Frau | the woman |
+| die Freundin | the friend (female) |
+| die Katze | the cat |
+| die Milch | the milk |
+| die Mutter | the mother |
+| die Schule | the school |
+| die Schwester | the sister |
+| die Sonne | the sun |
+| die Stadt | the city |
+| die Straße | the street |
+| die Tochter | the daughter |
+| die Tür | the door |
+| die Uhr | the clock / watch |
+| die Wohnung | the apartment |
+| drei | three |
+| dreißig | thirty |
+| durstig | thirsty |
+| eins | one |
+| Entschuldigung | Excuse me / Sorry |
+| essen | to eat |
+| finden | to find |
+| Freut mich | Nice to meet you |
+| früh | early |
+| fünf | five |
+| gehen | to go |
+| gelb | yellow |
+| geradeaus | straight ahead |
+| gestern | yesterday |
+| gesund | healthy |
+| grau | gray |
+| groß | big / tall |
+| grün | green |
+| gut | good |
+| Gute Nacht | Good night |
+| Guten Abend | Good evening |
+| Guten Morgen | Good morning |
+| Hallo | Hello |
+| hässlich | ugly |
+| heiß | hot |
+| heißen | to be called |
+| heute | today |
+| hier | here |
+| hundert | hundred |
+| hungrig | hungry |
+| immer | always |
+| Ja | Yes |
+| jetzt | now |
+| jung | young |
+| kalt | cold |
+| kaufen | to buy |
+| klein | small |
+| kochen | to cook |
+| kommen | to come |
+| krank | sick |
+| langsam | slow |
+| laut | loud |
+| leise | quiet |
+| lernen | to learn |
+| lesen | to read |
+| lila | purple |
+| links | left |
+| Mir geht's gut | I am fine |
+| morgen | tomorrow |
+| müde | tired |
+| Nein | No |
+| neu | new |
+| neun | nine |
+| nie | never |
+| oft | often |
+| orange | orange |
+| pink | pink |
+| rechts | right |
+| reisen | to travel |
+| rot | red |
+| schlecht | bad |
+| schnell | fast |
+| schön | beautiful |
+| schreiben | to write |
+| schwarz | black |
+| sechs | six |
+| sieben | seven |
+| singen | to sing |
+| spät | late |
+| später | later |
+| spielen | to play |
+| sprechen | to speak |
+| suchen | to search |
+| tanzen | to dance |
+| tausend | thousand |
+| trinken | to drink |
+| Tschüss | Goodbye |
+| verkaufen | to sell |
+| vielen Dank | many thanks |
+| vielleicht | maybe |
+| vier | four |
+| warm | warm |
+| weiß | white |
+| Wie geht's? | How are you? |
+| wohnen | to live |
+| zehn | ten |
+| zwanzig | twenty |
+| zwei | two |
+
+**A2** (149 words)
+
+| German | English |
+|---|---|
+| als | when (past) |
+| angefangen | started |
+| antworten | to answer |
+| aufgeräumt | tidied up |
+| bekommen | to receive / got |
+| bezahlen | to pay |
+| brauchen | to need |
+| bügeln | to iron |
+| danach | afterwards |
+| das Badezimmer | the bathroom |
+| das Bier | the beer |
+| das Büro | the office |
+| das Eis | the ice cream |
+| das Fleisch | the meat |
+| das Gehalt | the salary |
+| das Gemüse | the vegetables |
+| das Handy | the mobile phone |
+| das Hemd | the shirt |
+| das Hotel | the hotel |
+| das Kleid | the dress |
+| das Krankenhaus | the hospital |
+| das Meer | the sea |
+| das Museum | the museum |
+| das Obst | the fruit |
+| das Restaurant | the restaurant |
+| das Schlafzimmer | the bedroom |
+| das Trinkgeld | the tip |
+| das Wohnzimmer | the living room |
+| das Zimmer | the room |
+| dass | that |
+| der Anzug | the suit |
+| der Arzt | doctor |
+| der Ausgang | the exit |
+| der Bahnhof | the train station |
+| der Berg | the mountain |
+| der Chef | the boss |
+| der Computer | the computer |
+| der Cousin | cousin (male) |
+| der Eingang | the entrance |
+| der Enkel | grandson |
+| der Fahrer | driver |
+| der Fahrplan | the timetable |
+| der Fernseher | the television |
+| der Flughafen | the airport |
+| der Fluss | the river |
+| der Garten | the garden |
+| der Großvater | grandfather |
+| der Hut | the hat |
+| der Kaffee | the coffee |
+| der Keller | the basement |
+| der Koch | cook |
+| der Kollege | colleague |
+| der Kuchen | the cake |
+| der Kühlschrank | the refrigerator |
+| der Lehrer | teacher |
+| der Neffe | nephew |
+| der Onkel | uncle |
+| der Polizist | police officer |
+| der Regenschirm | the umbrella |
+| der Saft | the juice |
+| der Salat | the salad |
+| der Schlüssel | the key |
+| der Schuh | the shoe |
+| der Strand | the beach |
+| der Student | student (male) |
+| der Supermarkt | the supermarket |
+| der Tee | the tea |
+| der Termin | the appointment |
+| der Urlaub | the vacation / holiday |
+| der Verkäufer | sales assistant |
+| der Wald | the forest |
+| der Wein | the wine |
+| deshalb | therefore |
+| die Abfahrt | the departure |
+| die Ankunft | the arrival |
+| die Apotheke | the pharmacy |
+| die Ärztin | doctor (female) |
+| die Besprechung | the meeting |
+| die Bewerbung | the application |
+| die Brille | the glasses |
+| die Brücke | the bridge |
+| die Cousine | cousin (female) |
+| die Erfahrung | the experience |
+| die Fahrkarte | the ticket |
+| die Firma | the company |
+| die Großmutter | grandmother |
+| die Haltestelle | the bus stop |
+| die Hauptspeise | the main course |
+| die Hose | the pants / trousers |
+| die Jacke | the jacket |
+| die Kirche | the church |
+| die Krankenschwester | nurse |
+| die Küche | the kitchen |
+| die Lehrerin | teacher (female) |
+| die Nachspeise | the dessert |
+| die Nichte | niece |
+| die Rechnung | the bill |
+| die Reservierung | the reservation |
+| die Studentin | student (female) |
+| die Suppe | the soup |
+| die Tante | aunt |
+| die Tasche | the bag |
+| die Vorspeise | the starter / appetizer |
+| die Waschmaschine | the washing machine |
+| die Zeitschrift | the magazine |
+| drehen | to turn |
+| einfach | one-way / simple |
+| eingekauft | shopped |
+| erklären | to explain |
+| erzählen | to tell / narrate |
+| folgen | to follow |
+| fragen | to ask |
+| gefunden | found |
+| gegeben | given |
+| gegessen | ate |
+| gelesen | read |
+| gemacht | done / made |
+| genommen | taken |
+| gesagt | said |
+| geschrieben | written |
+| gesehen | seen |
+| gesprochen | spoken |
+| gestern Abend | yesterday evening |
+| getrunken | drank |
+| in einer Stunde | in an hour |
+| letzte Woche | last week |
+| mitgenommen | took along |
+| nächste Woche | next week |
+| obwohl | although |
+| packen | to pack |
+| putzen | to clean |
+| rasieren | to shave |
+| schenken | to give (as a gift) |
+| sich anziehen | to get dressed |
+| sich ausruhen | to rest |
+| sich ausziehen | to undress |
+| sich freuen | to be happy / look forward |
+| sich setzen | to sit down |
+| trotzdem | nevertheless |
+| übermorgen | the day after tomorrow |
+| versuchen | to try |
+| vor einer Stunde | an hour ago |
+| vorgestern | the day before yesterday |
+| vorher | beforehand |
+| waschen | to wash |
+| weil | because |
+| wenn | if / when |
+| wiederholen | to repeat |
+| zurück | return / back |
+
+### Quick German Tool — Verb Conjugations (15 verbs)
+
+**arbeiten** — to work
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | arbeite | arbeitete | werde arbeiten |
+| du | arbeitest | arbeitetest | wirst arbeiten |
+| er/sie/es | arbeitet | arbeitete | wird arbeiten |
+| wir | arbeiten | arbeiteten | werden arbeiten |
+| ihr | arbeitet | arbeitetet | werdet arbeiten |
+| sie/Sie | arbeiten | arbeiteten | werden arbeiten |
+
+**denken** — to think
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | denke | dachte | werde denken |
+| du | denkst | dachtest | wirst denken |
+| er/sie/es | denkt | dachte | wird denken |
+| wir | denken | dachten | werden denken |
+| ihr | denkt | dachtet | werdet denken |
+| sie/Sie | denken | dachten | werden denken |
+
+**essen** — to eat
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | esse | aß | werde essen |
+| du | ißt | aßt | wirst essen |
+| er/sie/es | ißt | aß | wird essen |
+| wir | essen | aßen | werden essen |
+| ihr | esst | aßt | werdet essen |
+| sie/Sie | essen | aßen | werden essen |
+
+**geben** — to give
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | gebe | gab | werde geben |
+| du | gibst | gabst | wirst geben |
+| er/sie/es | gibt | gab | wird geben |
+| wir | geben | gaben | werden geben |
+| ihr | gebt | gabt | werdet geben |
+| sie/Sie | geben | gaben | werden geben |
+
+**gehen** — to go
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | gehe | ging | werde gehen |
+| du | gehst | gingst | wirst gehen |
+| er/sie/es | geht | ging | wird gehen |
+| wir | gehen | gingen | werden gehen |
+| ihr | geht | gingt | werdet gehen |
+| sie/Sie | gehen | gingen | werden gehen |
+
+**haben** — to have
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | habe | hatte | werde haben |
+| du | hast | hattest | wirst haben |
+| er/sie/es | hat | hatte | wird haben |
+| wir | haben | hatten | werden haben |
+| ihr | habt | hattet | werdet haben |
+| sie/Sie | haben | hatten | werden haben |
+
+**kommen** — to come
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | komme | kam | werde kommen |
+| du | kommst | kamst | wirst kommen |
+| er/sie/es | kommt | kam | wird kommen |
+| wir | kommen | kamen | werden kommen |
+| ihr | kommt | kamt | werdet kommen |
+| sie/Sie | kommen | kamen | werden kommen |
+
+**laufen** — to run
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | laufe | lief | werde laufen |
+| du | läufst | liefst | wirst laufen |
+| er/sie/es | läuft | lief | wird laufen |
+| wir | laufen | liefen | werden laufen |
+| ihr | lauft | lieft | werdet laufen |
+| sie/Sie | laufen | liefen | werden laufen |
+
+**machen** — to make
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | mache | machte | werde machen |
+| du | machst | machtest | wirst machen |
+| er/sie/es | macht | machte | wird machen |
+| wir | machen | machten | werden machen |
+| ihr | macht | machtet | werdet machen |
+| sie/Sie | machen | machten | werden machen |
+
+**sehen** — to see
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | sehe | sah | werde sehen |
+| du | siehst | sahst | wirst sehen |
+| er/sie/es | sieht | sah | wird sehen |
+| wir | sehen | sahen | werden sehen |
+| ihr | seht | saht | werdet sehen |
+| sie/Sie | sehen | sahen | werden sehen |
+
+**sein** — to be
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | bin | war | werde sein |
+| du | bist | warst | wirst sein |
+| er/sie/es | ist | war | wird sein |
+| wir | sind | waren | werden sein |
+| ihr | seid | wart | werdet sein |
+| sie/Sie | sind | waren | werden sein |
+
+**spielen** — to play
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | spiele | spielte | werde spielen |
+| du | spielst | spieltest | wirst spielen |
+| er/sie/es | spielt | spielte | wird spielen |
+| wir | spielen | spielten | werden spielen |
+| ihr | spielt | spieltet | werdet spielen |
+| sie/Sie | spielen | spielten | werden spielen |
+
+**sprechen** — to speak
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | spreche | sprach | werde sprechen |
+| du | sprichst | sprachst | wirst sprechen |
+| er/sie/es | spricht | sprach | wird sprechen |
+| wir | sprechen | sprachen | werden sprechen |
+| ihr | sprecht | spracht | werdet sprechen |
+| sie/Sie | sprechen | sprachen | werden sprechen |
+
+**werden** — to become
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | werde | wurde | werde werden |
+| du | wirst | wurdest | wirst werden |
+| er/sie/es | wird | wurde | wird werden |
+| wir | werden | wurden | werden werden |
+| ihr | werdet | wurdet | werdet werden |
+| sie/Sie | werden | wurden | werden werden |
+
+**wissen** — to know
+
+| Pronoun | Präsens | Präteritum | Futur I |
+|---|---|---|---|
+| ich | weiß | wusste | werde wissen |
+| du | weißt | wusstest | wirst wissen |
+| er/sie/es | weiß | wusste | wird wissen |
+| wir | wissen | wussten | werden wissen |
+| ihr | wisst | wusstet | werdet wissen |
+| sie/Sie | wissen | wussten | werden wissen |
+
+### Onboarding Sample Vocabulary
+
+| German | English |
+|---|---|
+| Danke | Thanks |
+| Hallo | Hello |
+| Tschüss | Bye |
+
 ---
 
-**Coverage summary (generated):** 3 tracks, 24 weeks, 100 days, 523 tasks.
+**Coverage summary (generated):** 3 tracks, 24 weeks, 100 days, 523 tasks. Supplementary: 217 gender words, 205 picture words, 298 speed-blitz words, 15 verbs, 3 onboarding words.
