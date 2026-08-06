@@ -50,6 +50,10 @@ beforeEach(() => {
 });
 
 describe('DashboardShell Start Lesson flow', () => {
+  // Full-shell render: dynamically imports the whole curriculum data (Week 1 is
+  // a 7-day module) plus all lazy views — slow on CI/loaded machines.
+  const SHELL_TIMEOUT = 20000;
+
   it('opens a lesson when the Home Start Lesson button is clicked', async () => {
     render(
       <DashboardProvider>
@@ -58,7 +62,7 @@ describe('DashboardShell Start Lesson flow', () => {
     );
 
     // Wait for the HomePage to render the Start Lesson button
-    const startBtn = await screen.findByRole('button', { name: /start lesson/i }, { timeout: 5000 });
+    const startBtn = await screen.findByRole('button', { name: /start lesson/i }, { timeout: SHELL_TIMEOUT });
     expect(startBtn).toBeInTheDocument();
 
     fireEvent.click(startBtn);
@@ -67,8 +71,8 @@ describe('DashboardShell Start Lesson flow', () => {
     await waitFor(() => {
       expect(screen.queryAllByRole('button', { name: /back to week 1/i }).length).toBeGreaterThanOrEqual(1);
       expect(screen.queryAllByText(/Your First German Sentences/i).length).toBeGreaterThanOrEqual(1);
-    }, { timeout: 5000 });
-  });
+    }, { timeout: SHELL_TIMEOUT });
+  }, SHELL_TIMEOUT);
 
   it('opens lesson content directly when a week circle is clicked', async () => {
     render(
@@ -78,7 +82,7 @@ describe('DashboardShell Start Lesson flow', () => {
     );
 
     // Wait for HomePage and the week-1 circle to render
-    const weekOneCircle = await screen.findByRole('button', { name: /^Week 1:/i }, { timeout: 5000 });
+    const weekOneCircle = await screen.findByRole('button', { name: /^Week 1:/i }, { timeout: SHELL_TIMEOUT });
     expect(weekOneCircle).not.toBeDisabled();
 
     fireEvent.click(weekOneCircle);
@@ -87,6 +91,6 @@ describe('DashboardShell Start Lesson flow', () => {
     // identifiable by its "Exit lesson" button — not the DailyTasks list.
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /exit lesson/i })).toBeInTheDocument();
-    }, { timeout: 5000 });
-  });
+    }, { timeout: SHELL_TIMEOUT });
+  }, SHELL_TIMEOUT);
 });

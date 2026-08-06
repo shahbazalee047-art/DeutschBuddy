@@ -63,17 +63,24 @@ export function DashboardProvider({ children }) {
   useEffect(() => { showPictureMatchRef.current = showPictureMatch; }, [showPictureMatch]);
   useEffect(() => { historyRef.current = historyStack; }, [historyStack]);
 
+  // Keep track mode in sync with the profile (cross-device) only when the
+  // user hasn't made a choice on this device yet. A local choice — e.g. the
+  // onboarding fast-track pick, which exists before a profile row does —
+  // wins over the profile's default value, otherwise signup would silently
+  // reset a fresh fast-track learner back to 'standard'.
   useEffect(() => {
-    if (profile?.selected_pacing && profile.selected_pacing !== trackMode) {
-      setLocalTrackMode(profile.selected_pacing);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let local;
+    try { local = localStorage.getItem('db_selected_track'); } catch { local = null; }
+    if (!profile?.selected_pacing || local) return;
+    setLocalTrackMode(profile.selected_pacing);
+    try { localStorage.setItem('db_selected_track', profile.selected_pacing); } catch { /* ignore */ }
   }, [profile?.selected_pacing]);
 
   const { progress, loading, completeTask, unlockWeek, setTrackMode, recoverStreak } = useProgress(activeLevel);
 
   const handleToggleTrackMode = useCallback((mode) => {
     setLocalTrackMode(mode);
+    try { localStorage.setItem('db_selected_track', mode); } catch { /* ignore */ }
     setTrackMode(mode);
   }, [setTrackMode]);
 

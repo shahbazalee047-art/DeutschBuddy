@@ -145,7 +145,6 @@ export const dieWords = [
   { de: 'die Ecke', en: 'corner' },
   { de: 'die Seite', en: 'page / side' },
   { de: 'die Treppe', en: 'stairs' },
-  { de: 'die Tür', en: 'door' },
   { de: 'die Wand', en: 'wall' },
   { de: 'die Regel', en: 'rule' },
   { de: 'die Idee', en: 'idea' },

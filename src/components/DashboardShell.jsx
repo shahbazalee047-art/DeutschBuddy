@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState, useEffect, useCallback } from 'react';
+import { lazy, Suspense, useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useDashboard } from '../contexts/DashboardContext';
 import Navbar from './Navbar';
@@ -56,7 +56,7 @@ export default function DashboardShell() {
     levelData, dataLoading, loadError, setRetryKey, setLoadError,
     visibleWeeks, unlockedWeeks,
     currentWeek,
-    handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek,
+    handleSelectDay, handleSelectTask, handleStartLesson, handleCompleteTask, handleBackToWeek,
     handleViewChange, handleLevelChange, handleGameScore,
     handleSignOutFromApp,
     profileMenuRef,
@@ -108,6 +108,28 @@ export default function DashboardShell() {
       } catch { /* ignore */ }
     }
   }, [selectedTask, selectedDay, showTutorial, showStartCoachmark]);
+
+  // Onboarding handoff: after onboarding writes db_pending_lesson, deep-link
+  // straight into Day 1 Lesson 1 (instead of landing on the dashboard).
+  const pendingLessonHandled = useRef(false);
+  useEffect(() => {
+    if (pendingLessonHandled.current) return;
+    if (dataLoading || loadError || !levelData || !levelData.weeks) return;
+    if (selectedTask || selectedDay) return;
+    let pending = null;
+    try {
+      const raw = localStorage.getItem('db_pending_lesson');
+      pending = raw ? JSON.parse(raw) : null;
+    } catch { /* ignore */ }
+    if (!pending || !pending.weekId || !pending.taskId) return;
+    pendingLessonHandled.current = true;
+    try { localStorage.removeItem('db_pending_lesson'); } catch { /* ignore */ }
+    const week = levelData.weeks.find(w => w.id === pending.weekId);
+    const day = week?.days?.find(d => d.day === pending.day);
+    const task = day?.tasks?.find(t => t.id === pending.taskId);
+    if (!week || !day || !task) return;
+    handleStartLesson(week.id, day.day, task);
+  }, [dataLoading, loadError, levelData, selectedTask, selectedDay, handleStartLesson]);
 
   const mainContentProps = useMemo(() => ({
     activeView, activeLevel, selectedDay, selectedTask, currentWeek,

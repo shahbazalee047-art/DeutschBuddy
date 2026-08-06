@@ -26,7 +26,7 @@ const a1FastTrackData = {
                 items: [
                   { german: 'A', english: 'ah', pronunciation: 'ah (like "father")' },
                   { german: 'B', english: 'beh', pronunciation: 'beh (softer than English)' },
-                  { german: 'C', english: 'tsgeh', pronunciation: 'tsgeh' },
+                  { german: 'C', english: 'tseh', pronunciation: 'tseh' },
                   { german: 'D', english: 'deh', pronunciation: 'deh' },
                   { german: 'E', english: 'eh', pronunciation: 'eh (like "bed")' },
                   { german: 'F', english: 'eff', pronunciation: 'eff' },
@@ -290,7 +290,7 @@ const a1FastTrackData = {
             { id: 'ftw2d1t3', type: 'quiz', title: 'Family Quiz', description: 'Test family vocabulary', xp: 10, content: { questions: [
               { question: '"Die Mutter" means...', options: ['father', 'mother', 'sister', 'brother'], correct: 1 },
               { question: 'How do you say "my" before a masculine noun?', options: ['dein', 'mein', 'sein', 'ihr'], correct: 1 },
-              { question: '"Geschwister" means...', parents: ['parents', 'grandparents', 'siblings', 'children'], correct: 2 },
+              { question: '"Geschwister" means...', options: ['parents', 'grandparents', 'siblings', 'children'], correct: 2 },
               { question: '"Die Tochter" means...', options: ['son', 'daughter', 'mother', 'sister'], correct: 1 },
             ]}},
           ]
@@ -431,7 +431,7 @@ const a1FastTrackData = {
               { german: 'sport treiben', english: 'to do sports' },
             ]}},
             { id: 'ftw3d2t2', type: 'vocabulary', title: 'Telling Time', description: 'How to tell time in German', xp: 15, content: { items: [
-              { german: ' Wie spät ist es?', english: 'What time is it?' },
+              { german: 'Wie spät ist es?', english: 'What time is it?' },
               { german: 'Es ist eins.', english: 'It is one o\'clock.' },
               { german: 'Es ist halb drei.', english: 'It is half past two (2:30).' },
               { german: 'Es ist Viertel nach vier.', english: 'It is quarter past four (4:15).' },

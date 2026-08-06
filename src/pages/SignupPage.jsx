@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
 import { IconCheck } from '../components/Icons';
 
 export default function SignupPage() {
@@ -31,6 +32,21 @@ export default function SignupPage() {
     try {
       const { data, error } = await signUp(email, password, fullName);
       if (error) throw error;
+      // Carry the onboarding track choice (db_selected_track) into the new
+      // profile, so the profile-sync in DashboardContext doesn't reset a
+      // fast-track learner back to 'standard' after signup.
+      const signedInUser = data?.session?.user;
+      if (signedInUser) {
+        const chosenTrack = (() => {
+          try { return localStorage.getItem('db_selected_track'); } catch { return null; }
+        })();
+        if (chosenTrack === 'fast' || chosenTrack === 'standard') {
+          const { error: upsertError } = await supabase
+            .from('profiles')
+            .upsert({ id: signedInUser.id, selected_pacing: chosenTrack }, { onConflict: 'id' });
+          if (upsertError) console.error('Track sync error:', upsertError);
+        }
+      }
       // If email confirmation is disabled, the user/session is returned directly.
       if (data?.session?.user) {
         navigate('/dashboard', { replace: true });

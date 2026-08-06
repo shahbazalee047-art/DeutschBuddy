@@ -10,13 +10,13 @@ const a1SpoonfedModules = {
   color: '#C8442A',
   weeks: [
     // ------------------------------------------------------------------
-    // Module 1 — Greetings & Introducing Yourself
+    // Module 1 — Your First Week: Meeting People
     // ------------------------------------------------------------------
     {
       id: 1,
-      title: 'Hallo! Begrüßungen & Sich Vorstellen — Greetings & Introducing Yourself',
+      title: 'Deine Erste Woche — Your First Week: Meeting People',
       icon: '👋',
-      theme: 'Say hello, say your name, ask how someone is',
+      theme: 'Say hello, say where you are from, and have your first real conversations',
       unlocked: true,
       resources: [
         { name: 'Nicos Weg', url: 'https://learngerman.dw.com/en/overview', description: 'Lesson 1: Hallo!' },
@@ -87,6 +87,424 @@ const a1SpoonfedModules = {
             },
             {
               id: 'a1m1d1t6', type: 'quickwin', title: 'Quick Win: First German Conversation', description: 'You can now greet someone and introduce yourself!',
+              xp: 5, content: {}
+            }
+          ]
+        },
+        {
+          day: 2,
+          title: 'Where You Are From: Ich komme aus…',
+          tasks: [
+            {
+              id: 'a1m1d2t1', type: 'grammar', title: 'Say Where You Are From', description: 'One sentence that starts every conversation',
+              xp: 15, content: {
+                rule: '"Ich komme aus ..." means "I come from ...". Copy this shape and you can name any country or city. The question is "Woher kommst du?" (Where are you from?) — notice "kommst" is the same word with a "t" when you ask someone else.',
+                steps: [
+                  'Say your country: "Ich komme aus Deutschland."',
+                  'Say your city: "Ich komme aus Berlin."',
+                  'Ask a friend: "Woher kommst du?"',
+                  'Answer "aus" the same way both times — you never change this word.'
+                ],
+                examples: [
+                  { german: 'Ich komme aus Indien.', english: 'I\'m from India.' },
+                  { german: 'Ich komme aus Spanien.', english: 'I\'m from Spain.' },
+                  { german: 'Woher kommst du?', english: 'Where are you from?' },
+                  { german: 'Ich komme aus der Türkei.', english: 'I\'m from Turkey.' }
+                ],
+                note: 'Remember the shape: Ich komme aus + place. Once you have this, "Woher kommst du?" is the only question you need to keep the talk going.'
+              }
+            },
+            {
+              id: 'a1m1d2t2', type: 'vocabulary', title: 'Countries & Cities', description: 'Where you — and your new friends — come from',
+              xp: 15, content: { items: [
+                { german: 'ich komme aus', english: 'I come from', pronunciation: 'ikh KOH-muh ows' },
+                { german: 'Deutschland', english: 'Germany', pronunciation: 'DOYTSH-lahnt' },
+                { german: 'Indien', english: 'India', pronunciation: 'IN-dee-en' },
+                { german: 'Spanien', english: 'Spain', pronunciation: 'SHPAH-nee-en' },
+                { german: 'Italien', english: 'Italy', pronunciation: 'ee-TAH-lee-en' },
+                { german: 'die Türkei', english: 'Turkey', pronunciation: 'dee toor-KAY' },
+                { german: 'England', english: 'England', pronunciation: 'ENG-lahnt' },
+                { german: 'China', english: 'China', pronunciation: 'KHEE-nah' }
+              ]}
+            },
+            {
+              id: 'a1m1d2t3', type: 'listening', title: 'Where Are You From?', description: 'Hear the pattern in a real conversation',
+              xp: 10, content: {
+                clip: { title: 'Getting to know each other', source: 'TTS dialogue', text: 'Hallo! Ich heiße Lena. Woher kommst du? Ich komme aus Indien. Und du? Ich komme aus Spanien. Schön! Tschüss!' },
+                questions: [
+                  { question: 'Where is the speaker from first?', options: ['India', 'Spain', 'Germany', 'Turkey'], correct: 0 },
+                  { question: 'What does "Und du?" mean here?', options: ['And you?', 'Who are you?', 'Good-bye', 'Thanks'], correct: 0 }
+                ]
+              }
+            },
+            {
+              id: 'a1m1d2t4', type: 'matching', title: 'Match Country Pairs', description: 'German country names vs English',
+              xp: 10, content: { pairs: [
+                { german: 'Deutschland', english: 'Germany' },
+                { german: 'Indien', english: 'India' },
+                { german: 'Spanien', english: 'Spain' },
+                { german: 'Italien', english: 'Italy' },
+                { german: 'England', english: 'England' },
+                { german: 'die Türkei', english: 'Turkey' }
+              ]}
+            },
+            {
+              id: 'a1m1d2t5', type: 'speaking', title: 'Say Where You Are From', description: 'Give your first two-sentence introduction',
+              xp: 10, content: {
+                prompt: 'Ich heiße ... Ich komme aus ... Then ask back: Und du? Woher kommst du?',
+                tips: ['Start with your name, then "Ich komme aus ...".', 'Say "aus" without stress — the place name is the star.', 'Keep "Woher kommst du?" ready for the other person.']
+              }
+            },
+            {
+              id: 'a1m1d2t6', type: 'quickwin', title: 'Quick Win: You Can Say Where You\'re From', description: 'Name your country and ask someone theirs',
+              xp: 5, content: {}
+            }
+          ]
+        },
+        {
+          day: 3,
+          title: 'Your Family: Meine Familie',
+          tasks: [
+            {
+              id: 'a1m1d3t1', type: 'grammar', title: 'Name the People in Your Life', description: 'Talk about your family without stopping',
+              xp: 15, content: {
+                rule: 'Copy these phrases: "Das ist meine Mutter" (this is my mother) and "Das ist mein Vater" (this is my father). Notice the little word before the person: "meine" for women like Mutter and Schwester, "mein" for men like Vater and Bruder. Do not memorize a rule yet — just notice it when you hear it.',
+                steps: [
+                  'Point and name: "Das ist meine Mutter."',
+                  'Name your father: "Das ist mein Vater."',
+                  'Say your sister\'s name: "Meine Schwester heißt ..."',
+                  'Notice the pattern: women take "meine", men take "mein".'
+                ],
+                examples: [
+                  { german: 'Das ist meine Mutter.', english: 'This is my mother.' },
+                  { german: 'Das ist mein Vater.', english: 'This is my father.' },
+                  { german: 'Meine Schwester heißt Lea.', english: 'My sister is called Lea.' },
+                  { german: 'Mein Bruder ist zehn.', english: 'My brother is ten.' }
+                ],
+                note: 'Reference card (no need to memorize yet): "meine" goes with women, "mein" with men. You will use both every day from now on.'
+              }
+            },
+            {
+              id: 'a1m1d3t2', type: 'vocabulary', title: 'Family Words', description: 'The six you will actually use this week',
+              xp: 15, content: { items: [
+                { german: 'die Mutter', english: 'mother', pronunciation: 'dee MOO-ter' },
+                { german: 'der Vater', english: 'father', pronunciation: 'der FAH-ter' },
+                { german: 'die Schwester', english: 'sister', pronunciation: 'dee SHVES-ter' },
+                { german: 'der Bruder', english: 'brother', pronunciation: 'der BROO-der' },
+                { german: 'die Oma', english: 'grandma', pronunciation: 'dee OH-mah' },
+                { german: 'der Opa', english: 'grandpa', pronunciation: 'der OH-pah' }
+              ]}
+            },
+            {
+              id: 'a1m1d3t3', type: 'matching', title: 'Match Family Words', description: 'German and English, side by side',
+              xp: 10, content: { pairs: [
+                { german: 'die Mutter', english: 'mother' },
+                { german: 'der Vater', english: 'father' },
+                { german: 'die Schwester', english: 'sister' },
+                { german: 'der Bruder', english: 'brother' },
+                { german: 'die Oma', english: 'grandma' },
+                { german: 'der Opa', english: 'grandpa' }
+              ]}
+            },
+            {
+              id: 'a1m1d3t4', type: 'fillblank', title: 'Meine or Mein?', description: 'Pick the little word, like you heard it',
+              xp: 10, content: { sentences: [
+                { text: 'Das ist ___ Mutter.', answer: 'meine', hint: 'mother is a woman → meine' },
+                { text: 'Das ist ___ Vater.', answer: 'mein', hint: 'father is a man → mein' },
+                { text: '___ Schwester heißt Lea.', answer: 'Meine', hint: 'sister is a woman' },
+                { text: '___ Bruder ist zehn.', answer: 'Mein', hint: 'brother is a man' }
+              ]}
+            },
+            {
+              id: 'a1m1d3t5', type: 'quiz', title: 'Family Quiz', description: 'Check the family words',
+              xp: 10, content: { questions: [
+                { question: '"die Mutter" means...', options: ['mother', 'father', 'sister', 'grandma'], correct: 0 },
+                { question: '"der Bruder" means...', options: ['brother', 'father', 'uncle', 'grandpa'], correct: 0 },
+                { question: 'Which word is for grandma?', options: ['die Oma', 'der Opa', 'die Mutter', 'die Schwester'], correct: 0 },
+                { question: '"Meine Schwester" — Schwester is a...', options: ['woman', 'man', 'sibling group', 'child'], correct: 0 },
+                { question: 'Which phrase names your father?', options: ['Das ist mein Vater.', 'Das ist meine Mutter.', 'Mein Bruder ist zehn.', 'Ich heiße Lea.'], correct: 0 }
+              ]}
+            },
+            {
+              id: 'a1m1d3t6', type: 'quickwin', title: 'Quick Win: Talk About Family', description: 'You can name the people you care about in German',
+              xp: 5, content: {}
+            }
+          ]
+        },
+        {
+          day: 4,
+          title: 'Things Around You: Was ist das?',
+          tasks: [
+            {
+              id: 'a1m1d4t1', type: 'grammar', title: 'Name Things Around You', description: 'Ask what something is and say it back',
+              xp: 15, content: {
+                rule: 'Every thing in German comes with a little word: "der", "die", or "das". Do not try to learn the rule — learn each new thing together with its little word, like one piece (der Tisch, die Lampe, das Buch). To ask what something is, say "Was ist das?" and answer "Das ist ...".',
+                steps: [
+                  'Point at something and ask: "Was ist das?"',
+                  'Answer for the things you know: "Das ist ein Tisch."',
+                  '"ein" is used with der/das things, "eine" with die things.',
+                  'Learn every new thing with its little word from day one.'
+                ],
+                examples: [
+                  { german: 'Was ist das?', english: 'What is that?' },
+                  { german: 'Das ist ein Tisch.', english: 'That is a table.' },
+                  { german: 'Das ist eine Lampe.', english: 'That is a lamp.' },
+                  { german: 'Das ist ein Buch.', english: 'That is a book.' }
+                ],
+                note: 'Reference card: things never come alone — each one brings der, die or das. "ein/eine" means "a/an" and follows the same little word pattern.'
+              }
+            },
+            {
+              id: 'a1m1d4t2', type: 'vocabulary', title: 'Everyday Objects', description: 'Eight things in the room with you',
+              xp: 15, content: { items: [
+                { german: 'der Tisch', english: 'table', pronunciation: 'der tish' },
+                { german: 'der Stuhl', english: 'chair', pronunciation: 'der shtool' },
+                { german: 'die Lampe', english: 'lamp', pronunciation: 'dee LAHM-peh' },
+                { german: 'das Buch', english: 'book', pronunciation: 'das booKH' },
+                { german: 'das Handy', english: 'mobile phone', pronunciation: 'das HEN-dee' },
+                { german: 'die Uhr', english: 'clock / watch', pronunciation: 'dee oor' },
+                { german: 'die Tür', english: 'door', pronunciation: 'dee toor' },
+                { german: 'das Fenster', english: 'window', pronunciation: 'das FEN-ster' }
+              ]}
+            },
+            {
+              id: 'a1m1d4t3', type: 'flashcards', title: 'Things with Their Little Word', description: 'Learn the thing and its der/die/das together',
+              xp: 15, content: { cards: [
+                { front: 'der Tisch', back: 'table', example: 'Das ist ein Tisch.' },
+                { front: 'der Stuhl', back: 'chair', example: 'Das ist ein Stuhl.' },
+                { front: 'die Lampe', back: 'lamp', example: 'Das ist eine Lampe.' },
+                { front: 'das Buch', back: 'book', example: 'Das ist ein Buch.' },
+                { front: 'das Handy', back: 'mobile phone', example: 'Das ist ein Handy.' },
+                { front: 'die Tür', back: 'door', example: 'Das ist eine Tür.' },
+                { front: 'das Fenster', back: 'window', example: 'Das ist ein Fenster.' }
+              ]}
+            },
+            {
+              id: 'a1m1d4t4', type: 'fillblank', title: 'Ein or Eine?', description: 'Match the little word to the thing',
+              xp: 10, content: { sentences: [
+                { text: 'Das ist ___ Tisch.', answer: 'ein', hint: 'der Tisch → ein' },
+                { text: 'Das ist ___ Lampe.', answer: 'eine', hint: 'die Lampe → eine' },
+                { text: 'Das ist ___ Buch.', answer: 'ein', hint: 'das Buch → ein' },
+                { text: 'Das ist ___ Tür.', answer: 'eine', hint: 'die Tür → eine' },
+                { text: 'Das ist ___ Fenster.', answer: 'ein', hint: 'das Fenster → ein' }
+              ]}
+            },
+            {
+              id: 'a1m1d4t5', type: 'quiz', title: 'Objects Quiz', description: 'Show what the things around you are called',
+              xp: 10, content: { questions: [
+                { question: '"das Buch" means...', options: ['book', 'table', 'door', 'clock'], correct: 0 },
+                { question: 'Which little word goes with "Lampe"?', options: ['die', 'der', 'das', 'ein'], correct: 0 },
+                { question: '"Das ist eine Tür" — you would say this pointing at a...', options: ['door', 'table', 'book', 'phone'], correct: 0 },
+                { question: '"Was ist das?" asks...', options: ['what something is', 'where someone is from', 'how old someone is', 'someone\'s name'], correct: 0 },
+                { question: 'How do you answer "Was ist das?" for a lamp?', options: ['Das ist eine Lampe.', 'Das ist ein Lampe.', 'Das ist der Lampe.', 'Lampe ein das.'], correct: 0 }
+              ]}
+            },
+            {
+              id: 'a1m1d4t6', type: 'quickwin', title: 'Quick Win: Name the Things Around You', description: 'Point, ask, and answer — you\'ve got it',
+              xp: 5, content: {}
+            }
+          ]
+        },
+        {
+          day: 5,
+          title: 'What You Do: Ich heiße, ich wohne, ich spreche',
+          tasks: [
+            {
+              id: 'a1m1d5t1', type: 'grammar', title: 'Say What You Do', description: 'Action words that show up in every chat',
+              xp: 15, content: {
+                rule: 'Action words are easy once you meet them in phrases. Notice how the ending changes when you switch from "I" to "you": "Ich heiße" (I\'m called) becomes "Du heißt"; "Ich wohne" (I live) becomes "Du wohnst"; "Ich komme" becomes "Du kommst". Do not learn a table — learn each pair as you use it.',
+                steps: [
+                  'Introduce yourself with an action: "Ich wohne in Berlin."',
+                  'Ask the other person: "Wo wohnst du?"',
+                  'Talk about languages: "Ich spreche Englisch und Deutsch."',
+                  'Notice: ich ends in "-e/or nothing", du ends in "-st/-t".'
+                ],
+                examples: [
+                  { german: 'Ich wohne in Berlin.', english: 'I live in Berlin.' },
+                  { german: 'Wo wohnst du?', english: 'Where do you live?' },
+                  { german: 'Ich spreche Deutsch.', english: 'I speak German.' },
+                  { german: 'Sprichst du Englisch?', english: 'Do you speak English?' }
+                ],
+                note: 'Reference card: "ich" → "du" usually means changing the ending to "-st" or "-t". You will pick up the exceptions (like heiße → heißt) by hearing them.'
+              }
+            },
+            {
+              id: 'a1m1d5t2', type: 'vocabulary', title: 'Your Action Words', description: 'Verbs you can put to work right now',
+              xp: 15, content: { items: [
+                { german: 'wohnen', english: 'to live', pronunciation: 'VOH-nen' },
+                { german: 'sprechen', english: 'to speak', pronunciation: 'SHPREH-khen' },
+                { german: 'lernen', english: 'to learn', pronunciation: 'LER-nen' },
+                { german: 'kommen', english: 'to come', pronunciation: 'KOH-men' },
+                { german: 'spielen', english: 'to play', pronunciation: 'SHPEEL-en' },
+                { german: 'essen', english: 'to eat', pronunciation: 'ES-en' }
+              ]}
+            },
+            {
+              id: 'a1m1d5t3', type: 'fillblank', title: 'Ich or Du?', description: 'Choose the right ending for the sentence',
+              xp: 10, content: { sentences: [
+                { text: 'Ich ___ in Berlin.', answer: 'wohne', hint: 'ich → wohne' },
+                { text: 'Wo ___ du?', answer: 'wohnst', hint: 'du → wohnst' },
+                { text: 'Ich ___ Deutsch.', answer: 'spreche', hint: 'ich → spreche' },
+                { text: 'Ich ___ aus Indien.', answer: 'komme', hint: 'ich → komme' },
+                { text: 'Ich ___ Deutsch. (to learn)', answer: 'lerne', hint: 'lernen with ich' }
+              ]}
+            },
+            {
+              id: 'a1m1d5t4', type: 'scramble', title: 'Unscramble the Actions', description: 'Put the letters back into a verb',
+              xp: 10, content: { words: [
+                { scrambled: 'nenwoh', answer: 'wohnen', hint: 'to live' },
+                { scrambled: 'cheprens', answer: 'sprechen', hint: 'to speak' },
+                { scrambled: 'nenler', answer: 'lernen', hint: 'to learn' },
+                { scrambled: 'menkom', answer: 'kommen', hint: 'to come' }
+              ]}
+            },
+            {
+              id: 'a1m1d5t5', type: 'quiz', title: 'Action Words Quiz', description: 'The verbs from this day',
+              xp: 10, content: { questions: [
+                { question: '"ich wohne" means...', options: ['I live', 'I speak', 'I play', 'I eat'], correct: 0 },
+                { question: 'Which is the right "du" form of "wohnen"?', options: ['wohnst', 'wohne', 'wohnt', 'wohnen'], correct: 0 },
+                { question: '"sprechen" means...', options: ['to speak', 'to live', 'to learn', 'to come'], correct: 0 },
+                { question: '"Du heißt Anna" means...', options: ['You are called Anna', 'I am called Anna', 'Anna is coming', 'Anna lives here'], correct: 0 },
+                { question: '"Ich lerne Deutsch" means...', options: ['I am learning German', 'I am speaking German', 'I live in Germany', 'I eat in German'], correct: 0 }
+              ]}
+            },
+            {
+              id: 'a1m1d5t6', type: 'quickwin', title: 'Quick Win: Talk About What You Do', description: 'Introduce yourself with action words',
+              xp: 5, content: {}
+            }
+          ]
+        },
+        {
+          day: 6,
+          title: 'Your Age: Zahlen & Wie alt bist du?',
+          tasks: [
+            {
+              id: 'a1m1d6t1', type: 'grammar', title: 'Say How Old You Are', description: 'Numbers 1–12 and the question that uses them',
+              xp: 15, content: {
+                rule: 'To say your age: "Ich bin ___ Jahre alt" (I am ___ years old). To ask: "Wie alt bist du?" (How old are you?). You only need the numbers from one to twelve for this, so start there — eleven (elf) and twelve (zwölf) are the only two that do not follow any pattern.',
+                steps: [
+                  'Count on your fingers: eins, zwei, drei, vier, fünf, sechs.',
+                  'Continue: sieben, acht, neun, zehn, elf, zwölf.',
+                  'Say your age: "Ich bin zehn Jahre alt."',
+                  'Ask back: "Und du? Wie alt bist du?"'
+                ],
+                examples: [
+                  { german: 'Ich bin zehn Jahre alt.', english: 'I am ten years old.' },
+                  { german: 'Wie alt bist du?', english: 'How old are you?' },
+                  { german: 'eins, zwei, drei', english: '1, 2, 3' },
+                  { german: 'elf, zwölf', english: '11, 12' }
+                ],
+                note: 'Reference card: age uses "bin" (I am) + number + "Jahre alt". The numbers 1–12 are special — learn them as one song.'
+              }
+            },
+            {
+              id: 'a1m1d6t2', type: 'vocabulary', title: 'Numbers 1–12', description: 'The golden dozen',
+              xp: 15, content: { items: [
+                { german: 'eins', english: '1', pronunciation: 'eyns' },
+                { german: 'zwei', english: '2', pronunciation: 'tsvay' },
+                { german: 'drei', english: '3', pronunciation: 'dry' },
+                { german: 'vier', english: '4', pronunciation: 'feer' },
+                { german: 'fünf', english: '5', pronunciation: 'foonf' },
+                { german: 'sechs', english: '6', pronunciation: 'zeks' },
+                { german: 'sieben', english: '7', pronunciation: 'ZEE-ben' },
+                { german: 'acht', english: '8', pronunciation: 'ahkht' },
+                { german: 'neun', english: '9', pronunciation: 'noyn' },
+                { german: 'zehn', english: '10', pronunciation: 'tsayn' },
+                { german: 'elf', english: '11', pronunciation: 'elf' },
+                { german: 'zwölf', english: '12', pronunciation: 'tsvoelf' }
+              ]}
+            },
+            {
+              id: 'a1m1d6t3', type: 'listening', title: 'How Old Are You?', description: 'Hear ages in a chat',
+              xp: 10, content: {
+                clip: { title: 'Ages in a chat', source: 'TTS dialogue', text: 'Hallo, ich bin Paul. Wie alt bist du? Ich bin zwölf. Und mein Bruder ist zehn. Schön! Mein Bruder ist auch zehn.' },
+                questions: [
+                  { question: 'How old is the speaker?', options: ['twelve', 'ten', 'eleven', 'nine'], correct: 0 },
+                  { question: 'How old is Paul\'s brother?', options: ['ten', 'twelve', 'eight', 'eleven'], correct: 0 }
+                ]
+              }
+            },
+            {
+              id: 'a1m1d6t4', type: 'fillblank', title: 'Your Age Sentence', description: 'Fill in the number',
+              xp: 10, content: { sentences: [
+                { text: 'Ich bin ____ Jahre alt. (5)', answer: 'fünf', hint: '5 → fünf' },
+                { text: 'Ich bin ____ Jahre alt. (10)', answer: 'zehn', hint: '10 → zehn' },
+                { text: 'Ich bin ____ Jahre alt. (12)', answer: 'zwölf', hint: '12 → zwölf' },
+                { text: 'Mein Bruder ist ____. (3)', answer: 'drei', hint: '3 → drei' },
+                { text: 'Meine Schwester ist ____. (7)', answer: 'sieben', hint: '7 → sieben' }
+              ]}
+            },
+            {
+              id: 'a1m1d6t5', type: 'quiz', title: 'Numbers & Age Quiz', description: 'The golden dozen and how to use it',
+              xp: 10, content: { questions: [
+                { question: '"Wie alt bist du?" asks your...', options: ['age', 'name', 'country', 'occupation'], correct: 0 },
+                { question: 'In German, you say your age with "Ich bin ___ Jahre ___".', options: ['alt', 'neu', 'groß', 'jung'], correct: 0 },
+                { question: '11 in German is...', options: ['elf', 'zehn', 'zwölf', 'neun'], correct: 0 },
+                { question: '"zwölf" is...', options: ['12', '11', '2', '10'], correct: 0 },
+                { question: '"drei" is...', options: ['3', '4', '5', '2'], correct: 0 }
+              ]}
+            },
+            {
+              id: 'a1m1d6t6', type: 'quickwin', title: 'Quick Win: Say Your Age', description: 'Numbers are in — and so is your age',
+              xp: 5, content: {}
+            }
+          ]
+        },
+        {
+          day: 7,
+          title: 'Your First Conversation: Review & Roleplay',
+          tasks: [
+            {
+              id: 'a1m1d7t1', type: 'flashcards', title: 'Week One Review', description: 'All the words from your first week, one card at a time',
+              xp: 15, content: { cards: [
+                { front: 'Hallo', back: 'Hello', example: 'Hallo, ich heiße Lea!' },
+                { front: 'Guten Morgen', back: 'Good morning', example: 'Guten Morgen! Wie geht\'s?' },
+                { front: 'Ich komme aus', back: 'I come from', example: 'Ich komme aus Indien.' },
+                { front: 'Woher kommst du?', back: 'Where are you from?', example: 'Woher kommst du? — Ich komme aus Spanien.' },
+                { front: 'die Mutter', back: 'mother', example: 'Das ist meine Mutter.' },
+                { front: 'der Vater', back: 'father', example: 'Das ist mein Vater.' },
+                { front: 'das Buch', back: 'book', example: 'Was ist das? Das ist ein Buch.' },
+                { front: 'wohnen', back: 'to live', example: 'Ich wohne in Berlin.' },
+                { front: 'sprechen', back: 'to speak', example: 'Ich spreche Deutsch.' },
+                { front: 'zwölf', back: '12', example: 'Mein Bruder ist zwölf.' }
+              ]}
+            },
+            {
+              id: 'a1m1d7t2', type: 'quiz', title: 'Week One Quiz', description: 'Everything from this week in five questions',
+              xp: 10, content: { questions: [
+                { question: 'Answer "Wie geht\'s?" with...', options: ['Gut, danke', 'Tschüss', 'Ich komme aus', 'Was ist das?'], correct: 0 },
+                { question: 'Which tells someone you are from Germany?', options: ['Ich komme aus Deutschland.', 'Ich wohne in Berlin.', 'Ich spreche Deutsch.', 'Ich bin zwölf.'], correct: 0 },
+                { question: '"Das ist meine Schwester" introduces...', options: ['your sister', 'your brother', 'your father', 'your mother'], correct: 0 },
+                { question: 'Which little word goes with "Lampe"?', options: ['die', 'der', 'das', 'zwei'], correct: 0 },
+                { question: '"Wo wohnst du?" asks where you...', options: ['live', 'are from', 'work', 'go'], correct: 0 }
+              ]}
+            },
+            {
+              id: 'a1m1d7t3', type: 'matching', title: 'Week One Word Match', description: 'Pairs from all six days',
+              xp: 10, content: { pairs: [
+                { german: 'Hallo', english: 'Hello' },
+                { german: 'Ich komme aus', english: 'I come from' },
+                { german: 'die Schwester', english: 'sister' },
+                { german: 'das Handy', english: 'mobile phone' },
+                { german: 'lernen', english: 'to learn' },
+                { german: 'fünf', english: '5' }
+              ]}
+            },
+            {
+              id: 'a1m1d7t4', type: 'roleplay', title: 'Meeting Someone New', description: 'Put your first week to work',
+              xp: 10, content: {
+                scenario: 'You meet someone new at a German course. They want to get to know you.',
+                steps: [
+                  'Greet them and say your name: "Hallo, ich heiße ..."',
+                  'Ask their name: "Wie heißt du?"',
+                  'Say where you are from: "Ich komme aus ..." and ask "Woher kommst du?"',
+                  'Practice once more: ask something you learned this week, like their age ("Wie alt bist du?").',
+                  'End the chat: "Tschüss! Schönen Tag!"'
+                ]
+              }
+            },
+            {
+              id: 'a1m1d7t5', type: 'quickwin', title: 'Quick Win: Your First Real Conversation', description: 'A whole short conversation in German — you built it yourself',
               xp: 5, content: {}
             }
           ]
