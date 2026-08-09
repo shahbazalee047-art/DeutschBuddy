@@ -32,3 +32,4 @@ src/data/*.bak
 src/data/*_header.js
 src/data/*_footer.js
 
+supabase/.temp/
