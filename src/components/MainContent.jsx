@@ -1,7 +1,6 @@
 import { memo, lazy, Suspense } from 'react';
 import WeeklyModule from './WeeklyModule';
 import DailyTasks from './DailyTasks';
-import ContinueCard from './ContinueCard';
 
 const TaskRenderer = lazy(() => import('./TaskRenderer'));
 const ProgressDashboard = lazy(() => import('./ProgressDashboard'));
@@ -65,9 +64,6 @@ const MainContent = memo(function MainContent({
   }
   return (
     <div className="space-y-4">
-      {activeView === 'dashboard' && !selectedDay && !selectedTask && (
-        <ContinueCard progress={progress} activeLevel={activeLevel} levelData={levelData} onContinue={onSelectDay} />
-      )}
       {visibleWeeks.map(week => (
         <WeeklyModule key={week.id} week={week} completedTasks={progress.completedTasks} onSelectDay={onSelectDay} selectedDay={selectedDay} isUnlocked={unlockedWeeks.includes(week.id)} />
       ))}

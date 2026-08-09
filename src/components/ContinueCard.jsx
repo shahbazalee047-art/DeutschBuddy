@@ -4,7 +4,7 @@ import { englishTopicTitle } from '../utils/topicTitle';
 
 const DAILY_TASK_TARGET = 5;
 
-export default function ContinueCard({ progress, activeLevel, levelData, onContinue }) {
+export default function ContinueCard({ progress, activeLevel, levelData, onContinue, onStartPractice }) {
   const navigate = useNavigate();
 
   const weeks = levelData?.weeks || [];
@@ -37,15 +37,19 @@ export default function ContinueCard({ progress, activeLevel, levelData, onConti
   function handleContinue() {
     if (resumeTarget && onContinue) {
       onContinue(resumeTarget.weekId, resumeTarget.day);
-    } else if (showFreePractice) {
-      navigate('/dashboard?mode=practice', { replace: true });
+    } else if (showFreePractice && onStartPractice) {
+      onStartPractice();
     } else {
       navigate('/dashboard', { replace: true });
     }
   }
 
   function handleFreePractice() {
-    navigate('/dashboard?mode=practice', { replace: true });
+    if (onStartPractice) {
+      onStartPractice();
+    } else {
+      navigate('/dashboard', { replace: true });
+    }
   }
 
   return (
@@ -108,6 +112,7 @@ export default function ContinueCard({ progress, activeLevel, levelData, onConti
               <>
                 <button
                   onClick={handleFreePractice}
+                  data-coachmark="start-lesson"
                   className="btn-primary rounded-[var(--radius-button)] flex items-center gap-2"
                   style={{ background: 'var(--a1-blue)', color: '#F0EAE0' }}
                 >
@@ -123,7 +128,7 @@ export default function ContinueCard({ progress, activeLevel, levelData, onConti
                 </button>
               </>
             ) : (
-              <button onClick={handleContinue} className="btn-primary rounded-[var(--radius-button)] flex items-center gap-2">
+              <button onClick={handleContinue} data-coachmark="start-lesson" className="btn-primary rounded-[var(--radius-button)] flex items-center gap-2">
                 <IconBookOpen className="w-4 h-4" />
                 Continue →
               </button>

@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import SpeakerButton from './SpeakerButton';
 import { IconHeadphones, IconPlayFilled } from './Icons';
+import { trackAnswerCorrect, trackAnswerIncorrect } from '../utils/analytics';
 
 function getListeningText(clip) {
   if (!clip) return '';
@@ -20,6 +21,14 @@ export default function ListeningTask({ content, onComplete }) {
   if (!qs.length) return <Empty onComplete={onComplete} />;
 
   const finalScore = qs.reduce((c, q, i) => c + (ans[i] === q.correct ? 1 : 0), 0);
+
+  const handleCheck = () => {
+    qs.forEach((q, i) => {
+      if (ans[i] === q.correct) trackAnswerCorrect('listening');
+      else trackAnswerIncorrect('listening');
+    });
+    setSub(true);
+  };
 
   return (
     <div className="fade-in reading-body">
@@ -84,7 +93,7 @@ export default function ListeningTask({ content, onComplete }) {
       <div className="mt-4 text-center">
         {!sub ? (
           <button
-            onClick={() => setSub(true)}
+            onClick={handleCheck}
             disabled={Object.keys(ans).length < qs.length}
             className="btn-primary px-6 disabled:opacity-40 active:scale-95"
           >
@@ -110,7 +119,7 @@ function Empty({ onComplete }) {
   return (
     <div className="text-center py-12">
       <p className="text-text-muted mb-4">Coming soon!</p>
-      <button onClick={() => onComplete()} className="btn-primary px-6">Mark Complete</button>
+      <button onClick={() => onComplete({ score: 1, maxScore: 1 })} className="btn-primary px-6">Mark Complete</button>
     </div>
   );
 }

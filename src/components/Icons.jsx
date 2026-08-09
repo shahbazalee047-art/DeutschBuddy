@@ -101,7 +101,9 @@ export const IconWarning = (props) => si('g', props, [c(12, 12, 10), p('M12 2v1m
 
 export const IconPlay = (props) => si('g', props, [c(12, 12, 10), p('M10 8l6 4-6 4V8z')]);
 
-export const IconPlayFilled = (props) => si('g', props, [poly('5 3 19 12 5 21 5 3z')]);
+export const IconPlayFilled = (props) => si('g', props, [p('M5 3l14 9-14 9V3z')]);
 
 export const IconSpeakerX = (props) => si('g', props, [poly('11 5 6 9 2 9 2 15 6 15 11 19 11 5'), l('23 9 9 23'), l('9 9 23 23')]);
 export const IconGamepad = (props) => si('g', props, [r(3, 5, 18, 14, 2), c(8, 12, 2), c(16, 12, 2)]);
+export const IconUsers = (props) => si('g', props, [p('M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2'), c(9, 7, 4), p('M23 21v-2a4 4 0 0 0-3-3.87'), p('M16 3.13a4 4 0 0 1 0 7.75')]);
+export const IconCopy = (props) => si('g', props, [r(9, 9, 13, 13, 2), p('M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1')]);

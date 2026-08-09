@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { getLocalDateString, getYesterdayDateString } from '../utils/date';
+import { trackAchievementUnlocked, trackStreakMilestone, STREAK_MILESTONES } from '../utils/analytics';
 
 function calculateStreakDelta(lastStudyDate) {
   if (!lastStudyDate) return 1;
@@ -76,6 +77,42 @@ function saveLocalProgress(userId, level, progress) {
   try { localStorage.setItem(getLocalKey(userId, level), JSON.stringify(progress)); } catch { /* ignore */ }
 }
 
+// ---------------------------------------------------------------------------
+// Pending-sync queue: when a server upsert fails (schema drift, transient
+// network error), the write is kept locally as the source of truth and queued
+// for retry with backoff. Local progress is NEVER discarded on a failed save.
+// ---------------------------------------------------------------------------
+
+export function getPendingSyncKey(userId, level) {
+  return `db_sync_pending_${userId}_${level}`;
+}
+
+function loadPendingQueue(userId, level) {
+  try {
+    const raw = localStorage.getItem(getPendingSyncKey(userId, level));
+    const value = raw ? JSON.parse(raw) : [];
+    return Array.isArray(value) ? value : [];
+  } catch { return []; }
+}
+
+function savePendingQueue(userId, level, queue) {
+  try { localStorage.setItem(getPendingSyncKey(userId, level), JSON.stringify(queue)); } catch { /* ignore */ }
+}
+
+function clearPendingQueue(userId, level) {
+  try { localStorage.removeItem(getPendingSyncKey(userId, level)); } catch { /* ignore */ }
+}
+
+export function getPendingSyncSnapshot(userId, level) {
+  const queue = loadPendingQueue(userId, level);
+  return queue.length > 0 ? queue[queue.length - 1] : null;
+}
+
+
+
+const SYNC_RETRY_BASE_MS = 2000;
+const SYNC_RETRY_MAX_MS = 60000;
+
 function normalizeProgressRow(data) {
   return {
     xp: data.xp || 0,
@@ -99,6 +136,7 @@ export function useProgress(level) {
   const progressRef = useRef(progress);
   const userRef = useRef(user);
   const levelRef = useRef(level);
+  const [syncStatus, setSyncStatus] = useState('synced');
 
   useEffect(() => { progressRef.current = progress; }, [progress]);
   useEffect(() => { userRef.current = user; }, [user]);
@@ -113,6 +151,120 @@ export function useProgress(level) {
     setProgress(loadLocalProgress(user.id, level) || getDefaultProgress());
     setLoading(true);
   }, [user, level]);
+
+  const syncTimerRef = useRef(null);
+  const syncAttemptsRef = useRef(0);
+  const syncPendingSinceRef = useRef(null);
+  const performSyncRef = useRef(null);
+  const [syncPendingSince, setSyncPendingSince] = useState(null);
+
+  const markPending = useCallback(() => {
+    if (syncPendingSinceRef.current === null) {
+      const now = Date.now();
+      syncPendingSinceRef.current = now;
+      setSyncPendingSince(now);
+    }
+  }, []);
+
+  const markSynced = useCallback(() => {
+    syncPendingSinceRef.current = null;
+    setSyncPendingSince(null);
+  }, []);
+
+  const performSync = useCallback(async () => {
+    const currentUser = userRef.current;
+    const currentLevel = levelRef.current;
+    if (!currentUser || !currentLevel) return;
+
+    const queue = loadPendingQueue(currentUser.id, currentLevel);
+    if (queue.length === 0) {
+      setSyncStatus('synced');
+      markSynced();
+      return;
+    }
+
+    const timer = Math.min(SYNC_RETRY_BASE_MS * 2 ** syncAttemptsRef.current, SYNC_RETRY_MAX_MS);
+    markPending();
+    setSyncStatus('syncing');
+
+    const remaining = [];
+    for (const snapshot of queue) {
+      try {
+        const { error } = await supabase
+          .from('progress')
+          .upsert(snapshot, { onConflict: 'user_id,level' });
+        if (error) {
+          remaining.push(snapshot);
+          if (error.code === 'PGRST204' || error.code === '42703') {
+            console.warn('progress sync pending (schema mismatch):', error.message);
+          } else {
+            console.warn('progress sync pending:', error.message || error.code);
+          }
+          break;
+        }
+      } catch (err) {
+        remaining.push(snapshot);
+        console.warn('progress sync pending (exception):', String(err).slice(0, 160));
+        break;
+      }
+    }
+
+    if (remaining.length === 0) {
+      clearTimeout(syncTimerRef.current);
+      clearPendingQueue(currentUser.id, currentLevel);
+      syncAttemptsRef.current = 0;
+      markSynced();
+      setSyncStatus('synced');
+      return;
+    }
+
+    savePendingQueue(currentUser.id, currentLevel, remaining);
+    syncAttemptsRef.current += 1;
+    setSyncStatus('pending');
+    clearTimeout(syncTimerRef.current);
+    const retryTimer = setTimeout(() => {
+      if (performSyncRef.current) performSyncRef.current();
+    }, timer);
+    syncTimerRef.current = retryTimer;
+  }, [markPending, markSynced]);
+
+  const queueSync = useCallback((snapshot) => {
+    const currentUser = userRef.current;
+    const currentLevel = levelRef.current;
+    if (!currentUser || !currentLevel) return;
+    const queue = loadPendingQueue(currentUser.id, currentLevel);
+    queue.push(snapshot);
+    if (queue.length > 256) queue.splice(0, queue.length - 256);
+    savePendingQueue(currentUser.id, currentLevel, queue);
+    markPending();
+    performSync();
+  }, [performSync, markPending]);
+
+  // Retry on reconnect / foreground so a once-failed upsert heals on its own.
+  useEffect(() => {
+    const onOnline = () => performSync();
+    const onVisibility = () => {
+      if (!document.hidden) performSync();
+    };
+    window.addEventListener('online', onOnline);
+    document.addEventListener('visibilitychange', onVisibility);
+    performSyncRef.current = performSync;
+    return () => {
+      window.removeEventListener('online', onOnline);
+      document.removeEventListener('visibilitychange', onVisibility);
+      clearTimeout(syncTimerRef.current);
+    };
+  }, [performSync]);
+
+  // Flush any queued writes from a previous session once the app loads.
+  useEffect(() => {
+    if (!user || !level) return;
+    const queue = loadPendingQueue(user.id, level);
+    if (queue.length > 0) {
+      markPending();
+      performSync();
+    }
+  }, [user, level, performSync, markPending]);
 
   const fetchProgress = useCallback(async () => {
     const currentUser = userRef.current;
@@ -135,7 +287,10 @@ export function useProgress(level) {
         console.error('fetchProgress error:', error);
       }
 
-      if (data) {
+      // If a write is queued, the local snapshot is ahead of the server —
+      // keep it as the source of truth so a stale refetch can't wipe progress.
+      const queued = loadPendingQueue(currentUser.id, currentLevel);
+      if (data && queued.length === 0) {
         const normalized = normalizeProgressRow(data);
         setProgress(normalized);
         saveLocalProgress(currentUser.id, currentLevel, normalized);
@@ -174,6 +329,11 @@ export function useProgress(level) {
       ? prev.streak
       : Math.max(streakDelta === -1 ? 1 : prev.streak + streakDelta, 0);
 
+    // Fire once when crossing UP to a milestone streak (3/5/7/14/30 days).
+    if (STREAK_MILESTONES.includes(newStreak) && prev.streak < newStreak) {
+      trackStreakMilestone(newStreak);
+    }
+
     const newXP = alreadyCompleted ? prev.xp : prev.xp + xpAmount;
     const newCompletedTasks = alreadyCompleted
       ? prev.completedTasks
@@ -185,6 +345,8 @@ export function useProgress(level) {
 
     // Revise routing: scored tasks (result.maxScore > 0) with any wrong answer go to
     // the revise list; mastering a previously-revised task (full score) clears it.
+    // Unscored task types (grammar, flashcards, fun, ...) pass full credit
+    // ({ score: 1, maxScore: 1 }) so they are treated as mastered and never revise.
     // This runs inside the same atomic update so there is no stale-state race.
     let nextReviseTasks = Array.isArray(prev.reviseTasks) ? prev.reviseTasks : [];
     if (result && typeof result.score === 'number' && result.maxScore > 0) {
@@ -197,47 +359,50 @@ export function useProgress(level) {
       }
     }
 
+    const nextBadges = checkBadges({
+      xp: newXP,
+      streak: newStreak,
+      completedCount: newCompletedTasks.length,
+      badges: prev.badges,
+    });
+    const prevBadgeIds = new Set((prev.badges || []).map(b => b.id));
+    nextBadges.forEach(badge => {
+      if (!prevBadgeIds.has(badge.id)) trackAchievementUnlocked(badge.id);
+    });
+
     const next = {
       xp: newXP,
       streak: newStreak,
       lastStudyDate: today,
       completedTasks: newCompletedTasks,
       reviseTasks: nextReviseTasks,
-      badges: checkBadges({
-        xp: newXP,
-        streak: newStreak,
-        completedCount: newCompletedTasks.length,
-        badges: prev.badges,
-      }),
+      badges: nextBadges,
       unlockedWeeks: prev.unlockedWeeks,
       weeklyXP: newWeeklyXP,
     };
 
-    // Update React state, localStorage, then server
+    // Update React state, localStorage, then queue the server write.
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
 
-    // The progress upsert and the exercise_results insert are independent —
-    // run them in parallel to halve the latency the user feels on completion.
-    const upsertPromise = supabase
-      .from('progress')
-      .upsert({
-        user_id: currentUser.id,
-        level: currentLevel,
-        xp: next.xp,
-        streak: next.streak,
-        last_study_date: next.lastStudyDate,
-        completed_tasks: next.completedTasks,
-        revise_tasks: next.reviseTasks,
-        badges: next.badges,
-        unlocked_weeks: next.unlockedWeeks,
-        weekly_xp: next.weeklyXP,
-      }, { onConflict: 'user_id,level' })
-      .then(({ error }) => {
-        if (error) { console.error('Progress upsert error:', error); fetchProgress(); }
-      });
+    // Queue the full snapshot for the server. On failure the local state is
+    // kept (source of truth) and the write retries with backoff — a failed
+    // save must NEVER roll back or discard local progress.
+    queueSync({
+      user_id: currentUser.id,
+      level: currentLevel,
+      xp: next.xp,
+      streak: next.streak,
+      last_study_date: next.lastStudyDate,
+      completed_tasks: next.completedTasks,
+      revise_tasks: next.reviseTasks,
+      badges: next.badges,
+      unlocked_weeks: next.unlockedWeeks,
+      weekly_xp: next.weeklyXP,
+    });
 
-    // Log the attempt (avoid duplicate rows for repeats in the same session).
+    // The exercise_results insert is independent of the progress upsert —
+    // run it in parallel to halve the latency the user feels on completion.
     const exercisePromise = !alreadyCompleted
       ? supabase.from('exercise_results').insert({
           user_id: currentUser.id,
@@ -255,12 +420,11 @@ export function useProgress(level) {
       : Promise.resolve();
 
     try {
-      await Promise.all([upsertPromise, exercisePromise]);
+      await exercisePromise;
     } catch (err) {
-      console.error('Progress save error:', err);
-      fetchProgress();
+      console.error('Exercise result save error:', err);
     }
-  }, [fetchProgress]);
+  }, [queueSync]);
 
   const unlockWeek = useCallback(async (weekId) => {
     const currentUser = userRef.current;
@@ -275,25 +439,12 @@ export function useProgress(level) {
 
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
-
-    try {
-      const { error: upsertError } = await supabase
-        .from('progress')
-        .upsert({
-          user_id: currentUser.id,
-          level: currentLevel,
-          unlocked_weeks: next.unlockedWeeks,
-        }, { onConflict: 'user_id,level' });
-
-      if (upsertError) {
-        console.error('Unlock week error:', upsertError);
-        fetchProgress();
-      }
-    } catch (err) {
-      console.error('Unlock week error:', err);
-      fetchProgress();
-    }
-  }, [fetchProgress]);
+    queueSync({
+      user_id: currentUser.id,
+      level: currentLevel,
+      unlocked_weeks: next.unlockedWeeks,
+    });
+  }, [queueSync]);
 
   const setTrackMode = useCallback(async (mode) => {
     const currentUser = userRef.current;
@@ -321,48 +472,44 @@ export function useProgress(level) {
     const today = getLocalDateString();
     const wasBroken = calculateStreakDelta(prev.lastStudyDate) === -1;
 
+    const nextBadges = checkBadges({
+      xp: prev.xp,
+      streak: wasBroken ? 1 : prev.streak,
+      completedCount: prev.completedTasks.length,
+      badges: prev.badges,
+    });
+    const prevBadgeIds = new Set((prev.badges || []).map(b => b.id));
+    nextBadges.forEach(badge => {
+      if (!prevBadgeIds.has(badge.id)) trackAchievementUnlocked(badge.id);
+    });
+
     const next = {
       ...prev,
       lastStudyDate: today,
       streak: wasBroken ? 1 : prev.streak,
-      badges: checkBadges({
-        xp: prev.xp,
-        streak: wasBroken ? 1 : prev.streak,
-        completedCount: prev.completedTasks.length,
-        badges: prev.badges,
-      }),
+      badges: nextBadges,
     };
 
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
 
-    try {
-      // Upsert only the fields that recoverStreak actually changes; let the
-      // server preserve everything else. This matches unlockWeek's minimal
-      // pattern and avoids clobbering concurrently-written fields.
-      const { error: upsertError } = await supabase
-        .from('progress')
-        .upsert({
-          user_id: currentUser.id,
-          level: currentLevel,
-          last_study_date: next.lastStudyDate,
-          streak: next.streak,
-          badges: next.badges,
-        }, { onConflict: 'user_id,level' });
-
-      if (upsertError) {
-        console.error('Streak recovery error:', upsertError);
-        fetchProgress();
-      }
-    } catch (err) {
-      console.error('Streak recovery error:', err);
-      fetchProgress();
-    }
-  }, [fetchProgress]);
+    // Upsert only the fields that recoverStreak actually changes; let the
+    // server preserve everything else. This matches unlockWeek's minimal
+    // pattern and avoids clobbering concurrently-written fields.
+    queueSync({
+      user_id: currentUser.id,
+      level: currentLevel,
+      last_study_date: next.lastStudyDate,
+      streak: next.streak,
+      badges: next.badges,
+    });
+  }, [queueSync]);
 
   return {
     progress,
     loading,
+    syncStatus,
+    syncPendingSince,
     completeTask,
     unlockWeek,
     setTrackMode,

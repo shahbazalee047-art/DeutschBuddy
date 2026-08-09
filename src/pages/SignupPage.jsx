@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase } from '../lib/supabase';
 import { IconCheck } from '../components/Icons';
+import { stashReferralCode, isValidReferralCode } from '../utils/referral';
+import { applyPendingReferral } from '../services/referralService';
+import { trackSignupCompleted } from '../utils/analytics';
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -12,10 +14,19 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const { signUp, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   useEffect(() => {
     if (user) navigate('/dashboard', { replace: true });
   }, [user, navigate]);
+
+  // A direct /signup?ref=CODE (or a ref carried through onboarding, which
+  // OnboardingPage already stashed) is parked in localStorage so it survives
+  // the onboarding -> signup navigation and any redirect churn.
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (isValidReferralCode(ref)) stashReferralCode(ref);
+  }, [searchParams]);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -34,20 +45,23 @@ export default function SignupPage() {
       if (error) throw error;
       // Carry the onboarding track choice (db_selected_track) into the new
       // profile, so the profile-sync in DashboardContext doesn't reset a
-      // fast-track learner back to 'standard' after signup.
+      // fast-track learner back to 'standard' after signup. Referral setup
+      // (own code + referred_by) rides the same upsert.
       const signedInUser = data?.session?.user;
+      let referralUsed = false;
       if (signedInUser) {
         const chosenTrack = (() => {
           try { return localStorage.getItem('db_selected_track'); } catch { return null; }
         })();
-        if (chosenTrack === 'fast' || chosenTrack === 'standard') {
-          const { error: upsertError } = await supabase
-            .from('profiles')
-            .upsert({ id: signedInUser.id, selected_pacing: chosenTrack }, { onConflict: 'id' });
-          if (upsertError) console.error('Track sync error:', upsertError);
-        }
+        const trackPayload = (chosenTrack === 'fast' || chosenTrack === 'standard')
+          ? { selected_pacing: chosenTrack }
+          : {};
+        referralUsed = !!(await applyPendingReferral(signedInUser.id, trackPayload));
       }
-      // If email confirmation is disabled, the user/session is returned directly.
+      // Email confirmation may be enabled, in which case there is no session
+      // yet — signup still succeeded, and the stashed referral is applied at
+      // first login (LoginPage calls applyPendingReferral).
+      trackSignupCompleted({ referralUsed });
       if (data?.session?.user) {
         navigate('/dashboard', { replace: true });
       } else {

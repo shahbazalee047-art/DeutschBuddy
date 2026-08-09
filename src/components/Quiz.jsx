@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import SpeakerButton from './SpeakerButton';
 import { IconHelpCircle, IconCheck, IconX, IconSparkles, IconLightbulb, IconArrowRight } from './Icons';
+import { trackAnswerCorrect, trackAnswerIncorrect } from '../utils/analytics';
 
 const UMLAUT_MAP = { 'ä': 'a', 'ö': 'o', 'ü': 'u', 'ß': 'ss' };
 
@@ -105,10 +106,12 @@ export default function Quiz({ content, onComplete }) {
     const isCorrect = i === q.correct;
 
     if (isCorrect) {
+      trackAnswerCorrect('quiz');
       setScore((p) => p + 1);
       scoreRef.current += 1; // synchronous so advance() sees it on either path
       setShow(true);
     } else {
+      trackAnswerIncorrect('quiz');
       const err = analyzeGermanError(q.options[i], q.options[q.correct], q.metadata || {});
       setErrorInfo(err);
       setShow(true);

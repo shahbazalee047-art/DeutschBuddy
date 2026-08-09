@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BuddyAvatar } from '../components/buddy';
 import {
   IconArrowRight, IconArrowLeft, IconCheck, IconSparkles, IconBookOpen, IconMap,
   IconGraduation, IconChat, IconClock, IconTrophy,
 } from '../components/Icons';
+import { stashReferralCode, isValidReferralCode } from '../utils/referral';
+import { trackOnboardingCompleted } from '../utils/analytics';
 
 // Pre-signup onboarding — a quick 6-step "tell us about you" flow. Deliberately
 // NOT a placement quiz: learners self-report their comfort level and we route
@@ -92,6 +94,14 @@ export default function OnboardingPage() {
   const [stepIdx, setStepIdx] = useState(0);
   const [choice, setChoice] = useState(null);     // { level, track } from step 2
   const [goal, setGoal] = useState(null);
+  const [searchParams] = useSearchParams();
+
+  // The entry route for signed-out users is this page, so invite links
+  // (?ref=CODE) get stashed here — well before signup consumes them.
+  useEffect(() => {
+    const ref = searchParams.get('ref');
+    if (isValidReferralCode(ref)) stashReferralCode(ref);
+  }, [searchParams]);
 
   // Instant-win mini matching state
   const [winSelected, setWinSelected] = useState(null); // de text of selected card
@@ -105,6 +115,7 @@ export default function OnboardingPage() {
     setLS('db_learning_goal', goal);
     const first = FIRST_TASK[choice.level][choice.track];
     setLS('db_pending_lesson', JSON.stringify(first));
+    trackOnboardingCompleted({ level: choice.level, track: choice.track, goal: goal || undefined });
     navigate('/signup');
   };
 

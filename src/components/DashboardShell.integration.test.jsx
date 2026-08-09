@@ -6,6 +6,7 @@ import DashboardShell from './DashboardShell';
 
 vi.mock('react-router-dom', () => ({
   useNavigate: () => vi.fn(),
+  useSearchParams: () => [new URLSearchParams(), vi.fn()],
   Link: ({ children, ...props }) => <a {...props}>{children}</a>,
 }));
 
@@ -54,15 +55,15 @@ describe('DashboardShell Start Lesson flow', () => {
   // a 7-day module) plus all lazy views — slow on CI/loaded machines.
   const SHELL_TIMEOUT = 20000;
 
-  it('opens a lesson when the Home Start Lesson button is clicked', async () => {
+  it('opens a lesson when the Home Continue button is clicked', async () => {
     render(
       <DashboardProvider>
         <DashboardShell />
       </DashboardProvider>
     );
 
-    // Wait for the HomePage to render the Start Lesson button
-    const startBtn = await screen.findByRole('button', { name: /start lesson/i }, { timeout: SHELL_TIMEOUT });
+    // Wait for the HomePage to render the Continue card's primary button
+    const startBtn = await screen.findByRole('button', { name: /continue/i }, { timeout: SHELL_TIMEOUT });
     expect(startBtn).toBeInTheDocument();
 
     fireEvent.click(startBtn);

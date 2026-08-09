@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { IconCheck } from '../components/Icons';
+import { applyPendingReferral } from '../services/referralService';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -26,12 +27,19 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      await signIn(email, password);
+      const data = await signIn(email, password);
       try {
         if (localStorage.getItem('db_selected_level')) {
           localStorage.setItem('db_onboarded', 'true');
         }
       } catch { /* ignore */ }
+      // Applies any stashed invite (email-confirmation path: the profile and
+      // referral_code were created server-side at signup, and the referral is
+      // credited now). No-op for existing users.
+      const uid = data?.user?.id || data?.session?.user?.id;
+      if (uid) {
+        applyPendingReferral(uid).catch(() => { /* referral is best-effort */ });
+      }
       navigate('/dashboard', { replace: true });
     } catch (err) {
       setErrors({ form: err.message });

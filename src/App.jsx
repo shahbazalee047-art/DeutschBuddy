@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { DashboardProvider } from './contexts/DashboardContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -29,8 +29,10 @@ function Dashboard() {
 
 function LandingRoute() {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <PageLoader />;
-  if (!user) return <Navigate to="/onboarding" replace />;
+  // Preserve ?ref= so invite links survive the landing -> onboarding redirect.
+  if (!user) return <Navigate to={{ pathname: '/onboarding', search: location.search }} replace />;
   return <Dashboard />;
 }
 

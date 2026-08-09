@@ -68,12 +68,13 @@ export default function RightPanel({
   const xp = progress?.xp || 0;
   const daysStreak = streak !== undefined ? streak : 0;
 
-  const milestones = [
+  const milestoneList = [
     { label: '10 XP', target: 10, icon: IconBolt },
     { label: '50 XP', target: 50, icon: IconTarget },
     { label: '100 XP', target: 100, icon: IconTrophy },
   ];
-  const nextMilestone = milestones.find(m => xp < m.target) || { label: 'Legend', target: 1000, icon: IconDiamond, xp: 1000 };
+  const nextMilestone = milestoneList.find(m => xp < m.target) || { label: 'Legend', target: 1000, icon: IconDiamond, xp: 1000 };
+  const milestones = [...milestoneList, nextMilestone].filter((m, i, arr) => arr.findIndex(x => x.label === m.label) === i);
 
   return (
     <div className="space-y-4">
@@ -132,7 +133,7 @@ export default function RightPanel({
           {/* Milestone rings */}
           <h5 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3">Next Milestone</h5>
           <div className="flex justify-center gap-4">
-            {milestones.concat(nextMilestone).filter((m, i, arr) => i === arr.length - 1 || m.target > xp).slice(0, 3).map(m => (
+            {milestones.filter((m, i, arr) => i === arr.length - 1 || m.target > xp).slice(0, 3).map(m => (
               <ProgressRing key={m.label} xp={xp} target={m.target} label={m.label} icon={m.icon} size={80} />
             ))}
           </div>

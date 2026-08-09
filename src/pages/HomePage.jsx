@@ -1,8 +1,10 @@
 import { useMemo } from 'react';
 import { useDashboard } from '../contexts/DashboardContext';
 import { BuddyAvatar, BuddySpeechBubble, pickPhrase, getGreetingByTime } from '../components/buddy';
-import { IconFire, IconStar, IconTrophy, IconClock, IconArrowRight } from '../components/Icons';
+import { IconFire, IconStar, IconTrophy, IconClock } from '../components/Icons';
 import ReviseCard from '../components/ReviseCard';
+import ContinueCard from '../components/ContinueCard';
+import BannerAd from '../components/BannerAd';
 
 function getNextLesson(levelData, progress) {
   if (!levelData?.weeks) return null;
@@ -19,7 +21,7 @@ function getNextLesson(levelData, progress) {
 }
 
 export default function HomePage({ onViewJourney }) {
-  const { profile, progress, levelData, handleSelectDay, handleSelectTask, unlockedWeeks } = useDashboard();
+  const { profile, progress, levelData, handleSelectDay, handleSelectTask, unlockedWeeks, startPractice, activeLevel } = useDashboard();
 
   const nextLesson = useMemo(() => getNextLesson(levelData, progress), [levelData, progress]);
   const greeting = useMemo(() => pickPhrase(getGreetingByTime()), []);
@@ -32,14 +34,6 @@ export default function HomePage({ onViewJourney }) {
     } catch { return 20; }
   }, []);
   const dailyProgress = Math.min((progress?.todayXP || 0) / dailyGoal, 1);
-
-  const handleStart = () => {
-    if (nextLesson) {
-      handleSelectDay(nextLesson.week.id, nextLesson.day.day);
-    } else if (onViewJourney) {
-      onViewJourney();
-    }
-  };
 
   const completedSet = new Set(progress?.completedTasks || []);
   const handleWeekClick = (week) => {
@@ -104,35 +98,16 @@ export default function HomePage({ onViewJourney }) {
           </div>
         </div>
 
-        {/* Main CTA */}
-        <button
-          onClick={handleStart}
-          data-coachmark="start-lesson"
-          className="w-full db-card db-card-hover p-6 text-left group relative overflow-hidden"
-        >
-          <div className="relative z-10">
-            <p className="text-sm font-semibold text-primary uppercase tracking-wide mb-1">
-              {nextLesson ? 'Continue Learning' : 'Start Your Journey'}
-            </p>
-            <h2 className="text-xl font-bold text-text-dark mb-2">
-              {nextLesson
-                ? `${nextLesson.week.title} · Day ${nextLesson.day.day}`
-                : levelData?.title || 'Deutsch A1–A2'}
-            </h2>
-            <p className="text-text-muted text-sm mb-4">
-              {nextLesson
-                ? `${nextLesson.task.title} — ${nextLesson.remainingCount} task${nextLesson.remainingCount > 1 ? 's' : ''} left`
-                : 'Begin your first lesson with Buddy today.'}
-            </p>
-            <span className="db-btn db-btn-primary inline-flex px-6 py-3 text-sm">
-              {nextLesson ? 'Start Lesson' : 'Begin Journey'}
-              <IconArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </div>
-          <div className="absolute right-[-20px] bottom-[-20px] opacity-10 group-hover:opacity-20 transition-opacity">
-            <BuddyAvatar state="happy" size={140} />
-          </div>
-        </button>
+        {/* Main CTA — resumes the track, or offers Free Practice when the track
+            is complete or the daily target is met. data-coachmark anchors the
+            first-run Start Here hint. */}
+        <ContinueCard
+          progress={progress}
+          activeLevel={activeLevel}
+          levelData={levelData}
+          onContinue={handleSelectDay}
+          onStartPractice={startPractice}
+        />
 
         {/* Revise list — tasks answered wrong, surfaced for retry */}
         <ReviseCard
@@ -176,6 +151,7 @@ export default function HomePage({ onViewJourney }) {
             </div>
           </div>
         )}
+        <BannerAd />
       </div>
     </div>
   );

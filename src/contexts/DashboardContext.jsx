@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { useProgress } from '../hooks/useProgress';
 import { getLocalDateString } from '../utils/date';
+import { trackLessonStarted, trackLessonCompleted, trackGamePlayed, trackSessionStart } from '../utils/analytics';
+import { showInterstitial } from '../services/ads';
 
 const DashboardContext = createContext(null);
 
@@ -16,6 +18,9 @@ export function DashboardProvider({ children }) {
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [activeView, setActiveView] = useState('dashboard');
+  const [practiceMode, setPracticeMode] = useState(false);
+  const [practiceQueue, setPracticeQueue] = useState([]);
+  const [practiceIndex, setPracticeIndex] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
   const [todayXP, setTodayXP] = useState(0);
   const [xpToast, setXpToast] = useState(null);
@@ -42,6 +47,7 @@ export function DashboardProvider({ children }) {
 
   const profileMenuRef = useRef(null);
   const isProcessingBack = useRef(false);
+  const prevTaskRef = useRef(null);
   const activeViewRef = useRef(activeView);
   const selectedTaskRef = useRef(selectedTask);
   const selectedDayRef = useRef(selectedDay);
@@ -63,6 +69,25 @@ export function DashboardProvider({ children }) {
   useEffect(() => { showPictureMatchRef.current = showPictureMatch; }, [showPictureMatch]);
   useEffect(() => { historyRef.current = historyStack; }, [historyStack]);
 
+  // Lesson start tracking: fires whenever a task becomes the active lesson
+  // (day view click, revise retry, week jump, practice advance) — but not on
+  // exit or re-renders of the same task.
+  useEffect(() => {
+    const prev = prevTaskRef.current;
+    prevTaskRef.current = selectedTask;
+    if (selectedTask && prev !== selectedTask) {
+      trackLessonStarted(selectedTask.id, activeLevel);
+    }
+  }, [selectedTask, activeLevel]);
+
+  // Session start: once per app open (the provider mounts once per session).
+  const sessionStartedRef = useRef(false);
+  useEffect(() => {
+    if (sessionStartedRef.current) return;
+    sessionStartedRef.current = true;
+    trackSessionStart({ userId: user?.id, level: activeLevel });
+  }, [user, activeLevel]);
+
   // Keep track mode in sync with the profile (cross-device) only when the
   // user hasn't made a choice on this device yet. A local choice — e.g. the
   // onboarding fast-track pick, which exists before a profile row does —
@@ -76,7 +101,7 @@ export function DashboardProvider({ children }) {
     try { localStorage.setItem('db_selected_track', profile.selected_pacing); } catch { /* ignore */ }
   }, [profile?.selected_pacing]);
 
-  const { progress, loading, completeTask, unlockWeek, setTrackMode, recoverStreak } = useProgress(activeLevel);
+  const { progress, loading, syncStatus, syncPendingSince, completeTask, unlockWeek, setTrackMode, recoverStreak } = useProgress(activeLevel);
 
   const handleToggleTrackMode = useCallback((mode) => {
     setLocalTrackMode(mode);
@@ -135,6 +160,45 @@ export function DashboardProvider({ children }) {
     setSelectedTask(task);
   }, [activeView, selectedDay, selectedTask]);
 
+  // Free practice: a shuffled queue of tasks drawn from the unlocked weeks.
+  // Runs entirely inside the dashboard state (no URL needed); the LessonPlayer
+  // shows queue progress and completion advances to the next random task.
+  const exitPractice = useCallback(() => {
+    setPracticeMode(false);
+    setPracticeQueue([]);
+    setPracticeIndex(0);
+    setSelectedTask(null);
+    setSelectedDay(null);
+    showInterstitial();
+  }, []);
+
+  const startPractice = useCallback(() => {
+    if (practiceMode || !levelData?.weeks) return;
+    const pool = [];
+    for (const week of levelData.weeks) {
+      if (!unlockedWeeks.includes(week.id)) continue;
+      for (const day of week.days || []) {
+        for (const task of day.tasks || []) {
+          if (task?.id && task?.type && task?.content) {
+            pool.push({ weekId: week.id, day: day.day, task, weekTitle: week.title });
+          }
+        }
+      }
+    }
+    if (!pool.length) return;
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const queue = pool.slice(0, 8);
+    setPracticeQueue(queue);
+    setPracticeIndex(0);
+    setPracticeMode(true);
+    setSelectedDay({ weekId: queue[0].weekId, day: queue[0].day });
+    setSelectedTask(queue[0].task);
+    setActiveView('dashboard');
+  }, [practiceMode, levelData, unlockedWeeks]);
+
   const handleStartLesson = useCallback((weekId, day, task) => {
     setHistoryStack(prev => [...prev, { view: 'dashboard', day: null, task: null }]);
     setSelectedDay({ weekId, day });
@@ -148,9 +212,18 @@ export function DashboardProvider({ children }) {
         ? Math.max(1, Math.round(selectedTask.xp * (result.score / result.maxScore)))
         : selectedTask.xp;
       completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day, result);
+      trackLessonCompleted(
+        selectedTask.id,
+        activeLevel,
+        result && typeof result.score === 'number' ? result.score : 0,
+        result?.maxScore || 0,
+        earnedXP
+      );
       setTodayXP(prev => prev + earnedXP);
       setXpToast(earnedXP);
-      const currentWeekData = levelData?.weeks.find(w => w.id === selectedDay.weekId);
+      // In practice mode a random task finishing must not trigger the week
+      // unlock / day-complete celebration — just advance the queue instead.
+      const currentWeekData = practiceMode ? null : levelData?.weeks.find(w => w.id === selectedDay.weekId);
       if (currentWeekData) {
         // Project the next completed set so the check is robust against batched updates
         // and doesn't rely on closure state that may be one render behind.
@@ -163,11 +236,24 @@ export function DashboardProvider({ children }) {
           if (!unlockedWeeks.includes(selectedDay.weekId + 1)) {
             unlockWeek(selectedDay.weekId + 1);
           }
+          showInterstitial();
         }
       }
     }
+    if (practiceMode) {
+      const nextIndex = practiceIndex + 1;
+      if (nextIndex < practiceQueue.length) {
+        const nextItem = practiceQueue[nextIndex];
+        setPracticeIndex(nextIndex);
+        setSelectedDay({ weekId: nextItem.weekId, day: nextItem.day });
+        setSelectedTask(nextItem.task);
+        return;
+      }
+      exitPractice();
+      return;
+    }
     setSelectedTask(null);
-  }, [selectedTask, selectedDay, completeTask, levelData, progress.completedTasks, unlockedWeeks, unlockWeek]);
+  }, [selectedTask, selectedDay, completeTask, levelData, progress.completedTasks, unlockedWeeks, unlockWeek, practiceMode, practiceQueue, practiceIndex, exitPractice, activeLevel]);
 
   const handleBackToWeek = useCallback(() => {
     setSelectedDay(null);
@@ -176,6 +262,7 @@ export function DashboardProvider({ children }) {
 
   const handleGameScore = useCallback((game, score) => {
     const xp = Math.min(Math.max(Math.floor(score / 2), 0), 50);
+    trackGamePlayed(game, score);
     if (xp <= 0) return;
     const today = getLocalDateString();
     const taskId = `game-${game}-${today}`;
@@ -186,11 +273,12 @@ export function DashboardProvider({ children }) {
 
   const handleViewChange = useCallback((view) => {
     setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask, level: activeLevel }]);
+    if (practiceMode) exitPractice();
     setActiveView(view);
     setSelectedDay(null);
     setSelectedTask(null);
     if (showNotifications) setShowNotifications(false);
-  }, [activeView, selectedDay, selectedTask, activeLevel, showNotifications]);
+  }, [activeView, selectedDay, selectedTask, activeLevel, showNotifications, practiceMode, exitPractice]);
 
   const handleLevelChange = useCallback((level) => {
     try { localStorage.setItem('db_selected_level', level); } catch { /* ignore */ }
@@ -201,7 +289,9 @@ export function DashboardProvider({ children }) {
   }, []);
 
   const handleBackNavigation = useCallback(() => {
-    if (historyRef.current.length > 0) {
+    if (practiceMode) {
+      exitPractice();
+    } else if (historyRef.current.length > 0) {
       const prev = historyRef.current[historyRef.current.length - 1];
       setHistoryStack(prevStack => prevStack.slice(0, -1));
       setActiveView(prev.view || 'dashboard');
@@ -210,10 +300,11 @@ export function DashboardProvider({ children }) {
       if (prev.level) setActiveLevel(prev.level);
     } else if (selectedTask) {
       setSelectedTask(null);
+      showInterstitial();
     } else if (selectedDay) {
       setSelectedDay(null);
     }
-  }, [selectedTask, selectedDay]);
+  }, [selectedTask, selectedDay, practiceMode, exitPractice]);
 
   useEffect(() => { handleBackNavRef.current = handleBackNavigation; }, [handleBackNavigation]);
 
@@ -272,13 +363,14 @@ export function DashboardProvider({ children }) {
   // Push browser history state on view changes
   useEffect(() => {
     if (isProcessingBack.current) return;
+    if (practiceMode) return; // practice queue advances via state, not history
     if (activeView === 'dashboard' && !selectedDay && !selectedTask) return;
     window.history.pushState(
       { activeView, selectedDay, selectedTask, activeLevel },
       '',
       window.location.pathname
     );
-  }, [activeView, selectedDay, selectedTask, activeLevel]);
+  }, [activeView, selectedDay, selectedTask, activeLevel, practiceMode]);
 
   // Capacitor back button
   useEffect(() => {
@@ -378,8 +470,10 @@ export function DashboardProvider({ children }) {
     retryKey, setRetryKey,
     hasUnreadNotifications,
     profileMenuRef,
-    progress, loading, completeTask, unlockWeek, recoverStreak,
+    progress, loading, syncStatus, syncPendingSince, completeTask, unlockWeek, recoverStreak,
     visibleWeeks, unlockedWeeks, currentWeek,
+    practiceMode, practiceQueue, practiceIndex,
+    startPractice, exitPractice,
     handleSelectDay, handleSelectTask, handleStartLesson, handleCompleteTask, handleBackToWeek,
     handleGameScore, handleViewChange, handleLevelChange, handleBackNavigation,
   }), [
@@ -394,8 +488,10 @@ export function DashboardProvider({ children }) {
     trackMode, handleToggleTrackMode,
     levelData, dataLoading, loadError, retryKey,
     hasUnreadNotifications,
-    progress, loading, completeTask, unlockWeek, recoverStreak,
+    progress, loading, syncStatus, syncPendingSince, completeTask, unlockWeek, recoverStreak,
     visibleWeeks, unlockedWeeks, currentWeek,
+    practiceMode, practiceQueue, practiceIndex,
+    startPractice, exitPractice,
     handleSelectDay, handleSelectTask, handleStartLesson, handleCompleteTask, handleBackToWeek,
     handleGameScore, handleBackNavigation,
   ]);

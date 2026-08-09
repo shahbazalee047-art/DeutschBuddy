@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import SpeakerButton from './SpeakerButton';
 import { IconEdit, IconSparkles, IconHeart, IconLightbulb, IconArrowRight } from './Icons';
+import { trackAnswerCorrect, trackAnswerIncorrect } from '../utils/analytics';
 
 const UMLAUT_MAP = { 'ä': 'a', 'ö': 'o', 'ü': 'u', 'ß': 'ss' };
 
@@ -108,11 +109,13 @@ export default function FillBlank({ content, onComplete }) {
     const correct = ans.trim().toLowerCase() === (s.answer || '').toLowerCase();
 
     if (correct) {
+      trackAnswerCorrect('fillblank');
       setScore((p) => p + 1);
       scoreRef.current += 1; // synchronous so advance() sees it on either path
       setShow(true);
       setErrorInfo(null);
     } else {
+      trackAnswerIncorrect('fillblank');
       const err = analyzeGermanError(ans, s.answer || '', s.metadata || {});
       setErrorInfo(err);
       setShow(true);

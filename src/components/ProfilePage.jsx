@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { IconBolt, IconFire, IconCheck, IconGraduation, IconArrowLeft } from './Icons';
+import { IconBolt, IconFire, IconCheck, IconGraduation, IconArrowLeft, IconUsers, IconCopy } from './Icons';
+import { buildReferralLink } from '../utils/referral';
 
 export default function ProfilePage({ activeLevel = 'A1' }) {
   const { user, profile } = useAuth();
   const [progress, setProgress] = useState({ xp: 0, streak: 0, completedTasks: [], badges: [] });
   const [loading, setLoading] = useState(true);
+  const [referral, setReferral] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -57,6 +60,39 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
     load();
     return () => { cancelled = true; };
   }, [user, activeLevel]);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (!user) return;
+      const { data, error } = await supabase.rpc('get_my_referral_info');
+      if (cancelled) return;
+      if (error) {
+        console.error('Referral info load error:', error);
+        return;
+      }
+      setReferral(data);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  async function handleShare() {
+    const code = referral?.referral_code;
+    if (!code) return;
+    const link = buildReferralLink(code);
+    const text = 'Join me learning German on DeutschBuddy — free, fast, and fun.';
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'DeutschBuddy', text, url: link });
+        return;
+      } catch { /* user dismissed the share sheet — fall through to copy */ }
+    }
+    try {
+      await navigator.clipboard.writeText(link);
+    } catch { /* clipboard unavailable — nothing more to do */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   if (loading) {
     return (
@@ -114,6 +150,30 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
           </div>
         ))}
       </div>
+
+      {/* Invite friends */}
+      {referral?.referral_code && (
+        <div className="paper-card p-6">
+          <div className="flex items-center gap-2 mb-1">
+            <IconUsers className="w-5 h-5" style={{ color: 'var(--gold)' }} />
+            <h2 className="text-lg font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Invite friends</h2>
+          </div>
+          <p className="text-[13px] text-text-muted mb-4">
+            When a friend joins and finishes onboarding, you both get a head start — you earn the Community Builder badge and 25 XP per friend. No cap.
+          </p>
+          <div className="flex items-center gap-2 mb-3">
+            <code className="flex-1 px-3 py-2 rounded border border-gold/20 bg-gold/5 text-[13px] font-mono text-gold truncate">
+              {referral.referral_code}
+            </code>
+            <button onClick={handleShare} className="btn-primary shrink-0">
+              <IconCopy className="w-4 h-4" /> {copied ? 'Copied!' : 'Share'}
+            </button>
+          </div>
+          <p className="text-[12px] text-text-muted">
+            {referral.referral_count || 0} friend{referral.referral_count === 1 ? '' : 's'} joined so far
+          </p>
+        </div>
+      )}
     </div>
   );
 }

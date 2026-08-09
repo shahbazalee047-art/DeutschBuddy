@@ -1,5 +1,5 @@
 import { lazy, Suspense, useMemo, useState, useEffect, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useDashboard } from '../contexts/DashboardContext';
 import Navbar from './Navbar';
 import BottomNav from './BottomNav';
@@ -13,6 +13,7 @@ const WelcomeTutorial = lazy(() => import('./WelcomeTutorial'));
 const Coachmark = lazy(() => import('./Coachmark'));
 import SkipLink from './SkipLink';
 import XpToast from './XpToast';
+import { showInterstitial } from '../services/ads';
 import { CardSkeleton, ListSkeleton } from './Skeleton';
 import { IconBell, IconUser, IconSettings, IconMenu, IconFire, IconRefresh } from './Icons';
 import LoadingSpinner from './LoadingSpinner';
@@ -52,7 +53,7 @@ export default function DashboardShell() {
     showSidebar, setShowSidebar,
     showProfileMenu, setShowProfileMenu,
     setNotifVersion,
-    progress, loading,
+    progress, loading, syncStatus, syncPendingSince,
     levelData, dataLoading, loadError, setRetryKey, setLoadError,
     visibleWeeks, unlockedWeeks,
     currentWeek,
@@ -62,12 +63,24 @@ export default function DashboardShell() {
     profileMenuRef,
     recoverStreak,
     hasUnreadNotifications,
+    practiceMode, practiceQueue, practiceIndex,
+    startPractice, exitPractice,
     setSelectedDay, setSelectedTask, setActiveView,
   } = dashboard;
 
   // First-time tutorial: show once per device after the dashboard has loaded.
   const [showTutorial, setShowTutorial] = useState(false);
   const [showStartCoachmark, setShowStartCoachmark] = useState(false);
+
+  // Deep link: /dashboard?mode=practice starts a free-practice session, then
+  // the param is cleaned off the URL so it can't re-trigger on re-renders.
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('mode') !== 'practice') return;
+    if (dataLoading || loadError || !levelData) return;
+    setSearchParams({}, { replace: true });
+    startPractice();
+  }, [searchParams, setSearchParams, dataLoading, loadError, levelData, startPractice]);
   useEffect(() => {
     if (dataLoading || loadError || !levelData) return;
     if (selectedTask) return; // don't interrupt a deep-link into a lesson
@@ -371,17 +384,28 @@ export default function DashboardShell() {
         </div>
       </div>
 
+      {/* Non-blocking sync status indicator: shown only while a progress
+          write is queued locally (offline / transient server issue). */}
+      {syncStatus !== 'synced' && (
+        <div className="lg:hidden sticky top-16 z-30 flex justify-center">
+          <SyncPill syncStatus={syncStatus} syncPendingSince={syncPendingSince} />
+        </div>
+      )}
+
       {/* Main Content Area */}
       <main id="main-content" className="min-h-0 flex-1 overflow-y-auto" tabIndex={-1}>
         {selectedTask ? (
           <Suspense fallback={<LoadingScreen />}>
             <LessonPlayer
               task={selectedTask}
-              tasks={currentWeek?.days?.find(d => d.day === selectedDay?.day)?.tasks || [selectedTask]}
-              currentIndex={(currentWeek?.days?.find(d => d.day === selectedDay?.day)?.tasks || []).findIndex(t => t.id === selectedTask.id)}
-              topicTitle={currentWeek?.title}
+              tasks={practiceMode && practiceQueue.length
+                ? practiceQueue.map(q => q.task)
+                : currentWeek?.days?.find(d => d.day === selectedDay?.day)?.tasks || [selectedTask]}
+              currentIndex={practiceMode ? practiceIndex : (currentWeek?.days?.find(d => d.day === selectedDay?.day)?.tasks || []).findIndex(t => t.id === selectedTask.id)}
+              topicTitle={practiceMode ? practiceQueue[practiceIndex]?.weekTitle : currentWeek?.title}
+              practice={practiceMode}
               onComplete={handleCompleteTask}
-              onExit={() => { setSelectedTask(null); setSelectedDay(null); }}
+              onExit={practiceMode ? exitPractice : () => { showInterstitial(); setSelectedTask(null); setSelectedDay(null); }}
             />
           </Suspense>
         ) : activeView === 'journey' ? (
@@ -417,6 +441,22 @@ export default function DashboardShell() {
       <div className="hidden lg:block">
         <Suspense fallback={null}><Footer /></Suspense>
       </div>
+    </div>
+  );
+}
+
+function SyncPill({ syncStatus, syncPendingSince }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 30000);
+    return () => clearInterval(id);
+  }, [syncPendingSince]);
+  const showSyncing = syncStatus === 'syncing' || (syncStatus === 'pending' && (syncPendingSince ? now - syncPendingSince < 30000 : true));
+  return (
+    <div className="flex items-center gap-1.5 px-3 py-1 text-[11px] text-text-muted bg-bg-dark-mid/90 border border-border rounded-full backdrop-blur">
+      <span className={`w-2 h-2 rounded-full ${showSyncing ? 'bg-gold animate-pulse' : 'bg-text-muted/60'}`} />
+      {showSyncing ? 'Syncing…' : 'Offline — will sync later'}
     </div>
   );
 }

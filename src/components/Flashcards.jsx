@@ -5,7 +5,7 @@ export default function Flashcards({ content, onComplete }) {
   const cards = content.cards || [];
   if (!cards.length) return <Empty onComplete={onComplete} />;
   const card = cards[idx]; const isLast = idx === cards.length - 1;
-  function next() { setFlipped(false); if (isLast) onComplete(); else { setDone(p => [...p, idx]); setIdx(p => p + 1); } }
+  function next() { setFlipped(false); if (isLast) onComplete({ score: cards.length, maxScore: cards.length }); else { setDone(p => [...p, idx]); setIdx(p => p + 1); } }
   return (
     <div className="fade-in reading-body">
       <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-text-dark text-lg">🃏 Flashcards</h3><span className="text-sm text-text-muted">{idx + 1}/{cards.length}</span></div>
@@ -39,4 +39,4 @@ export default function Flashcards({ content, onComplete }) {
     </div>
   );
 }
-function Empty({ onComplete }) { return <div className="text-center py-12"><p className="text-text-muted mb-4">Coming soon!</p><button onClick={onComplete} className="btn-primary px-6">Mark Complete</button></div>; }
+function Empty({ onComplete }) { return <div className="text-center py-12"><p className="text-text-muted mb-4">Coming soon!</p><button onClick={() => onComplete({ score: 1, maxScore: 1 })} className="btn-primary px-6">Mark Complete</button></div>; }

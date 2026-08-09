@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { IconFeather, IconEdit } from './Icons';
 export default function Writing({ content, onComplete }) {
   const [text, setText] = useState(''); const [done, setDone] = useState(false);
-  function submit() { if (text.trim().length > 0) { setDone(true); onComplete(); } }
+  function submit() { if (text.trim().length > 0) { setDone(true); onComplete({ score: 1, maxScore: 1 }); } }
   return (
     <div className="fade-in reading-body">
       <h3 className="font-bold text-text-dark text-lg mb-5 flex items-center gap-2"><IconFeather className="w-5 h-5 text-gold" /> Writing Exercise</h3>

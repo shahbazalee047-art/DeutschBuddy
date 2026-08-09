@@ -23,6 +23,11 @@ export function AuthProvider({ children }) {
   const profileFetchedRef = useRef(false);
   const userIdRef = useRef(null);
 
+  const PROFILE_COLUMNS = 'id, full_name, avatar_url, selected_pacing, notification_preferences, created_at, updated_at';
+  const PROFILE_COLUMNS_SAFE = 'id, full_name, avatar_url, selected_pacing, created_at, updated_at';
+  const profileColumnFallbackRef = useRef(false);
+  const fetchProfileRef = useRef(null);
+
   const fetchProfile = useCallback(async (userId, forceRefresh = false) => {
     if (!userId) return;
     if (profileFetchedRef.current && !forceRefresh && userIdRef.current === userId) return;
@@ -32,12 +37,23 @@ export function AuthProvider({ children }) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, avatar_url, selected_pacing, notification_preferences, created_at, updated_at')
+        .select(profileColumnFallbackRef.current ? PROFILE_COLUMNS_SAFE : PROFILE_COLUMNS)
         .eq('id', userId)
         .single();
 
       if (error) {
-        console.error('fetchProfile error:', error);
+        const isMissingColumn = error.code === '42703'
+          || /column .* does not exist/i.test(error.message || '');
+        // Future schema drift on the read path must not spam errors on every
+        // navigation: drop the unknown column and degrade silently.
+        if (isMissingColumn && !profileColumnFallbackRef.current) {
+          profileColumnFallbackRef.current = true;
+          void fetchProfileRef.current(userId, forceRefresh);
+          return;
+        }
+        if (!isMissingColumn) {
+          console.error('fetchProfile error:', error);
+        }
         if (error.code === 'PGRST116') {
           if (mountedRef.current) setProfile(null);
         }
@@ -89,6 +105,8 @@ export function AuthProvider({ children }) {
       subscription.unsubscribe();
     };
   }, [fetchProfile]);
+
+  useEffect(() => { fetchProfileRef.current = fetchProfile; }, [fetchProfile]);
 
   const refreshProfile = useCallback(() => {
     if (user) {

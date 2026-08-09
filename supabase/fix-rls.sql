@@ -1,6 +1,12 @@
 -- Fix RLS policies for DeutschBuddy
 -- Run this in Supabase SQL Editor if you get permission errors
 -- This script safely drops and recreates only the policies it defines.
+--
+-- WARNING: statements below ORDER matters. The "Grant necessary permissions"
+-- block must stay above the profiles column-level REVOKE (bottom of this file):
+-- that REVOKE/column-GRANT must run AFTER the table-wide `grant select on
+-- public.profiles` here so the anon/authenticated roles never keep full-table
+-- SELECT that would expose the protected `email` column (see schema.sql).
 
 -- Ensure notification_preferences column exists on profiles
 alter table public.profiles
@@ -182,6 +188,15 @@ alter table public.exam_scores enable row level security;
 alter table public.community_posts enable row level security;
 alter table public.community_upvotes enable row level security;
 alter table public.community_comments enable row level security;
+
+-- Column-level access control (mirrors schema.sql): prevent anon/authenticated
+-- roles from reading the `email` column. Must run AFTER the table-wide
+-- `grant select on public.profiles` above, otherwise that grant silently
+-- restores full-table SELECT and undoes schema.sql's protection. The
+-- handle_new_user trigger below is SECURITY DEFINER, so signup still writes email.
+revoke select on public.profiles from anon, authenticated;
+grant select (id, full_name, avatar_url, selected_pacing, notification_preferences, created_at, updated_at)
+  on public.profiles to anon, authenticated;
 
 -- Recreate handle_new_user trigger function with proper error handling
 create or replace function public.handle_new_user()

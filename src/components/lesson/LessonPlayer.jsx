@@ -5,7 +5,7 @@ import { BuddyAvatar, BuddySpeechBubble, pickPhrase } from '../buddy';
 import { germanTopicTitle } from '../../utils/topicTitle';
 import { IconX } from '../Icons';
 
-export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, onComplete, onExit }) {
+export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, onComplete, onExit, practice = false }) {
   const containerRef = useRef(null);
   const [buddyState, setBuddyState] = useState('idle');
   const [buddyPhrase, setBuddyPhrase] = useState('');
@@ -64,6 +64,11 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
         </button>
 
         <div className="flex-1 mx-4">
+          {practice && (
+            <p className="text-center text-[11px] font-bold uppercase tracking-wide text-gold mb-0.5" style={{ letterSpacing: '0.5px' }}>
+              Free Practice · {currentIndex + 1} / {total}
+            </p>
+          )}
           <div className="progress-bar">
             <motion.div
               className="progress-bar-fill"
@@ -72,9 +77,9 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
               transition={{ duration: 0.4, ease: 'easeOut' }}
             />
           </div>
-          <p className="text-center text-xs text-text-muted mt-1">
+          {!practice && <p className="text-center text-xs text-text-muted mt-1">
             {currentIndex + 1} / {total}
-          </p>
+          </p>}
         </div>
 
         <div className="w-10" />

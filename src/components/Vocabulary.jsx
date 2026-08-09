@@ -116,7 +116,7 @@ export default function Vocabulary({ content, onComplete }) {
 
       <div className="mt-5 text-center">
         <button
-          onClick={onComplete}
+          onClick={() => onComplete({ score: studied.size, maxScore: items.length })}
           className={`px-6 py-3 font-semibold text-[14px] transition-all active:scale-95 rounded-[var(--radius-button)] ${
             allStudied ? 'btn-primary' : 'btn-secondary'
           }`}
@@ -138,7 +138,7 @@ function Empty({ onComplete }) {
   return (
     <div className="text-center py-12">
       <p className="text-text-muted mb-4">Coming soon!</p>
-      <button onClick={onComplete} className="btn-primary px-6">Mark Complete</button>
+      <button onClick={() => onComplete({ score: 1, maxScore: 1 })} className="btn-primary px-6">Mark Complete</button>
     </div>
   );
 }
