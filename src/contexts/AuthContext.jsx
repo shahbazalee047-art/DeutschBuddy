@@ -172,7 +172,7 @@ export function AuthProvider({ children }) {
       });
       const settings = await res.json();
       if (settings?.external?.google === false) {
-        const err = new Error('Google sign-in is not available yet. Please use email instead.');
+        const err = new Error('Google sign-in is not available yet. Please continue with your Gmail email address instead.');
         err.code = 'provider_disabled';
         throw err;
       }
