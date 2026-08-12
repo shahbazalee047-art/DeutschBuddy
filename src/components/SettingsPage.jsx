@@ -483,7 +483,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
 
         <button
           type="button"
-          onClick={() => { try { localStorage.removeItem('db_tutorial_seen_v1'); } catch { /* ignore */ } window.location.reload(); }}
+          onClick={() => { try { localStorage.removeItem('db_tutorial_seen_v2'); localStorage.removeItem('db_tutorial_seen_v1'); } catch { /* ignore */ } window.location.reload(); }}
           className="w-full flex items-center justify-between py-3 px-4 hover:bg-bg-secondary transition cursor-pointer text-left"
         >
           <div className="flex items-center gap-3">

@@ -91,7 +91,7 @@ export default function DashboardShell() {
     if (dataLoading || loadError || !levelData) return;
     if (selectedTask) return; // don't interrupt a deep-link into a lesson
     try {
-      if (localStorage.getItem('db_tutorial_seen_v1') !== '1') {
+      if (localStorage.getItem('db_tutorial_seen_v2') !== '1') {
         setShowTutorial(true);
       }
     } catch { /* ignore */ }
@@ -118,12 +118,14 @@ export default function DashboardShell() {
 
   // If the learner enters a lesson while the tutorial or coachmark is open,
   // dismiss the overlays so they don't sit on top of the lesson content.
+  // NOTE: the tutorial flag is NOT set here — "seen" is only recorded when the
+  // user actually closes the tutorial (WelcomeTutorial.close). Marking it here
+  // previously made the tutorial permanently vanish without ever being shown.
   useEffect(() => {
     if ((selectedTask || selectedDay) && (showTutorial || showStartCoachmark)) {
       setShowTutorial(false);
       setShowStartCoachmark(false);
       try {
-        localStorage.setItem('db_tutorial_seen_v1', '1');
         localStorage.setItem('db_coachmark_seen_v1', '1');
       } catch { /* ignore */ }
     }

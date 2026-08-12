@@ -6,8 +6,13 @@ import { IconArrowRight, IconArrowLeft, IconX } from './Icons';
 // In-app first-time tutorial. Shows once per device (localStorage flag) the first
 // time a learner lands on the dashboard. A "Replay tutorial" option in Settings
 // re-triggers it by clearing the flag.
+//
+// v2: the old v1 flag was (incorrectly) marked "seen" by the previous lesson
+// deep-link flow even when the tutorial was never shown, so browsers that saw
+// that version permanently skipped the tutorial. The v2 key gives every device
+// a fresh, correctly-marked first run.
 
-const TUTORIAL_KEY = 'db_tutorial_seen_v1';
+const TUTORIAL_KEY = 'db_tutorial_seen_v2';
 
 function markTutorialSeen() {
   try { localStorage.setItem(TUTORIAL_KEY, '1'); } catch { /* ignore */ }
