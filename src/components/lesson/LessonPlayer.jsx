@@ -51,7 +51,7 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
     <div
       ref={containerRef}
       tabIndex={-1}
-      className="fixed inset-0 z-50 flex flex-col bg-bg-base outline-none"
+      className="fixed inset-0 z-[60] flex flex-col bg-bg-base outline-none"
     >
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-surface border-b border-border safe-area-top">
