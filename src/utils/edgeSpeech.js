@@ -62,19 +62,64 @@ export function toEdgeRate(rate) {
 
 const TTS_API_URL = import.meta.env?.VITE_TTS_API_URL || '/api/tts';
 
-export async function speakWithEdgeTTS(text, voice, rate = '+0%', pitch = '+0Hz', volume = '+0%') {
-  const response = await fetch(TTS_API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, voice, rate, pitch, volume })
-  });
+// Session audio cache: a phrase is synthesized once per voice/rate/pitch/volume
+// and replayed instantly from memory on later taps. POST responses are not
+// HTTP-cached, so without this every tap round-trips the server.
+const audioCache = new Map();
+const AUDIO_CACHE_MAX = 60;
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `TTS request failed (${response.status})`);
-  }
+// In-flight dedupe: a hover prefetch and the subsequent tap (or rapid double
+// taps on the same phrase) share one network request instead of firing N.
+const inFlight = new Map();
 
-  return await response.blob();
+function cacheKey(text, voice, rate, pitch, volume) {
+  return `${voice}|${rate}|${pitch}|${volume}|${text}`;
+}
+
+export async function speakWithEdgeTTS(text, voice, rate = '+0%', pitch = '+0Hz', volume = '+0%', signal) {
+  const textToSpeak = String(text || '').trim();
+  if (!textToSpeak) throw new Error('No text provided for TTS');
+
+  const key = cacheKey(textToSpeak, voice, rate, pitch, volume);
+  const cached = audioCache.get(key);
+  if (cached) return cached;
+
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+
+  const promise = (async () => {
+    try {
+      const response = await fetch(TTS_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: textToSpeak, voice, rate, pitch, volume }),
+        signal,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `TTS request failed (${response.status})`);
+      }
+
+      const blob = await response.blob();
+      if (audioCache.size >= AUDIO_CACHE_MAX) {
+        const oldest = audioCache.keys().next().value;
+        audioCache.delete(oldest);
+      }
+      audioCache.set(key, blob);
+      return blob;
+    } finally {
+      inFlight.delete(key);
+    }
+  })();
+
+  inFlight.set(key, promise);
+  return promise;
+}
+
+export function clearAudioCache() {
+  audioCache.clear();
+  inFlight.clear();
 }
 
 export function speakWithWebSpeech(text, language = 'de-DE', rate = 0.9, onEnd, onError) {

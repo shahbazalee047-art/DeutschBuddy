@@ -10,11 +10,17 @@ import {
 
 export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const audioRef = useRef(null);
   const objectUrlRef = useRef(null);
   const currentTextRef = useRef(null);
+  const abortRef = useRef(null);
+  // Monotonic id per speak request: stop()/a newer speak() bumps it, and stale
+  // async continuations (blob arrived, fetch aborted) bail instead of playing
+  // zombie audio or falling back to Web Speech after the user cancelled.
+  const requestIdRef = useRef(0);
 
   const cleanupAudio = useCallback(() => {
     if (audioRef.current) {
@@ -30,8 +36,14 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
   }, []);
 
   const stop = useCallback(() => {
+    requestIdRef.current += 1;
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
     cleanupAudio();
     stopWebSpeech();
+    setIsGenerating(false);
     setIsSpeaking(false);
   }, [cleanupAudio]);
 
@@ -42,9 +54,11 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
       return;
     }
 
-    // Stop any currently playing audio before starting new speech.
+    // Stop any currently playing audio or in-flight generation before starting.
     stop();
+    const requestId = requestIdRef.current;
     currentTextRef.current = text;
+    setIsGenerating(true);
     setIsSpeaking(true);
 
     const detectedLang = language === 'auto' ? detectLanguage(text) : language;
@@ -52,8 +66,15 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
     const voiceName = isGerman ? EDGE_VOICES.german : EDGE_VOICES.english;
     const edgeRate = toEdgeRate(rate);
 
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     try {
-      const blob = await speakWithEdgeTTS(text, voiceName, edgeRate);
+      const blob = await speakWithEdgeTTS(text, voiceName, edgeRate, '+0Hz', '+0%', controller.signal);
+      if (requestIdRef.current !== requestId) return; // superseded or stopped
+      abortRef.current = null;
+      setIsGenerating(false);
+
       const url = URL.createObjectURL(blob);
       objectUrlRef.current = url;
 
@@ -79,6 +100,9 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
 
       await audio.play();
     } catch (err) {
+      if (requestIdRef.current !== requestId) return; // cancelled — stay silent
+      setIsGenerating(false);
+      if (err?.name === 'AbortError') return; // fetch aborted — no fallback
       console.warn('Edge TTS failed, falling back to Web Speech:', err);
       try {
         speakWithWebSpeech(
@@ -114,9 +138,11 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
     return newRate;
   }, [playbackRate, isSpeaking, stop, speak]);
 
-  // Clean up any pending audio when the hook unmounts.
+  // Clean up any pending audio or in-flight generation when the hook unmounts.
   useEffect(() => {
     return () => {
+      requestIdRef.current += 1;
+      if (abortRef.current) abortRef.current.abort();
       cleanupAudio();
       stopWebSpeech();
     };
@@ -124,6 +150,7 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
 
   return {
     isSpeaking,
+    isGenerating,
     error,
     speak,
     stop,

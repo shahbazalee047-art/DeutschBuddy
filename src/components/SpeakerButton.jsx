@@ -1,4 +1,5 @@
 import { useSpeech } from '../hooks/useSpeech';
+import { detectLanguage, EDGE_VOICES, toEdgeRate, speakWithEdgeTTS } from '../utils/edgeSpeech';
 import { IconSpeaker, IconSpeakerX } from './Icons';
 
 export default function SpeakerButton({
@@ -9,11 +10,22 @@ export default function SpeakerButton({
   size = 'md',
   showRateToggle = false
 }) {
-  const { isSpeaking, error, speak, stop, playbackRate, toggleRate } = useSpeech(
+  const { isSpeaking, isGenerating, error, speak, stop, playbackRate, toggleRate } = useSpeech(
     language,
     onAudioEnd,
     onAudioError
   );
+
+  // Warm the TTS cache on hover/focus (desktop) so a tap plays instantly
+  // instead of waiting for a network synthesis round trip.
+  const prefetch = () => {
+    if (!text || isSpeaking || isGenerating) return;
+    const detectedLang = language === 'auto' ? detectLanguage(text) : language;
+    const voiceName = detectedLang.toLowerCase().startsWith('de')
+      ? EDGE_VOICES.german
+      : EDGE_VOICES.english;
+    speakWithEdgeTTS(text, voiceName, toEdgeRate(playbackRate)).catch(() => {});
+  };
 
   const handleToggle = () => {
     if (isSpeaking) {
@@ -42,20 +54,38 @@ export default function SpeakerButton({
 
   const CurrentIcon = isSpeaking ? IconSpeakerX : IconSpeaker;
 
+  const label = error
+    ? 'Speech unavailable'
+    : isGenerating
+      ? 'Preparing audio…'
+      : isSpeaking
+        ? 'Stop speaking'
+        : 'Listen';
+
   return (
     <div className="relative inline-flex">
       <button
         onClick={handleToggle}
+        onMouseEnter={prefetch}
+        onFocus={prefetch}
         disabled={!text}
-        title={error ? 'Speech unavailable' : isSpeaking ? 'Stop' : 'Listen'}
-        aria-label={error ? 'Speech unavailable' : isSpeaking ? 'Stop speaking' : 'Listen'}
+        title={label}
+        aria-label={label}
+        aria-busy={isGenerating || undefined}
         className={`${sizeClasses[size]} rounded-full flex items-center justify-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-primary ${
           isSpeaking
             ? 'bg-gold text-[var(--cta-text)] animate-pulse shadow-[0_0_12px_rgba(232,183,61,0.4)]'
             : 'bg-[rgba(245,229,201,0.10)] text-gold hover:bg-[rgba(245,229,201,0.20)]'
         }`}
       >
-        <CurrentIcon className={iconSizes[size]} />
+        {isGenerating ? (
+          <span
+            className={`${iconSizes[size]} border-2 border-current border-t-transparent rounded-full animate-spin`}
+            aria-hidden="true"
+          />
+        ) : (
+          <CurrentIcon className={iconSizes[size]} />
+        )}
       </button>
 
       {showRateToggle && (

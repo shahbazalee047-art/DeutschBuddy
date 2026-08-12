@@ -28,6 +28,10 @@ function preconnectSupabasePlugin(env) {
 }
 
 function ttsApiPlugin() {
+  const synthCache = new Map();
+  const SYNTH_CACHE_MAX = 200;
+  const cacheKey = (text, voice, rate, pitch, volume) => `${voice}|${rate}|${pitch}|${volume}|${text}`;
+
   return {
     name: 'tts-api',
     configureServer(server) {
@@ -77,14 +81,31 @@ function ttsApiPlugin() {
               return
             }
 
+            const key = cacheKey(text, voice, rate, pitch, volume)
+            const cached = synthCache.get(key)
+            if (cached) {
+              res.setHeader('Content-Type', 'audio/mpeg')
+              res.setHeader('Cache-Control', 'public, max-age=3600')
+              res.statusCode = 200
+              res.end(cached)
+              return
+            }
+
             const tts = new UniversalEdgeTTS(text, voice, { rate, pitch, volume })
             const { audio } = await tts.synthesize()
             const arrayBuffer = await audio.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
+
+            if (synthCache.size >= SYNTH_CACHE_MAX) {
+              const oldest = synthCache.keys().next().value
+              synthCache.delete(oldest)
+            }
+            synthCache.set(key, buffer)
 
             res.setHeader('Content-Type', 'audio/mpeg')
             res.setHeader('Cache-Control', 'public, max-age=3600')
             res.statusCode = 200
-            res.end(Buffer.from(arrayBuffer))
+            res.end(buffer)
           } catch (err) {
             console.error('Edge TTS dev error:', err)
             res.statusCode = 500
