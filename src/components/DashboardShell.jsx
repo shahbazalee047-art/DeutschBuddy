@@ -1,4 +1,4 @@
-import { lazy, Suspense, useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { lazy, Suspense, useMemo, useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useDashboard } from '../contexts/DashboardContext';
 import Navbar from './Navbar';
@@ -72,6 +72,12 @@ export default function DashboardShell() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [showStartCoachmark, setShowStartCoachmark] = useState(false);
 
+  // Onboarding handoff: after onboarding writes db_pending_lesson, deep-link
+  // straight into Day 1 Lesson 1 (instead of landing on the dashboard).
+  // New users see the first-run tutorial first — the deep-link fires only
+  // after the tutorial is closed. Returning users skip straight to the lesson.
+  const [pendingLesson, setPendingLesson] = useState(null);
+
   // Deep link: /dashboard?mode=practice starts a free-practice session, then
   // the param is cleaned off the URL so it can't re-trigger on re-renders.
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,17 +98,18 @@ export default function DashboardShell() {
   }, [dataLoading, loadError, levelData, selectedTask]);
 
   // When the tutorial closes, point the learner at the Start Lesson button —
-  // but only if they haven't completed a task yet and haven't seen this hint.
+  // but only if they haven't completed a task yet, haven't seen this hint, and
+  // there's no pending lesson about to deep-link them into Day 1 instead.
   const handleTutorialClose = useCallback(() => {
     setShowTutorial(false);
     try {
       const coachmarkSeen = localStorage.getItem('db_coachmark_seen_v1') === '1';
       const hasCompletedTasks = (progress?.completedTasks?.length || 0) > 0;
-      if (!coachmarkSeen && !hasCompletedTasks) {
+      if (!coachmarkSeen && !hasCompletedTasks && !pendingLesson) {
         setShowStartCoachmark(true);
       }
     } catch { /* ignore */ }
-  }, [progress]);
+  }, [progress, pendingLesson]);
 
   function handleCoachmarkClose() {
     setShowStartCoachmark(false);
@@ -122,11 +129,9 @@ export default function DashboardShell() {
     }
   }, [selectedTask, selectedDay, showTutorial, showStartCoachmark]);
 
-  // Onboarding handoff: after onboarding writes db_pending_lesson, deep-link
-  // straight into Day 1 Lesson 1 (instead of landing on the dashboard).
-  const pendingLessonHandled = useRef(false);
+  // Onboarding handoff: consume the stored deep-link, but only once, and only
+  // when we're not already inside a lesson.
   useEffect(() => {
-    if (pendingLessonHandled.current) return;
     if (dataLoading || loadError || !levelData || !levelData.weeks) return;
     if (selectedTask || selectedDay) return;
     let pending = null;
@@ -135,14 +140,22 @@ export default function DashboardShell() {
       pending = raw ? JSON.parse(raw) : null;
     } catch { /* ignore */ }
     if (!pending || !pending.weekId || !pending.taskId) return;
-    pendingLessonHandled.current = true;
     try { localStorage.removeItem('db_pending_lesson'); } catch { /* ignore */ }
-    const week = levelData.weeks.find(w => w.id === pending.weekId);
-    const day = week?.days?.find(d => d.day === pending.day);
-    const task = day?.tasks?.find(t => t.id === pending.taskId);
-    if (!week || !day || !task) return;
-    handleStartLesson(week.id, day.day, task);
-  }, [dataLoading, loadError, levelData, selectedTask, selectedDay, handleStartLesson]);
+    setPendingLesson(pending);
+  }, [dataLoading, loadError, levelData, selectedTask, selectedDay]);
+
+  useEffect(() => {
+    if (!pendingLesson || !levelData || !levelData.weeks) return;
+    if (selectedTask || selectedDay) return;
+    if (showTutorial) return; // the first-run tutorial comes before the lesson
+    const { weekId, day, taskId } = pendingLesson;
+    setPendingLesson(null);
+    const week = levelData.weeks.find(w => w.id === weekId);
+    const dayData = week?.days?.find(d => d.day === day);
+    const task = dayData?.tasks?.find(t => t.id === taskId);
+    if (!week || !dayData || !task) return;
+    handleStartLesson(week.id, dayData.day, task);
+  }, [pendingLesson, levelData, selectedTask, selectedDay, showTutorial, handleStartLesson]);
 
   const mainContentProps = useMemo(() => ({
     activeView, activeLevel, selectedDay, selectedTask, currentWeek,

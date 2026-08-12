@@ -400,7 +400,7 @@ export default function OnboardingPage() {
                 </div>
                 <div className="flex items-center justify-between p-4">
                   <span className="text-[13px] text-text-muted">Pace</span>
-                  <span className="font-bold text-text-dark">{choice.track === 'fast' ? 'Fast Track' : 'Spoon-fed'}</span>
+                  <span className="font-bold text-text-dark">{choice.track === 'fast' ? 'Fast Track' : 'Beginner'}</span>
                 </div>
                 <div className="flex items-center justify-between p-4">
                   <span className="text-[13px] text-text-muted">Goal</span>
