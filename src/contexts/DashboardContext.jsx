@@ -444,7 +444,7 @@ export function DashboardProvider({ children }) {
   }, [showProfileMenu]);
 
   const value = useMemo(() => ({
-    user, profile, signOut: handleSignOutFromApp,
+    user, profile, handleSignOutFromApp,
     activeLevel, setActiveLevel: handleLevelChange,
     selectedDay, setSelectedDay,
     selectedTask, setSelectedTask,

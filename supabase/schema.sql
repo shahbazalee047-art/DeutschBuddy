@@ -304,13 +304,31 @@ create or replace trigger on_community_comment_change
   for each row execute function public.update_post_comment_count();
 
 -- Function to auto-create profile on signup
+-- Works for BOTH email and Google signups:
+--   email:  raw_user_meta_data.full_name
+--   Google: raw_user_meta_data.full_name / name and avatar_url / picture
+-- (Supabase normalizes Google OAuth metadata, but the coalesce is defensive
+-- against provider metadata differences.)
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
 begin
-  insert into public.profiles (id, full_name, email)
+  insert into public.profiles (id, full_name, avatar_url, email)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
+    coalesce(
+      new.raw_user_meta_data ->> 'full_name',
+      new.raw_user_meta_data ->> 'name',
+      ''
+    ),
+    coalesce(
+      new.raw_user_meta_data ->> 'avatar_url',
+      new.raw_user_meta_data ->> 'picture',
+      null
+    ),
     new.email
   )
   on conflict (id) do nothing;
@@ -326,7 +344,7 @@ begin
 
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
 
 -- Trigger for new user signup
 drop trigger if exists on_auth_user_created on auth.users;

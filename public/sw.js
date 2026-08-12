@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'deutschbuddy-v12';
+const CACHE_VERSION = 'deutschbuddy-v13';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 const FONT_CACHE = `${CACHE_VERSION}-fonts`;
