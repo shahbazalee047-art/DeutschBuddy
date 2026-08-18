@@ -199,14 +199,31 @@ grant select (id, full_name, avatar_url, selected_pacing, notification_preferenc
   on public.profiles to anon, authenticated;
 
 -- Recreate handle_new_user trigger function with proper error handling
+-- NOTE: must stay the FULL canonical version (search_path pinned, Google
+-- avatar_url, referral_code) — do not trim these fields, it regresses every
+-- new signup after this file is applied last.
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
 begin
-  insert into public.profiles (id, full_name, email)
+  insert into public.profiles (id, full_name, avatar_url, email, referral_code)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
-    new.email
+    coalesce(
+      new.raw_user_meta_data ->> 'full_name',
+      new.raw_user_meta_data ->> 'name',
+      ''
+    ),
+    coalesce(
+      new.raw_user_meta_data ->> 'avatar_url',
+      new.raw_user_meta_data ->> 'picture',
+      null
+    ),
+    new.email,
+    'DB-' || upper(substr(md5(random()::text), 1, 8))
   )
   on conflict (id) do nothing;
 
@@ -220,7 +237,7 @@ begin
 
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
 
 -- Drop and recreate trigger
 drop trigger if exists on_auth_user_created on auth.users;

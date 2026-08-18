@@ -1,11 +1,17 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
-import { mapAuthError } from '../utils/authErrors';
+import { friendlyAuthError } from '../utils/authErrors';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 const AuthContext = createContext(null);
+
+// Emails are case-insensitive on the auth server; stray spaces from mobile
+// autocomplete are the #1 cause of "invalid username or password" mysteries.
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
 
 // Fast-path user from local storage so the first render doesn't flash a
 // signed-out state while getSession() resolves. supabase-js stores the session
@@ -41,6 +47,21 @@ export function AuthProvider({ children }) {
   const mountedRef = useRef(true);
   const profileFetchedRef = useRef(false);
   const userIdRef = useRef(null);
+  // Tracks the active Google popup watchdog (interval + 5-min cap) so it can
+  // be torn down the moment auth resolves — otherwise it holds closures for
+  // up to 5 minutes after a successful OAuth login.
+  const popupWatchdogRef = useRef(null);
+
+  const clearPopupWatchdog = useCallback(() => {
+    const watchdog = popupWatchdogRef.current;
+    if (watchdog) {
+      clearInterval(watchdog.interval);
+      clearTimeout(watchdog.cap);
+      popupWatchdogRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => () => clearPopupWatchdog(), [clearPopupWatchdog]);
 
   const PROFILE_COLUMNS = 'id, full_name, avatar_url, selected_pacing, notification_preferences, created_at, updated_at';
   const PROFILE_COLUMNS_SAFE = 'id, full_name, avatar_url, selected_pacing, created_at, updated_at';
@@ -108,6 +129,8 @@ export function AuthProvider({ children }) {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mountedRef.current) return;
+      // The OAuth flow concluded (in any way) — stop watching the popup.
+      clearPopupWatchdog();
       const nextUser = session?.user ?? null;
       if (event === 'PASSWORD_RECOVERY') setRecovery(true);
       else if (event === 'SIGNED_OUT') setRecovery(false);
@@ -127,9 +150,10 @@ export function AuthProvider({ children }) {
 
     return () => {
       mountedRef.current = false;
+      clearPopupWatchdog();
       subscription.unsubscribe();
     };
-  }, [fetchProfile]);
+  }, [fetchProfile, clearPopupWatchdog]);
 
   useEffect(() => { fetchProfileRef.current = fetchProfile; }, [fetchProfile]);
 
@@ -147,21 +171,36 @@ export function AuthProvider({ children }) {
   // Errors are mapped to friendly messages before they reach the UI.
   const signUp = useCallback(async (email, password, fullName) => {
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: normalizeEmail(email),
       password,
       options: { data: { full_name: fullName } },
     });
-    if (error) throw new Error(mapAuthError(error));
+    if (error) throw friendlyAuthError(error);
     return data;
   }, []);
 
   const signIn = useCallback(async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw new Error(mapAuthError(error));
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: normalizeEmail(email),
+      password,
+    });
+    if (error) throw friendlyAuthError(error);
     return data;
   }, []);
 
-  const signInWithGoogle = useCallback(async () => {
+  // Re-sends the signup confirmation email. Only meaningful when the project
+  // has "Confirm email" enabled; Supabase rate-limits these (~2/hour on free
+  // tier), so the UI guards with a cooldown and this surfaces that error nicely.
+  const resendVerificationEmail = useCallback(async (email) => {
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email: normalizeEmail(email),
+    });
+    if (error) throw friendlyAuthError(error);
+  }, []);
+
+  const signInWithGoogle = useCallback(async (opts = {}) => {
+    const { onPopupClosed } = opts;
     // Pre-flight check: /auth/v1/settings is a public endpoint listing enabled
     // OAuth providers. When Google is not configured on the Supabase project
     // the authorize URL just returns 400, so fail with a friendly error before
@@ -187,31 +226,49 @@ export function AuthProvider({ children }) {
         skipBrowserRedirect: true,
       },
     });
-    if (error) throw new Error(mapAuthError(error));
+    if (error) throw friendlyAuthError(error);
     if (data?.url) {
       const popup = window.open(data.url, 'db_google_oauth', 'popup,width=500,height=650');
       if (!popup) window.location.href = data.url;
+      // Watchdog: if the user closes the popup before OAuth completes, no
+      // auth event fires and the caller's button would sit in "Connecting to
+      // Google..." forever. Poll popup.closed so the UI can re-enable. The
+      // watchdog is registered in popupWatchdogRef so auth events and unmount
+      // can tear it down (no closures held for the full 5-minute cap).
+      if (popup && typeof onPopupClosed === 'function') {
+        const watchdog = { interval: null, cap: null };
+        watchdog.interval = setInterval(() => {
+          if (popup.closed) {
+            if (popupWatchdogRef.current === watchdog) clearPopupWatchdog();
+            onPopupClosed();
+          }
+        }, 500);
+        watchdog.cap = setTimeout(() => {
+          if (popupWatchdogRef.current === watchdog) clearPopupWatchdog();
+        }, 5 * 60 * 1000);
+        popupWatchdogRef.current = watchdog;
+      }
     }
     return data;
-  }, []);
+  }, [clearPopupWatchdog]);
 
   const signOut = useCallback(async () => {
     const { error } = await supabase.auth.signOut();
-    if (error) throw new Error(mapAuthError(error));
+    if (error) throw friendlyAuthError(error);
     profileFetchedRef.current = false;
     userIdRef.current = null;
   }, []);
 
   const resetPassword = useCallback(async (email) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await supabase.auth.resetPasswordForEmail(normalizeEmail(email), {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    if (error) throw new Error(mapAuthError(error));
+    if (error) throw friendlyAuthError(error);
   }, []);
 
   const updatePassword = useCallback(async (newPassword) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword });
-    if (error) throw new Error(mapAuthError(error));
+    if (error) throw friendlyAuthError(error);
   }, []);
 
   const value = useMemo(() => ({
@@ -225,8 +282,9 @@ export function AuthProvider({ children }) {
     signOut,
     resetPassword,
     updatePassword,
+    resendVerificationEmail,
     refreshProfile,
-  }), [user, profile, loading, recovery, signUp, signIn, signInWithGoogle, signOut, resetPassword, updatePassword, refreshProfile]);
+  }), [user, profile, loading, recovery, signUp, signIn, signInWithGoogle, signOut, resetPassword, updatePassword, resendVerificationEmail, refreshProfile]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

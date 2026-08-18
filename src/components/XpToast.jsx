@@ -5,11 +5,15 @@ export default function XpToast({ xp, onComplete }) {
   const [gone, setGone] = useState(false);
 
   useEffect(() => {
+    let inner = null;
     const t = setTimeout(() => {
       setGone(true);
-      setTimeout(onComplete, 300);
+      inner = setTimeout(onComplete, 300);
     }, 1200);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      clearTimeout(inner);
+    };
   }, [onComplete]);
 
   if (gone) return null;

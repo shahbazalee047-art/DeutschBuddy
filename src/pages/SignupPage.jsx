@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { BuddyAvatar } from '../components/buddy';
-import { GoogleIcon } from '../components/Icons';
+import { GoogleIcon, IconEye, IconEyeOff } from '../components/Icons';
 import { stashReferralCode, isValidReferralCode } from '../utils/referral';
 import { applyPendingReferral } from '../services/referralService';
 import { trackSignupCompleted } from '../utils/analytics';
@@ -12,6 +12,7 @@ export default function SignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -33,10 +34,11 @@ export default function SignupPage() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    const trimmedEmail = email.trim();
     const nextErrors = {};
     if (!fullName.trim()) nextErrors.fullName = 'Please enter your full name';
-    if (!email.trim()) nextErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) nextErrors.email = 'Please enter a valid email address';
+    if (!trimmedEmail) nextErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(trimmedEmail)) nextErrors.email = 'Please enter a valid email address';
     if (!password) nextErrors.password = 'Password is required';
     else if (password.length < 8) nextErrors.password = 'Password must be at least 8 characters';
     if (!confirmPassword) nextErrors.confirmPassword = 'Please confirm your password';
@@ -46,7 +48,7 @@ export default function SignupPage() {
 
     setLoading(true);
     try {
-      const { data, error } = await signUp(email, password, fullName);
+      const { data, error } = await signUp(trimmedEmail, password, fullName);
       if (error) throw error;
       // Carry the onboarding track choice (db_selected_track) into the new
       // profile, so the profile-sync in DashboardContext doesn't reset a
@@ -61,16 +63,24 @@ export default function SignupPage() {
         const trackPayload = (chosenTrack === 'fast' || chosenTrack === 'standard')
           ? { selected_pacing: chosenTrack }
           : {};
-        referralUsed = !!(await applyPendingReferral(signedInUser.id, trackPayload));
+        // Referral credit is best-effort: a network/RLS failure after a
+        // successful signup must NOT turn the signup into an error page (the
+        // stashed code is re-applied at first login).
+        try {
+          referralUsed = !!(await applyPendingReferral(signedInUser.id, trackPayload));
+        } catch {
+          referralUsed = false;
+        }
       }
       // Email confirmation may be enabled, in which case there is no session
       // yet — signup still succeeded, and the stashed referral is applied at
-      // first login (LoginPage calls applyPendingReferral).
+      // first login (LoginPage calls applyPendingReferral). The dedicated
+      // verify page owns the resend path so the learner never dead-ends.
       trackSignupCompleted({ referralUsed });
       if (data?.session?.user) {
         navigate('/dashboard', { replace: true });
       } else {
-        navigate('/login', { replace: true, state: { verifyEmail: email } });
+        navigate(`/verify-email?email=${encodeURIComponent(trimmedEmail)}`, { replace: true });
       }
     } catch (err) {
       setErrors({ form: err.message });
@@ -81,9 +91,9 @@ export default function SignupPage() {
     setGoogleLoading(true);
     setErrors({});
     try {
-      await signInWithGoogle();
-      // The page is redirected to Google's consent screen — no further state
-      // to update here. If the popup fails, catch below and re-enable.
+      await signInWithGoogle({
+        onPopupClosed: () => setGoogleLoading(false),
+      });
     } catch (err) {
       setErrors({ form: err.message });
       setGoogleLoading(false);
@@ -91,8 +101,8 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-bg-base flex flex-col items-center justify-center px-6 py-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
+      <div className="m-auto w-full max-w-md px-6 py-8">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="waving" size={96} />
@@ -124,6 +134,7 @@ export default function SignupPage() {
                 required
                 autoComplete="name"
                 placeholder="Your name"
+                aria-invalid={!!errors.fullName}
                 className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
               />
               {errors.fullName && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.fullName}</p>}
@@ -139,6 +150,7 @@ export default function SignupPage() {
                 required
                 autoComplete="email"
                 placeholder="you@example.com"
+                aria-invalid={!!errors.email}
                 className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
               />
               {errors.email && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.email}</p>}
@@ -146,32 +158,54 @@ export default function SignupPage() {
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="signup-password">Password</label>
-              <input
-                id="signup-password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                minLength={8}
-                autoComplete="new-password"
-                placeholder="Min. 8 characters"
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
-              />
+              <div className="relative">
+                <input
+                  id="signup-password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  placeholder="Min. 8 characters"
+                  aria-invalid={!!errors.password}
+                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                >
+                  {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
+                </button>
+              </div>
               {errors.password && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.password}</p>}
             </div>
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="signup-confirm">Confirm Password</label>
-              <input
-                id="signup-confirm"
-                type="password"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-                placeholder="Repeat your password"
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
-              />
+              <div className="relative">
+                <input
+                  id="signup-confirm"
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  placeholder="Repeat your password"
+                  aria-invalid={!!errors.confirmPassword}
+                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                >
+                  {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
+                </button>
+              </div>
               {errors.confirmPassword && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.confirmPassword}</p>}
             </div>
 

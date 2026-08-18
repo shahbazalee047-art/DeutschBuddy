@@ -11,10 +11,28 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
   const [buddyPhrase, setBuddyPhrase] = useState('');
   const [showBubble, setShowBubble] = useState(false);
   const [bubbleTone, setBubbleTone] = useState('neutral');
+  // Guards against double-fired completions (rapid double-tap on the finish
+  // button, or a task component calling onComplete twice): XP must be awarded
+  // exactly once per task. Reset whenever the active task changes.
+  const completedRef = useRef(undefined);
+  const completeTimerRef = useRef(null);
+  const bubbleTimerRef = useRef(null);
 
   const total = tasks?.length || 1;
   const progress = useMemo(() => ((currentIndex + 1) / total) * 100, [currentIndex, total]);
   const topicDe = useMemo(() => germanTopicTitle(topicTitle), [topicTitle]);
+
+  useEffect(() => {
+    completedRef.current = undefined;
+  }, [task?.id]);
+
+  // Clearing the pending completion timer on unmount prevents a "ghost"
+  // onComplete: exiting a lesson within the 600ms delay used to award XP and
+  // (in practice mode) silently queue a lesson the user never chose.
+  useEffect(() => () => {
+    clearTimeout(completeTimerRef.current);
+    clearTimeout(bubbleTimerRef.current);
+  }, []);
 
   const triggerBuddy = useCallback((state, phraseCategory, tone = 'neutral', duration = 2000) => {
     setBuddyState(state);
@@ -22,11 +40,15 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
     setBubbleTone(tone);
     setShowBubble(true);
     if (duration > 0) {
-      setTimeout(() => setShowBubble(false), duration);
+      clearTimeout(bubbleTimerRef.current);
+      bubbleTimerRef.current = setTimeout(() => setShowBubble(false), duration);
     }
   }, []);
 
   const handleTaskResult = useCallback((result) => {
+    if (completedRef.current) return;
+    completedRef.current = true;
+
     const isSuccess = result && typeof result.score === 'number' && result.maxScore > 0
       ? result.score / result.maxScore >= 0.5
       : true;
@@ -38,7 +60,8 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
     }
 
     // Delay completion slightly so the animation plays.
-    setTimeout(() => {
+    clearTimeout(completeTimerRef.current);
+    completeTimerRef.current = setTimeout(() => {
       onComplete?.(result);
     }, 600);
   }, [onComplete, triggerBuddy]);

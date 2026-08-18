@@ -16,7 +16,16 @@ const Navbar = memo(function Navbar({ activeView, onViewChange, activeLevel, onL
     return () => document.removeEventListener('mousedown', handleClick);
   }, [menuOpen]);
 
-  async function handleSignOut() { await signOut(); navigate('/login'); }
+  async function handleSignOut() {
+    // Only leave when the session is actually gone; on a network error
+    // navigate() would bounce straight back via LoginPage's user guard.
+    try {
+      await signOut();
+    } catch {
+      return;
+    }
+    navigate('/login');
+  }
 
   const navLinks = [
     { id: 'dashboard', label: 'Dashboard', icon: IconHome },

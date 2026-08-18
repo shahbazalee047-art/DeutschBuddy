@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -18,6 +18,7 @@ const AUTO_DISMISS_MS = 14000;
 export default function Coachmark({ targetSelector, title, body, cta = 'Got it', onClose }) {
   const [rect, setRect] = useState(null);
   const [visible, setVisible] = useState(false);
+  const dismissTimerRef = useRef(null);
 
   const measure = useCallback(() => {
     const el = document.querySelector(targetSelector);
@@ -35,6 +36,7 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
+      clearTimeout(dismissTimerRef.current);
       window.removeEventListener('resize', measure);
       window.removeEventListener('scroll', measure, true);
     };
@@ -42,7 +44,10 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
 
   const dismiss = useCallback(() => {
     setVisible(false);
-    setTimeout(onClose, 160);
+    // onClose unmounts this component; clearing the pending timer afterwards
+    // prevents a stray second call after unmount.
+    clearTimeout(dismissTimerRef.current);
+    dismissTimerRef.current = setTimeout(onClose, 160);
   }, [onClose]);
 
   useEffect(() => {

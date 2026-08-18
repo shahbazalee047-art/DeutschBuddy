@@ -342,10 +342,12 @@ button { font-family: 'Inter', system-ui, sans-serif; }
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 6px 0;
-  transition: color 0.15s ease;
+  padding: 6px 4px;
+  border-radius: 8px;
+  transition: color 0.15s ease, transform 0.12s ease;
 }
 .btn-text:hover { color: var(--db-primary); }
+.btn-text:active { transform: scale(0.97); color: var(--db-primary); }
 
 .paper-card {
   background: var(--db-surface);
@@ -420,6 +422,7 @@ button { font-family: 'Inter', system-ui, sans-serif; }
   color: var(--db-text-muted);
   cursor: not-allowed;
 }
+.day-circle[aria-disabled='true']:active { animation: shake 0.35s ease; }
 
 /* Task list dots */
 .status-dot-active {

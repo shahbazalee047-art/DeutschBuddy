@@ -37,6 +37,9 @@ export default function PictureMatch({ level = 'A1', compact, onScore }) {
   const pool = useRef([]);
   const scoreRef = useRef(0);
   const scoreReportedRef = useRef(false);
+  const advanceTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(advanceTimerRef.current), []);
 
   useEffect(() => {
     setLeaderboard(loadLeaderboard(level));
@@ -106,11 +109,13 @@ export default function PictureMatch({ level = 'A1', compact, onScore }) {
         scoreRef.current = prev + 1;
         return prev + 1;
       });
-      setTimeout(() => nextQuestion(), 350);
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => nextQuestion(), 350);
     } else {
       setFeedback('wrong');
       setMistakes(prev => prev + 1);
-      setTimeout(() => nextQuestion(), 500);
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => nextQuestion(), 500);
     }
   }, [current, feedback, nextQuestion]);
 

@@ -47,6 +47,12 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
   const wordPool = useRef([]);
   const scoreRef = useRef(0);
   const scoreReportedRef = useRef(false);
+  const advanceTimerRef = useRef(null);
+
+  useEffect(() => () => {
+    clearInterval(wordTimerRef.current);
+    clearTimeout(advanceTimerRef.current);
+  }, []);
 
   useEffect(() => {
     setLeaderboard(loadLeaderboard(level));
@@ -75,7 +81,8 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
     });
     setStreak(0);
     setFeedback('timeout');
-    setTimeout(() => nextQuestion(), 400);
+    clearTimeout(advanceTimerRef.current);
+    advanceTimerRef.current = setTimeout(() => nextQuestion(), 400);
   }, [nextQuestion]);
 
   const startGame = useCallback(() => {
@@ -155,13 +162,15 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
       });
       setStreak(prev => prev + 1);
       clearInterval(wordTimerRef.current);
-      setTimeout(() => nextQuestion(), 350);
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => nextQuestion(), 350);
     } else {
       setFeedback('wrong');
       setMistakes(prev => prev + 1);
       setStreak(0);
       clearInterval(wordTimerRef.current);
-      setTimeout(() => nextQuestion(), 500);
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => nextQuestion(), 500);
     }
   }, [current, feedback, nextQuestion]);
 

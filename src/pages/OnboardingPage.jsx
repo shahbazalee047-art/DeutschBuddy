@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BuddyAvatar } from '../components/buddy';
@@ -107,6 +107,9 @@ export default function OnboardingPage() {
   const [winSelected, setWinSelected] = useState(null); // de text of selected card
   const [winMatched, setWinMatched] = useState([]);     // de texts correctly matched
   const [winWrong, setWinWrong] = useState(null);
+  const winWrongTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(winWrongTimerRef.current), []);
 
   const finish = () => {
     setLS('db_selected_level', choice.level);
@@ -131,7 +134,8 @@ export default function OnboardingPage() {
       setWinWrong(null);
     } else {
       setWinWrong(en);
-      setTimeout(() => setWinWrong(null), 600);
+      clearTimeout(winWrongTimerRef.current);
+      winWrongTimerRef.current = setTimeout(() => setWinWrong(null), 600);
     }
   };
 
@@ -140,8 +144,8 @@ export default function OnboardingPage() {
   const usedEnglish = WIN_PAIRS.filter(p => winMatched.includes(p.de)).map(p => p.en);
 
   return (
-    <div className="min-h-dvh bg-bg-base flex flex-col items-center justify-center px-6 py-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
+      <div className="m-auto w-full max-w-md px-6 py-8">
         {/* Step progress dots */}
         <div className="flex items-center justify-center gap-1.5 mb-6" aria-hidden>
           {STEPS.map((s, i) => (

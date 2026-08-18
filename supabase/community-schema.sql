@@ -34,47 +34,18 @@ create table if not exists public.community_upvotes (
   unique(post_id, user_id)
 );
 
--- Function & trigger to auto-update comment_count
-create or replace function public.update_comment_count()
-returns trigger as $$
-begin
-  if tg_op = 'INSERT' then
-    update public.community_posts
-    set comment_count = comment_count + 1
-    where id = new.post_id;
-  elsif tg_op = 'DELETE' then
-    update public.community_posts
-    set comment_count = comment_count - 1
-    where id = old.post_id;
-  end if;
-  return null;
-end;
-$$ language plpgsql security definer;
-
-create or replace trigger on_comment_change
-  after insert or delete on public.community_comments
-  for each row execute function public.update_comment_count();
-
--- Function & trigger to auto-update upvotes count
-create or replace function public.update_upvotes_count()
-returns trigger as $$
-begin
-  if tg_op = 'INSERT' then
-    update public.community_posts
-    set upvotes = upvotes + 1
-    where id = new.post_id;
-  elsif tg_op = 'DELETE' then
-    update public.community_posts
-    set upvotes = upvotes - 1
-    where id = old.post_id;
-  end if;
-  return null;
-end;
-$$ language plpgsql security definer;
-
-create or replace trigger on_upvote_change
-  after insert or delete on public.community_upvotes
-  for each row execute function public.update_upvotes_count();
+-- Comment/upvote count maintenance
+-- NOTE: the canonical trigger functions and triggers live in schema.sql
+-- (update_post_comment_count / update_post_upvote_count bound via
+-- on_community_comment_change / on_community_upvote_change). Earlier versions
+-- of this file defined a SECOND pair (update_comment_count / update_upvotes_count)
+-- on the same tables — running both defined two triggers per row change and
+-- DOUBLE-COUNTED every upvote/comment. The legacy triggers are dropped below
+-- so this file is safe to (re)apply on any database.
+drop trigger if exists on_upvote_change on public.community_upvotes;
+drop trigger if exists on_comment_change on public.community_comments;
+drop function if exists public.update_upvotes_count();
+drop function if exists public.update_comment_count();
 
 -- Row Level Security
 alter table public.community_posts enable row level security;

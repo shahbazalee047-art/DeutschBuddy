@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { extractVocabulary } from '../utils/vocabExtractor';
 import { createCard, reviewCard, getDueCards, getStats } from '../utils/srs';
 
@@ -21,24 +21,38 @@ function saveStoredCards(cards) {
   }
 }
 
+function mergeSignature(cards) {
+  return cards
+    .map(c => `${c.id}|${c.german}|${c.english}|${c.pronunciation}|${c.example}|${JSON.stringify(c.review || null)}`)
+    .join('\n');
+}
+
 export function useSpacedRepetition(levelData) {
   const [cards, setCards] = useState(() => loadStoredCards());
+  const cardsRef = useRef(cards);
+  const lastMergeRef = useRef(null);
 
-  // Sync vocabulary items with stored cards.
+  useEffect(() => { cardsRef.current = cards; }, [cards]);
+
+  // Sync vocabulary items with stored cards. I/O stays OUT of the setCards
+  // updater (pure-render rule) and a signature bail-out prevents an
+  // apply→render→apply loop when nothing actually changed.
   useEffect(() => {
     if (!levelData) return;
     const vocab = extractVocabulary(levelData);
     if (vocab.length === 0) return;
 
-    setCards(prev => {
-      const existingById = new Map(prev.map(c => [c.id, c]));
-      const merged = vocab.map(item => {
-        const existing = existingById.get(item.id);
-        return existing ? { ...existing, german: item.german, english: item.english, pronunciation: item.pronunciation, example: item.example } : createCard(item);
-      });
-      saveStoredCards(merged);
-      return merged;
+    const prevCards = cardsRef.current;
+    const existingById = new Map(prevCards.map(c => [c.id, c]));
+    const merged = vocab.map(item => {
+      const existing = existingById.get(item.id);
+      return existing ? { ...existing, german: item.german, english: item.english, pronunciation: item.pronunciation, example: item.example } : createCard(item);
     });
+    const signature = mergeSignature(merged);
+    if (lastMergeRef.current === signature) return;
+    lastMergeRef.current = signature;
+    setCards(merged);
+    saveStoredCards(merged);
   }, [levelData]);
 
   const dueCards = useMemo(() => getDueCards(cards), [cards]);

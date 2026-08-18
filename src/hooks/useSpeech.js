@@ -21,6 +21,9 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
   // async continuations (blob arrived, fetch aborted) bail instead of playing
   // zombie audio or falling back to Web Speech after the user cancelled.
   const requestIdRef = useRef(0);
+  // Restart-after-rate-change timer; cleared on unmount so a pending restart
+  // can't fire setState (or start audio) after the hook is gone.
+  const retryTimerRef = useRef(null);
 
   const cleanupAudio = useCallback(() => {
     if (audioRef.current) {
@@ -133,7 +136,8 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
     if (isSpeaking && currentTextRef.current) {
       const text = currentTextRef.current;
       stop();
-      setTimeout(() => speak(text, newRate), 50);
+      clearTimeout(retryTimerRef.current);
+      retryTimerRef.current = setTimeout(() => speak(text, newRate), 50);
     }
     return newRate;
   }, [playbackRate, isSpeaking, stop, speak]);
@@ -141,6 +145,7 @@ export function useSpeech(language = 'auto', onAudioEnd, onAudioError) {
   // Clean up any pending audio or in-flight generation when the hook unmounts.
   useEffect(() => {
     return () => {
+      clearTimeout(retryTimerRef.current);
       requestIdRef.current += 1;
       if (abortRef.current) abortRef.current.abort();
       cleanupAudio();

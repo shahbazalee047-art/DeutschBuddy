@@ -1,17 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { BuddyAvatar } from '../components/buddy';
-import { IconCheck } from '../components/Icons';
+import { IconCheck, IconEye, IconEyeOff } from '../components/Icons';
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const { updatePassword, signOut, user, recovery } = useAuth();
   const navigate = useNavigate();
+  const redirectTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(redirectTimerRef.current), []);
 
   // A recovery session (opened from the email reset link) must land on the
   // reset form. A normal signed-in session should not see this page.
@@ -36,7 +40,8 @@ export default function ResetPasswordPage() {
       // End the recovery session so the user isn't left half-signed-in.
       try { await signOut(); } catch { /* ignore */ }
       setSuccess(true);
-      setTimeout(() => navigate('/login', { replace: true }), 2000);
+      clearTimeout(redirectTimerRef.current);
+      redirectTimerRef.current = setTimeout(() => navigate('/login', { replace: true }), 2000);
     } catch (err) {
       setError(err.message);
     } finally { setLoading(false); }
@@ -59,9 +64,11 @@ export default function ResetPasswordPage() {
     );
   }
 
+  const linkExpired = error.includes('expired') || error.includes('request a new one');
+
   return (
-    <div className="min-h-dvh bg-bg-base flex flex-col items-center justify-center px-6 py-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
+      <div className="m-auto w-full max-w-md px-6 py-8">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="happy" size={88} />
@@ -79,37 +86,65 @@ export default function ResetPasswordPage() {
           {error && (
             <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
               {error}
+              {linkExpired && (
+                <Link to="/forgot-password" className="block mt-2 font-semibold text-gold hover:underline">
+                  Request a new link
+                </Link>
+              )}
             </div>
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="reset-password">New Password</label>
-              <input
-                id="reset-password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                minLength={8}
-                autoComplete="new-password"
-                placeholder="Min. 8 characters"
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
-              />
+              <div className="relative">
+                <input
+                  id="reset-password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  placeholder="Min. 8 characters"
+                  aria-invalid={!!error}
+                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                >
+                  {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="reset-confirm">Confirm Password</label>
-              <input
-                id="reset-confirm"
-                type="password"
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                required
-                autoComplete="new-password"
-                placeholder="Repeat your password"
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
-              />
+              <div className="relative">
+                <input
+                  id="reset-confirm"
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  placeholder="Repeat your password"
+                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                >
+                  {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
+                </button>
+              </div>
             </div>
+            {error === 'Passwords do not match.' && <p className="text-[12px] text-error -mt-2" role="alert">{error}</p>}
+            {error === 'Password must be at least 8 characters.' && <p className="text-[12px] text-error -mt-2" role="alert">{error}</p>}
             <button
               type="submit"
               disabled={loading}

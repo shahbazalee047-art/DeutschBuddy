@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { IconFire, IconCheck, IconX } from './Icons';
 
 function shuffle(arr) {
@@ -67,16 +67,29 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
   }, [levelData, completedTasks]);
 
   const hasEnoughWords = questions.length === 3;
+  // Lock between answers: rapid double-taps would record the same answer
+  // twice and skip questions. Released when the step advance fires.
+  const answeringRef = useRef(false);
+  const stepTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(stepTimerRef.current), []);
 
   const handleAnswer = useCallback((selected) => {
+    if (answeringRef.current) return;
+    answeringRef.current = true;
     const correct = selected === questions[step].correct;
     const newAnswers = [...answers, correct];
     setAnswers(newAnswers);
 
     if (step >= 2) {
+      answeringRef.current = false;
       setFinished(true);
     } else {
-      setTimeout(() => setStep(s => s + 1), correct ? 350 : 600);
+      clearTimeout(stepTimerRef.current);
+      stepTimerRef.current = setTimeout(() => {
+        answeringRef.current = false;
+        setStep(s => s + 1);
+      }, correct ? 350 : 600);
     }
   }, [step, answers, questions]);
 

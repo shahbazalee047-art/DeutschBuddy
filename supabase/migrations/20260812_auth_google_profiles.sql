@@ -14,6 +14,11 @@
 --     overwrites an existing profile.
 --   * RLS remains enabled; the trigger bypasses it only because it is
 --     SECURITY DEFINER and only ever inserts the authenticated user's row.
+--
+-- IMPORTANT: this is the FULL final version of handle_new_user (Google
+-- avatar_url support AND the referral_code backfill from the referral
+-- migration). Do NOT `create or replace` this function with a leaner body in
+-- future scripts — that silently regresses new signups.
 
 create or replace function public.handle_new_user()
 returns trigger
@@ -22,7 +27,7 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, full_name, avatar_url, email)
+  insert into public.profiles (id, full_name, avatar_url, email, referral_code)
   values (
     new.id,
     coalesce(
@@ -35,7 +40,8 @@ begin
       new.raw_user_meta_data ->> 'picture',
       null
     ),
-    new.email
+    new.email,
+    'DB-' || upper(substr(md5(random()::text), 1, 8))
   )
   on conflict (id) do nothing;
 

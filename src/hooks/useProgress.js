@@ -155,6 +155,8 @@ export function useProgress(level) {
   const syncTimerRef = useRef(null);
   const syncAttemptsRef = useRef(0);
   const syncPendingSinceRef = useRef(null);
+  const syncInFlightRef = useRef(false);
+  const fetchIdRef = useRef(0);
   const performSyncRef = useRef(null);
   const [syncPendingSince, setSyncPendingSince] = useState(null);
 
@@ -176,56 +178,84 @@ export function useProgress(level) {
     const currentLevel = levelRef.current;
     if (!currentUser || !currentLevel) return;
 
-    const queue = loadPendingQueue(currentUser.id, currentLevel);
-    if (queue.length === 0) {
-      setSyncStatus('synced');
-      markSynced();
-      return;
-    }
-
-    const timer = Math.min(SYNC_RETRY_BASE_MS * 2 ** syncAttemptsRef.current, SYNC_RETRY_MAX_MS);
-    markPending();
-    setSyncStatus('syncing');
-
-    const remaining = [];
-    for (const snapshot of queue) {
-      try {
-        const { error } = await supabase
-          .from('progress')
-          .upsert(snapshot, { onConflict: 'user_id,level' });
-        if (error) {
-          remaining.push(snapshot);
-          if (error.code === 'PGRST204' || error.code === '42703') {
-            console.warn('progress sync pending (schema mismatch):', error.message);
-          } else {
-            console.warn('progress sync pending:', error.message || error.code);
-          }
-          break;
+    // A sync run is already active (e.g. completeTask + unlockWeek in the
+    // same tick each call queueSync): skip the redundant run and let the
+    // in-flight one drain the shared queue.
+    if (syncInFlightRef.current) return;
+    syncInFlightRef.current = true;
+    try {
+      // Drain loop: re-reads the queue after every pass so snapshots pushed
+      // while a pass was in flight are neither missed nor wiped by a
+      // clearPendingQueue on an old snapshot list.
+      while (true) {
+        const queue = loadPendingQueue(currentUser.id, currentLevel);
+        if (queue.length === 0) {
+          setSyncStatus('synced');
+          markSynced();
+          return;
         }
-      } catch (err) {
-        remaining.push(snapshot);
-        console.warn('progress sync pending (exception):', String(err).slice(0, 160));
-        break;
+
+        const timer = Math.min(SYNC_RETRY_BASE_MS * 2 ** syncAttemptsRef.current, SYNC_RETRY_MAX_MS);
+        markPending();
+        setSyncStatus('syncing');
+
+        // Send every queued snapshot independently. A failed snapshot must NOT
+        // abort the loop — aborting used to drop every later snapshot from the
+        // retry queue (permanent server-side data loss).
+        const remaining = [];
+        for (const snapshot of queue) {
+          try {
+            const { error } = await supabase
+              .from('progress')
+              .upsert(snapshot, { onConflict: 'user_id,level' });
+            if (error) {
+              remaining.push(snapshot);
+              if (error.code === 'PGRST204' || error.code === '42703') {
+                console.warn('progress sync pending (schema mismatch):', error.message);
+              } else {
+                console.warn('progress sync pending:', error.message || error.code);
+              }
+            }
+          } catch (err) {
+            remaining.push(snapshot);
+            console.warn('progress sync pending (exception):', String(err).slice(0, 160));
+          }
+        }
+
+        // Snapshots pushed to the queue while this pass ran sit right after
+        // the ones we just read — preserve them alongside the failures.
+        const live = loadPendingQueue(currentUser.id, currentLevel);
+        const fresh = live.length > queue.length ? live.slice(queue.length) : [];
+
+        if (remaining.length > 0) {
+          savePendingQueue(currentUser.id, currentLevel, [...remaining, ...fresh]);
+          syncAttemptsRef.current += 1;
+          setSyncStatus('pending');
+          clearTimeout(syncTimerRef.current);
+          const retryTimer = setTimeout(() => {
+            if (performSyncRef.current) performSyncRef.current();
+          }, timer);
+          syncTimerRef.current = retryTimer;
+          return;
+        }
+
+        if (fresh.length > 0) {
+          // This pass drained fully; entries arrived meanwhile — keep only the
+          // new ones and loop so they are sent without waiting for a retry.
+          savePendingQueue(currentUser.id, currentLevel, fresh);
+          continue;
+        }
+
+        clearTimeout(syncTimerRef.current);
+        clearPendingQueue(currentUser.id, currentLevel);
+        syncAttemptsRef.current = 0;
+        markSynced();
+        setSyncStatus('synced');
+        return;
       }
+    } finally {
+      syncInFlightRef.current = false;
     }
-
-    if (remaining.length === 0) {
-      clearTimeout(syncTimerRef.current);
-      clearPendingQueue(currentUser.id, currentLevel);
-      syncAttemptsRef.current = 0;
-      markSynced();
-      setSyncStatus('synced');
-      return;
-    }
-
-    savePendingQueue(currentUser.id, currentLevel, remaining);
-    syncAttemptsRef.current += 1;
-    setSyncStatus('pending');
-    clearTimeout(syncTimerRef.current);
-    const retryTimer = setTimeout(() => {
-      if (performSyncRef.current) performSyncRef.current();
-    }, timer);
-    syncTimerRef.current = retryTimer;
   }, [markPending, markSynced]);
 
   const queueSync = useCallback((snapshot) => {
@@ -275,6 +305,11 @@ export function useProgress(level) {
       return;
     }
 
+    // Fast level/user switches leave multiple fetches in flight; only the
+    // latest request may touch state (stale responses used to overwrite the
+    // progress of whatever level the user had just switched to).
+    const requestId = ++fetchIdRef.current;
+
     try {
       const { data, error } = await supabase
         .from('progress')
@@ -282,6 +317,8 @@ export function useProgress(level) {
         .eq('user_id', currentUser.id)
         .eq('level', currentLevel)
         .single();
+
+      if (requestId !== fetchIdRef.current) return;
 
       if (error && error.code !== 'PGRST116') {
         console.error('fetchProgress error:', error);
@@ -299,11 +336,12 @@ export function useProgress(level) {
         if (local) setProgress(local);
       }
     } catch (err) {
+      if (requestId !== fetchIdRef.current) return;
       console.error('fetchProgress exception:', err);
       const local = loadLocalProgress(currentUser?.id, currentLevel);
       if (local) setProgress(local);
     } finally {
-      setLoading(false);
+      if (requestId === fetchIdRef.current) setLoading(false);
     }
   }, []);
 
@@ -382,6 +420,11 @@ export function useProgress(level) {
     };
 
     // Update React state, localStorage, then queue the server write.
+    // progressRef must be updated SYNCHRONOUSLY: handleCompleteTask calls
+    // unlockWeek in the same tick, which snapshots progressRef.current — if
+    // it still held the pre-completion state, the unlock would overwrite the
+    // freshly earned XP/badges/streak with the older snapshot.
+    progressRef.current = next;
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
 
@@ -437,6 +480,7 @@ export function useProgress(level) {
 
     const next = { ...prev, unlockedWeeks: [...prev.unlockedWeeks, weekId] };
 
+    progressRef.current = next;
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
     queueSync({
@@ -448,7 +492,7 @@ export function useProgress(level) {
 
   const setTrackMode = useCallback(async (mode) => {
     const currentUser = userRef.current;
-    if (!currentUser) return;
+    if (!currentUser) return false;
     try {
       const { error: upsertError } = await supabase
         .from('profiles')
@@ -456,9 +500,12 @@ export function useProgress(level) {
 
       if (upsertError) {
         console.error('Set track mode error:', upsertError);
+        return false;
       }
+      return true;
     } catch (err) {
       console.error('Set track mode error:', err);
+      return false;
     }
   }, []);
 
@@ -490,6 +537,7 @@ export function useProgress(level) {
       badges: nextBadges,
     };
 
+    progressRef.current = next;
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
 

@@ -1,10 +1,14 @@
-import { memo, useState, useMemo } from 'react';
+import { memo, useState, useMemo, useRef, useEffect } from 'react';
 import { getWeekCompletion } from '../utils/progress';
 import { englishTopicTitle } from '../utils/topicTitle';
 import { IconCheck, IconLock } from './Icons';
 
 const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked, activeLevel }) {
   const [expanded, setExpanded] = useState(false);
+  const [shakeDay, setShakeDay] = useState(null);
+  const shakeTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(shakeTimerRef.current), []);
   const safeDays = Array.isArray(week?.days) ? week.days : [];
   // Build a Set once (deps on the stable prop) so every per-day / per-task
   // lookup is O(1) instead of O(n).
@@ -27,7 +31,13 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
   };
 
   const handleDayClick = (day) => {
-    if (!isDayUnlocked(day)) return;
+    if (!isDayUnlocked(day)) {
+      // Locked day: give tactile pushback (shake) instead of dead silence.
+      setShakeDay(day.day);
+      clearTimeout(shakeTimerRef.current);
+      shakeTimerRef.current = setTimeout(() => setShakeDay(null), 400);
+      return;
+    }
     setExpanded(true);
     onSelectDay(week.id, day.day);
   };
@@ -126,11 +136,14 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
               const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
               const dayHasIncomplete = tasks.length > 0 && !tasks.every(t => completedSet.has(t.id));
               const dayUnlocked = isDayUnlocked(day);
+              const shaking = shakeDay === day.day && !dayUnlocked;
 
               return (
                 <button key={day.day} onClick={() => handleDayClick(day)}
-                  disabled={!dayUnlocked}
+                  aria-disabled={!dayUnlocked}
                   className={`relative z-10 day-circle w-9 md:w-12 h-9 md:h-12 rounded-full shrink-0 text-sm md:text-base transition-all active:scale-90 ${
+                    shaking ? 'shake' : ''
+                  } ${
                     dayDone
                       ? 'day-circle-completed'
                       : !dayUnlocked
@@ -162,11 +175,14 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
               const dayDone = tasks.length > 0 && tasks.every(t => completedSet.has(t.id));
               const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
               const dayUnlocked = isDayUnlocked(day);
+              const shaking = shakeDay === day.day && !dayUnlocked;
 
               return (
                 <button key={day.day} onClick={() => handleDayClick(day)}
-                  disabled={!dayUnlocked}
+                  aria-disabled={!dayUnlocked}
                   className={`relative z-10 day-circle w-9 md:w-12 h-9 md:h-12 rounded-full shrink-0 text-sm md:text-base ${
+                    shaking ? 'shake' : ''
+                  } ${
                     dayDone
                       ? 'day-circle-completed'
                       : !dayUnlocked

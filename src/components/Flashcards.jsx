@@ -1,11 +1,18 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import SpeakerButton from './SpeakerButton';
 export default function Flashcards({ content, onComplete }) {
   const [idx, setIdx] = useState(0); const [flipped, setFlipped] = useState(false); const [done, setDone] = useState([]);
+  // Double-tap on Next must not skip a card: lock until the flip resets.
+  const advanceLockRef = useRef(false);
   const cards = content.cards || [];
   if (!cards.length) return <Empty onComplete={onComplete} />;
   const card = cards[idx]; const isLast = idx === cards.length - 1;
-  function next() { setFlipped(false); if (isLast) onComplete({ score: cards.length, maxScore: cards.length }); else { setDone(p => [...p, idx]); setIdx(p => p + 1); } }
+  function next() {
+    if (advanceLockRef.current) return;
+    advanceLockRef.current = true;
+    setTimeout(() => { advanceLockRef.current = false; }, 350);
+    setFlipped(false); if (isLast) onComplete({ score: cards.length, maxScore: cards.length }); else { setDone(p => [...p, idx]); setIdx(p => p + 1); }
+  }
   return (
     <div className="fade-in reading-body">
       <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-text-dark text-lg">🃏 Flashcards</h3><span className="text-sm text-text-muted">{idx + 1}/{cards.length}</span></div>

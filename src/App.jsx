@@ -12,6 +12,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const SignupPage = lazy(() => import('./pages/SignupPage'));
 const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
 
 function PageLoader() {
   return <LoadingSpinner message="Loading DeutschBuddy..." />;
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/" element={<LandingRoute />} />

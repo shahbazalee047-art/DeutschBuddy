@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { getPendingSyncKey } from '../hooks/useProgress';
 import { IconBolt, IconFire, IconCheck, IconGraduation, IconArrowLeft, IconUsers, IconCopy } from './Icons';
 import { buildReferralLink } from '../utils/referral';
 
@@ -10,9 +11,20 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
   const [loading, setLoading] = useState(true);
   const [referral, setReferral] = useState(null);
   const [copied, setCopied] = useState(false);
+  const copiedTimerRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
+
+    // A failed/queued local write means the server row is BEHIND the local
+    // snapshot — mirror useProgress and trust local state until the queue is
+    // empty, so the profile page can't show stale numbers after offline play.
+    const hasPendingSync = () => {
+      try {
+        const queue = JSON.parse(localStorage.getItem(getPendingSyncKey(user.id, activeLevel)) || '[]');
+        return Array.isArray(queue) && queue.length > 0;
+      } catch { return false; }
+    };
 
     async function load() {
       if (!user || !activeLevel) {
@@ -20,28 +32,45 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
         return;
       }
 
-      const { data, error } = await supabase
-        .from('progress')
-        .select('xp, streak, completed_tasks, badges')
-        .eq('user_id', user.id)
-        .eq('level', activeLevel)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from('progress')
+          .select('xp, streak, completed_tasks, badges')
+          .eq('user_id', user.id)
+          .eq('level', activeLevel)
+          .single();
 
-      if (cancelled) return;
+        if (cancelled) return;
 
-      if (error && error.code !== 'PGRST116') {
-        console.error('ProfilePage progress load error:', error);
-      }
+        if (error && error.code !== 'PGRST116') {
+          console.error('ProfilePage progress load error:', error);
+        }
 
-      if (data) {
-        setProgress({
-          xp: data.xp || 0,
-          streak: data.streak || 0,
-          completedTasks: data.completed_tasks || [],
-          badges: data.badges || [],
-        });
-      } else {
-        // Fall back to locally cached progress for the current user and level
+        if (data && !hasPendingSync()) {
+          setProgress({
+            xp: data.xp || 0,
+            streak: data.streak || 0,
+            completedTasks: data.completed_tasks || [],
+            badges: data.badges || [],
+          });
+        } else {
+          // Fall back to locally cached progress for the current user and level
+          try {
+            const localData = JSON.parse(localStorage.getItem(`db_progress_${user.id}_${activeLevel}`) || '{}');
+            setProgress({
+              xp: localData.xp || 0,
+              streak: localData.streak || 0,
+              completedTasks: localData.completedTasks || [],
+              badges: localData.badges || [],
+            });
+          } catch {
+            setProgress({ xp: 0, streak: 0, completedTasks: [], badges: [] });
+          }
+        }
+      } catch (err) {
+        // Network/timeout: show the local snapshot instead of spinning forever.
+        console.error('ProfilePage progress load exception:', err);
+        if (cancelled) return;
         try {
           const localData = JSON.parse(localStorage.getItem(`db_progress_${user.id}_${activeLevel}`) || '{}');
           setProgress({
@@ -53,8 +82,9 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
         } catch {
           setProgress({ xp: 0, streak: 0, completedTasks: [], badges: [] });
         }
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-      setLoading(false);
     }
 
     load();
@@ -65,22 +95,29 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
     let cancelled = false;
     (async () => {
       if (!user) return;
-      const { data, error } = await supabase.rpc('get_my_referral_info');
-      if (cancelled) return;
-      if (error) {
-        console.error('Referral info load error:', error);
-        return;
+      try {
+        const { data, error } = await supabase.rpc('get_my_referral_info');
+        if (cancelled) return;
+        if (error) {
+          console.error('Referral info load error:', error);
+          return;
+        }
+        setReferral(data);
+      } catch (err) {
+        if (cancelled) return;
+        console.error('Referral info load exception:', err);
       }
-      setReferral(data);
     })();
     return () => { cancelled = true; };
   }, [user]);
+
+  useEffect(() => () => clearTimeout(copiedTimerRef.current), []);
 
   async function handleShare() {
     const code = referral?.referral_code;
     if (!code) return;
     const link = buildReferralLink(code);
-    const text = 'Join me learning German on DeutschBuddy — free, fast, and fun.';
+    const text = 'Join me learning German on DeutschBuddy. Free, fast, and fun.';
     if (navigator.share) {
       try {
         await navigator.share({ title: 'DeutschBuddy', text, url: link });
@@ -91,7 +128,8 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
       await navigator.clipboard.writeText(link);
     } catch { /* clipboard unavailable — nothing more to do */ }
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    clearTimeout(copiedTimerRef.current);
+    copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
   }
 
   if (loading) {

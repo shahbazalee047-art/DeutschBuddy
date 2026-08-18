@@ -266,19 +266,24 @@ create policy "Users can delete own comments"
   using (auth.uid() = user_id);
 
 -- Function to maintain upvote count
+-- SECURITY DEFINER access is pinned with an empty search_path; counters are
+-- floored at 0 so repeated/lost deletes can never push a count negative.
 create or replace function public.update_post_upvote_count()
-returns trigger as $$
+returns trigger
+language plpgsql security definer
+set search_path = ''
+as $$
 begin
   if (tg_op = 'INSERT') then
     update public.community_posts set upvotes = upvotes + 1 where id = new.post_id;
     return new;
   elsif (tg_op = 'DELETE') then
-    update public.community_posts set upvotes = upvotes - 1 where id = old.post_id;
+    update public.community_posts set upvotes = greatest(upvotes - 1, 0) where id = old.post_id;
     return old;
   end if;
   return null;
 end;
-$$ language plpgsql security definer;
+$$;
 
 create or replace trigger on_community_upvote_change
   after insert or delete on public.community_upvotes
@@ -286,18 +291,21 @@ create or replace trigger on_community_upvote_change
 
 -- Function to maintain comment count
 create or replace function public.update_post_comment_count()
-returns trigger as $$
+returns trigger
+language plpgsql security definer
+set search_path = ''
+as $$
 begin
   if (tg_op = 'INSERT') then
     update public.community_posts set comment_count = comment_count + 1 where id = new.post_id;
     return new;
   elsif (tg_op = 'DELETE') then
-    update public.community_posts set comment_count = comment_count - 1 where id = old.post_id;
+    update public.community_posts set comment_count = greatest(comment_count - 1, 0) where id = old.post_id;
     return old;
   end if;
   return null;
 end;
-$$ language plpgsql security definer;
+$$;
 
 create or replace trigger on_community_comment_change
   after insert or delete on public.community_comments
@@ -309,6 +317,11 @@ create or replace trigger on_community_comment_change
 --   Google: raw_user_meta_data.full_name / name and avatar_url / picture
 -- (Supabase normalizes Google OAuth metadata, but the coalesce is defensive
 -- against provider metadata differences.)
+-- NOTE: this is the CANONICAL final version (search_path pinning, avatar_url
+-- from Google, and a referral_code generated server-side). Referral and Google
+-- migration files must not re-define this function with fewer features — a
+-- later `create or replace` that drops referral_code/avatar_url silently
+-- regresses every new signup.
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -316,7 +329,7 @@ security definer
 set search_path = ''
 as $$
 begin
-  insert into public.profiles (id, full_name, avatar_url, email)
+  insert into public.profiles (id, full_name, avatar_url, email, referral_code)
   values (
     new.id,
     coalesce(
@@ -329,7 +342,8 @@ begin
       new.raw_user_meta_data ->> 'picture',
       null
     ),
-    new.email
+    new.email,
+    'DB-' || upper(substr(md5(random()::text), 1, 8))
   )
   on conflict (id) do nothing;
 

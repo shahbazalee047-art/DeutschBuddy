@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import SpeakerButton from './SpeakerButton';
 import { IconLink, IconCheck, IconFlag, IconMessageCircle, IconSparkles } from './Icons';
 import { trackAnswerCorrect, trackAnswerIncorrect } from '../utils/analytics';
@@ -14,6 +14,14 @@ export default function Matching({ content, onComplete }) {
   const [sel, setSel] = useState(null); const [matched, setMatched] = useState([]); const [shuffled, setShuffled] = useState([]);
   const [wrongEN, setWrongEN] = useState(null);
   const pairs = useMemo(() => content.pairs || [], [content.pairs]);
+  const wrongTimerRef = useRef(null);
+  const completeTimerRef = useRef(null);
+
+  useEffect(() => () => {
+    clearTimeout(wrongTimerRef.current);
+    clearTimeout(completeTimerRef.current);
+  }, []);
+
   useEffect(() => { if (pairs.length) setShuffled(shuffle(pairs)); }, [pairs]);
   if (!pairs.length) return <Empty onComplete={onComplete} />;
   function clickDE(i) { if (!matched.includes(i)) { setSel(i); setWrongEN(null); } }
@@ -25,11 +33,17 @@ export default function Matching({ content, onComplete }) {
       trackAnswerCorrect('matching');
       const next = [...matched, sel];
       setMatched(next); setSel(null); setWrongEN(null);
-      if (next.length === pairs.length) setTimeout(() => onComplete({ score: next.length, maxScore: pairs.length }), 600);
+      // Guarded like the other task components: a rapid second tap on the
+      // final pair must not award completion twice (LessonPlayer also guards,
+      // but the score snapshot here would be taken twice regardless).
+      if (next.length === pairs.length && !completeTimerRef.current) {
+        completeTimerRef.current = setTimeout(() => onComplete({ score: next.length, maxScore: pairs.length }), 600);
+      }
     } else {
       trackAnswerIncorrect('matching');
       setWrongEN(k);
-      setTimeout(() => setWrongEN(w => (w === k ? null : w)), 700);
+      clearTimeout(wrongTimerRef.current);
+      wrongTimerRef.current = setTimeout(() => setWrongEN(w => (w === k ? null : w)), 700);
     }
   }
   return (

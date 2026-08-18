@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import {
   IconSearch, IconMessageCircle, IconArrowUp, IconCheck, IconPlus,
@@ -43,6 +43,9 @@ export default function CommunitySection({ user }) {
   const [commentLoading, setCommentLoading] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commentSubmitting, setCommentSubmitting] = useState(false);
+  // Posts whose upvote request is in flight — a second tap is ignored so the
+  // optimistic toggle can't flip itself back.
+  const pendingUpvoteRef = useRef(new Set());
 
   const mapPost = useCallback((p) => ({
     id: p.id,
@@ -63,17 +66,14 @@ export default function CommunitySection({ user }) {
   const fetchPosts = useCallback(async () => {
     setLoading(true);
     try {
-      // Posts + the current user's upvotes are independent — fetch in parallel.
-      const [postsRes, upvotesRes] = await Promise.all([
-        supabase
-          .from('community_posts')
-          .select('id, title, content, category, level, solved, upvotes, comment_count, created_at, user_id, profiles:user_id(id, full_name, avatar_url)')
-          .order('created_at', { ascending: false })
-          .limit(50),
-        user
-          ? supabase.from('community_upvotes').select('post_id').eq('user_id', user.id)
-          : Promise.resolve({ data: null }),
-      ]);
+      // Posts and the current user's upvotes are independent — fetch in
+      // parallel, but degrade separately: a failing upvotes query must not
+      // discard valid posts (it only affects arrow highlighting).
+      const postsRes = await supabase
+        .from('community_posts')
+        .select('id, title, content, category, level, solved, upvotes, comment_count, created_at, user_id, profiles:user_id(id, full_name, avatar_url)')
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       const { data, error } = postsRes;
       if (error) throw error;
@@ -86,7 +86,12 @@ export default function CommunitySection({ user }) {
         setUsingFallback(true);
       }
 
-      if (upvotesRes.data) setUpvotedIds(new Set(upvotesRes.data.map(u => u.post_id)));
+      if (user) {
+        const upvotesRes = await supabase.from('community_upvotes').select('post_id').eq('user_id', user.id);
+        if (!upvotesRes.error && upvotesRes.data) {
+          setUpvotedIds(new Set(upvotesRes.data.map(u => u.post_id)));
+        }
+      }
     } catch {
       setPosts(samplePosts);
       setUsingFallback(true);
@@ -125,6 +130,10 @@ export default function CommunitySection({ user }) {
 
   const handleUpvote = async (postId) => {
     if (usingFallback || !user) return;
+    // A "did it register?" re-tap within half a second would otherwise toggle
+    // the optimistic state twice and instantly un-vote the same post.
+    if (pendingUpvoteRef.current.has(postId)) return;
+    pendingUpvoteRef.current.add(postId);
     const isUpvoted = upvotedIds.has(postId);
 
     setPosts(prev => prev.map(p => p.id === postId ? { ...p, upvotes: p.upvotes + (isUpvoted ? -1 : 1) } : p));
@@ -134,19 +143,27 @@ export default function CommunitySection({ user }) {
       return next;
     });
 
-    try {
-      if (isUpvoted) {
-        await supabase.from('community_upvotes').delete().eq('post_id', postId).eq('user_id', user.id);
-      } else {
-        await supabase.from('community_upvotes').insert({ post_id: postId, user_id: user.id });
-      }
-    } catch {
+    const rollback = () => {
       setPosts(prev => prev.map(p => p.id === postId ? { ...p, upvotes: p.upvotes + (isUpvoted ? 1 : -1) } : p));
       setUpvotedIds(prev => {
         const next = new Set(prev);
         isUpvoted ? next.add(postId) : next.delete(postId);
         return next;
       });
+    };
+
+    try {
+      // Supabase failures come back as { error } without throwing — the old
+      // code only rolled back on an exception, so RLS/network failures left
+      // the UI desynced from the DB until a reload.
+      const res = isUpvoted
+        ? await supabase.from('community_upvotes').delete().eq('post_id', postId).eq('user_id', user.id)
+        : await supabase.from('community_upvotes').insert({ post_id: postId, user_id: user.id });
+      if (res.error) rollback();
+    } catch {
+      rollback();
+    } finally {
+      setTimeout(() => pendingUpvoteRef.current.delete(postId), 600);
     }
   };
 

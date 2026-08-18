@@ -58,7 +58,7 @@ export default function MobileSidebar({
           <p className="text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest px-3 mb-2">Progress</p>
           {progressSections.map(item => (
             <button key={item.id} onClick={() => handleNav(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] mb-0.5 ${
+              className={`w-full flex items-center gap-3 px-3 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] mb-0.5 ${
                 activeView === item.id
                   ? 'text-text-on-dark bg-gold shadow-sm'
                   : 'text-text-on-dark-muted hover:text-text-on-dark hover:bg-bg-dark-mid/50'
@@ -73,7 +73,7 @@ export default function MobileSidebar({
         <div className="p-3 pt-2 border-t border-gold/20">
           <p className="text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest px-3 mb-2">Tools</p>
           <button onClick={() => { onVerbLookup(); }}
-            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] text-text-on-dark-muted hover:text-text-on-dark hover:bg-bg-dark-mid/50">
+            className="w-full flex items-center gap-3 px-3 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] text-text-on-dark-muted hover:text-text-on-dark hover:bg-bg-dark-mid/50">
             <IconSearch className="w-5 h-5 flex-shrink-0" />
             <span>Verb Lookup</span>
           </button>

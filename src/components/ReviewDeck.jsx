@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSpacedRepetition } from '../hooks/useSpacedRepetition';
 import { BuddyAvatar, BuddySpeechBubble, BuddyEmptyState } from './buddy';
@@ -22,16 +22,25 @@ export default function ReviewDeck({ levelData }) {
 
   const currentCard = dueCards[index];
   const isComplete = index >= dueCards.length;
+  // Double-tap on a rating button must not rate/advance the card twice
+  // (rateCard would re-schedule a card that already left the queue).
+  const lastRatedRef = useRef(-1);
+  const bubbleTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(bubbleTimerRef.current), []);
 
   const showBuddyReaction = useCallback((state, text, duration = 1500) => {
     setBuddyState(state);
     setBubbleText(text);
     setShowBubble(true);
-    setTimeout(() => setShowBubble(false), duration);
+    clearTimeout(bubbleTimerRef.current);
+    bubbleTimerRef.current = setTimeout(() => setShowBubble(false), duration);
   }, []);
 
   const handleRate = useCallback((quality) => {
     if (!currentCard) return;
+    if (lastRatedRef.current === index) return;
+    lastRatedRef.current = index;
     rateCard(currentCard.id, quality);
 
     if (quality >= 4) {
@@ -44,7 +53,7 @@ export default function ReviewDeck({ levelData }) {
 
     setFlipped(false);
     setIndex(prev => prev + 1);
-  }, [currentCard, rateCard, showBuddyReaction]);
+  }, [currentCard, index, rateCard, showBuddyReaction]);
 
   if (dueCards.length === 0) {
     return (

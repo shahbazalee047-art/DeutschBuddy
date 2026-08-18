@@ -2,16 +2,21 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { BuddyAvatar } from '../components/buddy';
-import { GoogleIcon, IconCheck } from '../components/Icons';
+import { GoogleIcon, IconCheck, IconEye, IconEyeOff } from '../components/Icons';
 import { applyPendingReferral } from '../services/referralService';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const { signIn, signInWithGoogle, user } = useAuth();
+  // Set when the server reports the account is unverified AND the user asked
+  // for a new confirmation email — the resend button then swaps to a 60s
+  // "check spam" message instead of allowing instant spam-clicking.
+  const [resendState, setResendState] = useState({ sent: false, cooldown: 0, error: '' });
+  const { signIn, signInWithGoogle, resendVerificationEmail, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const verifyEmail = location.state?.verifyEmail;
@@ -20,18 +25,39 @@ export default function LoginPage() {
     if (user) navigate('/dashboard', { replace: true });
   }, [user, navigate]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setResendState(s => s.cooldown > 0 ? { ...s, cooldown: s.cooldown - 1 } : s);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  async function handleResend() {
+    const target = email.trim() || verifyEmail || '';
+    if (!target || resendState.cooldown > 0) return;
+    setResendState(s => ({ ...s, sent: false, error: '' }));
+    try {
+      await resendVerificationEmail(target);
+      setResendState({ sent: true, cooldown: 60, error: '' });
+    } catch (err) {
+      setResendState(s => ({ ...s, sent: false, error: err.message }));
+    }
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
+    const trimmedEmail = email.trim();
     const nextErrors = {};
-    if (!email.trim()) nextErrors.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(email)) nextErrors.email = 'Please enter a valid email address';
+    if (!trimmedEmail) nextErrors.email = 'Email is required';
+    else if (!/\S+@\S+\.\S+/.test(trimmedEmail)) nextErrors.email = 'Please enter a valid email address';
     if (!password) nextErrors.password = 'Password is required';
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
     setLoading(true);
+    setResendState({ sent: false, cooldown: 0, error: '' });
     try {
-      const data = await signIn(email, password);
+      const data = await signIn(trimmedEmail, password);
       try {
         if (localStorage.getItem('db_selected_level')) {
           localStorage.setItem('db_onboarded', 'true');
@@ -47,6 +73,11 @@ export default function LoginPage() {
       navigate('/dashboard', { replace: true });
     } catch (err) {
       setErrors({ form: err.message });
+      // Unverified accounts are the #1 sign-in dead-end: offer a one-tap
+      // "Resend email" so the learner never has to hunt settings.
+      if (err.code === 'email_not_confirmed') {
+        setResendState(s => ({ ...s, error: '' }));
+      }
     } finally { setLoading(false); }
   }
 
@@ -54,16 +85,23 @@ export default function LoginPage() {
     setGoogleLoading(true);
     setErrors({});
     try {
-      await signInWithGoogle();
+      await signInWithGoogle({
+        onPopupClosed: () => setGoogleLoading(false),
+      });
+      // Success ends via the auth state change (storage event from the popup),
+      // which navigates away. No further state to update here.
     } catch (err) {
       setErrors({ form: err.message });
       setGoogleLoading(false);
     }
   }
 
+  const alreadyResent = resendState.sent || verifyEmail;
+  const resendVisible = alreadyResent || errors.form?.includes('verify your email');
+
   return (
-    <div className="min-h-dvh bg-bg-base flex flex-col items-center justify-center px-6 py-8">
-      <div className="w-full max-w-md">
+    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
+      <div className="m-auto w-full max-w-md px-6 py-8">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="happy" size={96} />
@@ -78,14 +116,50 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-[var(--radius-card)] border border-border bg-surface p-6 sm:p-8">
-          {verifyEmail && (
+          {(alreadyResent || (resendState.sent && !resendState.error)) && (
             <div role="status" className="bg-gold/10 border border-gold/30 p-3 mb-5 text-sm text-gold font-medium rounded-lg">
-              Account created! Please verify your email before signing in.
+              {resendState.sent
+                ? `Verification email sent! Check ${email.trim() || verifyEmail} (including spam), then sign in.`
+                : `Account created with ${verifyEmail}! Please verify your email before signing in.`}
+              {!resendState.sent && (
+                <button type="button" onClick={handleResend} className="block mt-2 font-semibold text-gold hover:underline">
+                  Didn't get it? Resend the email
+                </button>
+              )}
+              {resendState.sent && (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendState.cooldown > 0}
+                  className="block mt-2 font-semibold text-gold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {resendState.cooldown > 0
+                    ? `Send again in ${resendState.cooldown}s`
+                    : 'Send again'}
+                </button>
+              )}
+            </div>
+          )}
+          {resendState.error && (
+            <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
+              {resendState.error}
             </div>
           )}
           {errors.form && (
             <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
               {errors.form}
+              {resendVisible && errors.form?.includes('verify your email') && (
+                <button
+                  type="button"
+                  onClick={handleResend}
+                  disabled={resendState.cooldown > 0}
+                  className="block mt-2 font-semibold text-gold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  {resendState.cooldown > 0
+                    ? `Resend available in ${resendState.cooldown}s`
+                    : 'Resend verification email'}
+                </button>
+              )}
             </div>
           )}
 
@@ -100,6 +174,7 @@ export default function LoginPage() {
                 required
                 autoComplete="email"
                 placeholder="you@example.com"
+                aria-invalid={!!errors.email}
                 className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
               />
               {errors.email && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.email}</p>}
@@ -107,16 +182,27 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="login-password">Password</label>
-              <input
-                id="login-password"
-                type="password"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                placeholder="Enter your password"
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
-              />
+              <div className="relative">
+                <input
+                  id="login-password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  required
+                  autoComplete="current-password"
+                  placeholder="Enter your password"
+                  aria-invalid={!!errors.password}
+                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                >
+                  {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
+                </button>
+              </div>
               {errors.password && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.password}</p>}
             </div>
 

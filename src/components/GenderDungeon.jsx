@@ -52,6 +52,12 @@ export default function GenderDungeon({ compact, onScore }) {
   const scoreRef = useRef(0);
   const livesRef = useRef(MAX_LIVES);
   const scoreReportedRef = useRef(false);
+  const advanceTimerRef = useRef(null);
+
+  useEffect(() => () => {
+    cancelAnimationFrame(animRef.current);
+    clearTimeout(advanceTimerRef.current);
+  }, []);
 
   const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
 
@@ -81,7 +87,8 @@ export default function GenderDungeon({ compact, onScore }) {
     if (livesRef.current <= 0) {
       finishGame();
     } else {
-      setTimeout(() => pickWord(), 400);
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => pickWord(), 400);
     }
   }, [pickWord, finishGame]);
 
@@ -106,7 +113,8 @@ export default function GenderDungeon({ compact, onScore }) {
         scoreRef.current = prev + 1;
         return prev + 1;
       });
-      setTimeout(() => pickWord(), 300);
+      clearTimeout(advanceTimerRef.current);
+      advanceTimerRef.current = setTimeout(() => pickWord(), 300);
     } else {
       loseLife();
     }

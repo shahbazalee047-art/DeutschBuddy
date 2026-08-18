@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -60,6 +60,18 @@ export default function SettingsPage({ profile, user, onSignOut }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [changingPassword, setChangingPassword] = useState(false);
   const [passwordMessage, setPasswordMessage] = useState('');
+  // Guards against double-fired saves (rapid toggle taps) and keeps transient
+  // success messages from firing setState after unmount.
+  const savingKeysRef = useRef(new Set());
+  const messageTimerRef = useRef(null);
+
+  useEffect(() => () => clearTimeout(messageTimerRef.current), []);
+
+  const showMessage = useCallback((setter, text) => {
+    clearTimeout(messageTimerRef.current);
+    setter(text);
+    messageTimerRef.current = setTimeout(() => setter(''), 3000);
+  }, []);
 
   useEffect(() => {
     setFullName(profile?.full_name || '');
@@ -83,8 +95,10 @@ export default function SettingsPage({ profile, user, onSignOut }) {
         setNotifPrefs({ ...DEFAULT_NOTIFICATIONS, ...prefs });
       } catch (err) {
         console.error('Failed to load notification preferences:', err);
-        const local = localStorage.getItem('db_notification_preferences');
-        setNotifPrefs(local ? { ...DEFAULT_NOTIFICATIONS, ...JSON.parse(local) } : DEFAULT_NOTIFICATIONS);
+        try {
+          const local = localStorage.getItem('db_notification_preferences');
+          setNotifPrefs(local ? { ...DEFAULT_NOTIFICATIONS, ...JSON.parse(local) } : DEFAULT_NOTIFICATIONS);
+        } catch { /* corrupt cache — fall back to defaults */ }
       } finally {
         setNotifLoading(false);
       }
@@ -104,8 +118,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
         .eq('id', user.id);
       if (error) throw error;
       await refreshProfile();
-      setProfileMessage('Profile updated successfully.');
-      setTimeout(() => setProfileMessage(''), 3000);
+      showMessage(setProfileMessage, 'Profile updated successfully.');
     } catch (err) {
       setProfileMessage(err.message || 'Failed to update profile.');
     } finally {
@@ -113,12 +126,23 @@ export default function SettingsPage({ profile, user, onSignOut }) {
     }
   };
 
+  // Optimistic toggle: flip instantly, but roll back (UI + local cache) when
+  // the write fails so the switch never lies to the user. Per-key busy guard
+  // prevents rapid taps from issuing overlapping updates that fight.
   const handleNotifChange = useCallback(async (key, value) => {
-    const next = { ...notifPrefs, [key]: value };
+    if (savingKeysRef.current.has(key)) return;
+    savingKeysRef.current.add(key);
+    const prev = notifPrefs;
+    const next = { ...prev, [key]: value };
     setNotifPrefs(next);
-    localStorage.setItem('db_notification_preferences', JSON.stringify(next));
+    try {
+      localStorage.setItem('db_notification_preferences', JSON.stringify(next));
+    } catch { /* storage unavailable */ }
 
-    if (!user?.id) return;
+    if (!user?.id) {
+      savingKeysRef.current.delete(key);
+      return;
+    }
     try {
       const { error } = await supabase
         .from('profiles')
@@ -128,6 +152,12 @@ export default function SettingsPage({ profile, user, onSignOut }) {
       await refreshProfile();
     } catch (err) {
       console.error('Failed to save notification preferences:', err);
+      setNotifPrefs(prev);
+      try {
+        localStorage.setItem('db_notification_preferences', JSON.stringify(prev));
+      } catch { /* storage unavailable */ }
+    } finally {
+      savingKeysRef.current.delete(key);
     }
   }, [notifPrefs, user, refreshProfile]);
 
@@ -183,10 +213,9 @@ export default function SettingsPage({ profile, user, onSignOut }) {
     try {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
-      setPasswordMessage('Password updated successfully.');
+      showMessage(setPasswordMessage, 'Password updated successfully.');
       setNewPassword('');
       setConfirmPassword('');
-      setTimeout(() => setPasswordMessage(''), 3000);
     } catch (err) {
       setPasswordMessage(err.message || 'Failed to update password.');
     } finally {

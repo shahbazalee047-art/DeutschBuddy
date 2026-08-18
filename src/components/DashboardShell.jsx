@@ -111,10 +111,13 @@ export default function DashboardShell() {
     } catch { /* ignore */ }
   }, [progress, pendingLesson]);
 
-  function handleCoachmarkClose() {
+  // Stable identity: the auto-dismiss timer inside Coachmark resets whenever
+  // this prop's identity changes, so a per-render function would keep an open
+  // coachmark alive forever (every DashboardShell re-render restarts the 14s).
+  const handleCoachmarkClose = useCallback(() => {
     setShowStartCoachmark(false);
     try { localStorage.setItem('db_coachmark_seen_v1', '1'); } catch { /* ignore */ }
-  }
+  }, []);
 
   // If the learner enters a lesson while the tutorial or coachmark is open,
   // dismiss the overlays so they don't sit on top of the lesson content.
@@ -203,7 +206,7 @@ export default function DashboardShell() {
       const day = week?.days?.find(d => d.day === action.day);
       const task = day?.tasks?.find(t => t.id === action.taskId);
       if (task) {
-        setTimeout(() => setSelectedTask(task), 0);
+        setSelectedTask(task);
       }
     } else if (action.type === 'guardian') {
       setShowStreakGuardian(true);

@@ -40,13 +40,29 @@ alter table public.referrals enable row level security;
 -- this table. anon/authenticated have no grants on it at all.
 
 -- Give every new profile a referral code even if the client upsert is missed.
+-- NOTE: this is the FINAL canonical version (search_path pinned, Google
+-- avatar_url coalesce, referral_code). Keep it in sync with 20260812 — a later
+-- `create or replace` must never drop any of these fields.
 create or replace function public.handle_new_user()
-returns trigger as $$
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
 begin
-  insert into public.profiles (id, full_name, email, referral_code)
+  insert into public.profiles (id, full_name, avatar_url, email, referral_code)
   values (
     new.id,
-    coalesce(new.raw_user_meta_data->>'full_name', ''),
+    coalesce(
+      new.raw_user_meta_data ->> 'full_name',
+      new.raw_user_meta_data ->> 'name',
+      ''
+    ),
+    coalesce(
+      new.raw_user_meta_data ->> 'avatar_url',
+      new.raw_user_meta_data ->> 'picture',
+      null
+    ),
     new.email,
     'DB-' || upper(substr(md5(random()::text), 1, 8))
   )
@@ -63,7 +79,7 @@ begin
 
   return new;
 end;
-$$ language plpgsql security definer;
+$$;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
@@ -75,12 +91,19 @@ create trigger on_auth_user_created
 create or replace function public.record_referral(p_ref_code text, p_new_user_id uuid)
 returns uuid
 language plpgsql security definer
+set search_path = ''
 as $$
 declare
   v_referrer uuid;
   v_created uuid;
 begin
   if p_ref_code is null or p_new_user_id is null then
+    return null;
+  end if;
+
+  -- Only the account being credited may call this — otherwise any signed-in
+  -- user could farm +25 XP / badges onto arbitrary accounts.
+  if auth.uid() is null or auth.uid() <> p_new_user_id then
     return null;
   end if;
 
@@ -107,7 +130,8 @@ begin
   set referral_count = referral_count + 1
   where id = v_created;
 
-  -- +25 XP per successful referral (no cap); the badge is granted once.
+  -- progress holds one row per (user_id, level) — credit exactly one (A1, the
+  -- level every learner starts in) instead of awarding +25 XP twice.
   update public.progress
   set
     xp = xp + 25,
@@ -115,6 +139,7 @@ begin
       jsonb_build_object('id', 'referral-builder', 'name', 'Community Builder', 'icon', '🤝', 'earnedAt', now())
     )
   where user_id = v_created
+    and level = 'A1'
     and not badges @> '[{"id":"referral-builder"}]';
 
   return v_created;
@@ -127,6 +152,7 @@ $$;
 create or replace function public.get_my_referral_info()
 returns jsonb
 language plpgsql security definer
+set search_path = ''
 as $$
 declare
   v_row public.profiles%rowtype;

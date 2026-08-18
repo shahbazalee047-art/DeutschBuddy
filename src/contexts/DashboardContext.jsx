@@ -103,10 +103,13 @@ export function DashboardProvider({ children }) {
 
   const { progress, loading, syncStatus, syncPendingSince, completeTask, unlockWeek, setTrackMode, recoverStreak } = useProgress(activeLevel);
 
-  const handleToggleTrackMode = useCallback((mode) => {
+  const handleToggleTrackMode = useCallback(async (mode) => {
+    // Persist first, flip the UI only on success — otherwise the toggle would
+    // show 'fast' on this device while the server profile keeps 'standard'.
+    const ok = await setTrackMode(mode);
+    if (!ok) return;
     setLocalTrackMode(mode);
     try { localStorage.setItem('db_selected_track', mode); } catch { /* ignore */ }
-    setTrackMode(mode);
   }, [setTrackMode]);
 
   // Load curriculum data
@@ -272,7 +275,13 @@ export function DashboardProvider({ children }) {
   }, [completeTask]);
 
   const handleViewChange = useCallback((view) => {
-    setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask, level: activeLevel }]);
+    // Tapping the nav item of the view you are already on should close the
+    // open task/day, but must NOT stack another history entry — duplicated
+    // entries made the back button require two presses to exit.
+    const sameView = view === activeViewRef.current;
+    if (!sameView) {
+      setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask, level: activeLevel }]);
+    }
     if (practiceMode) exitPractice();
     setActiveView(view);
     setSelectedDay(null);
@@ -309,7 +318,14 @@ export function DashboardProvider({ children }) {
   useEffect(() => { handleBackNavRef.current = handleBackNavigation; }, [handleBackNavigation]);
 
   const handleSignOutFromApp = useCallback(async () => {
-    try { await signOut(); } catch { /* ignore */ }
+    // Only navigate after a confirmed sign-out: on a network failure the
+    // session is still live, and /login's "if (user) -> /dashboard" guard
+    // would bounce the user right back — making Sign Out look dead.
+    try {
+      await signOut();
+    } catch {
+      return;
+    }
     navigate('/login');
   }, [signOut, navigate]);
 
@@ -429,8 +445,10 @@ export function DashboardProvider({ children }) {
       const readIds = new Set(JSON.parse(localStorage.getItem('db_notif_read') || '[]'));
       const knownIds = [1, 2, 5];
       const hasUnread = knownIds.some(id => !readIds.has(id));
-      setTimeout(() => setHasUnreadNotifications(hasUnread), 0);
-    } catch { setTimeout(() => setHasUnreadNotifications(false), 0); }
+      setHasUnreadNotifications(hasUnread);
+    } catch {
+      setHasUnreadNotifications(false);
+    }
   }, [notifVersion]);
 
   // Close profile menu on outside click
