@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => {
     upsertResolves = Math.max(0, upsertResolves - 1);
     return { error: null, data: {} };
   });
+  const insert = vi.fn(async () => ({ data: {}, error: null }));
   const selectChain = {
     select: () => selectChain,
     eq: () => selectChain,
@@ -23,10 +24,11 @@ const mocks = vi.hoisted(() => {
     setUpsertResolves: (n) => { upsertResolves = n; },
     fromImpl: vi.fn(() => ({
       select: () => selectChain,
-      insert: async () => ({ data: {}, error: null }),
+      insert,
       update: () => selectChain,
       upsert,
     })),
+    insert,
   };
 });
 
@@ -87,6 +89,7 @@ describe('useProgress failed-upsert resilience', () => {
     mocks.setUpsertError(null);
     mocks.setUpsertResolves(0);
     mocks.upsert.mockClear();
+    mocks.insert.mockClear();
     mocks.fromImpl.mockClear();
   });
 
@@ -143,5 +146,28 @@ describe('useProgress failed-upsert resilience', () => {
     });
     expect(result.current.progress.completedTasks).toContain('a1m1d1t1');
     expect(result.current.progress.xp).toBe(15);
+  });
+
+  it('records the actual task type and score while keeping XP idempotent', async () => {
+    const { result } = renderHook(() => useProgress('A1'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.completeTask('a1m1d1t1', 6, 1, 1, { score: 2, maxScore: 4 }, 'quiz');
+      await result.current.completeTask('a1m1d1t1', 6, 1, 1, { score: 4, maxScore: 4 }, 'quiz');
+    });
+
+    expect(result.current.progress.xp).toBe(6);
+    expect(mocks.insert).toHaveBeenCalledTimes(2);
+    expect(mocks.insert).toHaveBeenNthCalledWith(1, expect.objectContaining({
+      task_type: 'quiz',
+      score: 2,
+      max_score: 4,
+    }));
+    expect(mocks.insert).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      task_type: 'quiz',
+      score: 4,
+      max_score: 4,
+    }));
   });
 });

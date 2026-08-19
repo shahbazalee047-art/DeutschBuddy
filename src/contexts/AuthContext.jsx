@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabase';
 import { friendlyAuthError } from '../utils/authErrors';
+import { scopeLocalStateForUser, clearPreAuthState } from '../utils/userStorage';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -40,7 +41,11 @@ function isRecoverySession(session) {
 }
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(getCachedUser);
+  const [user, setUser] = useState(() => {
+    const cached = getCachedUser();
+    if (cached?.id) scopeLocalStateForUser(cached.id);
+    return cached;
+  });
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [recovery, setRecovery] = useState(false);
@@ -115,9 +120,11 @@ export function AuthProvider({ children }) {
       .then(({ data: { session } }) => {
         if (!mountedRef.current) return;
         setRecovery(isRecoverySession(session));
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          fetchProfile(session.user.id);
+        const nextUser = session?.user ?? null;
+        if (nextUser) scopeLocalStateForUser(nextUser.id);
+        setUser(nextUser);
+        if (nextUser) {
+          fetchProfile(nextUser.id);
         }
       })
       .catch((err) => {
@@ -134,6 +141,8 @@ export function AuthProvider({ children }) {
       const nextUser = session?.user ?? null;
       if (event === 'PASSWORD_RECOVERY') setRecovery(true);
       else if (event === 'SIGNED_OUT') setRecovery(false);
+      if (nextUser) scopeLocalStateForUser(nextUser.id);
+      else if (event === 'SIGNED_OUT') clearPreAuthState();
       setUser(nextUser);
       if (nextUser) {
         if (userIdRef.current !== nextUser.id) {

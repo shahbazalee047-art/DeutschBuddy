@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { IconTrophy, IconImage } from './Icons';
 import { a1Pictures, a2Pictures } from '../data/pictureWords';
+import { useAuth } from '../contexts/AuthContext';
+import { getUserValue, setUserValue } from '../utils/userStorage';
 
 const PICTURE_BANKS = { A1: a1Pictures, A2: a2Pictures };
 const MAX_MISTAKES = 5;
@@ -14,24 +16,25 @@ function shuffle(arr) {
   return a;
 }
 
-function loadLeaderboard(level) {
-  try {
-    return JSON.parse(localStorage.getItem(`picture_match_lb_${level}`) || '[]');
-  } catch { return []; }
+function loadLeaderboard(level, userId) {
+  const value = getUserValue(userId, `picture_match_lb_${level}`, []);
+  return Array.isArray(value) ? value : [];
 }
 
-function saveLeaderboard(level, entries) {
-  localStorage.setItem(`picture_match_lb_${level}`, JSON.stringify(entries.slice(0, 10)));
+function saveLeaderboard(level, userId, entries) {
+  setUserValue(userId, `picture_match_lb_${level}`, entries.slice(0, 10));
 }
 
 export default function PictureMatch({ level = 'A1', compact, onScore }) {
+  const { user } = useAuth();
+  const userId = user?.id || 'guest';
   const [state, setState] = useState('idle');
   const [score, setScore] = useState(0);
   const [mistakes, setMistakes] = useState(0);
   const [current, setCurrent] = useState(null);
   const [options, setOptions] = useState([]);
   const [feedback, setFeedback] = useState(null);
-  const [leaderboard, setLeaderboard] = useState(() => loadLeaderboard(level));
+  const [leaderboard, setLeaderboard] = useState(() => loadLeaderboard(level, userId));
   const [poolRemaining, setPoolRemaining] = useState(0);
 
   const pool = useRef([]);
@@ -42,8 +45,8 @@ export default function PictureMatch({ level = 'A1', compact, onScore }) {
   useEffect(() => () => clearTimeout(advanceTimerRef.current), []);
 
   useEffect(() => {
-    setLeaderboard(loadLeaderboard(level));
-  }, [level]);
+    setLeaderboard(loadLeaderboard(level, userId));
+  }, [level, userId]);
 
   const pictures = PICTURE_BANKS[level] || a1Pictures;
   const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
@@ -88,17 +91,17 @@ export default function PictureMatch({ level = 'A1', compact, onScore }) {
 
   useEffect(() => {
     if (state === 'finished') {
-      const entries = loadLeaderboard(level);
+      const entries = loadLeaderboard(level, userId);
       entries.push({ score: scoreRef.current, date: Date.now() });
       entries.sort((a, b) => b.score - a.score);
-      saveLeaderboard(level, entries);
+      saveLeaderboard(level, userId, entries);
       setLeaderboard(entries);
       if (onScore && !scoreReportedRef.current) {
         scoreReportedRef.current = true;
         onScore(scoreRef.current);
       }
     }
-  }, [state, level, onScore]);
+  }, [state, level, userId, onScore]);
 
   const handleAnswer = useCallback((item) => {
     if (feedback) return;

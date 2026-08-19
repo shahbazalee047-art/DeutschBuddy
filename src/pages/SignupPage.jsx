@@ -6,6 +6,7 @@ import { GoogleIcon, IconEye, IconEyeOff } from '../components/Icons';
 import { stashReferralCode, isValidReferralCode } from '../utils/referral';
 import { applyPendingReferral } from '../services/referralService';
 import { trackSignupCompleted } from '../utils/analytics';
+import { getUserValue, scopeLocalStateForUser } from '../utils/userStorage';
 
 export default function SignupPage() {
   const [fullName, setFullName] = useState('');
@@ -57,8 +58,9 @@ export default function SignupPage() {
       const signedInUser = data?.session?.user;
       let referralUsed = false;
       if (signedInUser) {
+        scopeLocalStateForUser(signedInUser.id);
         const chosenTrack = (() => {
-          try { return localStorage.getItem('db_selected_track'); } catch { return null; }
+          return getUserValue(signedInUser.id, 'selected_track', null);
         })();
         const trackPayload = (chosenTrack === 'fast' || chosenTrack === 'standard')
           ? { selected_pacing: chosenTrack }

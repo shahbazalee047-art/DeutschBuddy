@@ -12,8 +12,8 @@ const RATING_LABELS = [
   { quality: 5, label: 'Easy', tone: 'success', color: 'bg-db-primary text-white' }
 ];
 
-export default function ReviewDeck({ levelData }) {
-  const { dueCards, stats, rateCard, resetDeck } = useSpacedRepetition(levelData);
+export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }) {
+  const { dueCards, stats, rateCard, resetDeck } = useSpacedRepetition(levelData, level, userId);
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [buddyState, setBuddyState] = useState('idle');
@@ -28,6 +28,12 @@ export default function ReviewDeck({ levelData }) {
   const bubbleTimerRef = useRef(null);
 
   useEffect(() => () => clearTimeout(bubbleTimerRef.current), []);
+
+  useEffect(() => {
+    setIndex(0);
+    setFlipped(false);
+    lastRatedRef.current = -1;
+  }, [levelData, level, userId]);
 
   const showBuddyReaction = useCallback((state, text, duration = 1500) => {
     setBuddyState(state);

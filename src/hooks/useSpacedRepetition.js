@@ -1,21 +1,21 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { extractVocabulary } from '../utils/vocabExtractor';
 import { createCard, reviewCard, getDueCards, getStats } from '../utils/srs';
+import { getUserStorageKey } from '../utils/userStorage';
 
-const STORAGE_KEY = 'db_srs_cards';
-
-function loadStoredCards() {
+function loadStoredCards(storageKey) {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const raw = localStorage.getItem(storageKey);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
 }
 
-function saveStoredCards(cards) {
+function saveStoredCards(storageKey, cards) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(cards));
+    localStorage.setItem(storageKey, JSON.stringify(cards));
   } catch {
     /* ignore */
   }
@@ -27,12 +27,23 @@ function mergeSignature(cards) {
     .join('\n');
 }
 
-export function useSpacedRepetition(levelData) {
-  const [cards, setCards] = useState(() => loadStoredCards());
+export function useSpacedRepetition(levelData, level = 'A1', userId = 'guest') {
+  const storageKey = getUserStorageKey(userId, `srs_cards_${level}`) || `db_guest_srs_cards_${level}`;
+  const [cards, setCards] = useState(() => loadStoredCards(storageKey));
   const cardsRef = useRef(cards);
   const lastMergeRef = useRef(null);
 
   useEffect(() => { cardsRef.current = cards; }, [cards]);
+
+  // Switching level or account must replace the in-memory deck before the
+  // vocabulary merge runs; otherwise the previous learner's due cards flash
+  // into the new review session.
+  useEffect(() => {
+    const stored = loadStoredCards(storageKey);
+    cardsRef.current = stored;
+    lastMergeRef.current = null;
+    setCards(stored);
+  }, [storageKey]);
 
   // Sync vocabulary items with stored cards. I/O stays OUT of the setCards
   // updater (pure-render rule) and a signature bail-out prevents an
@@ -52,8 +63,8 @@ export function useSpacedRepetition(levelData) {
     if (lastMergeRef.current === signature) return;
     lastMergeRef.current = signature;
     setCards(merged);
-    saveStoredCards(merged);
-  }, [levelData]);
+    saveStoredCards(storageKey, merged);
+  }, [levelData, storageKey]);
 
   const dueCards = useMemo(() => getDueCards(cards), [cards]);
   const stats = useMemo(() => getStats(cards), [cards]);
@@ -61,17 +72,18 @@ export function useSpacedRepetition(levelData) {
   const rateCard = useCallback((cardId, quality) => {
     setCards(prev => {
       const next = prev.map(c => c.id === cardId ? reviewCard(c, quality) : c);
-      saveStoredCards(next);
+      saveStoredCards(storageKey, next);
       return next;
     });
-  }, []);
+  }, [storageKey]);
 
   const resetDeck = useCallback(() => {
     if (!levelData) return;
     const fresh = extractVocabulary(levelData).map(createCard);
     setCards(fresh);
-    saveStoredCards(fresh);
-  }, [levelData]);
+    cardsRef.current = fresh;
+    saveStoredCards(storageKey, fresh);
+  }, [levelData, storageKey]);
 
   return {
     cards,

@@ -17,6 +17,7 @@ import { showInterstitial } from '../services/ads';
 import { CardSkeleton, ListSkeleton } from './Skeleton';
 import { IconBell, IconUser, IconSettings, IconMenu, IconFire, IconRefresh } from './Icons';
 import LoadingSpinner from './LoadingSpinner';
+import { getUserValue, removeUserValue } from '../utils/userStorage';
 
 const QuickGermanTool = lazy(() => import('./QuickGermanTool'));
 const RightPanel = lazy(() => import('./RightPanel'));
@@ -139,15 +140,11 @@ export default function DashboardShell() {
   useEffect(() => {
     if (dataLoading || loadError || !levelData || !levelData.weeks) return;
     if (selectedTask || selectedDay) return;
-    let pending = null;
-    try {
-      const raw = localStorage.getItem('db_pending_lesson');
-      pending = raw ? JSON.parse(raw) : null;
-    } catch { /* ignore */ }
+    const pending = getUserValue(user?.id, 'pending_lesson', null);
     if (!pending || !pending.weekId || !pending.taskId) return;
-    try { localStorage.removeItem('db_pending_lesson'); } catch { /* ignore */ }
+    removeUserValue(user?.id, 'pending_lesson');
     setPendingLesson(pending);
-  }, [dataLoading, loadError, levelData, selectedTask, selectedDay]);
+  }, [dataLoading, loadError, levelData, selectedTask, selectedDay, user?.id]);
 
   useEffect(() => {
     if (!pendingLesson || !levelData || !levelData.weeks) return;
@@ -322,6 +319,7 @@ export default function DashboardShell() {
             progress={progress}
             visibleWeeks={visibleWeeks}
             unlockedWeeks={unlockedWeeks}
+            userId={user?.id}
           />
         </Suspense>
       )}
@@ -429,7 +427,7 @@ export default function DashboardShell() {
         ) : activeView === 'journey' ? (
           <Suspense fallback={<LoadingScreen />}><JourneyPage onStartLesson={() => setActiveView('dashboard')} /></Suspense>
         ) : activeView === 'review' ? (
-          <Suspense fallback={<LoadingScreen />}><ReviewDeck levelData={levelData} /></Suspense>
+          <Suspense fallback={<LoadingScreen />}><ReviewDeck levelData={levelData} level={activeLevel} userId={user?.id} /></Suspense>
         ) : activeView === 'dashboard' && !selectedDay ? (
           <Suspense fallback={<LoadingScreen />}><HomePage onViewJourney={() => setActiveView('journey')} /></Suspense>
         ) : (

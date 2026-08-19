@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { IconClock, IconTrophy, IconChart, IconArrowRight, IconClipboard, IconFire, IconSparkles, IconLightbulb, IconFlag } from './Icons';
+import { getUserValue, setUserValue } from '../utils/userStorage';
 
 const dailyTips = [
   { tip: 'German compound nouns take the gender of the last word. "der Hand-schuh" is masculine.', tag: 'Grammar' },
@@ -41,28 +42,34 @@ const staticNotifications = [
   { id: 5, type: 'weekly', icon: IconChart, title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: 'var(--gold-light)', action: { type: 'view', target: 'progress' } },
 ];
 
-function loadReadIds() {
-  try { return new Set(JSON.parse(localStorage.getItem('db_notif_read') || '[]')); } catch { return new Set(); }
+function loadReadIds(userId) {
+  const value = getUserValue(userId, 'notif_read', []);
+  return new Set(Array.isArray(value) ? value : []);
 }
 
-function saveReadIds(set) {
-  localStorage.setItem('db_notif_read', JSON.stringify([...set]));
+function saveReadIds(userId, set) {
+  setUserValue(userId, 'notif_read', [...set]);
 }
 
-export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, visibleWeeks, unlockedWeeks }) {
-  const [readIds, setReadIds] = useState(loadReadIds);
+export default function NotificationPanel({ isOpen, onClose, onNavigate, progress, visibleWeeks, unlockedWeeks, userId }) {
+  const [readIds, setReadIds] = useState(() => loadReadIds(userId));
   const [selectedDetail, setSelectedDetail] = useState(null);
   const dailyFact = facts[getDailyIndex(facts)];
+
+  useEffect(() => {
+    setReadIds(loadReadIds(userId));
+    setSelectedDetail(null);
+  }, [userId]);
 
   const markRead = useCallback((id) => {
     setReadIds(prev => {
       if (prev.has(id)) return prev;
       const next = new Set(prev);
       next.add(id);
-      saveReadIds(next);
+      saveReadIds(userId, next);
       return next;
     });
-  }, []);
+  }, [userId]);
 
   const dynamicNotifications = useMemo(() => {
     const dynamic = [];
@@ -186,7 +193,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
   function handleMarkAllRead() {
     const next = new Set(allNotifications.map(n => n.id));
     setReadIds(next);
-    saveReadIds(next);
+    saveReadIds(userId, next);
   }
 
   function handleNotificationClick(notification) {

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { IconZap, IconTrophy } from './Icons';
 import { a1Words, a2Words } from '../data/speedBlitzWords';
+import { useAuth } from '../contexts/AuthContext';
+import { getUserValue, setUserValue } from '../utils/userStorage';
 
 const WORD_BANKS = { A1: a1Words, A2: a2Words };
 const MAX_MISTAKES = 5;
@@ -22,17 +24,18 @@ function getWordTime(score) {
   return Math.max(MIN_TIME, BASE_TIME - Math.floor(score / SCORE_PER_STEP) * TIME_STEP);
 }
 
-function loadLeaderboard(level) {
-  try {
-    return JSON.parse(localStorage.getItem(`speedblitz_lb_${level}`) || '[]');
-  } catch { return []; }
+function loadLeaderboard(level, userId) {
+  const value = getUserValue(userId, `speedblitz_lb_${level}`, []);
+  return Array.isArray(value) ? value : [];
 }
 
-function saveLeaderboard(level, entries) {
-  localStorage.setItem(`speedblitz_lb_${level}`, JSON.stringify(entries.slice(0, 10)));
+function saveLeaderboard(level, userId, entries) {
+  setUserValue(userId, `speedblitz_lb_${level}`, entries.slice(0, 10));
 }
 
 export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
+  const { user } = useAuth();
+  const userId = user?.id || 'guest';
   const [state, setState] = useState('idle');
   const [score, setScore] = useState(0);
   const [mistakes, setMistakes] = useState(0);
@@ -41,7 +44,7 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
   const [feedback, setFeedback] = useState(null);
   const [streak, setStreak] = useState(0);
   const [wordTimeLeft, setWordTimeLeft] = useState(BASE_TIME);
-  const [leaderboard, setLeaderboard] = useState(() => loadLeaderboard(level));
+  const [leaderboard, setLeaderboard] = useState(() => loadLeaderboard(level, userId));
 
   const wordTimerRef = useRef(null);
   const wordPool = useRef([]);
@@ -55,8 +58,8 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
   }, []);
 
   useEffect(() => {
-    setLeaderboard(loadLeaderboard(level));
-  }, [level]);
+    setLeaderboard(loadLeaderboard(level, userId));
+  }, [level, userId]);
 
   const words = WORD_BANKS[level] || a1Words;
 
@@ -139,17 +142,17 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
 
   useEffect(() => {
     if (state === 'finished') {
-      const entries = loadLeaderboard(level);
+      const entries = loadLeaderboard(level, userId);
       entries.push({ score: scoreRef.current, date: Date.now() });
       entries.sort((a, b) => b.score - a.score);
-      saveLeaderboard(level, entries);
+      saveLeaderboard(level, userId, entries);
       setLeaderboard(entries);
       if (onScore && !scoreReportedRef.current) {
         scoreReportedRef.current = true;
         onScore(scoreRef.current);
       }
     }
-  }, [state, level, onScore]); // intentional: run when state becomes 'finished'
+  }, [state, level, userId, onScore]); // intentional: run when state becomes 'finished'
 
   const handleAnswer = useCallback((word) => {
     if (feedback) return;

@@ -168,11 +168,43 @@ begin
 end;
 $$;
 
+create or replace function public.set_my_referral_info(
+  p_referral_code text,
+  p_referred_by text default null,
+  p_selected_pacing text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null then
+    return;
+  end if;
+
+  update public.profiles
+  set
+    referral_code = coalesce(nullif(trim(p_referral_code), ''), referral_code),
+    referred_by = coalesce(nullif(trim(p_referred_by), ''), referred_by),
+    selected_pacing = case
+      when p_selected_pacing in ('standard', 'fast') then p_selected_pacing
+      else selected_pacing
+    end,
+    updated_at = timezone('utc'::text, now())
+  where id = auth.uid();
+end;
+$$;
+
+revoke execute on function public.record_referral(text, uuid) from public, anon;
+revoke execute on function public.get_my_referral_info() from public, anon;
+revoke execute on function public.set_my_referral_info(text, text, text) from public, anon;
 grant execute on function public.record_referral(text, uuid) to authenticated;
 grant execute on function public.get_my_referral_info() to authenticated;
+grant execute on function public.set_my_referral_info(text, text, text) to authenticated;
 
 -- PostgREST upserts (INSERT ... ON CONFLICT DO UPDATE) require SELECT on the
 -- columns being written, so the client referral sync can compute the UPDATE.
 -- RLS still limits reads to the caller's own row (auth.uid() = id); anon gets
 -- nothing. This preserves the "no public browsing of referral codes" intent.
-grant select (referral_code, referred_by, referral_count) on public.profiles to authenticated;
+revoke select (referral_code, referred_by, referral_count) on public.profiles from anon, authenticated;

@@ -178,8 +178,20 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 ### Database Setup
 
 1. Go to your Supabase dashboard → SQL Editor
-2. Run the contents of `supabase/schema.sql`
-3. If you encounter permission errors, run `supabase/fix-rls.sql`
+2. For a new project, run `supabase/schema.sql` once. It creates the complete
+   current schema, including community tables, referral support, RLS, grants,
+   and the signup trigger.
+3. For an existing project, run the migrations in filename order:
+   `supabase/migrations/20260809_reconcile_live_schema.sql`,
+   `20260810_referral_schema_live.sql`,
+   `20260812_auth_google_profiles.sql`, then
+   `20260819_referral_security_alignment.sql`.
+4. Run `supabase/fix-rls.sql` after either path if permissions or stale
+   PostgREST schema metadata need repair. It is safe to re-run.
+
+`supabase/community-schema.sql` and `supabase/referral-schema.sql` are kept as
+legacy compatibility scripts; they are not required after `schema.sql` or the
+migrations above.
 
 ### Deployment
 
@@ -195,18 +207,20 @@ npm run build
 
 ## 🎓 Curriculum Overview
 
-### A1 — Beginner (8 Weeks)
+### A1 — Beginner (10 Weeks standard / 6 Weeks fast track)
 
 | Week | Topic | Key Grammar |
 |------|-------|-------------|
-| 1 | Alphabet, Greetings, Numbers 0-20 | Pronunciation, formal/informal |
-| 2 | Personal Pronouns, Present Tense | Verb conjugation, articles (der/die/das) |
-| 3 | Daily Routines, Food, Time | Separable verbs, telling time |
-| 4 | Family, Friends, Possessives | Possessive pronouns, family vocab |
-| 5 | Shopping, Dining, Polite Requests | Accusative case, restaurant language |
-| 6 | Travel, Directions, Transportation | Dative case, map reading |
-| 7 | Modal Verbs, Separable Verbs | können, möchten, müssen, separable prefixes |
-| 8 | **Mock Exam** | Lesen, Hören, Schreiben, Sprechen |
+| 1 | Meeting People | Greetings, formal/informal address |
+| 2 | The Alphabet | Pronunciation and spelling |
+| 3 | Numbers 0–12 | Counting and phone numbers |
+| 4 | Numbers 13–19 | Teen numbers and prices |
+| 5 | Numbers 20–100 | Larger numbers and dates |
+| 6 | My Family | Family vocabulary and possessives |
+| 7 | Colors | Adjectives and descriptions |
+| 8 | Days & Months | Calendars and time expressions |
+| 9 | Hobbies & Professions | Everyday activities and jobs |
+| 10 | Pronunciation Deep-Dive | German sounds and speaking confidence |
 
 ### A2 — Elementary (8 Weeks)
 
@@ -263,14 +277,16 @@ DeutschBuddy integrates with these curated German learning resources:
 ## 📊 Database Schema
 
 ### Tables
-- **profiles**: User name, email, joined date, pacing preference
+- **profiles**: User name, email, joined date, pacing preference, referral metadata
 - **progress**: XP, streak, completed tasks, badges, unlocked weeks (per user per level)
 - **exercise_results**: Task completion logs with scores
 - **exam_scores**: Mock exam results (Lesen, Hören, Schreiben, Sprechen)
+- **community_posts/comments/upvotes**: Authenticated learner community
+- **referrals**: Idempotent referral reward records (server-managed)
 
 ### Security
 - Row Level Security (RLS) enabled on all tables
-- Users can only read/write their own data
+- Users can only read/write their own account data; community content is intentionally shared
 - Auto-profile creation via database trigger on signup
 
 ---

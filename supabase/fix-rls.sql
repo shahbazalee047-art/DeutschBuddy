@@ -8,6 +8,27 @@
 -- public.profiles` here so the anon/authenticated roles never keep full-table
 -- SELECT that would expose the protected `email` column (see schema.sql).
 
+-- Referral columns are part of the current profile contract. This keeps the
+-- repair script safe for databases created before the referral migration.
+alter table public.profiles
+  add column if not exists referral_code text,
+  add column if not exists referred_by text,
+  add column if not exists referral_count integer not null default 0;
+
+create unique index if not exists idx_profiles_referral_code
+  on public.profiles (referral_code)
+  where referral_code is not null;
+
+create table if not exists public.referrals (
+  id uuid default uuid_generate_v4() primary key,
+  referrer_id uuid references public.profiles(id) on delete cascade not null,
+  referred_user_id uuid references public.profiles(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique (referred_user_id)
+);
+
+alter table public.referrals enable row level security;
+
 -- Ensure notification_preferences column exists on profiles
 alter table public.profiles
   add column if not exists notification_preferences jsonb default '{
@@ -32,6 +53,9 @@ drop policy if exists "profiles_delete_own" on public.profiles;
 
 create policy "Users can view own profile" on public.profiles
   for select using (auth.uid() = id);
+
+create policy "Users can view community profiles" on public.profiles
+  for select using (true);
 
 create policy "Users can insert own profile" on public.profiles
   for insert with check (auth.uid() = id);
@@ -244,3 +268,40 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Referral metadata is written through a SECURITY DEFINER function so the
+-- referral columns never need to be included in the public profile SELECT
+-- grant. The canonical implementation also lives in schema.sql and the
+-- referral migration; keeping it here makes this repair script self-contained.
+create or replace function public.set_my_referral_info(
+  p_referral_code text,
+  p_referred_by text default null,
+  p_selected_pacing text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null then
+    return;
+  end if;
+
+  update public.profiles
+  set
+    referral_code = coalesce(nullif(trim(p_referral_code), ''), referral_code),
+    referred_by = coalesce(nullif(trim(p_referred_by), ''), referred_by),
+    selected_pacing = case
+      when p_selected_pacing in ('standard', 'fast') then p_selected_pacing
+      else selected_pacing
+    end,
+    updated_at = timezone('utc'::text, now())
+  where id = auth.uid();
+end;
+$$;
+
+revoke execute on function public.set_my_referral_info(text, text, text) from public, anon;
+grant execute on function public.set_my_referral_info(text, text, text) to authenticated;
+
+notify pgrst, 'reload schema';

@@ -99,6 +99,10 @@ function savePendingQueue(userId, level, queue) {
   try { localStorage.setItem(getPendingSyncKey(userId, level), JSON.stringify(queue)); } catch { /* ignore */ }
 }
 
+function snapshotsEqual(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
+}
+
 function clearPendingQueue(userId, level) {
   try { localStorage.removeItem(getPendingSyncKey(userId, level)); } catch { /* ignore */ }
 }
@@ -106,6 +110,21 @@ function clearPendingQueue(userId, level) {
 export function getPendingSyncSnapshot(userId, level) {
   const queue = loadPendingQueue(userId, level);
   return queue.length > 0 ? queue[queue.length - 1] : null;
+}
+
+function progressSnapshot(userId, level, progress) {
+  return {
+    user_id: userId,
+    level,
+    xp: progress.xp,
+    streak: progress.streak,
+    last_study_date: progress.lastStudyDate,
+    completed_tasks: progress.completedTasks,
+    revise_tasks: progress.reviseTasks,
+    badges: progress.badges,
+    unlocked_weeks: progress.unlockedWeeks,
+    weekly_xp: progress.weeklyXP,
+  };
 }
 
 
@@ -222,13 +241,35 @@ export function useProgress(level) {
           }
         }
 
-        // Snapshots pushed to the queue while this pass ran sit right after
-        // the ones we just read — preserve them alongside the failures.
+        // A newer snapshot can replace the queue while this pass is awaiting
+        // the network. Compare contents as well as length; coalescing means a
+        // newer write may occupy the same single queue slot.
         const live = loadPendingQueue(currentUser.id, currentLevel);
-        const fresh = live.length > queue.length ? live.slice(queue.length) : [];
+        const queueChanged = live.length !== queue.length
+          || live.some((snapshot, index) => !snapshotsEqual(snapshot, queue[index]));
+
+        if (queueChanged && live.length > 0) {
+          const newest = live[live.length - 1];
+          savePendingQueue(currentUser.id, currentLevel, [newest]);
+          if (remaining.length > 0) {
+            syncAttemptsRef.current += 1;
+            setSyncStatus('pending');
+            clearTimeout(syncTimerRef.current);
+            const retryTimer = setTimeout(() => {
+              if (performSyncRef.current) performSyncRef.current();
+            }, timer);
+            syncTimerRef.current = retryTimer;
+            return;
+          }
+          // The pass succeeded, but it sent an older snapshot. Drain the
+          // replacement immediately rather than waiting for another event.
+          continue;
+        }
 
         if (remaining.length > 0) {
-          savePendingQueue(currentUser.id, currentLevel, [...remaining, ...fresh]);
+          // The newest failed snapshot contains all changes represented by
+          // earlier full snapshots, so older retries can be discarded safely.
+          savePendingQueue(currentUser.id, currentLevel, [remaining[remaining.length - 1]]);
           syncAttemptsRef.current += 1;
           setSyncStatus('pending');
           clearTimeout(syncTimerRef.current);
@@ -237,13 +278,6 @@ export function useProgress(level) {
           }, timer);
           syncTimerRef.current = retryTimer;
           return;
-        }
-
-        if (fresh.length > 0) {
-          // This pass drained fully; entries arrived meanwhile — keep only the
-          // new ones and loop so they are sent without waiting for a retry.
-          savePendingQueue(currentUser.id, currentLevel, fresh);
-          continue;
         }
 
         clearTimeout(syncTimerRef.current);
@@ -262,10 +296,10 @@ export function useProgress(level) {
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
     if (!currentUser || !currentLevel) return;
-    const queue = loadPendingQueue(currentUser.id, currentLevel);
-    queue.push(snapshot);
-    if (queue.length > 256) queue.splice(0, queue.length - 256);
-    savePendingQueue(currentUser.id, currentLevel, queue);
+    // Every caller now supplies a complete snapshot. Keeping only the newest
+    // one prevents an old queued snapshot from overwriting a newer local state
+    // after a restart or a slow network response.
+    savePendingQueue(currentUser.id, currentLevel, [snapshot]);
     markPending();
     performSync();
   }, [performSync, markPending]);
@@ -349,7 +383,7 @@ export function useProgress(level) {
     fetchProgress();
   }, [user, level, fetchProgress]);
 
-  const completeTask = useCallback(async (taskId, xpAmount, weekId, dayNumber = 0, result = null) => {
+  const completeTask = useCallback(async (taskId, xpAmount, weekId, dayNumber = 0, result = null, taskType = 'task') => {
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
 
@@ -431,36 +465,31 @@ export function useProgress(level) {
     // Queue the full snapshot for the server. On failure the local state is
     // kept (source of truth) and the write retries with backoff — a failed
     // save must NEVER roll back or discard local progress.
-    queueSync({
-      user_id: currentUser.id,
-      level: currentLevel,
-      xp: next.xp,
-      streak: next.streak,
-      last_study_date: next.lastStudyDate,
-      completed_tasks: next.completedTasks,
-      revise_tasks: next.reviseTasks,
-      badges: next.badges,
-      unlocked_weeks: next.unlockedWeeks,
-      weekly_xp: next.weeklyXP,
-    });
+    queueSync(progressSnapshot(currentUser.id, currentLevel, next));
 
     // The exercise_results insert is independent of the progress upsert —
     // run it in parallel to halve the latency the user feels on completion.
-    const exercisePromise = !alreadyCompleted
-      ? supabase.from('exercise_results').insert({
-          user_id: currentUser.id,
-          level: currentLevel,
-          week_id: weekId,
-          day_number: dayNumber,
-          task_id: taskId,
-          task_type: 'task',
-          score: xpAmount,
-          max_score: xpAmount,
-          completed: true,
-        }).then(({ error }) => {
-          if (error) console.error('Exercise result save error:', error);
-        })
-      : Promise.resolve();
+    // A repeated task is still a useful exercise attempt, but idempotency
+    // above ensures it cannot award XP a second time.
+    const rawMaxScore = result && typeof result.maxScore === 'number' && result.maxScore > 0
+      ? result.maxScore
+      : xpAmount;
+    const rawScore = result && typeof result.score === 'number' ? result.score : xpAmount;
+    const maxScore = Math.max(0, Math.round(rawMaxScore));
+    const score = Math.min(maxScore, Math.max(0, Math.round(rawScore)));
+    const exercisePromise = supabase.from('exercise_results').insert({
+      user_id: currentUser.id,
+      level: currentLevel,
+      week_id: weekId,
+      day_number: dayNumber,
+      task_id: taskId,
+      task_type: taskType || 'task',
+      score,
+      max_score: maxScore,
+      completed: true,
+    }).then(({ error }) => {
+      if (error) console.error('Exercise result save error:', error);
+    });
 
     try {
       await exercisePromise;
@@ -483,11 +512,7 @@ export function useProgress(level) {
     progressRef.current = next;
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
-    queueSync({
-      user_id: currentUser.id,
-      level: currentLevel,
-      unlocked_weeks: next.unlockedWeeks,
-    });
+    queueSync(progressSnapshot(currentUser.id, currentLevel, next));
   }, [queueSync]);
 
   const setTrackMode = useCallback(async (mode) => {
@@ -541,16 +566,9 @@ export function useProgress(level) {
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
 
-    // Upsert only the fields that recoverStreak actually changes; let the
-    // server preserve everything else. This matches unlockWeek's minimal
-    // pattern and avoids clobbering concurrently-written fields.
-    queueSync({
-      user_id: currentUser.id,
-      level: currentLevel,
-      last_study_date: next.lastStudyDate,
-      streak: next.streak,
-      badges: next.badges,
-    });
+    // Queue the complete local snapshot so it can safely supersede an older
+    // pending write without depending on partial upsert semantics.
+    queueSync(progressSnapshot(currentUser.id, currentLevel, next));
   }, [queueSync]);
 
   return {

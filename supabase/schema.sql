@@ -11,6 +11,9 @@ create table if not exists public.profiles (
   email text,
   avatar_url text,
   selected_pacing text default 'standard' check (selected_pacing in ('standard', 'fast')),
+  referral_code text,
+  referred_by text,
+  referral_count integer default 0 not null,
   notification_preferences jsonb default '{
     "email_notifications": true,
     "push_notifications": true,
@@ -21,6 +24,25 @@ create table if not exists public.profiles (
   }'::jsonb not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Keep a schema-only installation compatible with the canonical auth trigger
+-- and make this file safe to run against databases created before referrals.
+alter table public.profiles
+  add column if not exists referral_code text,
+  add column if not exists referred_by text,
+  add column if not exists referral_count integer not null default 0;
+
+create unique index if not exists idx_profiles_referral_code
+  on public.profiles (referral_code)
+  where referral_code is not null;
+
+create table if not exists public.referrals (
+  id uuid default uuid_generate_v4() primary key,
+  referrer_id uuid references public.profiles(id) on delete cascade not null,
+  referred_user_id uuid references public.profiles(id) on delete cascade not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique (referred_user_id)
 );
 
 -- Progress table per user per level
@@ -127,8 +149,14 @@ alter table public.exam_scores enable row level security;
 alter table public.community_posts enable row level security;
 alter table public.community_upvotes enable row level security;
 alter table public.community_comments enable row level security;
+alter table public.referrals enable row level security;
 
 -- Profiles policies
+drop policy if exists "Users can view own profile" on public.profiles;
+drop policy if exists "Users can view community profiles" on public.profiles;
+drop policy if exists "Users can insert own profile" on public.profiles;
+drop policy if exists "Users can update own profile" on public.profiles;
+drop policy if exists "Users can delete own profile" on public.profiles;
 create policy "Users can view own profile"
   on public.profiles for select
   using (auth.uid() = id);
@@ -166,6 +194,10 @@ comment on table public.profiles is
   'Email column is hidden from anon/authenticated via column-level GRANT. Use the auth session for the current user email; never expose other users emails.';
 
 -- Progress policies
+drop policy if exists "Users can view own progress" on public.progress;
+drop policy if exists "Users can insert own progress" on public.progress;
+drop policy if exists "Users can update own progress" on public.progress;
+drop policy if exists "Users can delete own progress" on public.progress;
 create policy "Users can view own progress"
   on public.progress for select
   using (auth.uid() = user_id);
@@ -184,6 +216,10 @@ create policy "Users can delete own progress"
   using (auth.uid() = user_id);
 
 -- Exercise results policies
+drop policy if exists "Users can view own exercise results" on public.exercise_results;
+drop policy if exists "Users can insert own exercise results" on public.exercise_results;
+drop policy if exists "Users can update own exercise results" on public.exercise_results;
+drop policy if exists "Users can delete own exercise results" on public.exercise_results;
 create policy "Users can view own exercise results"
   on public.exercise_results for select
   using (auth.uid() = user_id);
@@ -202,6 +238,10 @@ create policy "Users can delete own exercise results"
   using (auth.uid() = user_id);
 
 -- Exam scores policies
+drop policy if exists "Users can view own exam scores" on public.exam_scores;
+drop policy if exists "Users can insert own exam scores" on public.exam_scores;
+drop policy if exists "Users can update own exam scores" on public.exam_scores;
+drop policy if exists "Users can delete own exam scores" on public.exam_scores;
 create policy "Users can view own exam scores"
   on public.exam_scores for select
   using (auth.uid() = user_id);
@@ -220,6 +260,10 @@ create policy "Users can delete own exam scores"
   using (auth.uid() = user_id);
 
 -- Community posts policies
+drop policy if exists "Anyone can view community posts" on public.community_posts;
+drop policy if exists "Users can create community posts" on public.community_posts;
+drop policy if exists "Users can update own community posts" on public.community_posts;
+drop policy if exists "Users can delete own community posts" on public.community_posts;
 create policy "Anyone can view community posts"
   on public.community_posts for select
   using (true);
@@ -238,6 +282,8 @@ create policy "Users can delete own community posts"
   using (auth.uid() = user_id);
 
 -- Community upvotes policies
+drop policy if exists "Anyone can view upvotes" on public.community_upvotes;
+drop policy if exists "Users can manage own upvotes" on public.community_upvotes;
 create policy "Anyone can view upvotes"
   on public.community_upvotes for select
   using (true);
@@ -248,6 +294,10 @@ create policy "Users can manage own upvotes"
   with check (auth.uid() = user_id);
 
 -- Community comments policies
+drop policy if exists "Anyone can view comments" on public.community_comments;
+drop policy if exists "Users can create comments" on public.community_comments;
+drop policy if exists "Users can update own comments" on public.community_comments;
+drop policy if exists "Users can delete own comments" on public.community_comments;
 create policy "Anyone can view comments"
   on public.community_comments for select
   using (true);
@@ -264,6 +314,17 @@ create policy "Users can update own comments"
 create policy "Users can delete own comments"
   on public.community_comments for delete
   using (auth.uid() = user_id);
+
+-- API grants. Referral data is intentionally omitted from the profile SELECT
+-- grant; clients use the SECURITY DEFINER referral functions below instead.
+grant usage on schema public to anon, authenticated;
+grant insert, update, delete on public.profiles to authenticated;
+grant select on public.progress, public.exercise_results, public.exam_scores,
+  public.community_posts, public.community_upvotes, public.community_comments
+  to anon, authenticated;
+grant insert, update, delete on public.progress, public.exercise_results,
+  public.exam_scores, public.community_posts, public.community_upvotes,
+  public.community_comments to authenticated;
 
 -- Function to maintain upvote count
 -- SECURITY DEFINER access is pinned with an empty search_path; counters are
@@ -365,3 +426,111 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
+
+-- Referral functions. These keep referral columns out of the public profile
+-- grant while still allowing the current account to initialize its own code.
+create or replace function public.set_my_referral_info(
+  p_referral_code text,
+  p_referred_by text default null,
+  p_selected_pacing text default null
+)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  if auth.uid() is null then
+    return;
+  end if;
+
+  update public.profiles
+  set
+    referral_code = coalesce(nullif(trim(p_referral_code), ''), referral_code),
+    referred_by = coalesce(nullif(trim(p_referred_by), ''), referred_by),
+    selected_pacing = case
+      when p_selected_pacing in ('standard', 'fast') then p_selected_pacing
+      else selected_pacing
+    end,
+    updated_at = timezone('utc'::text, now())
+  where id = auth.uid();
+end;
+$$;
+
+create or replace function public.record_referral(p_ref_code text, p_new_user_id uuid)
+returns uuid
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_referrer uuid;
+  v_created uuid;
+begin
+  if p_ref_code is null or p_new_user_id is null
+    or auth.uid() is null or auth.uid() <> p_new_user_id then
+    return null;
+  end if;
+
+  select id into v_referrer
+  from public.profiles
+  where referral_code = p_ref_code;
+
+  if v_referrer is null or v_referrer = p_new_user_id then
+    return null;
+  end if;
+
+  insert into public.referrals (referrer_id, referred_user_id)
+  values (v_referrer, p_new_user_id)
+  on conflict (referred_user_id) do nothing
+  returning referrer_id into v_created;
+
+  if v_created is null then
+    return null;
+  end if;
+
+  update public.profiles
+  set referral_count = referral_count + 1,
+      updated_at = timezone('utc'::text, now())
+  where id = v_created;
+
+  update public.progress
+  set
+    xp = xp + 25,
+    badges = badges || jsonb_build_array(
+      jsonb_build_object('id', 'referral-builder', 'name', 'Community Builder', 'icon', '🤝', 'earnedAt', now())
+    )
+  where user_id = v_created
+    and level = 'A1'
+    and not badges @> '[{"id":"referral-builder"}]';
+
+  return v_created;
+end;
+$$;
+
+create or replace function public.get_my_referral_info()
+returns jsonb
+language plpgsql security definer
+set search_path = ''
+as $$
+declare
+  v_row public.profiles%rowtype;
+begin
+  select * into v_row from public.profiles where id = auth.uid();
+  if v_row.id is null then
+    return null;
+  end if;
+  return jsonb_build_object(
+    'referral_code', v_row.referral_code,
+    'referral_count', v_row.referral_count,
+    'referred_by', v_row.referred_by
+  );
+end;
+$$;
+
+revoke execute on function public.set_my_referral_info(text, text, text) from public, anon;
+revoke execute on function public.record_referral(text, uuid) from public, anon;
+revoke execute on function public.get_my_referral_info() from public, anon;
+grant execute on function public.set_my_referral_info(text, text, text) to authenticated;
+grant execute on function public.record_referral(text, uuid) to authenticated;
+grant execute on function public.get_my_referral_info() to authenticated;
+notify pgrst, 'reload schema';

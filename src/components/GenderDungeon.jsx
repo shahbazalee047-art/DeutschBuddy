@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { IconTrophy } from './Icons';
 import { derWords, dieWords, dasWords } from '../data/genderWords';
+import { useAuth } from '../contexts/AuthContext';
+import { getUserValue, setUserValue } from '../utils/userStorage';
 
 const ALL_WORDS = [
   ...derWords.map(w => ({ ...w, gender: 'der' })),
@@ -27,24 +29,25 @@ function getFillTime(score) {
   return Math.max(MIN_FILL_TIME, BASE_FILL_TIME - Math.floor(score / SCORE_PER_STEP) * TIME_STEP);
 }
 
-function loadLeaderboard() {
-  try {
-    return JSON.parse(localStorage.getItem('gender_dungeon_lb') || '[]');
-  } catch { return []; }
+function loadLeaderboard(userId) {
+  const value = getUserValue(userId, 'gender_dungeon_lb', []);
+  return Array.isArray(value) ? value : [];
 }
 
-function saveLeaderboard(entries) {
-  localStorage.setItem('gender_dungeon_lb', JSON.stringify(entries.slice(0, 10)));
+function saveLeaderboard(userId, entries) {
+  setUserValue(userId, 'gender_dungeon_lb', entries.slice(0, 10));
 }
 
 export default function GenderDungeon({ compact, onScore }) {
+  const { user } = useAuth();
+  const userId = user?.id || 'guest';
   const [state, setState] = useState('idle');
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(MAX_LIVES);
   const [current, setCurrent] = useState(null);
   const [feedback, setFeedback] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [leaderboard, setLeaderboard] = useState(loadLeaderboard);
+  const [leaderboard, setLeaderboard] = useState(() => loadLeaderboard(userId));
 
   const wordPool = useRef([]);
   const animRef = useRef(null);
@@ -58,6 +61,10 @@ export default function GenderDungeon({ compact, onScore }) {
     cancelAnimationFrame(animRef.current);
     clearTimeout(advanceTimerRef.current);
   }, []);
+
+  useEffect(() => {
+    setLeaderboard(loadLeaderboard(userId));
+  }, [userId]);
 
   const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
 
@@ -146,17 +153,17 @@ export default function GenderDungeon({ compact, onScore }) {
 
   useEffect(() => {
     if (state === 'finished') {
-      const entries = loadLeaderboard();
+      const entries = loadLeaderboard(userId);
       entries.push({ score: scoreRef.current, date: Date.now() });
       entries.sort((a, b) => b.score - a.score);
-      saveLeaderboard(entries);
+      saveLeaderboard(userId, entries);
       setLeaderboard(entries);
       if (onScore && !scoreReportedRef.current) {
         scoreReportedRef.current = true;
         onScore(scoreRef.current);
       }
     }
-  }, [state, onScore]);
+  }, [state, userId, onScore]);
 
   const barColor = progress > 0.75 ? 'bg-error' : progress > 0.5 ? 'bg-gold-light' : 'bg-gold';
   const cardClass = compact ? ' border border-border bg-bg-secondary/60 p-2' : 'paper-card p-4';

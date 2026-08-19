@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { BuddyAvatar } from '../components/buddy';
 import { GoogleIcon, IconCheck, IconEye, IconEyeOff } from '../components/Icons';
 import { applyPendingReferral } from '../services/referralService';
+import { scopeLocalStateForUser } from '../utils/userStorage';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -58,16 +59,12 @@ export default function LoginPage() {
     setResendState({ sent: false, cooldown: 0, error: '' });
     try {
       const data = await signIn(trimmedEmail, password);
-      try {
-        if (localStorage.getItem('db_selected_level')) {
-          localStorage.setItem('db_onboarded', 'true');
-        }
-      } catch { /* ignore */ }
       // Applies any stashed invite (email-confirmation path: the profile and
       // referral_code were created server-side at signup, and the referral is
       // credited now). No-op for existing users.
       const uid = data?.user?.id || data?.session?.user?.id;
       if (uid) {
+        scopeLocalStateForUser(uid);
         applyPendingReferral(uid).catch(() => { /* referral is best-effort */ });
       }
       navigate('/dashboard', { replace: true });

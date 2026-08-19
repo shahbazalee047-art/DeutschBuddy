@@ -5,6 +5,7 @@ import { IconFire, IconStar, IconTrophy, IconClock } from '../components/Icons';
 import ReviseCard from '../components/ReviseCard';
 import ContinueCard from '../components/ContinueCard';
 import BannerAd from '../components/BannerAd';
+import { getUserValue } from '../utils/userStorage';
 
 function getNextLesson(levelData, progress) {
   if (!levelData?.weeks) return null;
@@ -21,18 +22,16 @@ function getNextLesson(levelData, progress) {
 }
 
 export default function HomePage({ onViewJourney }) {
-  const { profile, progress, levelData, handleSelectDay, handleSelectTask, unlockedWeeks, startPractice, activeLevel } = useDashboard();
+  const { user, profile, progress, levelData, handleSelectDay, handleSelectTask, unlockedWeeks, startPractice, activeLevel } = useDashboard();
 
   const nextLesson = useMemo(() => getNextLesson(levelData, progress), [levelData, progress]);
   const greeting = useMemo(() => pickPhrase(getGreetingByTime()), []);
   const streak = progress?.streak || 0;
   const xp = progress?.xp || 0;
   const dailyGoal = useMemo(() => {
-    try {
-      const stored = Number(localStorage.getItem('db_daily_goal'));
-      return stored > 0 ? stored : 20;
-    } catch { return 20; }
-  }, []);
+    const stored = Number(getUserValue(user?.id, 'daily_goal', 20));
+    return stored > 0 ? stored : 20;
+  }, [user?.id]);
   const dailyProgress = Math.min((progress?.todayXP || 0) / dailyGoal, 1);
 
   const completedSet = new Set(progress?.completedTasks || []);

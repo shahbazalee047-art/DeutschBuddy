@@ -5,6 +5,7 @@ import { useProgress } from '../hooks/useProgress';
 import { getLocalDateString } from '../utils/date';
 import { trackLessonStarted, trackLessonCompleted, trackGamePlayed, trackSessionStart } from '../utils/analytics';
 import { showInterstitial } from '../services/ads';
+import { getUserValue, setUserValue } from '../utils/userStorage';
 
 const DashboardContext = createContext(null);
 
@@ -13,7 +14,7 @@ export function DashboardProvider({ children }) {
   const navigate = useNavigate();
 
   const [activeLevel, setActiveLevel] = useState(() => {
-    try { return localStorage.getItem('db_selected_level') || 'A1'; } catch { return 'A1'; }
+    return getUserValue(user?.id, 'selected_level', 'A1') || 'A1';
   });
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
@@ -36,8 +37,7 @@ export function DashboardProvider({ children }) {
   const [notifVersion, setNotifVersion] = useState(0);
   const [historyStack, setHistoryStack] = useState([]);
   const [trackMode, setLocalTrackMode] = useState(() => {
-    try { return localStorage.getItem('db_selected_track') || profile?.selected_pacing || 'standard'; }
-    catch { return profile?.selected_pacing || 'standard'; }
+    return getUserValue(user?.id, 'selected_track', profile?.selected_pacing || 'standard') || 'standard';
   });
   const [levelData, setLevelData] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
@@ -69,6 +69,17 @@ export function DashboardProvider({ children }) {
   useEffect(() => { showPictureMatchRef.current = showPictureMatch; }, [showPictureMatch]);
   useEffect(() => { historyRef.current = historyStack; }, [historyStack]);
 
+  // Auth state is normally resolved before this provider mounts, but resetting
+  // here also protects account switches performed without a full page reload.
+  useEffect(() => {
+    if (!user?.id) return;
+    setActiveLevel(getUserValue(user.id, 'selected_level', 'A1') || 'A1');
+    setLocalTrackMode(getUserValue(user.id, 'selected_track', 'standard') || 'standard');
+    setSelectedDay(null);
+    setSelectedTask(null);
+    setActiveView('dashboard');
+  }, [user?.id]);
+
   // Lesson start tracking: fires whenever a task becomes the active lesson
   // (day view click, revise retry, week jump, practice advance) — but not on
   // exit or re-renders of the same task.
@@ -94,12 +105,11 @@ export function DashboardProvider({ children }) {
   // wins over the profile's default value, otherwise signup would silently
   // reset a fresh fast-track learner back to 'standard'.
   useEffect(() => {
-    let local;
-    try { local = localStorage.getItem('db_selected_track'); } catch { local = null; }
+    const local = getUserValue(user?.id, 'selected_track', null);
     if (!profile?.selected_pacing || local) return;
     setLocalTrackMode(profile.selected_pacing);
-    try { localStorage.setItem('db_selected_track', profile.selected_pacing); } catch { /* ignore */ }
-  }, [profile?.selected_pacing]);
+    setUserValue(user?.id, 'selected_track', profile.selected_pacing);
+  }, [profile?.selected_pacing, user?.id]);
 
   const { progress, loading, syncStatus, syncPendingSince, completeTask, unlockWeek, setTrackMode, recoverStreak } = useProgress(activeLevel);
 
@@ -109,8 +119,8 @@ export function DashboardProvider({ children }) {
     const ok = await setTrackMode(mode);
     if (!ok) return;
     setLocalTrackMode(mode);
-    try { localStorage.setItem('db_selected_track', mode); } catch { /* ignore */ }
-  }, [setTrackMode]);
+    setUserValue(user?.id, 'selected_track', mode);
+  }, [setTrackMode, user?.id]);
 
   // Load curriculum data
   useEffect(() => {
@@ -159,6 +169,10 @@ export function DashboardProvider({ children }) {
   }, []);
 
   const handleSelectTask = useCallback((task) => {
+    if (!task) {
+      setSelectedTask(null);
+      return;
+    }
     setHistoryStack(prev => [...prev, { view: activeView, day: selectedDay, task: selectedTask }]);
     setSelectedTask(task);
   }, [activeView, selectedDay, selectedTask]);
@@ -214,7 +228,7 @@ export function DashboardProvider({ children }) {
       const earnedXP = result && typeof result.score === 'number' && result.maxScore > 0
         ? Math.max(1, Math.round(selectedTask.xp * (result.score / result.maxScore)))
         : selectedTask.xp;
-      completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day, result);
+      completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day, result, selectedTask.type);
       trackLessonCompleted(
         selectedTask.id,
         activeLevel,
@@ -269,7 +283,7 @@ export function DashboardProvider({ children }) {
     if (xp <= 0) return;
     const today = getLocalDateString();
     const taskId = `game-${game}-${today}`;
-    completeTask(taskId, xp, 1, 1);
+    completeTask(taskId, xp, 1, 1, { score, maxScore: score }, `game:${game}`);
     setTodayXP(prev => prev + xp);
     setXpToast(xp);
   }, [completeTask]);
@@ -290,12 +304,12 @@ export function DashboardProvider({ children }) {
   }, [activeView, selectedDay, selectedTask, activeLevel, showNotifications, practiceMode, exitPractice]);
 
   const handleLevelChange = useCallback((level) => {
-    try { localStorage.setItem('db_selected_level', level); } catch { /* ignore */ }
+    setUserValue(user?.id, 'selected_level', level);
     setActiveLevel(level);
     setSelectedDay(null);
     setSelectedTask(null);
     setActiveView('dashboard');
-  }, []);
+  }, [user?.id]);
 
   const handleBackNavigation = useCallback(() => {
     if (practiceMode) {
@@ -442,14 +456,14 @@ export function DashboardProvider({ children }) {
   // Notifications unread state
   useEffect(() => {
     try {
-      const readIds = new Set(JSON.parse(localStorage.getItem('db_notif_read') || '[]'));
+      const readIds = new Set(getUserValue(user?.id, 'notif_read', []));
       const knownIds = [1, 2, 5];
       const hasUnread = knownIds.some(id => !readIds.has(id));
       setHasUnreadNotifications(hasUnread);
     } catch {
       setHasUnreadNotifications(false);
     }
-  }, [notifVersion]);
+  }, [notifVersion, user?.id]);
 
   // Close profile menu on outside click
   useEffect(() => {

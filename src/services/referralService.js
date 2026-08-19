@@ -30,19 +30,18 @@ export async function applyPendingReferral(userId, extraProfileFields = {}) {
 
   // Guards: the referral credit must NEVER take down the sign-up/login flow.
   // Every failure here is logged and retried on the next login instead.
-  const payload = { ...extraProfileFields, id: userId, referral_code: ownCode };
-  if (validRef && !alreadyReferred) payload.referred_by = validRef;
-
-  let upsertError;
+  let syncError;
   try {
-    ({ error: upsertError } = await supabase
-      .from('profiles')
-      .upsert(payload, { onConflict: 'id' }));
+    ({ error: syncError } = await supabase.rpc('set_my_referral_info', {
+      p_referral_code: ownCode,
+      p_referred_by: validRef && !alreadyReferred ? validRef : null,
+      p_selected_pacing: extraProfileFields.selected_pacing || null,
+    }));
   } catch (err) {
-    upsertError = err;
+    syncError = err;
   }
-  if (upsertError) {
-    console.error('Profile referral sync error:', upsertError);
+  if (syncError) {
+    console.error('Profile referral sync error:', syncError);
     return null;
   }
 

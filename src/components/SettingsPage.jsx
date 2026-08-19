@@ -6,6 +6,7 @@ import {
   IconUser, IconBell, IconLock, IconMoon, IconSun, IconLogOut,
   IconArrowLeft, IconEye, IconEyeOff, IconClock
 } from './Icons';
+import { getUserValue, setUserValue } from '../utils/userStorage';
 
 const DEFAULT_NOTIFICATIONS = {
   email_notifications: true,
@@ -95,10 +96,10 @@ export default function SettingsPage({ profile, user, onSignOut }) {
         setNotifPrefs({ ...DEFAULT_NOTIFICATIONS, ...prefs });
       } catch (err) {
         console.error('Failed to load notification preferences:', err);
-        try {
-          const local = localStorage.getItem('db_notification_preferences');
-          setNotifPrefs(local ? { ...DEFAULT_NOTIFICATIONS, ...JSON.parse(local) } : DEFAULT_NOTIFICATIONS);
-        } catch { /* corrupt cache — fall back to defaults */ }
+        const local = getUserValue(user.id, 'notification_preferences', null);
+        setNotifPrefs(local && typeof local === 'object'
+          ? { ...DEFAULT_NOTIFICATIONS, ...local }
+          : DEFAULT_NOTIFICATIONS);
       } finally {
         setNotifLoading(false);
       }
@@ -135,9 +136,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
     const prev = notifPrefs;
     const next = { ...prev, [key]: value };
     setNotifPrefs(next);
-    try {
-      localStorage.setItem('db_notification_preferences', JSON.stringify(next));
-    } catch { /* storage unavailable */ }
+    setUserValue(user?.id, 'notification_preferences', next);
 
     if (!user?.id) {
       savingKeysRef.current.delete(key);
@@ -153,9 +152,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
     } catch (err) {
       console.error('Failed to save notification preferences:', err);
       setNotifPrefs(prev);
-      try {
-        localStorage.setItem('db_notification_preferences', JSON.stringify(prev));
-      } catch { /* storage unavailable */ }
+      setUserValue(user?.id, 'notification_preferences', prev);
     } finally {
       savingKeysRef.current.delete(key);
     }
@@ -493,7 +490,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
           </div>
         </div>
 
-        <DailyGoalControl />
+        <DailyGoalControl userId={user?.id} />
 
         {settingItems.map((item, i) => (
           <div key={i} onClick={() => setActiveSection(item.section)}
@@ -542,14 +539,14 @@ const DAILY_GOAL_OPTIONS = [
   { value: 30, label: 'Serious', detail: '~15 min' },
 ];
 
-function DailyGoalControl() {
+function DailyGoalControl({ userId }) {
   const [goal, setGoal] = useState(() => {
-    try { return Number(localStorage.getItem('db_daily_goal')) || 20; } catch { return 20; }
+    return Number(getUserValue(userId, 'daily_goal', 20)) || 20;
   });
 
   function choose(value) {
     setGoal(value);
-    try { localStorage.setItem('db_daily_goal', String(value)); } catch { /* ignore */ }
+    setUserValue(userId, 'daily_goal', value);
   }
 
   return (
