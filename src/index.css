@@ -138,8 +138,8 @@
   --a1-blue: #3B82F6;
   --a2-red: #B94A4A;
   --gender-der: #1B3A35;
-  --gender-die: #C44A4A;
-  --gender-das: #7A6E62;
+  --gender-die: #2563EB;
+  --gender-das: #64748B;
 
   /* Type scale */
   --text-hero: clamp(48px, 6vw, 80px);

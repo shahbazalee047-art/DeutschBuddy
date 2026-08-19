@@ -12,8 +12,8 @@ const gc = {
   },
   die: {
     label: 'die',
-    color: '#C44A4A',
-    border: 'var(--error)',
+    color: 'var(--db-accent)',
+    border: 'var(--db-accent)',
     align: 'flex-end',
     cardClass: 'vocab-card-die',
     genderTagClass: 'gender-tag-die'

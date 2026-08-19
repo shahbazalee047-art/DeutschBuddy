@@ -16,7 +16,7 @@ export default function Fun({ onComplete }) {
       {cur.type === 'joke' && <div className="border border-primary/20 bg-primary-light p-4"><p className="mb-2 text-[14px] font-medium text-primary">{cur.setup}</p><p className="text-[14px] font-bold text-text-body">{cur.punchline}</p></div>}
       {cur.type === 'fact' && <div className="border border-primary/20 bg-primary-light p-4"><p className="text-[13px] leading-relaxed text-text-body">{cur.text}</p></div>}
       {cur.type === 'meme' && <div className=" p-4 bg-bg-secondary border border-border"><p className="text-lg font-bold text-text-dark">{cur.word}</p><p className="text-[13px] text-text-muted">{cur.meaning}</p><div className="mt-2"><SpeakerButton text={cur.word} size="sm" /></div></div>}
-      <button onClick={() => onComplete({ score: 1, maxScore: 1 })} className="mt-3 w-full py-2.5 text-[13px] font-medium text-text-muted bg-bg-secondary border border-border  hover:bg-bg-secondary transition active:scale-95 flex items-center justify-center gap-1.5"><IconCheck className="w-4 h-4" /> Done! Finish Day</button>
+      <button onClick={() => onComplete({ score: 1, maxScore: 1 })} className="btn-primary mt-3 flex w-full items-center justify-center gap-1.5 text-[13px] active:scale-95"><IconCheck className="h-4 w-4" /> Done! Finish Day</button>
     </div>
   );
 }

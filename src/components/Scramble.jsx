@@ -70,7 +70,7 @@ export default function Scramble({ content, onComplete }) {
           </div>
         )}
       </div>
-      {show && <div className={`p-3 text-center text-sm font-semibold text-white ${isCorrect ? 'bg-success' : 'bg-error'}`}>{isCorrect ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
+      {show && <div role="status" aria-live="polite" className={`border p-3 text-center text-sm font-semibold ${isCorrect ? 'border-success/30 bg-success-light text-success' : 'border-error/30 bg-error-light text-error'}`}>{isCorrect ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="h-4 w-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{answer}" <IconHeart className="h-4 w-4" /></span>}</div>}
     </div>
   );
 }

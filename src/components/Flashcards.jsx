@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import SpeakerButton from './SpeakerButton';
+import { IconCards } from './Icons';
 export default function Flashcards({ content, onComplete }) {
   const [idx, setIdx] = useState(0); const [flipped, setFlipped] = useState(false); const [done, setDone] = useState([]);
   // Double-tap on Next must not skip a card: lock until the flip resets.
@@ -15,7 +16,7 @@ export default function Flashcards({ content, onComplete }) {
   }
   return (
     <div className="fade-in reading-body">
-      <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-text-dark text-lg">🃏 Flashcards</h3><span className="text-sm text-text-muted">{idx + 1}/{cards.length}</span></div>
+      <div className="mb-5 flex items-center justify-between"><h3 className="flex items-center gap-2 text-lg font-bold text-text-dark"><IconCards className="h-5 w-5 text-primary" /> Flashcards</h3><span className="text-sm text-text-muted">{idx + 1}/{cards.length}</span></div>
       <div className="mb-4 flex justify-center">{cards.map((_, i) => (<div key={i} className={`mx-0.5 h-2.5 w-2.5 rounded-full transition ${i === idx ? 'bg-primary' : done.includes(i) ? 'bg-success' : 'bg-bg-secondary'}`} />))}</div>
       <div
         onClick={() => setFlipped(!flipped)}

@@ -214,10 +214,9 @@ export default function Quiz({ content, onComplete }) {
 
       {show && (
         <div
-          className={`text-center p-4 rounded-[var(--radius-card)] text-sm font-semibold text-[var(--cta-text)] transition-all`}
-          style={{
-            background: sel === q.correct ? 'var(--success)' : 'var(--error)'
-          }}
+          role="status"
+          aria-live="polite"
+          className={`rounded-[var(--radius-card)] border p-4 text-center text-sm font-semibold ${sel === q.correct ? 'border-success/30 bg-success-light text-success' : 'border-error/30 bg-error-light text-error'}`}
         >
           {sel === q.correct ? (
             <span className="flex items-center justify-center gap-2">

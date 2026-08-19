@@ -242,7 +242,7 @@ export default function GenderDungeon({ compact, onScore }) {
 
           <div className="flex items-stretch gap-2 h-12">
             {['der', 'die', 'das'].map(g => {
-              const genderClass = g === 'der' ? 'border-primary bg-primary-light text-primary' : g === 'die' ? 'border-error bg-error-light text-error' : 'border-border bg-bg-secondary text-text-body';
+              const genderClass = g === 'der' ? 'border-primary bg-primary-light text-primary' : g === 'die' ? 'border-accent bg-accent-light text-accent' : 'border-border bg-bg-secondary text-text-body';
               return (
                 <button key={g} onClick={() => handleAnswer(g)}
                   disabled={!!feedback}
