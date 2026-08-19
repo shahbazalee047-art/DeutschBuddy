@@ -28,7 +28,7 @@ const TYPE_COLORS = {
   vocabulary: 'bg-[#D0879A]/10 text-[#D0879A] border-[#D0879A]/20',
   listening: 'bg-[#9B7FD4]/10 text-[#B9A0E8] border-[#9B7FD4]/20',
   reading: 'bg-[#6FA8A0]/10 text-[#8AC4BC] border-[#6FA8A0]/20',
-  podcast: 'bg-[#E8B73D]/10 text-[#E8B73D] border-[#E8B73D]/20',
+  podcast: 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20',
 };
 
 export default function ResourceLibrary({ resources }) {
@@ -49,7 +49,7 @@ export default function ResourceLibrary({ resources }) {
         {categories.map(cat => (
           <button key={cat} onClick={() => setSelectedCategory(selectedCategory === cat ? null : cat)}
             className={`px-4 py-2  text-[13px] font-semibold whitespace-nowrap transition-all active:scale-95 ${
-              selectedCategory === cat ? 'text-text-on-dark bg-gold shadow-md shadow-gold/20' : 'bg-bg-secondary text-text-muted border border-border/50 hover:text-text-body'
+              selectedCategory === cat ? 'text-text-on-dark bg-primary shadow-md shadow-primary/20' : 'bg-bg-secondary text-text-muted border border-border/50 hover:text-text-body'
             }`}>
             {cat}
           </button>
@@ -61,8 +61,8 @@ export default function ResourceLibrary({ resources }) {
           <a key={i} href={r.url} target="_blank" rel="noopener noreferrer"
             className="paper-card p-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-1 group block active:scale-[0.98]">
             <div className="flex items-start justify-between mb-2">
-              <div className="w-12 h-12  flex items-center justify-center border border-gold/10 bg-gold/5">
-                {(() => { const IconComp = TYPE_ICONS[r.type] || IconLink; return <IconComp className="w-5 h-5 text-gold" />; })()}
+              <div className="flex h-12 w-12 items-center justify-center border border-primary/10 bg-primary/5">
+                {(() => { const IconComp = TYPE_ICONS[r.type] || IconLink; return <IconComp className="h-5 w-5 text-primary" />; })()}
               </div>
               <span className="text-text-body text-base font-bold transition">↗</span>
             </div>

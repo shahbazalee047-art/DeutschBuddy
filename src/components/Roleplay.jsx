@@ -7,9 +7,9 @@ export default function Roleplay({ content, onComplete }) {
   if (!steps.length) return <Empty onComplete={onComplete} />;
   return (
     <div className="fade-in">
-      <h3 className="font-bold text-text-dark text-lg mb-5 flex items-center gap-2"><IconTheater className="w-5 h-5 text-warning" /> Roleplay</h3>
+      <h3 className="mb-5 flex items-center gap-2 text-lg font-bold text-text-dark"><IconTheater className="h-5 w-5 text-primary" /> Roleplay</h3>
       <div className="paper-card p-5">
-        <div className=" p-4 mb-4 border border-warning/20" style={{ background: 'rgba(232,163,61,0.05)' }}><p className="text-[11px] font-bold text-warning mb-1 uppercase flex items-center gap-1" style={{ letterSpacing: '0.5px' }}><IconVideo className="w-3.5 h-3.5" /> Scenario:</p><p className="text-[14px] text-text-body">{content.scenario}</p></div>
+        <div className="mb-4 border border-primary/20 bg-primary-light p-4"><p className="mb-1 flex items-center gap-1 text-[11px] font-bold uppercase text-primary" style={{ letterSpacing: '0.5px' }}><IconVideo className="h-3.5 w-3.5" /> Scenario:</p><p className="text-[14px] text-text-body">{content.scenario}</p></div>
         <div className="space-y-2">{steps.map((s, i) => (
           <div
             key={i}
@@ -17,14 +17,14 @@ export default function Roleplay({ content, onComplete }) {
             tabIndex={0}
             onClick={() => setStep(i)}
             onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setStep(i); } }}
-            className={`w-full text-left p-3 border text-sm transition-all flex items-center gap-3 active:scale-[0.98] cursor-pointer select-none ${step === i ? 'bg-warning/10 border-warning/20 text-warning font-semibold' : 'bg-bg-secondary border-border text-text-muted hover:border-warning/30'}`}
+            className={`flex w-full cursor-pointer select-none items-center gap-3 border p-3 text-left text-sm transition-all active:scale-[0.98] ${step === i ? 'border-primary/20 bg-primary-light text-primary font-semibold' : 'border-border bg-bg-secondary text-text-muted hover:border-primary/30'}`}
           >
-            <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0 ${i <= step ? 'text-text-on-dark' : 'bg-bg-secondary text-text-muted'}`} style={i <= step ? { background: 'var(--gold-light)' } : {}}>{i + 1}</span>
+            <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${i <= step ? 'bg-primary text-text-on-primary' : 'bg-bg-secondary text-text-muted'}`}>{i + 1}</span>
             <span className="flex-1">{s}</span><SpeakerButton text={s} size="sm" />
           </div>
         ))}</div>
       </div>
-      <div className="text-center mt-4"><label className="flex items-center justify-center gap-3 cursor-pointer"><input type="checkbox" checked={done} onChange={e => { setDone(e.target.checked); if (e.target.checked) onComplete({ score: 1, maxScore: 1 }); }} className="w-5 h-5 rounded border-cream-500" style={{ accentColor: 'var(--gold)' }} /><span className="text-sm text-text-muted">I completed this roleplay</span></label></div>
+      <div className="mt-4 text-center"><label className="flex cursor-pointer items-center justify-center gap-3"><input type="checkbox" checked={done} onChange={e => { setDone(e.target.checked); if (e.target.checked) onComplete({ score: 1, maxScore: 1 }); }} className="h-5 w-5 accent-primary" /><span className="text-sm text-text-muted">I completed this roleplay</span></label></div>
     </div>
   );
 }

@@ -12,9 +12,9 @@ export default function QuickWin({ onComplete }) {
   if (!cur) return null;
   return (
     <div className="paper-card p-4 slide-up">
-      <div className="flex items-center gap-2 mb-3"><IconBolt className="w-5 h-5 text-gold" /><h4 className="text-sm font-bold text-text-body">Quick Win</h4><span className="text-[10px] px-2 py-0.5 rounded-full font-bold text-text-on-dark" style={{ background: 'var(--gold)' }}>Under 3 min</span></div>
-      {cur.type === 'joke' && <div className=" p-4 border border-gold/20" style={{ background: 'rgba(232,163,61,0.05)' }}><p className="text-[14px] font-medium mb-2 text-gold">{cur.setup}</p><p className="text-[14px] text-text-body font-bold">{cur.punchline}</p></div>}
-      {cur.type === 'fact' && <div className=" p-4 border border-gold/20" style={{ background: 'rgba(232,163,61,0.05)' }}><p className="text-[13px] text-text-body leading-relaxed">{cur.text}</p></div>}
+      <div className="mb-3 flex items-center gap-2"><IconBolt className="h-5 w-5 text-primary" /><h4 className="text-sm font-bold text-text-body">Quick Win</h4><span className="rounded-full bg-primary-light px-2 py-0.5 text-[10px] font-bold text-primary">Under 3 min</span></div>
+      {cur.type === 'joke' && <div className="border border-primary/20 bg-primary-light p-4"><p className="mb-2 text-[14px] font-medium text-primary">{cur.setup}</p><p className="text-[14px] font-bold text-text-body">{cur.punchline}</p></div>}
+      {cur.type === 'fact' && <div className="border border-primary/20 bg-primary-light p-4"><p className="text-[13px] leading-relaxed text-text-body">{cur.text}</p></div>}
       {cur.type === 'meme' && <div className=" p-4 bg-bg-secondary border border-border"><p className="text-lg font-bold text-text-dark">{cur.word}</p><p className="text-[13px] text-text-muted">{cur.meaning}</p><div className="mt-2"><SpeakerButton text={cur.word} size="sm" /></div></div>}
       <button onClick={() => onComplete({ score: 1, maxScore: 1 })} className="mt-3 w-full py-2.5 text-[13px] font-medium text-text-muted bg-bg-secondary border border-border  hover:bg-bg-secondary transition active:scale-95">Done! Finish Day</button>
     </div>

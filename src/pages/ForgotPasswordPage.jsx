@@ -60,13 +60,13 @@ export default function ForgotPasswordPage() {
 
   if (success) {
     return (
-      <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
+      <div className="db-page min-h-dvh flex overflow-y-auto">
         <div className="m-auto w-full max-w-md px-6 py-8 text-center">
           <div className="flex justify-center mb-4">
             <BuddyAvatar state="happy" size={88} />
           </div>
-          <div className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5 border border-gold/20 bg-gold/10">
-            <IconMail className="w-7 h-7 text-gold" />
+          <div className="mb-5 flex h-14 w-14 items-center justify-center border border-accent/25 bg-accent-soft mx-auto">
+            <IconMail className="h-7 w-7 text-accent" />
           </div>
           <h1 className="text-3xl font-bold text-text-dark mb-3" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Check your email</h1>
           <p className="text-text-muted mb-3 leading-relaxed" style={{ fontSize: '16px' }}>
@@ -84,25 +84,25 @@ export default function ForgotPasswordPage() {
             type="button"
             onClick={resendLink}
             disabled={loading || cooldown > 0}
-            className="w-full max-w-xs mx-auto p-3.5 rounded-xl bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed mb-3"
+            className="btn-primary mx-auto mb-3 flex w-full max-w-xs items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <IconRefresh className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             {cooldown > 0 ? `Resend available in ${cooldown}s` : loading ? 'Sending...' : 'Resend the link'}
           </button>
-          <Link to="/login" className="text-gold hover:text-gold-light font-semibold transition">Back to login</Link>
+          <Link to="/login" className="font-semibold text-primary transition hover:text-primary-dark">Back to login</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
+    <div className="db-page min-h-dvh flex overflow-y-auto">
       <div className="m-auto w-full max-w-md px-6 py-8">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="thinking" size={88} />
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-[2px] text-gold mb-2">DeutschBuddy</p>
+          <p className="db-section-label mb-2">DeutschBuddy</p>
           <h1 className="text-[26px] font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
             Reset your password
           </h1>
@@ -111,16 +111,16 @@ export default function ForgotPasswordPage() {
           </p>
         </div>
 
-        <div className="rounded-[var(--radius-card)] border border-border bg-surface p-6 sm:p-8">
+        <div className="auth-form-card">
           {error && (
-            <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
+            <div role="alert" className="mb-5 border border-error/20 bg-error/10 p-3 text-sm font-medium text-error">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="forgot-email">Email</label>
+              <label htmlFor="forgot-email">Email</label>
               <input
                 id="forgot-email"
                 type="email"
@@ -130,21 +130,21 @@ export default function ForgotPasswordPage() {
                 autoComplete="email"
                 placeholder="you@example.com"
                 aria-invalid={!!error}
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                className="w-full border border-border bg-bg-primary px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
-              {error === 'Please enter a valid email address.' && <p className="mt-1.5 text-[12px] text-error" role="alert">{error}</p>}
+              {error === 'Please enter a valid email address.' && <p className="auth-error" role="alert">{error}</p>}
             </div>
             <button
               type="submit"
               disabled={loading || cooldown > 0}
-              className="w-full p-4 rounded-xl bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="btn-primary w-full justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? 'Sending reset email...' : 'Send Reset Link'}
             </button>
           </form>
 
           <p className="text-center mt-6 text-sm">
-            <Link to="/login" className="font-semibold text-gold hover:underline">← Back to login</Link>
+            <Link to="/login" className="font-semibold text-primary hover:underline">← Back to login</Link>
           </p>
         </div>
       </div>

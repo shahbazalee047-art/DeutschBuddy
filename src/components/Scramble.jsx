@@ -51,7 +51,7 @@ export default function Scramble({ content, onComplete }) {
 
   return (
     <div className="fade-in reading-body">
-      <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-text-dark text-lg flex items-center gap-2"><IconShuffle className="w-5 h-5 text-gold" /> Unscramble</h3><span className="text-sm font-bold text-gold">{score}/{words.length}</span></div>
+      <div className="mb-5 flex items-center justify-between"><h3 className="flex items-center gap-2 text-lg font-bold text-text-dark"><IconShuffle className="h-5 w-5 text-primary" /> Unscramble</h3><span className="text-sm font-bold text-primary">{score}/{words.length}</span></div>
       <div className="progress-bar mb-5"><div className="progress-bar-fill" style={{ width: `${((idx + 1) / words.length) * 100}%` }} /></div>
       <div className="paper-card p-6 mb-4 text-center">
         <p className="text-[11px] text-text-muted mb-4 uppercase font-medium" style={{ letterSpacing: '0.5px' }}>Unscramble the German word:</p>
@@ -70,7 +70,7 @@ export default function Scramble({ content, onComplete }) {
           </div>
         )}
       </div>
-      {show && <div className={`text-center p-3  text-sm font-semibold text-text-on-dark`} style={{ background: isCorrect ? 'var(--success)' : 'var(--gold-light)' }}>{isCorrect ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
+      {show && <div className={`p-3 text-center text-sm font-semibold text-white ${isCorrect ? 'bg-success' : 'bg-error'}`}>{isCorrect ? <span className="flex items-center justify-center gap-1">Richtig! <IconSparkles className="w-4 h-4" /></span> : <span className="flex items-center justify-center gap-1">Answer: "{answer}" <IconHeart className="w-4 h-4" /></span>}</div>}
     </div>
   );
 }

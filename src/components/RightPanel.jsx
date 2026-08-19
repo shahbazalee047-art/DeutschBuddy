@@ -1,144 +1,37 @@
-import { useState, useId } from 'react';
-import { IconBolt, IconTarget, IconTrophy, IconDiamond, IconChevronDown, IconChevronUp, IconGamepad } from './Icons';
+import { useState } from 'react';
+import { IconBolt, IconChevronDown, IconChevronUp, IconGamepad, IconTarget, IconTrophy, IconDiamond, IconFire } from './Icons';
 
-function ProgressRing({ xp, target, label, icon: Icon, size = 100, strokeWidth = 8 }) {
-  const radius = (size - strokeWidth) / 2;
+function ProgressRing({ xp, target, label, icon: Icon }) {
+  const radius = 16;
   const circumference = 2 * Math.PI * radius;
-  const progress = Math.min(xp / target, 1);
-  const offset = circumference * (1 - progress);
-  // Unique id per instance so multiple rings don't share a <defs> id.
-  const gradId = useId();
-
+  const ratio = Math.min(xp / target, 1);
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="var(--bg-secondary)" strokeWidth={strokeWidth} />
-          <circle
-            cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke={`url(#${gradId})`} strokeWidth={strokeWidth}
-            strokeDasharray={circumference} strokeDashoffset={offset}
-            strokeLinecap="round" style={{ transition: 'stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
-          />
-          <defs>
-            <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="var(--gold)" />
-              <stop offset="100%" stopColor="var(--gold-light)" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <div className="absolute inset-0 flex items-center justify-center">
-          <Icon className="w-5 h-5 text-gold" />
-        </div>
+    <div className="flex items-center gap-3">
+      <div className="relative h-10 w-10 shrink-0">
+        <svg viewBox="0 0 40 40" className="h-full w-full -rotate-90" aria-hidden="true"><circle cx="20" cy="20" r={radius} fill="none" stroke="var(--db-border-light)" strokeWidth="3" /><circle cx="20" cy="20" r={radius} fill="none" stroke="var(--db-accent)" strokeWidth="3" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference * (1 - ratio)} /></svg>
+        <Icon className="absolute inset-0 m-auto h-4 w-4 text-primary" />
       </div>
-      <span className="text-[11px] font-bold text-text-dark">{label}</span>
-      <span className="text-[10px] text-text-muted">{xp}/{target} XP</span>
+      <div><p className="text-xs font-bold text-text-dark">{label}</p><p className="text-[11px] text-text-muted">{xp}/{target} XP</p></div>
     </div>
   );
 }
 
 function GameLauncher({ title, description, icon: Icon, onClick }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-full text-left paper-card p-4 transition-all hover:border-gold/20 active:scale-[0.98] cursor-pointer"
-    >
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 flex items-center justify-center rounded-[var(--radius-card)]" style={{ background: 'rgba(232,183,61,0.10)' }}>
-          <Icon className="w-5 h-5" style={{ color: 'var(--gold)' }} />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h4 className="text-[13px] font-bold text-text-body" style={{ fontFamily: "'DM Sans', sans-serif" }}>{title}</h4>
-          <p className="text-[11px] text-text-muted truncate">{description}</p>
-        </div>
-        <IconGamepad className="w-5 h-5 text-text-muted flex-shrink-0" />
-      </div>
-    </button>
-  );
+  return <button type="button" onClick={onClick} className="db-surface-list flex min-h-16 w-full items-center gap-3 p-3 text-left transition-[border-color,transform] hover:border-primary active:scale-[0.96]"><span className="flex h-10 w-10 shrink-0 items-center justify-center bg-primary-light text-primary"><Icon className="h-5 w-5" /></span><span className="min-w-0 flex-1"><span className="block text-sm font-bold text-text-dark">{title}</span><span className="block truncate text-xs text-text-muted">{description}</span></span><IconGamepad className="h-4 w-4 shrink-0 text-text-muted" /></button>;
 }
 
-export default function RightPanel({
-  progress,
-  streak,
-  onOpenSpeedBlitz,
-  onOpenGenderDungeon,
-  onOpenPictureMatch
-}) {
+export default function RightPanel({ progress, streak, onOpenSpeedBlitz, onOpenGenderDungeon, onOpenPictureMatch }) {
   const [toolsOpen, setToolsOpen] = useState(false);
   const xp = progress?.xp || 0;
-  const daysStreak = streak !== undefined ? streak : 0;
-
-  const milestoneList = [
-    { label: '10 XP', target: 10, icon: IconBolt },
-    { label: '50 XP', target: 50, icon: IconTarget },
-    { label: '100 XP', target: 100, icon: IconTrophy },
-  ];
-  const nextMilestone = milestoneList.find(m => xp < m.target) || { label: 'Legend', target: 1000, icon: IconDiamond, xp: 1000 };
-  const milestones = [...milestoneList, nextMilestone].filter((m, i, arr) => arr.findIndex(x => x.label === m.label) === i);
-
+  const daysStreak = streak || 0;
+  const nextMilestone = xp < 10 ? 10 : xp < 50 ? 50 : xp < 100 ? 100 : 250;
   return (
-    <div className="space-y-4">
-      {/* Mobile Toggle */}
-      <button
-        onClick={() => setToolsOpen(!toolsOpen)}
-        className="lg:hidden w-full flex items-center justify-between px-4 py-3 text-[12px] font-bold uppercase tracking-widest transition-all"
-        style={{ background: 'var(--bg-secondary)', color: 'var(--gold)', borderRadius: 'var(--radius-card)' }}
-      >
-        <span>Learning Tools</span>
-        {toolsOpen ? <IconChevronUp className="w-4 h-4" /> : <IconChevronDown className="w-4 h-4" />}
-      </button>
-
-      <div className={`space-y-4 ${!toolsOpen ? 'hidden lg:block' : ''}`}>
-        {/* Speed Blitz Launcher */}
-        <GameLauncher
-          title="Speed Blitz"
-          description="Fast-paced vocabulary challenge"
-          icon={IconBolt}
-          onClick={onOpenSpeedBlitz}
-        />
-
-        {/* Gender Dungeon Launcher */}
-        <GameLauncher
-          title="Gender Dungeon"
-          description="Master der, die, das"
-          icon={IconTrophy}
-          onClick={onOpenGenderDungeon}
-        />
-
-        {/* Picture Match Launcher */}
-        <GameLauncher
-          title="Picture Memory"
-          description="Image-word matching game"
-          icon={IconTarget}
-          onClick={onOpenPictureMatch}
-        />
-
-        {/* Stats */}
-        <div className="paper-card p-4">
-          <div className="flex items-center gap-2 mb-4">
-            <IconBolt className="w-4 h-4 text-gold" />
-            <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Your Stats</h4>
-          </div>
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="p-4 text-center border border-gold/10 bg-gold/5">
-              <div className="text-2xl font-bold tabular-nums text-gold">{xp}</div>
-              <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>XP Earned</div>
-            </div>
-            <div className="p-4 text-center border border-gold-light/10 bg-gold-light/5">
-              <div className="text-2xl font-bold tabular-nums text-gold-light">{daysStreak}</div>
-              <div className="text-[10px] text-text-muted font-medium uppercase" style={{ letterSpacing: '0.5px' }}>Day Streak</div>
-            </div>
-          </div>
-
-          {/* Milestone rings */}
-          <h5 className="text-[10px] font-bold text-text-muted uppercase tracking-widest mb-3">Next Milestone</h5>
-          <div className="flex justify-center gap-4">
-            {milestones.filter((m, i, arr) => i === arr.length - 1 || m.target > xp).slice(0, 3).map(m => (
-              <ProgressRing key={m.label} xp={xp} target={m.target} label={m.label} icon={m.icon} size={80} />
-            ))}
-          </div>
-        </div>
+    <aside className="right-panel space-y-4" aria-label="Practice tools and secondary progress">
+      <button type="button" onClick={() => setToolsOpen(open => !open)} aria-expanded={toolsOpen} className="mobile-tools-toggle flex w-full items-center justify-between border border-border bg-surface px-4 text-left text-xs font-bold uppercase tracking-widest text-primary lg:hidden"><span>Show tools</span>{toolsOpen ? <IconChevronUp className="h-4 w-4" /> : <IconChevronDown className="h-4 w-4" />}</button>
+      <div className={`space-y-4 ${toolsOpen ? '' : 'hidden lg:block'}`}>
+        <section className="db-surface-list p-4"><div className="mb-4 flex items-center justify-between"><div><p className="db-section-label mb-2">Practice</p><h2 className="text-2xl font-bold text-text-dark">Keep it active</h2></div><IconGamepad className="h-5 w-5 text-primary" /></div><div className="space-y-2"><GameLauncher title="Speed Blitz" description="Fast vocabulary recall" icon={IconBolt} onClick={onOpenSpeedBlitz} /><GameLauncher title="Gender practice" description="der · die · das" icon={IconTrophy} onClick={onOpenGenderDungeon} /><GameLauncher title="Picture memory" description="Match words with images" icon={IconTarget} onClick={onOpenPictureMatch} /></div></section>
+        <section className="db-surface-list p-4"><div className="mb-4 flex items-center gap-2"><IconFire className="h-4 w-4 text-accent" /><h2 className="text-2xl font-bold text-text-dark">Motivation</h2></div><div className="grid grid-cols-2 gap-3"><div className="bg-bg-secondary p-3"><p className="text-2xl font-bold tabular-nums text-text-dark">{xp}</p><p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Total XP</p></div><div className="bg-bg-secondary p-3"><p className="text-2xl font-bold tabular-nums text-text-dark">{daysStreak}</p><p className="text-[10px] font-bold uppercase tracking-wider text-text-muted">Day streak</p></div></div><div className="mt-5 border-t border-border pt-4"><div className="mb-3 flex items-center gap-2"><IconDiamond className="h-4 w-4 text-primary" /><p className="text-xs font-bold uppercase tracking-wider text-text-muted">Next milestone</p></div><ProgressRing xp={xp} target={nextMilestone} label={`${nextMilestone} XP`} icon={IconTrophy} /></div></section>
       </div>
-    </div>
+    </aside>
   );
 }

@@ -155,10 +155,10 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
 
       {/* Profile Header */}
       <div className="paper-card overflow-hidden">
-        <div className="h-28" style={{ background: 'var(--gold)' }} />
+        <div className="h-28 bg-primary-dark" />
         <div className="px-6 pb-6 -mt-14">
           <div className="flex items-end gap-4">
-            <div className="w-20 h-20 rounded-full bg-gold flex items-center justify-center text-3xl font-bold text-text-on-dark border-4 border-bg-white shadow-lg shrink-0" style={{ borderRadius: '50%' }}>
+            <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-full border-4 border-bg-white bg-primary text-3xl font-bold text-text-on-dark shadow-lg" style={{ borderRadius: '50%' }}>
               {profile?.full_name?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <div className="min-w-0 pb-1">
@@ -167,7 +167,7 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
             </div>
           </div>
           <div className="mt-3">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border border-gold/20 text-gold bg-gold/10">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-bold text-primary">
               <IconGraduation className="w-3.5 h-3.5" /> {activeLevel || 'A1'} Learner
             </div>
           </div>
@@ -177,9 +177,9 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { icon: IconBolt, value: progress.xp, label: 'XP', color: 'var(--gold)' },
-          { icon: IconFire, value: progress.streak, label: 'Streak', color: 'var(--gold-light)' },
-          { icon: IconCheck, value: progress.completedTasks.length, label: 'Tasks', color: 'var(--success)' },
+          { icon: IconBolt, value: progress.xp, label: 'XP', color: 'var(--db-primary)' },
+          { icon: IconFire, value: progress.streak, label: 'Streak', color: 'var(--db-accent)' },
+          { icon: IconCheck, value: progress.completedTasks.length, label: 'Tasks', color: 'var(--db-success)' },
         ].map((stat, i) => (
           <div key={i} className="paper-card p-4 text-center">
             <div className="flex justify-center mb-1"><stat.icon className="w-5 h-5" style={{ color: stat.color }} /></div>
@@ -193,14 +193,14 @@ export default function ProfilePage({ activeLevel = 'A1' }) {
       {referral?.referral_code && (
         <div className="paper-card p-6">
           <div className="flex items-center gap-2 mb-1">
-            <IconUsers className="w-5 h-5" style={{ color: 'var(--gold)' }} />
+            <IconUsers className="h-5 w-5 text-primary" />
             <h2 className="text-lg font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Invite friends</h2>
           </div>
           <p className="text-[13px] text-text-muted mb-4">
             When a friend joins and finishes onboarding, you both get a head start — you earn the Community Builder badge and 25 XP per friend. No cap.
           </p>
           <div className="flex items-center gap-2 mb-3">
-            <code className="flex-1 px-3 py-2 rounded border border-gold/20 bg-gold/5 text-[13px] font-mono text-gold truncate">
+            <code className="flex-1 truncate border border-primary/20 bg-primary/10 px-3 py-2 text-[13px] font-mono text-primary">
               {referral.referral_code}
             </code>
             <button onClick={handleShare} className="btn-primary shrink-0">

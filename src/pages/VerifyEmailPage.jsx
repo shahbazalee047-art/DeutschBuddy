@@ -50,13 +50,13 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
+    <div className="db-page min-h-dvh flex overflow-y-auto">
       <div className="m-auto w-full max-w-md px-6 py-8">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="happy" size={96} />
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-[2px] text-gold mb-2">DeutschBuddy</p>
+          <p className="db-section-label mb-2">DeutschBuddy</p>
           <h1 className="text-[26px] font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
             Gleich geschafft! 📬
           </h1>
@@ -65,10 +65,10 @@ export default function VerifyEmailPage() {
           </p>
         </div>
 
-        <div className="rounded-[var(--radius-card)] border border-border bg-surface p-6 sm:p-8">
+        <div className="auth-form-card">
           <div className="flex items-start gap-3 mb-5">
-            <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-              <IconMail className="w-5 h-5 text-gold" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-accent/25 bg-accent-light">
+              <IconMail className="h-5 w-5 text-accent" />
             </div>
             <p className="text-sm text-text-body leading-relaxed pt-1">
               We sent a confirmation link to{' '}
@@ -77,13 +77,13 @@ export default function VerifyEmailPage() {
             </p>
           </div>
 
-          <div className="rounded-xl bg-bg-secondary border border-border p-3.5 mb-5 text-[13px] text-text-muted leading-relaxed">
+          <div className="mb-5 border border-border bg-bg-secondary p-3.5 text-[13px] leading-relaxed text-text-muted">
             No email yet? Check your spam or junk folder, and allow a minute. Some providers are
             slower than others.
           </div>
 
           {resendError && (
-            <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
+            <div role="alert" className="mb-5 border border-error/20 bg-error/10 p-3 text-sm font-medium text-error">
               {resendError}
             </div>
           )}
@@ -92,7 +92,7 @@ export default function VerifyEmailPage() {
             type="button"
             onClick={handleResend}
             disabled={!email || resending || cooldown > 0}
-            className="w-full p-4 rounded-xl bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-primary w-full justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <IconRefresh className={`w-4 h-4 ${resending ? 'animate-spin' : ''}`} />
             {cooldown > 0 ? `Resend available in ${cooldown}s` : resending ? 'Sending...' : 'Resend email'}
@@ -100,14 +100,14 @@ export default function VerifyEmailPage() {
 
           <Link
             to="/login"
-            className="block w-full mt-3 p-3.5 rounded-xl bg-bg-primary border border-border text-text-body font-semibold text-center hover:border-gold/50 hover:bg-bg-secondary transition-all"
+            className="btn-secondary mt-3 block w-full text-center"
           >
             I've verified my email. Continue to sign in
           </Link>
 
           <p className="text-center mt-6 text-sm text-text-muted">
             Typed the wrong address?{' '}
-            <Link to="/signup" className="font-semibold text-gold hover:underline">Sign up again</Link>
+            <Link to="/signup" className="font-semibold text-primary hover:underline">Sign up again</Link>
           </p>
         </div>
       </div>

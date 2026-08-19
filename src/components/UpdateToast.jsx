@@ -21,9 +21,9 @@ export default function UpdateToast() {
 
   return (
     <div className="fixed left-1/2 -translate-x-1/2 bottom-20 lg:bottom-6 z-[70] w-[calc(100%-2rem)] max-w-sm animate-in slide-in-from-bottom-4">
-      <div className="db-card flex items-center gap-3 p-3 pr-2 shadow-xl border-l-4 border-l-gold">
-        <div className="w-9 h-9 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-          <IconRefresh className="w-4 h-4 text-gold" />
+      <div className="db-card flex items-center gap-3 border-l-4 border-l-primary p-3 pr-2 shadow-xl">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
+          <IconRefresh className="h-4 w-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-text-dark">Update ready</p>

@@ -7,16 +7,16 @@ export default function Speaking({ content, onComplete }) {
   if (!content.prompt && !steps.length) return <Empty onComplete={onComplete} />;
   return (
     <div className="fade-in reading-body">
-      <h3 className="font-bold text-text-dark text-lg mb-5 flex items-center gap-2"><IconMic className="w-5 h-5 text-gold" /> Speaking Practice</h3>
+      <h3 className="mb-5 flex items-center gap-2 text-lg font-bold text-text-dark"><IconMic className="h-5 w-5 text-primary" /> Speaking Practice</h3>
       <div className="paper-card p-5 mb-4">
-        <div className=" p-4 mb-4 border border-gold/20" style={{ background: 'rgba(232,163,61,0.05)' }}>
-          <p className="text-[11px] font-bold text-gold mb-1 uppercase flex items-center gap-1" style={{ letterSpacing: '0.5px' }}><IconMic className="w-3.5 h-3.5" /> Say this:</p>
+        <div className="mb-4 border border-primary/20 bg-primary-light p-4">
+          <p className="mb-1 flex items-center gap-1 text-[11px] font-bold uppercase text-primary" style={{ letterSpacing: '0.5px' }}><IconMic className="h-3.5 w-3.5" /> Say this:</p>
           <div className="flex items-center gap-2"><p className="text-[16px] text-text-body font-medium flex-1">{content.prompt}</p><SpeakerButton text={content.prompt} size="md" /></div>
         </div>
-        {steps.length > 0 && <div className="space-y-2 mt-3">{steps.map((s, i) => (<button key={i} onClick={() => setStep(i)} className={`w-full text-left p-3  border text-sm transition-all active:scale-[0.98] ${step === i ? 'bg-gold/10 border-gold/20 text-gold font-semibold' : 'bg-bg-secondary border-border text-text-muted hover:border-gold/30'}`}><span className="font-bold mr-2">{i + 1}.</span>{s}</button>))}</div>}
-        {tips.length > 0 && <div className="mt-3 p-3  border border-gold/20" style={{ background: 'rgba(232,163,61,0.05)' }}><p className="text-[11px] font-bold text-gold mb-1 flex items-center gap-1"><IconLightbulb className="w-3.5 h-3.5" /> Tips:</p><ul className="text-[12px] text-text-body space-y-0.5">{tips.map((t, i) => <li key={i}>• {t}</li>)}</ul></div>}
+        {steps.length > 0 && <div className="mt-3 space-y-2">{steps.map((s, i) => (<button key={i} onClick={() => setStep(i)} className={`w-full border p-3 text-left text-sm transition-all active:scale-[0.98] ${step === i ? 'border-primary/20 bg-primary-light font-semibold text-primary' : 'border-border bg-bg-secondary text-text-muted hover:border-primary/30'}`}><span className="mr-2 font-bold">{i + 1}.</span>{s}</button>))}</div>}
+        {tips.length > 0 && <div className="mt-3 border border-primary/20 bg-primary-light p-3"><p className="mb-1 flex items-center gap-1 text-[11px] font-bold text-primary"><IconLightbulb className="h-3.5 w-3.5" /> Tips:</p><ul className="space-y-0.5 text-[12px] text-text-body">{tips.map((t, i) => <li key={i}>• {t}</li>)}</ul></div>}
       </div>
-      <div className="text-center"><label className="flex items-center justify-center gap-3 cursor-pointer"><input type="checkbox" checked={done} onChange={e => { setDone(e.target.checked); if (e.target.checked) onComplete({ score: 1, maxScore: 1 }); }} className="w-5 h-5 rounded border-cream-500" style={{ accentColor: 'var(--gold)' }} /><span className="text-sm text-text-muted">I practiced speaking this</span></label></div>
+      <div className="text-center"><label className="flex cursor-pointer items-center justify-center gap-3"><input type="checkbox" checked={done} onChange={e => { setDone(e.target.checked); if (e.target.checked) onComplete({ score: 1, maxScore: 1 }); }} className="h-5 w-5 accent-primary" /><span className="text-sm text-text-muted">I practiced speaking this</span></label></div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import TaskRenderer from '../TaskRenderer';
 import { BuddyAvatar, BuddySpeechBubble, pickPhrase } from '../buddy';
 import { germanTopicTitle } from '../../utils/topicTitle';
-import { IconX } from '../Icons';
+import { IconArrowLeft, IconX } from '../Icons';
 
 export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, onComplete, onExit, practice = false }) {
   const containerRef = useRef(null);
@@ -11,24 +11,14 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
   const [buddyPhrase, setBuddyPhrase] = useState('');
   const [showBubble, setShowBubble] = useState(false);
   const [bubbleTone, setBubbleTone] = useState('neutral');
-  // Guards against double-fired completions (rapid double-tap on the finish
-  // button, or a task component calling onComplete twice): XP must be awarded
-  // exactly once per task. Reset whenever the active task changes.
   const completedRef = useRef(undefined);
   const completeTimerRef = useRef(null);
   const bubbleTimerRef = useRef(null);
-
   const total = tasks?.length || 1;
   const progress = useMemo(() => ((currentIndex + 1) / total) * 100, [currentIndex, total]);
   const topicDe = useMemo(() => germanTopicTitle(topicTitle), [topicTitle]);
 
-  useEffect(() => {
-    completedRef.current = undefined;
-  }, [task?.id]);
-
-  // Clearing the pending completion timer on unmount prevents a "ghost"
-  // onComplete: exiting a lesson within the 600ms delay used to award XP and
-  // (in practice mode) silently queue a lesson the user never chose.
+  useEffect(() => { completedRef.current = undefined; }, [task?.id]);
   useEffect(() => () => {
     clearTimeout(completeTimerRef.current);
     clearTimeout(bubbleTimerRef.current);
@@ -48,96 +38,40 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
   const handleTaskResult = useCallback((result) => {
     if (completedRef.current) return;
     completedRef.current = true;
-
-    const isSuccess = result && typeof result.score === 'number' && result.maxScore > 0
-      ? result.score / result.maxScore >= 0.5
-      : true;
-
-    if (isSuccess) {
-      triggerBuddy('happy', 'correct', 'success', 1800);
-    } else {
-      triggerBuddy('encourage', 'incorrect', 'encourage', 2200);
-    }
-
-    // Delay completion slightly so the animation plays.
+    const isSuccess = result && typeof result.score === 'number' && result.maxScore > 0 ? result.score / result.maxScore >= 0.5 : true;
+    triggerBuddy(isSuccess ? 'happy' : 'encourage', isSuccess ? 'correct' : 'incorrect', isSuccess ? 'success' : 'encourage', 1800);
     clearTimeout(completeTimerRef.current);
-    completeTimerRef.current = setTimeout(() => {
-      onComplete?.(result);
-    }, 600);
+    completeTimerRef.current = setTimeout(() => onComplete?.(result), 600);
   }, [onComplete, triggerBuddy]);
 
-  useEffect(() => {
-    containerRef.current?.focus();
-  }, []);
+  useEffect(() => { containerRef.current?.focus(); }, []);
 
   return (
-    <div
-      ref={containerRef}
-      tabIndex={-1}
-      className="fixed inset-0 z-[60] flex flex-col bg-bg-base outline-none"
-    >
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-4 py-3 bg-surface border-b border-border safe-area-top">
-        <button
-          onClick={onExit}
-          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-bg-secondary transition-colors"
-          aria-label="Exit lesson"
-        >
-          <IconX className="w-6 h-6 text-text-muted" />
+    <div ref={containerRef} tabIndex={-1} className="fixed inset-0 z-[60] flex flex-col bg-bg-base outline-none" role="dialog" aria-label={task?.title || 'German lesson'}>
+      <header className="flex shrink-0 items-center justify-between border-b border-border bg-surface px-4 py-3 safe-area-top sm:px-6">
+        <button type="button" onClick={onExit} className="flex h-10 w-10 items-center justify-center text-text-muted transition-colors hover:bg-bg-secondary hover:text-primary" aria-label="Exit lesson">
+          <IconArrowLeft className="h-5 w-5" />
         </button>
-
-        <div className="flex-1 mx-4">
-          {practice && (
-            <p className="text-center text-[11px] font-bold uppercase tracking-wide text-gold mb-0.5" style={{ letterSpacing: '0.5px' }}>
-              Free Practice · {currentIndex + 1} / {total}
-            </p>
-          )}
-          <div className="progress-bar">
-            <motion.div
-              className="progress-bar-fill"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-            />
+        <div className="mx-4 min-w-0 flex-1">
+          <div className="mb-2 flex items-center justify-between gap-3 text-[11px] font-bold uppercase tracking-wider text-text-muted">
+            <span>{practice ? 'Practice session' : 'Lesson progress'}</span>
+            <span className="tabular-nums">{currentIndex + 1} / {total}</span>
           </div>
-          {!practice && <p className="text-center text-xs text-text-muted mt-1">
-            {currentIndex + 1} / {total}
-          </p>}
+          <div className="progress-bar" role="progressbar" aria-label="Exercise progress" aria-valuenow={currentIndex + 1} aria-valuemin="1" aria-valuemax={total}><motion.div className="progress-bar-fill" initial={{ width: 0 }} animate={{ width: `${progress}%` }} transition={{ duration: 0.4, ease: 'easeOut' }} /></div>
         </div>
+        <button type="button" onClick={onExit} className="flex h-10 w-10 items-center justify-center text-text-muted transition-colors hover:bg-bg-secondary hover:text-primary" aria-label="Close lesson"><IconX className="h-5 w-5" /></button>
+      </header>
 
-        <div className="w-10" />
+      <div className="flex items-center justify-between border-b border-border bg-surface px-4 py-3 sm:px-6">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-3">
+          <div>{topicDe && <p className="text-sm font-semibold italic text-primary">{topicDe}</p>}<p className="mt-0.5 text-xs text-text-muted">Take your time. German content comes first.</p></div>
+          <div className="hidden items-center gap-2 sm:flex"><BuddyAvatar state={buddyState} size={40} />{showBubble && <BuddySpeechBubble position="bottom" tone={bubbleTone}>{buddyPhrase}</BuddySpeechBubble>}</div>
+        </div>
       </div>
 
-      {/* Topic name (German) — revealed inside the lesson */}
-      {topicDe && (
-        <div className="px-4 pt-3 bg-surface">
-          <p className="max-w-2xl mx-auto text-[12px] font-semibold tracking-wide" style={{ color: 'var(--gold)', fontStyle: 'italic' }}>
-            {topicDe}
-          </p>
-        </div>
-      )}
-
-      {/* Buddy corner */}
-      <div className="absolute top-16 right-4 z-20 flex flex-col items-end">
-        <BuddyAvatar state={buddyState} size={64} />
-        {showBubble && (
-          <BuddySpeechBubble position="bottom" tone={bubbleTone} className="mt-2">
-            {buddyPhrase}
-          </BuddySpeechBubble>
-        )}
-      </div>
-
-      {/* Content area */}
-      <div className="flex-1 overflow-y-auto px-4 py-6">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={task?.id || currentIndex}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2 }}
-            className="max-w-2xl mx-auto pt-16"
-          >
+      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8">
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div key={task?.id || currentIndex} initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -12, filter: 'blur(4px)' }} transition={{ duration: 0.22 }} className="exercise-content mx-auto w-full max-w-3xl">
             <TaskRenderer task={task} onComplete={handleTaskResult} />
           </motion.div>
         </AnimatePresence>

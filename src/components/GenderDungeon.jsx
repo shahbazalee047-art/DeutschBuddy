@@ -165,11 +165,11 @@ export default function GenderDungeon({ compact, onScore }) {
     }
   }, [state, userId, onScore]);
 
-  const barColor = progress > 0.75 ? 'bg-error' : progress > 0.5 ? 'bg-gold-light' : 'bg-gold';
+  const barColor = progress > 0.75 ? 'bg-error' : progress > 0.5 ? 'bg-primary/60' : 'bg-primary';
   const cardClass = compact ? ' border border-border bg-bg-secondary/60 p-2' : 'paper-card p-4';
 
   return (
-    <div className={cardClass}>
+    <div className={`${cardClass} exercise-content`}>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-lg">🏰</span>
         <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Der Die Das Dungeon</h4>
@@ -181,13 +181,13 @@ export default function GenderDungeon({ compact, onScore }) {
           <p className="text-[11px] text-text-muted mb-1">Choose the correct article before time runs out!</p>
           <p className="text-[10px] text-text-muted mb-1">Speed increases as your score grows.</p>
           {bestScore > 0 && (
-            <p className="text-[10px] text-gold-light font-bold mb-3">
+            <p className="mb-3 text-[10px] font-bold text-primary">
               <IconTrophy className="w-3 h-3 inline -mt-0.5 mr-0.5" />
               Best: {bestScore}
             </p>
           )}
           <button onClick={startGame}
-            className="mt-1 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
+            className="btn-primary mt-1 px-5 py-2 text-xs">
             Start Game
           </button>
           {leaderboard.length > 1 && (
@@ -196,7 +196,7 @@ export default function GenderDungeon({ compact, onScore }) {
               <div className="space-y-1">
                 {leaderboard.slice(0, compact ? 3 : 5).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
+                    i === 0 ? 'bg-primary-light text-primary' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
@@ -215,7 +215,7 @@ export default function GenderDungeon({ compact, onScore }) {
           <div className="flex items-center justify-between mb-2">
             <div className="flex gap-0.5">
               {Array.from({ length: MAX_LIVES }).map((_, i) => (
-                <span key={i} className={`text-sm ${i < lives ? 'text-error drop-shadow-[0_0_4px_rgba(239,68,68,0.5)]' : 'text-forest-700'}`}>
+                <span key={i} className={`text-sm ${i < lives ? 'text-error' : 'text-text-muted'}`}>
                   ♥
                 </span>
               ))}
@@ -226,7 +226,7 @@ export default function GenderDungeon({ compact, onScore }) {
           </div>
 
           <div className={`text-center mb-3 p-4  border transition-colors ${
-            feedback === 'correct' ? 'border-gold/40 bg-gold/10' :
+            feedback === 'correct' ? 'border-success/40 bg-success/10' :
             feedback === 'wrong' ? 'border-error/40 bg-error/10' :
             'border-border bg-bg-secondary/40'
           }`}>
@@ -242,14 +242,14 @@ export default function GenderDungeon({ compact, onScore }) {
 
           <div className="flex items-stretch gap-2 h-12">
             {['der', 'die', 'das'].map(g => {
-              const gradient = g === 'der' ? 'from-[#6FA0D0] to-[#5A8FC0]' : g === 'die' ? 'from-[#D0879A] to-[#B86F82]' : 'from-[#7DA888] to-[#5A9278]';
+              const genderClass = g === 'der' ? 'border-primary bg-primary-light text-primary' : g === 'die' ? 'border-error bg-error-light text-error' : 'border-border bg-bg-secondary text-text-body';
               return (
                 <button key={g} onClick={() => handleAnswer(g)}
                   disabled={!!feedback}
-                  className={`flex-1  text-base font-extrabold transition-all active:scale-95 border shadow-sm bg-gradient-to-b ${gradient} ${
-                    feedback && g === current.gender ? 'ring-2 scale-105 brightness-125 text-[#1C1A19]' :
-                    feedback && g !== current.gender ? 'opacity-40 text-[#F0EAE0]' :
-                    'text-[#F0EAE0] hover:brightness-110'
+                  className={`flex-1 border p-3 text-base font-extrabold transition-all active:scale-95 ${genderClass} ${
+                    feedback && g === current.gender ? 'ring-2 scale-105 brightness-125 text-text-dark' :
+                    feedback && g !== current.gender ? 'opacity-40' :
+                    'hover:brightness-95'
                   }`}>
                   {g}
                 </button>
@@ -276,7 +276,7 @@ export default function GenderDungeon({ compact, onScore }) {
           </p>
 
           <button onClick={startGame}
-            className="mb-3 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
+            className="btn-primary mb-3 px-5 py-2 text-xs">
             Play Again
           </button>
 
@@ -286,7 +286,7 @@ export default function GenderDungeon({ compact, onScore }) {
               <div className="space-y-1 max-h-40 overflow-y-auto">
                 {leaderboard.slice(0, compact ? 3 : 10).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
+                    i === 0 ? 'bg-primary-light text-primary' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}

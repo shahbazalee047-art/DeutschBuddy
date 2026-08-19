@@ -20,7 +20,7 @@ export default function XpToast({ xp, onComplete }) {
 
   return (
     <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[70] pointer-events-none animate-xp-toast">
-      <div className="bg-gold text-text-on-dark font-bold text-lg px-5 py-2 shadow-lg shadow-gold/30 flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 bg-primary px-5 py-2 text-lg font-bold text-text-on-primary shadow-lg">
         <IconBolt className="w-5 h-5" /> +{xp} XP
       </div>
     </div>

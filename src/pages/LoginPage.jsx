@@ -97,29 +97,46 @@ export default function LoginPage() {
   const resendVisible = alreadyResent || errors.form?.includes('verify your email');
 
   return (
-    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
-      <div className="m-auto w-full max-w-md px-6 py-8">
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-3">
-            <BuddyAvatar state="happy" size={96} />
+    <div className="auth-layout">
+      <aside className="auth-brand-panel">
+        <div>
+          <p className="db-wordmark text-[0.72rem] text-bg-cream">DeutschBuddy</p>
+          <div className="mt-12 max-w-md">
+            <div className="mb-6 flex items-center gap-4">
+              <BuddyAvatar state="happy" size={84} />
+              <p className="text-sm font-semibold tracking-wide text-bg-cream/70">Willkommen zurück.</p>
+            </div>
+            <h1 className="text-5xl font-bold leading-[0.95] sm:text-6xl">
+              Build a German habit that lasts.
+            </h1>
+            <p className="mt-6 max-w-sm text-base leading-relaxed text-bg-cream/70">
+              Short, focused practice for real conversations — with a clear path from your first hello to confident German.
+            </p>
+            <ul className="auth-value-list mt-10 space-y-4 text-sm text-bg-cream/80">
+              <li className="flex items-start gap-3"><IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" /> A guided curriculum that keeps the next step clear</li>
+              <li className="flex items-start gap-3"><IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-success" /> Vocabulary, grammar, listening, and speaking in one place</li>
+              <li className="flex items-start gap-3"><IconCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" /> Progress you can feel without the visual noise</li>
+            </ul>
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-[2px] text-gold mb-2">DeutschBuddy</p>
-          <h1 className="text-[26px] font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-            Willkommen zurück! 🐾
-          </h1>
-          <p className="text-text-muted text-sm">
-            Your German journey continues here.
-          </p>
         </div>
+        <p className="text-xs tracking-wide text-bg-cream/50">Learn a little. Come back tomorrow. Say more.</p>
+      </aside>
 
-        <div className="rounded-[var(--radius-card)] border border-border bg-surface p-6 sm:p-8">
+      <main className="auth-form-panel">
+        <div className="auth-form-card">
+          <div className="mb-8">
+            <p className="db-section-label">Sign in</p>
+            <h2 className="mt-3 text-4xl font-bold text-text-dark">Continue your journey</h2>
+            <p className="mt-2 text-sm text-text-muted">Your next focused session is waiting.</p>
+          </div>
+
           {(alreadyResent || (resendState.sent && !resendState.error)) && (
-            <div role="status" className="bg-gold/10 border border-gold/30 p-3 mb-5 text-sm text-gold font-medium rounded-lg">
+            <div role="status" className="mb-5 border border-accent/25 bg-accent-light p-3 text-sm font-medium text-primary">
               {resendState.sent
                 ? `Verification email sent! Check ${email.trim() || verifyEmail} (including spam), then sign in.`
                 : `Account created with ${verifyEmail}! Please verify your email before signing in.`}
               {!resendState.sent && (
-                <button type="button" onClick={handleResend} className="block mt-2 font-semibold text-gold hover:underline">
+                <button type="button" onClick={handleResend} className="mt-2 block font-semibold text-primary hover:underline">
                   Didn't get it? Resend the email
                 </button>
               )}
@@ -128,7 +145,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={handleResend}
                   disabled={resendState.cooldown > 0}
-                  className="block mt-2 font-semibold text-gold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="mt-2 block font-semibold text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {resendState.cooldown > 0
                     ? `Send again in ${resendState.cooldown}s`
@@ -138,19 +155,19 @@ export default function LoginPage() {
             </div>
           )}
           {resendState.error && (
-            <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
+            <div role="alert" className="mb-5 border border-error/20 bg-error/10 p-3 text-sm font-medium text-error">
               {resendState.error}
             </div>
           )}
           {errors.form && (
-            <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
+            <div role="alert" className="mb-5 border border-error/20 bg-error/10 p-3 text-sm font-medium text-error">
               {errors.form}
               {resendVisible && errors.form?.includes('verify your email') && (
                 <button
                   type="button"
                   onClick={handleResend}
                   disabled={resendState.cooldown > 0}
-                  className="block mt-2 font-semibold text-gold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                  className="mt-2 block font-semibold text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {resendState.cooldown > 0
                     ? `Resend available in ${resendState.cooldown}s`
@@ -160,9 +177,9 @@ export default function LoginPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="login-email">Email</label>
+              <label htmlFor="login-email">Email</label>
               <input
                 id="login-email"
                 type="email"
@@ -172,13 +189,13 @@ export default function LoginPage() {
                 autoComplete="email"
                 placeholder="you@example.com"
                 aria-invalid={!!errors.email}
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                className="w-full border border-border bg-bg-primary px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
-              {errors.email && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.email}</p>}
+              {errors.email && <p className="auth-error" role="alert">{errors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="login-password">Password</label>
+              <label htmlFor="login-password">Password</label>
               <div className="relative">
                 <input
                   id="login-password"
@@ -189,38 +206,38 @@ export default function LoginPage() {
                   autoComplete="current-password"
                   placeholder="Enter your password"
                   aria-invalid={!!errors.password}
-                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                  className="w-full border border-border bg-bg-primary px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-text-muted transition-colors hover:text-primary"
                 >
                   {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.password}</p>}
+              {errors.password && <p className="auth-error" role="alert">{errors.password}</p>}
             </div>
 
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="w-4 h-4 rounded accent-gold" />
+                <input type="checkbox" className="h-4 w-4 accent-primary" />
                 <span className="text-[13px] text-text-muted">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="text-[13px] font-medium text-gold hover:underline">Forgot password?</Link>
+              <Link to="/forgot-password" className="text-[13px] font-medium text-primary hover:underline">Forgot password?</Link>
             </div>
 
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full p-4 rounded-xl bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="btn-primary w-full justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          <div className="flex items-center gap-3 my-5" aria-hidden="true">
+          <div className="my-6 flex items-center gap-3" aria-hidden="true">
             <div className="h-px flex-1 bg-border" />
             <span className="text-[11px] uppercase tracking-[1.5px] text-text-muted">or</span>
             <div className="h-px flex-1 bg-border" />
@@ -230,25 +247,18 @@ export default function LoginPage() {
             type="button"
             onClick={handleGoogle}
             disabled={loading || googleLoading}
-            className="w-full p-3.5 rounded-xl bg-bg-primary border border-border text-text-body font-semibold flex items-center justify-center gap-2.5 hover:border-gold/50 hover:bg-bg-secondary transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-secondary flex w-full items-center justify-center gap-2.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <GoogleIcon size={20} />
             {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
           </button>
 
-          <p className="text-center mt-6 text-sm text-text-muted">
+          <p className="mt-6 text-center text-sm text-text-muted">
             Don't have an account?{' '}
-            <Link to="/signup" className="font-semibold text-gold hover:underline">Sign up</Link>
+            <Link to="/signup" className="font-semibold text-primary hover:underline">Sign up</Link>
           </p>
         </div>
-
-        <div className="hidden lg:block mt-6 text-center">
-          <p className="text-[13px] text-text-muted/70 leading-relaxed">
-            <IconCheck className="inline w-3.5 h-3.5 text-gold mr-1" />
-            16-week guided curriculum · Audio practice · Goethe-style mock exams
-          </p>
-        </div>
-      </div>
+      </main>
     </div>
   );
 }

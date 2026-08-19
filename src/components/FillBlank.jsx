@@ -148,9 +148,9 @@ export default function FillBlank({ content, onComplete }) {
     <div className="fade-in reading-body focus-col">
       <div className="flex justify-between items-center mb-5">
         <h3 className="font-bold text-text-dark text-lg flex items-center gap-2">
-          <IconEdit className="w-5 h-5 text-gold" /> Fill in the Blank
+          <IconEdit className="h-5 w-5 text-primary" /> Fill in the Blank
         </h3>
-        <span className="text-sm font-bold text-gold">{score}/{sents.length}</span>
+        <span className="text-sm font-bold text-primary">{score}/{sents.length}</span>
       </div>
 
       <div className="progress-bar mb-5">
@@ -163,7 +163,7 @@ export default function FillBlank({ content, onComplete }) {
             <span key={i}>
               {p}
               {i < s.text.split('___').length - 1 && (
-                <span className="inline-block min-w-[100px] mx-1 border-b-2 text-center font-bold" style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}>
+                <span className="mx-1 inline-block min-w-[100px] border-b-2 text-center font-bold text-primary" style={{ borderColor: 'var(--db-primary)' }}>
                   {show ? s.answer : showHint ? s.answer[0] + '...' : '___'}
                 </span>
               )}
@@ -194,7 +194,7 @@ export default function FillBlank({ content, onComplete }) {
           {!show && (
             <button
               onClick={() => setShowHint(!showHint)}
-              className="text-[12px] text-text-muted hover:text-gold transition"
+              className="text-[12px] text-text-muted transition hover:text-primary"
             >
               {showHint ? 'Hide hint' : 'Show hint'}
             </button>
@@ -212,9 +212,9 @@ export default function FillBlank({ content, onComplete }) {
       </div>
 
       {show && errorInfo && (
-        <div className="paper-card p-4 mb-4 rounded-[var(--radius-card)]" style={{ borderLeft: '4px solid var(--gold)' }}>
+        <div className="paper-card mb-4 rounded-[var(--radius-card)] border-l-4 border-primary p-4">
           <div className="flex items-start gap-3">
-            <IconLightbulb className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+            <IconLightbulb className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
               <div className="text-[13px] font-semibold text-text-body mb-1">{errorInfo.message}</div>
               {errorInfo.detail && (

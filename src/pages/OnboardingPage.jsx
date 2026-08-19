@@ -144,14 +144,14 @@ export default function OnboardingPage() {
   const usedEnglish = WIN_PAIRS.filter(p => winMatched.includes(p.de)).map(p => p.en);
 
   return (
-    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
-      <div className="m-auto w-full max-w-md px-6 py-8">
+    <div className="onboarding-page db-page min-h-dvh flex overflow-y-auto">
+      <div className="onboarding-panel m-auto w-full max-w-md px-6 py-8">
         {/* Step progress dots */}
         <div className="flex items-center justify-center gap-1.5 mb-6" aria-hidden>
           {STEPS.map((s, i) => (
             <div
               key={s}
-              className={`h-1.5 rounded-full transition-all duration-300 ${i === stepIdx ? 'w-7 bg-gold' : i < stepIdx ? 'w-1.5 bg-gold/40' : 'w-1.5 bg-border'}`}
+              className={`h-1.5 transition-all duration-300 ${i === stepIdx ? 'w-7 bg-primary' : i < stepIdx ? 'w-1.5 bg-primary/40' : 'w-1.5 bg-border'}`}
             />
           ))}
         </div>
@@ -169,7 +169,7 @@ export default function OnboardingPage() {
               <div className="flex justify-center mb-4">
                 <BuddyAvatar state="waving" size={104} />
               </div>
-              <p className="text-[10px] font-bold uppercase tracking-[2px] text-gold mb-2">DeutschBuddy</p>
+              <p className="db-section-label mb-2">DeutschBuddy</p>
               <h1 className="text-[28px] font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                 Speak German from day one
               </h1>
@@ -179,7 +179,7 @@ export default function OnboardingPage() {
               </p>
               <button
                 onClick={goNext}
-                className="w-full p-4 rounded-[var(--radius-card)] bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all"
+                className="btn-primary w-full justify-center gap-2"
               >
                 Let's go <IconArrowRight className="w-4 h-4" />
               </button>
@@ -195,7 +195,7 @@ export default function OnboardingPage() {
               transition={{ duration: 0.28 }}
             >
               <div className="mb-5">
-                <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-gold mb-1">Your starting point</p>
+                <p className="db-section-label mb-1">Your starting point</p>
                 <h2 className="text-2xl font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                   How much German do you already know?
                 </h2>
@@ -206,16 +206,16 @@ export default function OnboardingPage() {
                   <button
                     key={path.id}
                     onClick={() => { setChoice({ level: path.level, track: path.track }); goNext(); }}
-                    className={`w-full p-4 rounded-[var(--radius-card)] border text-left flex items-center gap-4 group transition-all active:scale-[0.99] ${choice?.level === path.level && choice?.track === path.track ? 'border-gold bg-gold/[0.07]' : 'border-border bg-surface hover:border-gold/40 hover:bg-bg-secondary'}`}
+                    className={`w-full rounded-[var(--radius-card)] border p-4 text-left flex items-center gap-4 group transition-all active:scale-[0.99] ${choice?.level === path.level && choice?.track === path.track ? 'border-primary bg-primary/10' : 'border-border bg-surface hover:border-primary/40 hover:bg-bg-secondary'}`}
                   >
-                    <div className="w-11 h-11 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <path.icon className="w-5 h-5 text-gold" />
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <path.icon className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-text-dark">{path.title}</p>
                       <p className="text-[13px] text-text-muted leading-snug">{path.desc}</p>
                     </div>
-                    <IconArrowRight className="w-4 h-4 text-text-muted group-hover:text-gold group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    <IconArrowRight className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                   </button>
                 ))}
               </div>
@@ -231,7 +231,7 @@ export default function OnboardingPage() {
               transition={{ duration: 0.28 }}
             >
               <div className="mb-5">
-                <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-gold mb-1">Why are you here?</p>
+                <p className="db-section-label mb-1">Why are you here?</p>
                 <h2 className="text-2xl font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                   What's your German goal?
                 </h2>
@@ -242,10 +242,10 @@ export default function OnboardingPage() {
                   <button
                     key={opt.id}
                     onClick={() => { setGoal(opt.id); goNext(); }}
-                    className={`w-full p-4 rounded-[var(--radius-card)] border text-left flex items-center gap-4 transition-all active:scale-[0.99] ${goal === opt.id ? 'border-gold bg-gold/[0.07]' : 'border-border bg-surface hover:border-gold/40 hover:bg-bg-secondary'}`}
+                    className={`w-full rounded-[var(--radius-card)] border p-4 text-left flex items-center gap-4 transition-all active:scale-[0.99] ${goal === opt.id ? 'border-primary bg-primary/10' : 'border-border bg-surface hover:border-primary/40 hover:bg-bg-secondary'}`}
                   >
-                    <div className="w-11 h-11 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <opt.icon className="w-5 h-5 text-gold" />
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <opt.icon className="h-5 w-5 text-primary" />
                     </div>
                     <div>
                       <p className="font-bold text-text-dark">{opt.title}</p>
@@ -266,7 +266,7 @@ export default function OnboardingPage() {
               transition={{ duration: 0.28 }}
             >
               <div className="mb-5">
-                <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-gold mb-1">Your daily habit</p>
+                <p className="db-section-label mb-1">Your daily habit</p>
                 <h2 className="text-2xl font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                   How much time do you have each day?
                 </h2>
@@ -277,16 +277,16 @@ export default function OnboardingPage() {
                   <button
                     key={opt.id}
                     onClick={() => { setLS('db_daily_goal', String(opt.id)); goNext(); }}
-                    className="w-full p-4 rounded-[var(--radius-card)] border border-border bg-surface text-left flex items-center gap-4 hover:border-gold/40 hover:bg-bg-secondary transition-all active:scale-[0.99] group"
+                    className="w-full rounded-[var(--radius-card)] border border-border bg-surface p-4 text-left flex items-center gap-4 hover:border-primary/40 hover:bg-bg-secondary transition-all active:scale-[0.99] group"
                   >
-                    <div className="w-11 h-11 rounded-full bg-gold/10 flex items-center justify-center flex-shrink-0">
-                      <IconClock className="w-5 h-5 text-gold" />
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                      <IconClock className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
                       <p className="font-bold text-text-dark">{opt.title}</p>
                       <p className="text-[13px] text-text-muted">{opt.desc}</p>
                     </div>
-                    <IconArrowRight className="w-4 h-4 text-text-muted group-hover:text-gold group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                    <IconArrowRight className="w-4 h-4 text-text-muted group-hover:text-primary group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                   </button>
                 ))}
               </div>
@@ -304,7 +304,7 @@ export default function OnboardingPage() {
               {!winDone ? (
                 <>
                   <div className="mb-5">
-                    <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-gold mb-1">Instant win</p>
+                    <p className="db-section-label mb-1">Instant win</p>
                     <h2 className="text-2xl font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                       Your first words — already?
                     </h2>
@@ -321,7 +321,7 @@ export default function OnboardingPage() {
                           className={`w-full p-4 rounded-xl border-2 text-left font-bold transition-all active:scale-[0.98] flex items-center justify-between
                             ${isMatched ? 'border-success bg-success/10 text-text-muted' :
                               winSelected === pair.de ? 'border-primary bg-primary/10' :
-                              'border-border bg-surface hover:border-gold/40'}`}
+                              'border-border bg-surface hover:border-primary/40'}`}
                         >
                           <span>{pair.de}</span>
                           {isMatched && (
@@ -345,7 +345,7 @@ export default function OnboardingPage() {
                             px-4 py-2.5 rounded-full border-2 text-sm font-semibold transition-all active:scale-95
                             ${winWrong === pair.en ? 'border-error bg-error/10 text-error animate-shake' :
                               alreadyUsed ? 'border-border bg-surface/60 opacity-50' :
-                              winSelected ? 'border-border bg-surface hover:border-gold/60' :
+                              winSelected ? 'border-border bg-surface hover:border-primary/60' :
                               'border-border bg-surface/60'}`}
                         >
                           {pair.en}
@@ -357,8 +357,8 @@ export default function OnboardingPage() {
               ) : (
                 <div className="text-center">
                   <div className="flex justify-center mb-4">
-                    <div className="w-20 h-20 rounded-full bg-gold/10 flex items-center justify-center">
-                      <IconTrophy className="w-10 h-10 text-gold" />
+                    <div className="flex h-20 w-20 items-center justify-center rounded-full bg-success/10">
+                      <IconTrophy className="h-10 w-10 text-success" />
                     </div>
                   </div>
                   <h2 className="text-2xl font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
@@ -369,7 +369,7 @@ export default function OnboardingPage() {
                   </p>
                   <button
                     onClick={goNext}
-                    className="w-full p-4 rounded-[var(--radius-card)] bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all"
+                    className="btn-primary w-full justify-center gap-2"
                   >
                     Ready for day one <IconArrowRight className="w-4 h-4" />
                   </button>
@@ -390,7 +390,7 @@ export default function OnboardingPage() {
                 <div className="flex justify-center mb-3">
                   <BuddyAvatar state="happy" size={88} />
                 </div>
-                <p className="text-[10px] font-bold uppercase tracking-[2px] text-gold mb-2">All set</p>
+                <p className="db-section-label mb-2">All set</p>
                 <h2 className="text-[26px] font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
                   Your plan is ready
                 </h2>
@@ -422,7 +422,7 @@ export default function OnboardingPage() {
 
               <button
                 onClick={finish}
-                className="w-full p-4 rounded-[var(--radius-card)] bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all"
+                className="btn-primary w-full justify-center gap-2"
               >
                 Start my account <IconArrowRight className="w-4 h-4" />
               </button>
@@ -433,7 +433,7 @@ export default function OnboardingPage() {
         {stepIdx > 0 && step !== 'intro' && !(step === 'win' && winDone) && step !== 'route' && (
           <button
             onClick={goBack}
-            className="mt-5 mx-auto flex items-center gap-1 text-[12px] text-text-muted hover:text-gold transition-colors"
+            className="mt-5 mx-auto flex items-center gap-1 text-[12px] text-text-muted transition-colors hover:text-primary"
           >
             <IconArrowLeft className="w-3.5 h-3.5" /> Back
           </button>

@@ -9,7 +9,7 @@ export default function BadgeGallery({ badges }) {
   const totalCount = ALL_BADGES.length;
 
   return (
-    <div className="fade-in max-w-3xl mx-auto px-4 py-6 pb-24 lg:pb-6 space-y-6">
+    <div className="fade-in db-content-width max-w-4xl space-y-6 px-4 py-6 pb-24 lg:py-8 lg:pb-8">
       <div className="flex items-center gap-4">
         <div className="relative">
           <BuddyAvatar state="happy" size={72} />
@@ -20,7 +20,7 @@ export default function BadgeGallery({ badges }) {
           </div>
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-text-dark">Achievements</h1>
+          <h1 className="text-4xl font-bold text-text-dark">Achievements</h1>
           <p className="text-text-muted text-sm">Collect badges as you learn with Buddy</p>
         </div>
       </div>
@@ -39,7 +39,7 @@ export default function BadgeGallery({ badges }) {
         <p className="text-xs text-text-muted mt-2">Keep learning to unlock more!</p>
       </div>
 
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
         {ALL_BADGES.map(badge => {
           const earned = badges?.find(b => b.id === badge.id);
           const category = getBadgeCategory(badge.id);
@@ -49,7 +49,7 @@ export default function BadgeGallery({ badges }) {
               key={badge.id}
               onClick={() => setSelectedBadge({ ...badge, earned })}
               className={`
-                relative group text-center p-4 rounded-xl transition-all active:scale-95
+                relative group text-center p-4 transition-[transform,border-color,background-color] active:scale-[0.96]
                 ${earned
                   ? 'db-card db-card-hover cursor-pointer'
                   : 'bg-bg-secondary border border-dashed border-border opacity-70'}
@@ -63,7 +63,7 @@ export default function BadgeGallery({ badges }) {
               </div>
               {earned && (
                 <div
-                  className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
+                  className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center"
                   style={{ background: categoryColor }}
                 >
                   <IconCheck className="w-3 h-3 text-white" />
@@ -76,14 +76,14 @@ export default function BadgeGallery({ badges }) {
 
       {selectedBadge && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4" onClick={() => setSelectedBadge(null)}>
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div className="absolute inset-0 bg-primary-dark/55" />
           <div
-            className="relative w-full max-w-sm p-6 text-center scale-in db-card"
+            className="modal-card relative w-full max-w-sm p-6 text-center scale-in db-card"
             onClick={e => e.stopPropagation()}
           >
             <button
               onClick={() => setSelectedBadge(null)}
-              className="absolute top-4 right-4 w-8 h-8 bg-bg-secondary hover:bg-bg-cream flex items-center justify-center text-text-muted transition rounded-lg"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center bg-bg-secondary text-text-muted transition hover:bg-bg-cream"
               aria-label="Close"
             >
               <IconX className="w-4 h-4" />

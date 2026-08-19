@@ -9,7 +9,7 @@ const BuddySpeechBubble = memo(function BuddySpeechBubble({
   const toneStyles = {
     neutral: 'bg-white border-db-border !text-db-text-dark',
     success: 'bg-db-success-light border-db-success/20 text-db-text-dark',
-    encourage: 'bg-db-gold-light border-db-gold/30 text-db-text-dark',
+    encourage: 'bg-db-accent-light border-db-accent/30 text-db-text-dark',
     error: 'bg-db-error-light border-db-error/20 text-db-text-dark'
   };
 
@@ -20,8 +20,10 @@ const BuddySpeechBubble = memo(function BuddySpeechBubble({
     right: 'left-full top-1/2 -translate-y-1/2 ml-2'
   };
 
+  // Let callers own display utilities. Keeping `inline-block` in the base
+  // class would override a consumer's `hidden sm:block` at narrow widths.
   return (
-    <div className={`relative inline-block ${className}`}>
+    <div className={`relative ${className || 'inline-block'}`}>
       <div
         className={`
           absolute z-10 whitespace-nowrap px-3 py-2 rounded-xl text-sm font-medium
@@ -42,7 +44,7 @@ const BuddySpeechBubble = memo(function BuddySpeechBubble({
           `}
           style={{
             backgroundColor: tone === 'success' ? 'var(--db-success-light)' :
-                            tone === 'encourage' ? 'var(--db-gold-light)' :
+                            tone === 'encourage' ? 'var(--db-accent-light)' :
                             tone === 'error' ? 'var(--db-error-light)' : 'white',
             borderColor: 'var(--db-border)'
           }}

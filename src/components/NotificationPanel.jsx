@@ -37,9 +37,9 @@ function getDailyIndex(array) {
 }
 
 const staticNotifications = [
-  { id: 1, type: 'reminder', icon: IconClock, title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: 'var(--gold-light)', action: { type: 'view', target: 'dashboard' } },
-  { id: 2, type: 'achievement', icon: IconTrophy, title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: 'var(--gold)', action: { type: 'view', target: 'badges' } },
-  { id: 5, type: 'weekly', icon: IconChart, title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: 'var(--gold-light)', action: { type: 'view', target: 'progress' } },
+  { id: 1, type: 'reminder', icon: IconClock, title: 'Time to study!', message: 'You haven\'t studied today. Keep your streak alive!', time: '2 hours ago', color: 'var(--db-accent)', action: { type: 'view', target: 'dashboard' } },
+  { id: 2, type: 'achievement', icon: IconTrophy, title: 'Badge Unlocked: First Steps!', message: 'Congratulations! You\'ve completed your first lesson.', time: '1 day ago', color: 'var(--db-success)', action: { type: 'view', target: 'badges' } },
+  { id: 5, type: 'weekly', icon: IconChart, title: 'Weekly Progress Summary', message: 'You earned 150 XP this week! Keep it up!', time: '1 day ago', color: 'var(--db-primary)', action: { type: 'view', target: 'progress' } },
 ];
 
 function loadReadIds(userId) {
@@ -99,7 +99,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         message: nextTask
           ? `Week ${nextDay.weekId}, Day ${nextDay.day}: ${nextTask.title}`
           : `Week ${nextDay.weekId}, Day ${nextDay.day} is waiting for you`,
-        time: 'Just now', color: 'var(--gold)',
+        time: 'Just now', color: 'var(--db-primary)',
         action: nextTask
           ? { type: 'task', weekId: nextDay.weekId, day: nextDay.day, taskId: nextTask.id }
           : { type: 'day', weekId: nextDay.weekId, day: nextDay.day },
@@ -122,7 +122,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-pending', type: 'pending', icon: IconClipboard,
         title: `${totalPending} ${totalPending === 1 ? 'task' : 'tasks'} remaining`,
         message: `Across ${pendingDays.length} ${pendingDays.length === 1 ? 'day' : 'days'}`,
-        time: 'Just now', color: 'var(--gold-light)',
+        time: 'Just now', color: 'var(--db-accent)',
         action: { type: 'day', weekId: pendingDays[0].weekId, day: pendingDays[0].day },
       });
     }
@@ -133,7 +133,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
         id: 'dyn-streak', type: 'achievement', icon: IconFire,
         title: `${streak}-Day Streak!`,
         message: `You're on fire! Keep your ${streak}-day streak going.`,
-        time: 'Just now', color: 'var(--gold-light)',
+        time: 'Just now', color: 'var(--db-accent)',
         action: { type: 'view', target: 'progress' },
       });
     }
@@ -147,7 +147,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
           id: 'dyn-reminder', type: 'reminder', icon: IconClock,
           title: 'Time to study!',
           message: 'You haven\'t studied today. Keep your streak alive!',
-          time: 'Just now', color: 'var(--gold-light)',
+          time: 'Just now', color: 'var(--db-accent)',
           action: { type: 'view', target: 'dashboard' },
         });
       }
@@ -158,7 +158,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
           id: 'dyn-guardian', type: 'reminder', icon: IconFire,
           title: 'Streak at risk!',
           message: `You haven't studied in ${diff} days. Answer 3 questions to save your ${progress.streak}-day streak.`,
-          time: 'Just now', color: 'var(--gold-light)',
+          time: 'Just now', color: 'var(--db-accent)',
           action: { type: 'guardian' },
         });
       }
@@ -169,7 +169,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
       id: 'dyn-tip', type: 'tip', icon: IconLightbulb,
       title: `Tip of the Day — ${tip.tag}`,
       message: tip.tip,
-      time: 'Just now', color: 'var(--gold-light)',
+      time: 'Just now', color: 'var(--db-accent)',
     });
 
     const fact = dailyFact;
@@ -177,7 +177,7 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
       id: 'dyn-fact', type: 'fact', icon: IconFlag,
       title: 'Did You Know?',
       message: fact,
-      time: 'Just now', color: 'var(--gold)',
+      time: 'Just now', color: 'var(--db-primary)',
     });
 
     return dynamic;
@@ -217,45 +217,45 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-[calc(100vw-32px)] sm:max-w-md h-full shadow-2xl slide-in overflow-hidden bg-bg-dark-mid border-l border-border/30" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-4 border-b border-gold/20">
+      <div className="absolute inset-0 bg-primary-dark/55" />
+      <div className="relative h-full w-full max-w-[calc(100vw-32px)] overflow-hidden border-l border-border bg-surface shadow-xl slide-in sm:max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-border p-4">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-text-on-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Notifications</h3>
+            <h3 className="font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Notifications</h3>
             {unreadCount > 0 && <span className="text-[10px] font-bold bg-error text-white px-2 py-0.5 rounded-full">{unreadCount}</span>}
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={handleMarkAllRead} className="text-[12px] text-gold font-semibold hover:text-gold-light transition">Mark all as read</button>
-            <button onClick={onClose} className="w-10 h-10 bg-bg-dark/50 hover:bg-bg-dark flex items-center justify-center text-text-on-dark-muted transition text-sm focus-visible:ring-2 focus-visible:ring-gold focus-visible:ring-offset-2 focus-visible:ring-offset-bg-dark">✕</button>
+            <button onClick={handleMarkAllRead} className="text-[12px] font-semibold text-primary transition hover:text-primary-dark">Mark all as read</button>
+            <button onClick={onClose} className="flex h-10 w-10 items-center justify-center text-text-muted transition hover:bg-bg-secondary hover:text-text-dark text-sm focus-visible:ring-2 focus-visible:ring-primary">✕</button>
           </div>
         </div>
 
         <div className="overflow-y-auto h-[calc(100%-64px)] relative">
           {selectedDetail ? (
-            <div className="absolute inset-0 bg-bg-dark-mid z-10 p-6 slide-in">
+            <div className="absolute inset-0 z-10 bg-surface p-6 slide-in">
               <button onClick={() => setSelectedDetail(null)} className="btn-text flex items-center gap-2 mb-6">
                 <span className="text-lg">←</span> Back to Notifications
               </button>
               <div className="w-14 h-14 flex items-center justify-center mb-4" style={{ background: `${selectedDetail.color}15` }}>
                 {typeof selectedDetail.icon === 'function' ? <selectedDetail.icon className="w-7 h-7" style={{ color: selectedDetail.color }} /> : <span className="text-2xl">{selectedDetail.icon}</span>}
               </div>
-              <h3 className="text-2xl font-bold text-text-on-dark mb-3" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{selectedDetail.title}</h3>
-              <p className="text-[15px] text-text-on-dark leading-relaxed">{selectedDetail.message}</p>
-              <p className="text-[12px] text-text-on-dark-muted mt-6">{formatTime(selectedDetail.time)}</p>
+              <h3 className="mb-3 text-2xl font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>{selectedDetail.title}</h3>
+              <p className="text-[15px] leading-relaxed text-text-body">{selectedDetail.message}</p>
+              <p className="mt-6 text-[12px] text-text-muted">{formatTime(selectedDetail.time)}</p>
             </div>
           ) : (
             <>
               {allNotifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center px-6">
-                  <IconSparkles className="w-12 h-12 text-gold mb-4" />
-                  <p className="text-text-on-dark text-sm font-medium">No notifications yet!</p>
-                  <p className="text-text-on-dark-muted text-xs mt-1">Complete lessons to earn achievements.</p>
+                  <IconSparkles className="mb-4 h-12 w-12 text-primary" />
+                  <p className="text-sm font-medium text-text-dark">No notifications yet!</p>
+                  <p className="mt-1 text-xs text-text-muted">Complete lessons to earn achievements.</p>
                 </div>
               ) : (
                 allNotifications.map(n => (
                   <button key={n.id} onClick={() => handleNotificationClick(n)}
-                    className={`w-full text-left p-4 border-b border-gold/10 transition-all hover:bg-bg-dark/50 active:scale-[0.99] ${
-                      !n.read ? 'bg-bg-dark/30' : ''
+                    className={`w-full border-b border-border p-4 text-left transition-all hover:bg-bg-secondary active:scale-[0.99] ${
+                      !n.read ? 'bg-primary-light/50' : ''
                     }`} style={!n.read ? { borderLeft: `4px solid ${n.color}` } : {}}
                   >
                     <div className="flex items-start gap-3">
@@ -263,11 +263,11 @@ export default function NotificationPanel({ isOpen, onClose, onNavigate, progres
                         style={{ background: `${n.color}15` }}>{typeof n.icon === 'function' ? <n.icon className="w-5 h-5" style={{ color: n.color }} /> : <span className="text-lg">{n.icon}</span>}</div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <h4 className="text-[13px] font-semibold text-text-on-dark truncate">{n.title}</h4>
-                          {!n.read && <div className="w-2 h-2 rounded-full bg-gold flex-shrink-0" />}
+                          <h4 className="truncate text-[13px] font-semibold text-text-dark">{n.title}</h4>
+                          {!n.read && <div className="h-2 w-2 shrink-0 rounded-full bg-primary" />}
                         </div>
-                        <p className="text-[12px] text-text-on-dark-muted mt-0.5">{n.message}</p>
-                        <p className="text-[11px] text-text-on-dark-muted mt-1">{formatTime(n.time)}</p>
+                        <p className="mt-0.5 text-[12px] text-text-muted">{n.message}</p>
+                        <p className="mt-1 text-[11px] text-text-muted">{formatTime(n.time)}</p>
                       </div>
                     </div>
                   </button>

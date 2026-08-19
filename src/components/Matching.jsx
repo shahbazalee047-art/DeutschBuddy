@@ -48,19 +48,19 @@ export default function Matching({ content, onComplete }) {
   }
   return (
     <div className="fade-in reading-body">
-      <div className="flex justify-between items-center mb-5"><h3 className="font-bold text-text-dark text-lg flex items-center gap-2"><IconLink className="w-5 h-5 text-gold" /> Matching</h3><span className="text-sm text-text-muted">{matched.length}/{pairs.length}</span></div>
+      <div className="mb-5 flex items-center justify-between"><h3 className="flex items-center gap-2 text-lg font-bold text-text-dark"><IconLink className="h-5 w-5 text-primary" /> Matching</h3><span className="text-sm text-text-muted">{matched.length}/{pairs.length}</span></div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 exercise-list">
-        <div className="space-y-2"><h4 className="text-[11px] font-bold text-gold mb-2 text-center uppercase flex items-center justify-center gap-1" style={{ letterSpacing: '0.5px' }}><IconFlag className="w-3.5 h-3.5" /> Deutsch</h4>
-          {pairs.map((p, i) => (<div key={i} role="button" tabIndex={0} aria-pressed={matched.includes(i)} onClick={() => clickDE(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickDE(i); } }} className={`w-full text-left border transition-all active:scale-95 rounded-[var(--radius-exercise)] matching-tile cursor-pointer ${matched.includes(i) ? 'bg-gold/10 border-gold/20 text-gold' : sel === i ? 'bg-gold/10 border-gold text-text-body' : 'paper-card text-text-body hover:border-gold/30'}`}>
-            <div className="flex items-center justify-between"><span className="font-medium">{p.german}</span><div className="flex items-center gap-1">{matched.includes(i) && <IconCheck className="w-4 h-4 text-gold" />}<SpeakerButton text={p.german} size="sm" /></div></div></div>))}
+        <div className="space-y-2"><h4 className="mb-2 flex items-center justify-center gap-1 text-center text-[11px] font-bold uppercase text-primary" style={{ letterSpacing: '0.5px' }}><IconFlag className="h-3.5 w-3.5" /> Deutsch</h4>
+          {pairs.map((p, i) => (<div key={i} role="button" tabIndex={0} aria-pressed={matched.includes(i)} onClick={() => clickDE(i)} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); clickDE(i); } }} className={`matching-tile w-full cursor-pointer rounded-[var(--radius-exercise)] border text-left transition-all active:scale-95 ${matched.includes(i) ? 'border-success/20 bg-success-light text-success' : sel === i ? 'border-primary bg-primary-light text-text-body' : 'paper-card text-text-body hover:border-primary/30'}`}>
+            <div className="flex items-center justify-between"><span className="font-medium">{p.german}</span><div className="flex items-center gap-1">{matched.includes(i) && <IconCheck className="h-4 w-4 text-success" />}<SpeakerButton text={p.german} size="sm" /></div></div></div>))}
         </div>
         <div className="space-y-2"><h4 className="text-[11px] font-bold text-text-muted mb-2 text-center uppercase flex items-center justify-center gap-1" style={{ letterSpacing: '0.5px' }}><IconMessageCircle className="w-3.5 h-3.5" /> English</h4>
           {shuffled.map((p, k) => { const isMatched = matched.some(m => pairs[m] === p); const isWrong = wrongEN === k; return (
-            <button key={k} onClick={() => clickEN(p, k)} disabled={isMatched} className={`w-full text-left border transition-all active:scale-95 rounded-[var(--radius-exercise)] matching-tile ${isMatched ? 'bg-gold/10 border-gold/20 text-gold' : isWrong ? 'border-error bg-error/10 text-error shake' : 'paper-card text-text-body hover:border-gold/30'}`}><span className="font-medium">{p.english}</span></button>
+            <button key={k} onClick={() => clickEN(p, k)} disabled={isMatched} className={`matching-tile w-full rounded-[var(--radius-exercise)] border text-left transition-all active:scale-95 ${isMatched ? 'border-success/20 bg-success-light text-success' : isWrong ? 'border-error bg-error/10 text-error shake' : 'paper-card text-text-body hover:border-primary/30'}`}><span className="font-medium">{p.english}</span></button>
           );})}
         </div>
       </div>
-      {matched.length === pairs.length && <div className="text-center mt-4 p-3  font-bold text-sm text-text-on-dark flex items-center justify-center gap-1.5" style={{ background: 'var(--gold)' }}><IconSparkles className="w-4 h-4" /> All matched! Ausgezeichnet!</div>}
+      {matched.length === pairs.length && <div className="mt-4 flex items-center justify-center gap-1.5 bg-success p-3 text-center text-sm font-bold text-white"><IconSparkles className="h-4 w-4" /> All matched! Ausgezeichnet!</div>}
     </div>
   );
 }

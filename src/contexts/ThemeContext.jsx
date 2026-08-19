@@ -6,7 +6,7 @@ export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem('db_theme');
     if (stored === 'light' || stored === 'dark') return stored;
-    return 'dark';
+    return 'light';
   });
 
   useEffect(() => {

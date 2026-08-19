@@ -18,11 +18,11 @@ const ReviseCard = memo(function ReviseCard({ reviseTasks = [], levelData, onRet
   if (!items.length) return null;
 
   return (
-    <div className="db-card p-4 border-l-4 border-l-gold">
+    <div className="db-card border-l-4 border-l-primary p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gold/15 flex items-center justify-center">
-            <IconRefresh className="w-4 h-4 text-gold" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10">
+            <IconRefresh className="h-4 w-4 text-primary" />
           </div>
           <div>
             <h3 className="font-bold text-text-dark leading-tight">Revise</h3>
@@ -38,10 +38,10 @@ const ReviseCard = memo(function ReviseCard({ reviseTasks = [], levelData, onRet
           <button
             key={id}
             onClick={() => onRetry({ task, weekId: week.id, dayNumber: day.day })}
-            className="w-full flex items-center justify-between gap-3 p-3 rounded-[var(--radius-button)] bg-bg-secondary hover:bg-bg-dark-mid transition-colors active:scale-[0.99] text-left group"
+            className="group flex w-full items-center justify-between gap-3 rounded-[var(--radius-button)] bg-bg-secondary p-3 text-left transition-colors hover:bg-primary-light active:scale-[0.99]"
           >
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-gold">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-primary">
                 {englishTopicTitle(week.title)} · W{week.id}
               </p>
               <p className="text-sm font-semibold text-text-dark truncate">{task.title}</p>

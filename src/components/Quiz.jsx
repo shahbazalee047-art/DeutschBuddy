@@ -140,9 +140,9 @@ export default function Quiz({ content, onComplete }) {
     <div className="fade-in reading-body focus-col">
       <div className="flex justify-between items-center mb-5">
         <h3 className="font-bold text-text-dark text-lg flex items-center gap-2">
-          <IconHelpCircle className="w-5 h-5 text-gold" /> Quiz
+          <IconHelpCircle className="h-5 w-5 text-primary" /> Quiz
         </h3>
-        <span className="text-sm font-bold text-gold">{score}/{qs.length}</span>
+        <span className="text-sm font-bold text-primary">{score}/{qs.length}</span>
       </div>
 
       <div className="progress-bar mb-5">
@@ -168,7 +168,7 @@ export default function Quiz({ content, onComplete }) {
                 base = 'bg-[var(--bg-secondary)]/50 border-[var(--border-default)] text-text-muted opacity-40';
               }
             } else if (i === sel) {
-              base = 'bg-[var(--bg-secondary)] border-gold text-text-body';
+              base = 'bg-[var(--bg-secondary)] border-primary text-text-body';
             }
 
             return (
@@ -180,7 +180,7 @@ export default function Quiz({ content, onComplete }) {
               >
                 <div className="flex items-center gap-3">
                   <span className={`w-8 h-8 flex items-center justify-center text-xs font-bold rounded-[var(--radius-sm)] ${
-                    i === sel && !show ? 'bg-gold/20 text-gold' : 'bg-[var(--bg-secondary)] text-text-muted'
+                    i === sel && !show ? 'bg-primary/20 text-primary' : 'bg-[var(--bg-secondary)] text-text-muted'
                   }`}>
                     {String.fromCharCode(65 + i)}
                   </span>
@@ -199,9 +199,9 @@ export default function Quiz({ content, onComplete }) {
       </div>
 
       {show && errorInfo && (
-        <div className="paper-card p-4 mb-4 rounded-[var(--radius-card)]" style={{ borderLeft: '4px solid var(--gold)' }}>
+        <div className="paper-card mb-4 rounded-[var(--radius-card)] border-l-4 border-primary p-4">
           <div className="flex items-start gap-3">
-            <IconLightbulb className="w-5 h-5 flex-shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+            <IconLightbulb className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
               <div className="text-[13px] font-semibold text-text-body mb-1">{errorInfo.message}</div>
               {errorInfo.detail && (

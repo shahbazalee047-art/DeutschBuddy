@@ -24,7 +24,7 @@ const STEPS = [
     emoji: '👋',
     title: 'Hallo! I’m Buddy.',
     body: 'Your German guide. You’ll speak real German from your very first lesson — no boring grammar drills, I promise.',
-    accent: 'var(--gold)',
+    accent: 'var(--db-primary)',
   },
   {
     buddy: 'happy',
@@ -37,8 +37,8 @@ const STEPS = [
     buddy: 'idle',
     emoji: '✨',
     title: 'Tap to start anywhere',
-    body: 'Hit the gold “Start Lesson” button to continue where you left off, or tap any week circle below it to jump into that topic.',
-    accent: 'var(--gold)',
+    body: 'Use the primary “Continue learning” button to pick up where you left off, or choose a week below it to jump into that topic.',
+    accent: 'var(--db-accent)',
   },
   {
     buddy: 'encourage',
@@ -52,14 +52,14 @@ const STEPS = [
     emoji: '🔥',
     title: 'A little every day',
     body: 'Study daily to keep your streak alive. Even five minutes counts — consistency beats marathons. Earn XP, unlock badges, have fun.',
-    accent: 'var(--gold)',
+    accent: 'var(--db-primary)',
   },
   {
     buddy: 'celebrate',
     emoji: '🎓',
     title: 'Ready when you are',
     body: 'That’s it! You can replay this anytime from Settings. Let’s begin your first lesson. Viel Erfolg!',
-    accent: 'var(--gold)',
+    accent: 'var(--db-accent)',
   },
 ];
 
@@ -95,7 +95,7 @@ export default function WelcomeTutorial({ onClose }) {
   }, [close, next, back]);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm safe-area-top safe-area-bottom">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-primary-dark/55 p-4 safe-area-top safe-area-bottom">
       <AnimatePresence mode="wait">
         <motion.div
           key={step}

@@ -5,11 +5,11 @@ import { IconX } from './Icons';
 import { getBadgeById, getBadgeCategory } from '../utils/badges';
 
 const CATEGORY_COLORS = {
-  habit: '#F4B942',
-  xp: '#F4B942',
-  grammar: '#49B36B',
-  vocab: '#E85D3F',
-  exam: '#4F8EF7',
+  habit: '#3B82F6',
+  xp: '#1B3A35',
+  grammar: '#22C55E',
+  vocab: '#B94A4A',
+  exam: '#3B82F6',
 };
 
 const CONFETTI_DOTS = [
@@ -41,13 +41,13 @@ export default function AchievementModal({ badgeId, onClose }) {
         className="fixed inset-0 z-[60] flex items-center justify-center px-4"
         onClick={onClose}
       >
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-primary-dark/55" />
         <motion.div
           initial={{ scale: 0.8, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.9, opacity: 0, y: 10 }}
           transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-          className="relative w-full max-w-sm p-8 text-center db-card overflow-hidden"
+          className="modal-card relative w-full max-w-sm overflow-hidden p-8 text-center db-card"
           onClick={e => e.stopPropagation()}
         >
           {/* Confetti-like dots */}
@@ -57,7 +57,7 @@ export default function AchievementModal({ badgeId, onClose }) {
                 key={i}
                 className="absolute w-2 h-2 rounded-full"
                 style={{
-                  background: [categoryColor, '#F4B942', '#49B36B', '#4F8EF7'][i % 4],
+                  background: [categoryColor, '#3B82F6', '#22C55E', '#B94A4A'][i % 4],
                   top: `${dot.top}%`,
                   left: `${dot.left}%`,
                   opacity: 0.4

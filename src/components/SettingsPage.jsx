@@ -27,7 +27,7 @@ function Toggle({ checked, onChange, label, desc }) {
       <button
         type="button"
         onClick={() => onChange(!checked)}
-        className={`relative w-11 h-6 rounded-full transition-colors flex items-center px-0.5 ${checked ? 'bg-gold justify-end' : 'bg-bg-secondary justify-start'}`}
+        className={`relative flex h-6 w-11 items-center rounded-full px-0.5 transition-colors ${checked ? 'bg-primary justify-end' : 'bg-bg-secondary justify-start'}`}
         style={{ borderRadius: '100px' }}
       >
         <div className="w-5 h-5 bg-white rounded-full shadow transition-transform" style={{ borderRadius: '50%' }} />
@@ -243,7 +243,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
           )}
 
           <div className="flex items-center gap-4 pb-5 border-b border-border">
-            <div className="w-16 h-16 rounded-full bg-gold flex items-center justify-center text-text-on-dark text-2xl font-bold shrink-0" style={{ borderRadius: '50%' }}>
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-bold text-text-on-dark" style={{ borderRadius: '50%' }}>
               {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
             </div>
             <div>
@@ -307,7 +307,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
         <div className="paper-card p-6 space-y-1">
           {notifLoading ? (
             <div className="flex items-center justify-center py-8">
-              <div className="w-8 h-8 border-2 border-gold/20 border-t-gold rounded-full animate-spin" />
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
             </div>
           ) : (
             <>
@@ -389,7 +389,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-gold"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary"
                 >
                   {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
                 </button>
@@ -466,7 +466,7 @@ export default function SettingsPage({ profile, user, onSignOut }) {
 
       <div className="paper-card p-5 space-y-4">
         <div className="flex items-center gap-4 pb-4 border-b border-border">
-          <div className="w-14 h-14 rounded-full bg-gold flex items-center justify-center text-text-on-dark text-xl font-bold ring-2 ring-gold/40 shrink-0" style={{ borderRadius: '50%' }}>
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-text-on-dark ring-2 ring-primary/30" style={{ borderRadius: '50%' }}>
             {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
           </div>
           <div className="min-w-0">
@@ -483,10 +483,10 @@ export default function SettingsPage({ profile, user, onSignOut }) {
               <p className="text-[12px] text-text-muted">{isDark ? 'On' : 'Off'}</p>
             </div>
           </div>
-          <div className={`w-12 h-7 rounded-full flex items-center px-0.5 cursor-pointer transition-colors ${isDark ? 'bg-gold justify-end' : 'bg-bg-secondary border border-border justify-start'}`}
+          <div className={`flex h-7 w-12 cursor-pointer items-center rounded-full px-0.5 transition-colors ${isDark ? 'bg-primary justify-end' : 'bg-bg-secondary border border-border justify-start'}`}
             style={{ borderRadius: '100px' }}
           >
-            <div className={`w-5 h-5 rounded-full shadow transition-colors ${isDark ? 'bg-gold' : 'bg-text-muted'}`} style={{ borderRadius: '50%' }} />
+            <div className={`h-5 w-5 rounded-full shadow transition-colors ${isDark ? 'bg-primary' : 'bg-text-muted'}`} style={{ borderRadius: '50%' }} />
           </div>
         </div>
 
@@ -566,10 +566,10 @@ function DailyGoalControl({ userId }) {
               key={opt.value}
               onClick={() => choose(opt.value)}
               className={`p-2.5 rounded-[var(--radius-button)] border-2 text-center transition-all active:scale-95 ${
-                active ? 'border-gold bg-gold/10' : 'border-border bg-surface hover:border-gold/30'
+                active ? 'border-primary bg-primary/10' : 'border-border bg-surface hover:border-primary/30'
               }`}
             >
-              <p className={`text-sm font-bold ${active ? 'text-gold' : 'text-text-dark'}`}>{opt.value} XP</p>
+              <p className={`text-sm font-bold ${active ? 'text-primary' : 'text-text-dark'}`}>{opt.value} XP</p>
               <p className="text-[11px] text-text-muted">{opt.label}</p>
               <p className="text-[10px] text-text-muted/70">{opt.detail}</p>
             </button>

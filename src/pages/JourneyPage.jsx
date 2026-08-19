@@ -1,103 +1,69 @@
 import { useDashboard } from '../contexts/DashboardContext';
 import { BuddyAvatar } from '../components/buddy';
-import { IconLock, IconCheck, IconPlay } from '../components/Icons';
+import { IconCheck, IconChevronRight, IconLock, IconPlay } from '../components/Icons';
 import { englishTopicTitle } from '../utils/topicTitle';
 
-const JOURNEY_LOCATIONS = [
-  { id: 'home', title: 'Home', emoji: '🏠' },
-  { id: 'cafe', title: 'Café', emoji: '☕' },
-  { id: 'market', title: 'Market', emoji: '🛒' },
-  { id: 'train', title: 'Train Station', emoji: '🚉' },
-  { id: 'hotel', title: 'Hotel', emoji: '🏨' },
-  { id: 'university', title: 'University', emoji: '🎓' },
-  { id: 'office', title: 'Office', emoji: '💼' },
-  { id: 'airport', title: 'Airport', emoji: '✈️' },
-  { id: 'celebration', title: 'Celebration', emoji: '🎉' }
-];
+const JOURNEY_LOCATIONS = ['Home', 'Café', 'Market', 'Train station', 'Hotel', 'University', 'Office', 'Airport', 'Exam day'];
 
 export default function JourneyPage({ onStartLesson }) {
   const { levelData, progress, unlockedWeeks, handleSelectDay, handleSelectTask } = useDashboard();
   const completed = new Set(progress?.completedTasks || []);
-
   const weeks = levelData?.weeks || [];
-  const currentWeekIndex = weeks.findIndex((w) => {
-    if (!unlockedWeeks.includes(w.id)) return false;
-    return !w.days.every(d => d.tasks.every(t => completed.has(t.id)));
-  });
-  const activeIndex = currentWeekIndex >= 0 ? currentWeekIndex : Math.min(unlockedWeeks.length - 1, weeks.length - 1);
+  const activeIndex = Math.max(0, weeks.findIndex(week => unlockedWeeks.includes(week.id) && !week.days.every(day => day.tasks.every(task => completed.has(task.id)))));
+  const completedCount = weeks.filter(week => week.days.every(day => day.tasks.every(task => completed.has(task.id)))).length;
 
-  const handleNodeClick = (week) => {
+  function handleNodeClick(week) {
     if (!unlockedWeeks.includes(week.id)) return;
-    const remainingDay = week.days.find(d => d.tasks.some(t => !completed.has(t.id))) || week.days[0];
-    const remainingTask = remainingDay.tasks.find(t => !completed.has(t.id)) || remainingDay.tasks[0];
-    handleSelectDay(week.id, remainingDay.day);
-    handleSelectTask(remainingTask);
-    if (onStartLesson) onStartLesson();
-  };
+    const day = week.days.find(item => item.tasks.some(task => !completed.has(task.id))) || week.days[0];
+    const task = day?.tasks?.find(item => !completed.has(item.id)) || day?.tasks?.[0];
+    if (!day) return;
+    handleSelectDay(week.id, day.day);
+    if (task) handleSelectTask(task);
+    onStartLesson?.();
+  }
 
   return (
-    <div className="min-h-full bg-bg-base px-4 py-6 pb-24 lg:pb-6">
-      <div className="max-w-3xl mx-auto">
-        <div className="flex items-center gap-4 mb-6">
+    <div className="db-page min-h-full px-4 py-6 pb-24 lg:py-8 lg:pb-8">
+      <div className="db-content-width max-w-4xl">
+        <header className="mb-8 flex items-center gap-4">
           <BuddyAvatar state="idle" size={64} />
           <div>
-            <h1 className="text-2xl font-bold text-text-dark">Your German Journey</h1>
-            <p className="text-text-muted text-sm">Travel through real-life destinations with Buddy.</p>
+            <p className="db-section-label mb-2">Your roadmap</p>
+            <h1 className="text-4xl font-bold text-text-dark">German, one useful step at a time.</h1>
+            <p className="mt-1 text-sm text-text-muted">{completedCount} of {weeks.length} weeks complete · Follow the next blue step.</p>
           </div>
-        </div>
+        </header>
 
-        <div className="relative pl-8">
-          {/* Path line */}
-          <div className="absolute left-[27px] top-4 bottom-4 w-1 bg-bg-secondary rounded-full" />
-
+        <div className="relative">
+          <div className="absolute bottom-7 left-5 top-7 w-px bg-border sm:left-6" aria-hidden="true" />
           <div className="space-y-4">
             {weeks.map((week, index) => {
               const location = JOURNEY_LOCATIONS[index % JOURNEY_LOCATIONS.length];
               const isUnlocked = unlockedWeeks.includes(week.id);
-              const isCompleted = week.days.every(d => d.tasks.every(t => completed.has(t.id)));
-              const isCurrent = index === activeIndex;
-
+              const isCompleted = week.days.every(day => day.tasks.every(task => completed.has(task.id)));
+              const isCurrent = index === activeIndex && isUnlocked && !isCompleted;
               return (
-                <div key={week.id} className="relative flex items-start gap-4">
-                  {/* Node */}
+                <div key={week.id} className="relative flex items-start gap-4 sm:gap-5">
                   <button
-                    onClick={() => isUnlocked && handleNodeClick(week, index)}
+                    type="button"
+                    onClick={() => handleNodeClick(week)}
                     disabled={!isUnlocked}
-                    aria-label={`${location.title}: ${week.title}${isUnlocked ? '' : ', locked'}`}
-                    className={`
-                      relative z-10 w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-card
-                      transition-transform active:scale-95
-                      ${isCompleted ? 'bg-success text-white' :
-                        isCurrent ? 'bg-primary text-white ring-4 ring-primary/20 animate-pulse-soft' :
-                        isUnlocked ? 'bg-surface border-2 border-primary text-primary' :
-                        'bg-bg-secondary text-text-muted border-2 border-border'}
-                    `}
+                    aria-label={`${location}: ${week.title}${isUnlocked ? '' : ', locked'}`}
+                    className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center border text-sm font-bold transition-[background-color,border-color,transform] active:scale-[0.96] sm:h-12 sm:w-12 ${isCompleted ? 'border-success bg-success text-white' : isCurrent ? 'border-primary bg-primary text-white ring-4 ring-primary/15' : isUnlocked ? 'border-primary bg-surface text-primary' : 'border-border bg-bg-secondary text-text-muted'}`}
                   >
-                    {isCompleted ? <IconCheck className="w-6 h-6" /> :
-                     isCurrent ? <IconPlay className="w-6 h-6" /> :
-                     isUnlocked ? location.emoji : <IconLock className="w-5 h-5" />}
+                    {isCompleted ? <IconCheck className="h-5 w-5" /> : isCurrent ? <IconPlay className="h-5 w-5" /> : isUnlocked ? <span>{index + 1}</span> : <IconLock className="h-4 w-4" />}
                   </button>
-
-                  {/* Card */}
-                  <div className={`
-                    flex-1 db-card p-4 transition-opacity
-                    ${isUnlocked ? '' : 'opacity-60'}
-                  `}>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-xs font-bold text-primary uppercase tracking-wide">{location.title}</p>
-                        <h3 className="font-bold text-text-dark">{englishTopicTitle(week.title)}</h3>
-                        <p className="text-sm text-text-muted mt-1">{week.description}</p>
+                  <article className={`db-surface-list min-w-0 flex-1 p-4 sm:p-5 ${!isUnlocked ? 'opacity-60' : ''}`}>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <p className={`mb-1 text-[10px] font-bold uppercase tracking-[1.5px] ${isCurrent ? 'text-primary' : isCompleted ? 'text-success' : 'text-text-muted'}`}>{location} · Week {week.id}</p>
+                        <h2 className="truncate text-2xl font-bold text-text-dark">{englishTopicTitle(week.title)}</h2>
+                        <p className="mt-1 text-sm leading-relaxed text-text-muted">{week.description || week.theme}</p>
                       </div>
-                      {!isUnlocked && <IconLock className="w-5 h-5 text-text-muted" />}
+                      {isCompleted ? <span className="shrink-0 text-xs font-bold text-success">Complete</span> : isCurrent ? <span className="shrink-0 text-xs font-bold text-primary">Current</span> : isUnlocked ? <IconChevronRight className="h-5 w-5 shrink-0 text-text-muted" /> : <IconLock className="h-4 w-4 shrink-0 text-text-muted" />}
                     </div>
-                    {isCurrent && (
-                      <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-primary">
-                        <BuddyAvatar state="waving" size={28} />
-                        <span>Buddy says: Start here!</span>
-                      </div>
-                    )}
-                  </div>
+                    {isCurrent && <div className="mt-4 flex items-center gap-2 border-t border-border pt-3 text-sm font-semibold text-primary"><BuddyAvatar state="waving" size={28} /><span>Start here — your next lesson is ready.</span></div>}
+                  </article>
                 </div>
               );
             })}

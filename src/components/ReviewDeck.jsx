@@ -7,7 +7,7 @@ import SpeakerButton from './SpeakerButton';
 
 const RATING_LABELS = [
   { quality: 0, label: 'Again', tone: 'error', color: 'bg-db-error text-white' },
-  { quality: 3, label: 'Hard', tone: 'encourage', color: 'bg-db-gold text-db-text-dark' },
+  { quality: 3, label: 'Hard', tone: 'encourage', color: 'bg-accent-light text-accent border border-accent/30' },
   { quality: 4, label: 'Good', tone: 'success', color: 'bg-db-success text-white' },
   { quality: 5, label: 'Easy', tone: 'success', color: 'bg-db-primary text-white' }
 ];
@@ -115,7 +115,7 @@ export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }
         {/* Stats */}
         <div className="grid grid-cols-4 gap-2 mb-6">
           <StatBox label="New" value={stats.new} color="bg-db-primary-light text-primary" />
-          <StatBox label="Learning" value={stats.learning} color="bg-db-gold-light text-db-gold" />
+          <StatBox label="Learning" value={stats.learning} color="bg-accent-light text-accent" />
           <StatBox label="Review" value={stats.due} color="bg-db-success-light text-success" />
           <StatBox label="Mature" value={stats.mature} color="bg-db-accent-light text-accent" />
         </div>
@@ -172,7 +172,7 @@ export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }
               <button
                 key={quality}
                 onClick={() => handleRate(quality)}
-                className={`${color} py-3 rounded-xl font-semibold text-sm transition-transform active:scale-95`}
+                className={`${color} rounded-[var(--radius-button)] py-3 text-sm font-semibold transition-transform active:scale-95`}
               >
                 {label}
               </button>
@@ -193,7 +193,7 @@ export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }
 
 function StatBox({ label, value, color }) {
   return (
-    <div className={`rounded-xl p-2 text-center ${color}`}>
+    <div className={`rounded-[var(--radius-card)] p-2 text-center ${color}`}>
       <p className="text-lg font-bold tabular-nums">{value}</p>
       <p className="text-[10px] font-medium opacity-80">{label}</p>
     </div>

@@ -254,7 +254,7 @@ export default function DashboardShell() {
   }
 
   return (
-    <div className="min-h-dvh bg-bg-primary">
+    <div className="db-page min-h-dvh">
       <SkipLink targetId="main-content" />
       {showTutorial && (
         <Suspense fallback={null}>
@@ -353,46 +353,44 @@ export default function DashboardShell() {
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-xl border-b border-border/40">
+      <div className="db-mobile-header lg:hidden sticky top-0 z-40">
         <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center gap-1 min-w-0">
             <button onClick={() => setShowSidebar(true)}
-              className="w-10 h-10 flex items-center justify-center text-text-muted hover:text-text-body hover:bg-bg-dark-mid transition flex-shrink-0">
+              className="flex h-10 w-10 flex-shrink-0 items-center justify-center text-text-muted transition-colors hover:bg-bg-secondary hover:text-primary">
               <IconMenu className="w-6 h-6" />
             </button>
             <Link to="/" onClick={() => { setActiveView('dashboard'); setSelectedDay(null); setSelectedTask(null); }}
-              className="flex items-center gap-1 cursor-pointer active:scale-95 transition-all duration-150 select-none min-w-0">
-              <span className="text-xl text-text-dark truncate" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Deutsch</span>
-              <span className="text-xl text-gold italic truncate" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Buddy</span>
+              className="flex min-w-0 items-center gap-1 cursor-pointer select-none transition-transform duration-150 active:scale-[0.96]">
+              <span className="db-wordmark truncate text-xl">Deutsch<em>Buddy</em></span>
             </Link>
           </div>
           <div className="flex items-center gap-1 min-w-0">
-            <div className="flex items-center gap-1 px-2 py-1.5 bg-gold-pale border border-gold/20 min-w-0 justify-center">
-              <IconFire className={`w-6 h-6 text-gold flex-shrink-0 ${progress?.streak >= 3 ? 'animate-streak-blaze' : progress?.streak > 0 ? '' : 'opacity-40'}`} />
-              <span className={`text-sm font-bold tabular-nums truncate ${progress?.streak > 0 ? 'text-gold' : 'text-gold/50'}`}>{progress?.streak || 0}</span>
+            <div className="flex min-w-0 items-center justify-center gap-1 border-l border-border px-2 py-1.5">
+              <IconFire className={`h-5 w-5 flex-shrink-0 text-accent ${progress?.streak >= 3 ? 'animate-streak-blaze' : progress?.streak > 0 ? '' : 'opacity-40'}`} />
+              <span className={`truncate text-sm font-bold tabular-nums ${progress?.streak > 0 ? 'text-text-dark' : 'text-text-muted'}`}>{progress?.streak || 0}</span>
             </div>
             <button onClick={() => setShowNotifications(true)}
-              className={`w-9 h-9 flex items-center justify-center text-text-muted hover:text-gold hover:bg-gold/10 transition relative flex-shrink-0 ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
+              className={`relative flex h-10 w-10 flex-shrink-0 items-center justify-center text-text-muted transition-colors hover:bg-bg-secondary hover:text-primary ${hasUnreadNotifications ? 'animate-bell-ring' : ''}`}>
               <IconBell className="w-6 h-6" />
               {hasUnreadNotifications && <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-error" />}
             </button>
             <div className="relative flex-shrink-0" ref={profileMenuRef}>
-              <button onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-9 h-9 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center text-text-on-dark text-[10px] font-bold ring-2 ring-gold/30 active:scale-90 transition-transform">
+              <button onClick={() => setShowProfileMenu(!showProfileMenu)} className="db-profile-avatar h-9 w-9 text-[10px]">
                 {profile?.full_name?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || '?'}
               </button>
               {showProfileMenu && (
-                <div className="absolute right-0 top-full mt-2 w-56 shadow-xl overflow-hidden z-50 slide-up border border-border bg-bg-white" onClick={e => e.stopPropagation()}>
+                <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden border border-border bg-surface shadow-lg slide-up" onClick={e => e.stopPropagation()}>
                   <div className="px-4 py-3 border-b border-border">
                     <p className="text-sm font-semibold text-text-dark truncate">{profile?.full_name || 'Learner'}</p>
                     <p className="text-[11px] text-text-muted truncate">{user?.email || ''}</p>
                   </div>
                   <button onClick={() => { handleViewChange('profile'); setShowProfileMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-text-body hover:bg-bg-secondary transition flex items-center gap-2"><IconUser className="w-4 h-4" /> Profile</button>
+                    className="flex min-h-11 w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-text-body transition-colors hover:bg-bg-secondary"><IconUser className="w-4 h-4 text-primary" /> Profile</button>
                   <button onClick={() => { handleViewChange('settings'); setShowProfileMenu(false); }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-text-body hover:bg-bg-secondary transition flex items-center gap-2"><IconSettings className="w-4 h-4" /> Settings</button>
+                    className="flex min-h-11 w-full items-center gap-2 px-4 py-2.5 text-left text-sm text-text-body transition-colors hover:bg-bg-secondary"><IconSettings className="w-4 h-4 text-primary" /> Settings</button>
                   <button onClick={handleSignOutFromApp}
-                    className="w-full text-left px-4 py-2.5 text-sm text-error hover:bg-error/10 transition">Sign Out</button>
+                    className="flex min-h-11 w-full items-center px-4 py-2.5 text-left text-sm text-error transition-colors hover:bg-error-light">Sign Out</button>
                 </div>
               )}
             </div>
@@ -431,9 +429,9 @@ export default function DashboardShell() {
         ) : activeView === 'dashboard' && !selectedDay ? (
           <Suspense fallback={<LoadingScreen />}><HomePage onViewJourney={() => setActiveView('journey')} /></Suspense>
         ) : (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 pb-nav lg:pb-6">
+          <div className="db-content-width pt-6 pb-nav lg:pb-8">
             {/* Desktop: Two-column layout */}
-            <div className="hidden lg:grid lg:grid-cols-3 gap-6">
+            <div className="dashboard-main-grid hidden gap-6 lg:grid lg:grid-cols-3">
               <div className="lg:col-span-2"><Suspense fallback={<CardSkeleton />}><MainContent {...mainContentProps} /></Suspense></div>
               <div className="lg:col-span-1"><Suspense fallback={<CardSkeleton />}><RightPanel progress={progress} streak={progress.streak} onOpenSpeedBlitz={() => setShowSpeedBlitz(true)} onOpenGenderDungeon={() => setShowGenderDungeon(true)} onOpenPictureMatch={() => setShowPictureMatch(true)} /></Suspense></div>
             </div>
@@ -441,6 +439,9 @@ export default function DashboardShell() {
             {/* Mobile: Single column */}
             <div className="lg:hidden">
               <Suspense fallback={<ListSkeleton count={2} />}><MainContent {...mainContentProps} /></Suspense>
+              <div className="mt-8">
+                <Suspense fallback={<CardSkeleton />}><RightPanel progress={progress} streak={progress.streak} onOpenSpeedBlitz={() => setShowSpeedBlitz(true)} onOpenGenderDungeon={() => setShowGenderDungeon(true)} onOpenPictureMatch={() => setShowPictureMatch(true)} /></Suspense>
+              </div>
             </div>
           </div>
         )}
@@ -470,8 +471,8 @@ function SyncPill({ syncStatus, syncPendingSince }) {
   }, [syncPendingSince]);
   const showSyncing = syncStatus === 'syncing' || (syncStatus === 'pending' && (syncPendingSince ? now - syncPendingSince < 30000 : true));
   return (
-    <div className="flex items-center gap-1.5 px-3 py-1 text-[11px] text-text-muted bg-bg-dark-mid/90 border border-border rounded-full backdrop-blur">
-      <span className={`w-2 h-2 rounded-full ${showSyncing ? 'bg-gold animate-pulse' : 'bg-text-muted/60'}`} />
+    <div className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-[11px] text-text-muted shadow-sm">
+      <span className={`h-2 w-2 rounded-full ${showSyncing ? 'bg-primary animate-pulse' : 'bg-text-muted/60'}`} />
       {showSyncing ? 'Syncing…' : 'Offline — will sync later'}
     </div>
   );

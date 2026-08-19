@@ -103,31 +103,48 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-bg-base flex overflow-y-auto">
-      <div className="m-auto w-full max-w-md px-6 py-8">
-        <div className="text-center mb-6">
-          <div className="flex justify-center mb-3">
-            <BuddyAvatar state="waving" size={96} />
+    <div className="auth-layout">
+      <aside className="auth-brand-panel">
+        <div>
+          <p className="db-wordmark text-[0.72rem] text-bg-cream">DeutschBuddy</p>
+          <div className="mt-12 max-w-md">
+            <div className="mb-6 flex items-center gap-4">
+              <BuddyAvatar state="waving" size={84} />
+              <p className="text-sm font-semibold tracking-wide text-bg-cream/70">Dein erster Schritt.</p>
+            </div>
+            <h1 className="text-5xl font-bold leading-[0.95] sm:text-6xl">
+              Start with words you can use today.
+            </h1>
+            <p className="mt-6 max-w-sm text-base leading-relaxed text-bg-cream/70">
+              Tell us where you are starting, and DeutschBuddy will shape a calm, practical learning path around you.
+            </p>
+            <ul className="auth-value-list mt-10 space-y-4 text-sm text-bg-cream/80">
+              <li className="flex items-start gap-3"><span className="mt-0.5 text-accent">01</span> A clear path for your level and pace</li>
+              <li className="flex items-start gap-3"><span className="mt-0.5 text-success">02</span> Small sessions built for consistency</li>
+              <li className="flex items-start gap-3"><span className="mt-0.5 text-accent">03</span> Practice that keeps real German in focus</li>
+            </ul>
           </div>
-          <p className="text-[10px] font-bold uppercase tracking-[2px] text-gold mb-2">DeutschBuddy</p>
-          <h1 className="text-[26px] font-bold text-text-dark mb-2" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-            Willkommen bei DeutschBuddy! 🇩🇪
-          </h1>
-          <p className="text-text-muted text-sm">
-            Let's start your German learning journey.
-          </p>
         </div>
+        <p className="text-xs tracking-wide text-bg-cream/50">A little German every day adds up.</p>
+      </aside>
 
-        <div className="rounded-[var(--radius-card)] border border-border bg-surface p-6 sm:p-8">
+      <main className="auth-form-panel">
+        <div className="auth-form-card">
+          <div className="mb-8">
+            <p className="db-section-label">Create account</p>
+            <h2 className="mt-3 text-4xl font-bold text-text-dark">Make German part of your day</h2>
+            <p className="mt-2 text-sm text-text-muted">Your guided path starts with a few details.</p>
+          </div>
+
           {errors.form && (
-            <div role="alert" className="bg-error/10 border border-error/20 p-3 mb-5 text-sm text-error font-medium rounded-lg">
+            <div role="alert" className="mb-5 border border-error/20 bg-error/10 p-3 text-sm font-medium text-error">
               {errors.form}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+          <form onSubmit={handleSubmit} noValidate className="space-y-5">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="signup-name">Full Name</label>
+              <label htmlFor="signup-name">Full Name</label>
               <input
                 id="signup-name"
                 type="text"
@@ -137,13 +154,13 @@ export default function SignupPage() {
                 autoComplete="name"
                 placeholder="Your name"
                 aria-invalid={!!errors.fullName}
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                className="w-full border border-border bg-bg-primary px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
-              {errors.fullName && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.fullName}</p>}
+              {errors.fullName && <p className="auth-error" role="alert">{errors.fullName}</p>}
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="signup-email">Email</label>
+              <label htmlFor="signup-email">Email</label>
               <input
                 id="signup-email"
                 type="email"
@@ -153,13 +170,13 @@ export default function SignupPage() {
                 autoComplete="email"
                 placeholder="you@example.com"
                 aria-invalid={!!errors.email}
-                className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                className="w-full border border-border bg-bg-primary px-4 py-3 text-text-body placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
-              {errors.email && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.email}</p>}
+              {errors.email && <p className="auth-error" role="alert">{errors.email}</p>}
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="signup-password">Password</label>
+              <label htmlFor="signup-password">Password</label>
               <div className="relative">
                 <input
                   id="signup-password"
@@ -171,22 +188,22 @@ export default function SignupPage() {
                   autoComplete="new-password"
                   placeholder="Min. 8 characters"
                   aria-invalid={!!errors.password}
-                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                  className="w-full border border-border bg-bg-primary px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-text-muted transition-colors hover:text-primary"
                 >
                   {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.password}</p>}
+              {errors.password && <p className="auth-error" role="alert">{errors.password}</p>}
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-[1.5px] text-text-muted mb-1.5" htmlFor="signup-confirm">Confirm Password</label>
+              <label htmlFor="signup-confirm">Confirm Password</label>
               <div className="relative">
                 <input
                   id="signup-confirm"
@@ -197,30 +214,30 @@ export default function SignupPage() {
                   autoComplete="new-password"
                   placeholder="Repeat your password"
                   aria-invalid={!!errors.confirmPassword}
-                  className="w-full bg-bg-primary border border-border rounded-xl px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold"
+                  className="w-full border border-border bg-bg-primary px-4 py-3 pr-11 text-text-body placeholder:text-text-muted/60 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(v => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-text-muted hover:text-gold transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-text-muted transition-colors hover:text-primary"
                 >
                   {showPassword ? <IconEyeOff className="w-5 h-5" /> : <IconEye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.confirmPassword && <p className="mt-1.5 text-[12px] text-error" role="alert">{errors.confirmPassword}</p>}
+              {errors.confirmPassword && <p className="auth-error" role="alert">{errors.confirmPassword}</p>}
             </div>
 
             <button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full p-4 rounded-xl bg-gold text-bg-primary font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-[0.99] transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="btn-primary w-full justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
           </form>
 
-          <div className="flex items-center gap-3 my-5" aria-hidden="true">
+          <div className="my-6 flex items-center gap-3" aria-hidden="true">
             <div className="h-px flex-1 bg-border" />
             <span className="text-[11px] uppercase tracking-[1.5px] text-text-muted">or</span>
             <div className="h-px flex-1 bg-border" />
@@ -230,18 +247,18 @@ export default function SignupPage() {
             type="button"
             onClick={handleGoogle}
             disabled={loading || googleLoading}
-            className="w-full p-3.5 rounded-xl bg-bg-primary border border-border text-text-body font-semibold flex items-center justify-center gap-2.5 hover:border-gold/50 hover:bg-bg-secondary transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-secondary flex w-full items-center justify-center gap-2.5 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <GoogleIcon size={20} />
             {googleLoading ? 'Connecting to Google...' : 'Continue with Google'}
           </button>
 
-          <p className="text-center mt-6 text-sm text-text-muted">
+          <p className="mt-6 text-center text-sm text-text-muted">
             Already have an account?{' '}
-            <Link to="/login" className="font-semibold text-gold hover:underline">Sign in</Link>
+            <Link to="/login" className="font-semibold text-primary hover:underline">Sign in</Link>
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

@@ -98,11 +98,11 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-      <div className="relative w-full max-w-[calc(100vw-32px)] sm:max-w-md shadow-2xl border border-border overflow-hidden bg-bg-white scale-in" onClick={e => e.stopPropagation()}>
+      <div className="absolute inset-0 bg-primary-dark/55" />
+      <div className="modal-card relative w-full max-w-[calc(100vw-32px)] overflow-hidden border border-border bg-surface shadow-xl scale-in sm:max-w-md" onClick={e => e.stopPropagation()}>
         {!hasEnoughWords ? (
           <div className="p-6 text-center">
-            <div className="flex justify-center mb-3"><IconFire className="w-10 h-10 text-gold-light" /></div>
+            <div className="mb-3 flex justify-center"><IconFire className="h-10 w-10 text-accent" /></div>
             <p className="text-text-dark font-bold text-sm mb-1">Not enough vocabulary yet</p>
             <p className="text-[11px] text-text-muted mb-4">Complete more lessons to unlock Streak Guardian.</p>
             <button onClick={onClose}
@@ -113,7 +113,7 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
         ) : !finished ? (
           <div>
             <div className="p-5 border-b border-border flex items-center gap-2">
-              <IconFire className="w-5 h-5 text-gold-light animate-streak-blaze" />
+              <IconFire className="h-5 w-5 text-accent animate-streak-blaze" />
               <h3 className="text-base font-bold text-text-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Streak Guardian</h3>
             </div>
 
@@ -122,13 +122,13 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
                 <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">
                   Question {step + 1} of 3
                 </span>
-                <span className="text-[10px] font-bold text-gold-light flex items-center gap-1"><IconFire className="w-3 h-3" /> Save your streak!</span>
+                <span className="flex items-center gap-1 text-[10px] font-bold text-accent"><IconFire className="h-3 w-3" /> Save your streak!</span>
               </div>
               <div className="flex gap-1.5 mb-4">
                 {[0, 1, 2].map(i => (
                   <div key={i} className={`flex-1 h-1.5 transition-colors ${
-                    i < answers.length ? (answers[i] ? 'bg-gold' : 'bg-error') :
-                    i === answers.length ? 'bg-gold-light/50' : 'bg-bg-secondary'
+                    i < answers.length ? (answers[i] ? 'bg-success' : 'bg-error') :
+                    i === answers.length ? 'bg-primary/30' : 'bg-bg-secondary'
                   }`} />
                 ))}
               </div>
@@ -137,7 +137,7 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
             <div className="px-5 pb-5">
               <div className={`text-center mb-4 p-4 border transition-colors ${
                 answers.length > step ? (
-                  answers[step] ? 'border-gold/40 bg-gold/10' : 'border-error/40 bg-error/10'
+                  answers[step] ? 'border-success/40 bg-success/10' : 'border-error/40 bg-error/10'
                 ) : 'border-border bg-bg-secondary/40'
               }`}>
                 <p className="text-xs text-text-muted mb-1">What does this mean?</p>
@@ -154,9 +154,9 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
                       className={`p-3 text-sm font-semibold transition-all active:scale-95 border ${
                         isSelected
                           ? isCorrect
-                            ? 'border-gold bg-gold/20 text-gold-light'
+                            ? 'border-success bg-success/20 text-success'
                             : 'border-error/50 bg-error/10 text-text-muted'
-                          : 'border-border bg-bg-secondary/50 text-text-body hover:border-gold/30 hover:bg-bg-secondary hover:text-text-body'
+                          : 'border-border bg-bg-secondary/50 text-text-body hover:border-primary/30 hover:bg-bg-secondary hover:text-text-body'
                       }`}>
                       {opt}
                     </button>
@@ -168,7 +168,7 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
         ) : (
           <div className="p-6 text-center">
             <div className={`flex justify-center mb-3 ${allCorrect ? 'animate-bounce' : ''}`}>
-              <IconFire className={`w-12 h-12 ${allCorrect ? 'text-gold' : 'text-text-muted'}`} />
+              <IconFire className={`h-12 w-12 ${allCorrect ? 'text-success' : 'text-text-muted'}`} />
             </div>
             <p className="text-lg font-bold text-text-dark mb-1">
               {allCorrect ? 'Streak Saved!' : 'Streak Lost'}
@@ -181,7 +181,7 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
             <div className="flex items-center justify-center gap-3 my-4">
               {answers.map((a, i) => (
                 <div key={i} className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  a ? 'bg-gold/20 text-gold' : 'bg-error/20 text-error'
+                  a ? 'bg-success/20 text-success' : 'bg-error/20 text-error'
                 }`}>
                   {a ? <IconCheck className="w-4 h-4" /> : <IconX className="w-4 h-4" />}
                 </div>
@@ -190,7 +190,7 @@ export default function StreakGuardian({ levelData, completedTasks, onSuccess, o
             <button onClick={allCorrect ? onSuccess : onClose}
               className={`mt-2 px-6 py-2.5 text-xs font-bold transition active:scale-95 ${
                 allCorrect
-                  ? 'bg-gold text-text-on-dark hover:bg-gold-light shadow-gold/20'
+                  ? 'bg-success text-white hover:bg-success/90'
                   : 'bg-bg-secondary text-text-body hover:bg-bg-secondary'
               }`}>
               {allCorrect ? 'Continue Learning' : 'Close'}

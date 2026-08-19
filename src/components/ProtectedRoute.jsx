@@ -13,8 +13,8 @@ export default function ProtectedRoute({ children }) {
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-bg-primary">
       <div className="flex flex-col items-center gap-4 scale-in">
-        <IconBookOpen className="w-12 h-12 text-gold animate-float" />
-        <div className="w-10 h-10 border-3 border-bg-dark-mid rounded-full animate-spin border-t-gold" />
+        <IconBookOpen className="h-12 w-12 text-primary animate-float" />
+        <div className="h-10 w-10 animate-spin rounded-full border-3 border-bg-dark-mid border-t-primary" />
         <p className="text-text-muted text-sm font-medium">Loading DeutschBuddy...</p>
       </div>
     </div>

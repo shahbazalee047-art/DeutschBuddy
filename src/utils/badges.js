@@ -13,11 +13,11 @@ export const BADGE_CATEGORIES = {
 };
 
 export const CATEGORY_COLORS = {
-  habit: '#F4B942',
-  xp: '#F4B942',
-  grammar: '#49B36B',
-  vocab: '#E85D3F',
-  exam: '#4F8EF7',
+  habit: '#3B82F6',
+  xp: '#1B3A35',
+  grammar: '#22C55E',
+  vocab: '#B94A4A',
+  exam: '#3B82F6',
 };
 
 export const ALL_BADGES = [

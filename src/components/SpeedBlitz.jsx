@@ -179,15 +179,15 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
 
   const wordTime = getWordTime(score);
   const timerPct = (wordTimeLeft / wordTime) * 100;
-  const timerColor = timerPct > 50 ? 'bg-gold' : timerPct > 25 ? 'bg-gold-light' : 'bg-error';
+  const timerColor = timerPct > 50 ? 'bg-primary' : timerPct > 25 ? 'bg-primary/60' : 'bg-error';
   const bestScore = leaderboard.length > 0 ? leaderboard[0].score : 0;
 
   const cardClass = compact ? ' border border-border bg-bg-secondary/60 p-2' : 'paper-card p-4';
 
   return (
-    <div className={cardClass}>
+    <div className={`${cardClass} exercise-content`}>
       <div className="flex items-center gap-2 mb-3">
-        <IconZap className="w-4 h-4 text-gold-light" />
+        <IconZap className="w-4 h-4 text-accent" />
         <h4 className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Speed Blitz</h4>
       </div>
 
@@ -197,13 +197,13 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
           <p className="text-[11px] text-text-muted mb-1">Answer before time runs out. <span className="text-error">5 mistakes</span> and it's over.</p>
           <p className="text-[10px] text-text-muted mb-3">Speed increases as your score grows.</p>
           {bestScore > 0 && (
-            <p className="text-[10px] text-gold-light font-bold mb-3">
+            <p className="mb-3 text-[10px] font-bold text-primary">
               <IconTrophy className="w-3 h-3 inline -mt-0.5 mr-0.5" />
               Best: {bestScore}
             </p>
           )}
           <button onClick={startGame}
-            className="mt-1 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
+            className="btn-primary mt-1 px-5 py-2 text-xs">
             Start Game
           </button>
           {leaderboard.length > 1 && (
@@ -212,7 +212,7 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
               <div className="space-y-1">
                 {leaderboard.slice(0, compact ? 3 : 5).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
+                    i === 0 ? 'bg-primary-light text-primary' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
@@ -233,7 +233,7 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
               Score: <span className="text-text-body">{score}</span>
             </span>
             <div className="flex items-center gap-2">
-              {streak >= 2 && <span className="text-[10px] font-bold text-gold-light"> {streak}</span>}
+              {streak >= 2 && <span className="text-[10px] font-bold text-primary"> {streak}</span>}
               <span className="text-[10px] font-bold text-error">
                 ❌ {mistakes}/{MAX_MISTAKES}
               </span>
@@ -246,13 +246,13 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
           </div>
 
           <div className={`text-center mb-3 p-3  border transition-colors ${
-            feedback === 'correct' ? 'border-gold/40 bg-gold/10' :
+            feedback === 'correct' ? 'border-success/40 bg-success/10' :
             feedback === 'wrong' ? 'border-error/40 bg-error/10' :
-            feedback === 'timeout' ? 'border-gold-light/40 bg-gold-light/10' :
+            feedback === 'timeout' ? 'border-primary/40 bg-primary-light' :
             'border-border bg-bg-secondary/30'
           }`}>
             {!feedback && <p className="text-[10px] text-text-muted mb-0.5">Translate</p>}
-            {feedback === 'timeout' && <p className="text-[10px] text-gold-light font-bold mb-0.5">Time's up!</p>}
+            {feedback === 'timeout' && <p className="mb-0.5 text-[10px] font-bold text-primary">Time's up!</p>}
             <p className="text-xl font-bold text-text-dark">{current.de}</p>
           </div>
 
@@ -263,7 +263,7 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
                 className={`p-2 rounded-lg text-xs font-semibold transition-all active:scale-95 border ${
                   feedback
                     ? opt.en === current.en
-                      ? 'border-gold bg-gold/20 text-gold-light'
+                      ? 'border-success bg-success/20 text-success'
                       : 'border-border/50 bg-bg-secondary/50 text-text-muted'
                     : 'border-border bg-bg-secondary/50 text-text-body hover:border-cream-400/30 hover:bg-bg-secondary hover:text-text-body'
                 }`}>
@@ -293,7 +293,7 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
           <p className="text-[10px] text-text-muted mb-3">Mistakes: {mistakes} / {MAX_MISTAKES}</p>
 
           <button onClick={startGame}
-            className="mb-3 px-5 py-2  bg-gold-light text-text-on-dark text-xs font-bold hover:bg-gold-pale transition active:scale-95 shadow-sm shadow-gold-light/20">
+            className="btn-primary mb-3 px-5 py-2 text-xs">
             Play Again
           </button>
 
@@ -303,7 +303,7 @@ export default function SpeedBlitz({ level = 'A1', compact, onScore }) {
               <div className="space-y-1 max-h-40 overflow-y-auto">
                 {leaderboard.slice(0, compact ? 3 : 10).map((entry, i) => (
                   <div key={i} className={`flex items-center justify-between px-2 py-1 rounded-lg text-[11px] ${
-                    i === 0 ? 'bg-gold-light/10 text-gold-pale' : 'text-text-muted'
+                    i === 0 ? 'bg-primary-light text-primary' : 'text-text-muted'
                   }`}>
                     <span className="font-bold">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}

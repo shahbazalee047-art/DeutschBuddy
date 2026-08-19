@@ -1,38 +1,30 @@
-import { memo, useState, useMemo, useRef, useEffect } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { getWeekCompletion } from '../utils/progress';
 import { englishTopicTitle } from '../utils/topicTitle';
-import { IconCheck, IconLock } from './Icons';
+import { IconCheck, IconChevronDown, IconLock } from './Icons';
 
-const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked, activeLevel }) {
+const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelectDay, selectedDay, isUnlocked }) {
   const [expanded, setExpanded] = useState(false);
   const [shakeDay, setShakeDay] = useState(null);
   const shakeTimerRef = useRef(null);
-
-  useEffect(() => () => clearTimeout(shakeTimerRef.current), []);
   const safeDays = Array.isArray(week?.days) ? week.days : [];
-  // Build a Set once (deps on the stable prop) so every per-day / per-task
-  // lookup is O(1) instead of O(n).
   const completedSet = useMemo(() => new Set(Array.isArray(completedTasks) ? completedTasks : []), [completedTasks]);
   const completion = getWeekCompletion(safeDays, completedSet);
   const isComplete = completion === 100;
-  const weekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).filter(t => completedSet.has(t.id)).reduce((a, t) => a + (t.xp || 0), 0), 0);
-  const totalWeekXP = safeDays.reduce((acc, day) => acc + (day.tasks || []).reduce((a, t) => a + (t.xp || 0), 0), 0);
+  const weekXP = safeDays.reduce((sum, day) => sum + (day.tasks || []).filter(task => completedSet.has(task.id)).reduce((taskSum, task) => taskSum + (task.xp || 0), 0), 0);
+  const totalWeekXP = safeDays.reduce((sum, day) => sum + (day.tasks || []).reduce((taskSum, task) => taskSum + (task.xp || 0), 0), 0);
 
-  const isDayUnlocked = (day) => {
+  useEffect(() => () => clearTimeout(shakeTimerRef.current), []);
+
+  function isDayUnlocked(day) {
     if (!isUnlocked) return false;
-    const idx = safeDays.findIndex(d => d.day === day.day);
-    if (idx <= 0) return true;
-    for (let i = 0; i < idx; i++) {
-      const tasks = safeDays[i].tasks || [];
-      if (tasks.length === 0) continue;
-      if (!tasks.every(t => completedSet.has(t.id))) return false;
-    }
-    return true;
-  };
+    const index = safeDays.findIndex(item => item.day === day.day);
+    if (index <= 0) return true;
+    return safeDays.slice(0, index).every(item => (item.tasks || []).length === 0 || item.tasks.every(task => completedSet.has(task.id)));
+  }
 
-  const handleDayClick = (day) => {
+  function handleDayClick(day) {
     if (!isDayUnlocked(day)) {
-      // Locked day: give tactile pushback (shake) instead of dead silence.
       setShakeDay(day.day);
       clearTimeout(shakeTimerRef.current);
       shakeTimerRef.current = setTimeout(() => setShakeDay(null), 400);
@@ -40,165 +32,78 @@ const WeeklyModule = memo(function WeeklyModule({ week, completedTasks, onSelect
     }
     setExpanded(true);
     onSelectDay(week.id, day.day);
-  };
+  }
 
-  const cardState = isComplete
-    ? 'complete'
-    : isUnlocked
-      ? 'active'
-      : 'locked';
-
-  const accentColor = activeLevel === 'A2' ? 'var(--a2-red)' : 'var(--a1-blue)';
-
-  const stateClasses = {
-    active: 'bg-[var(--bg-dark)] text-text-on-dark rounded-[var(--radius-card)] border-l-4 border-l-gold shadow-[0_12px_40px_rgba(232,163,61,0.15)]',
-    complete: 'bg-[var(--bg-primary)] text-text-body rounded-[var(--radius-card)] border border-border border-l-4 border-l-[var(--success)]',
-    locked: 'bg-[var(--card-muted)] text-text-body rounded-[var(--radius-card)] border-l-4 border-l-[var(--text-locked)] border-dashed opacity-60 pointer-events-none',
-  };
-
-  const handleToggle = () => {
-    if (isUnlocked && !isComplete) {
-      setExpanded(!expanded);
-    }
-    if (isUnlocked && !selectedDay) {
-      // default to first incomplete day
-      const firstIncomplete = safeDays.find(day => {
-        const tasks = day.tasks || [];
-        return tasks.length > 0 && !tasks.every(t => completedSet.has(t.id));
-      });
+  function handleToggle() {
+    if (!isUnlocked || isComplete) return;
+    setExpanded(open => !open);
+    if (!selectedDay) {
+      const firstIncomplete = safeDays.find(day => (day.tasks || []).length > 0 && !day.tasks.every(task => completedSet.has(task.id)));
       if (firstIncomplete) onSelectDay(week.id, firstIncomplete.day);
     }
-  };
+  }
+
+  const state = isComplete ? 'complete' : isUnlocked ? 'active' : 'locked';
+  const accent = 'var(--db-accent)';
+
+  function renderDays() {
+    return (
+      <div className="relative flex justify-center gap-2 py-3">
+        <div className="absolute left-8 right-8 top-1/2 h-px -translate-y-1/2 bg-border" aria-hidden="true" />
+        {safeDays.map(day => {
+          const tasks = day?.tasks || [];
+          const dayDone = tasks.length > 0 && tasks.every(task => completedSet.has(task.id));
+          const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
+          const dayUnlocked = isDayUnlocked(day);
+          const shaking = shakeDay === day.day && !dayUnlocked;
+          return (
+            <button
+              key={day.day}
+              type="button"
+              onClick={() => handleDayClick(day)}
+              aria-disabled={!dayUnlocked}
+              aria-label={`Day ${day.day}${dayDone ? ', completed' : !dayUnlocked ? ', locked' : ''}`}
+              className={`relative z-10 flex h-10 w-10 shrink-0 items-center justify-center border text-sm font-bold transition-[background-color,border-color,transform] active:scale-[0.96] sm:h-12 sm:w-12 ${shaking ? 'animate-shake' : ''} ${dayDone ? 'border-success bg-success-light text-success' : !dayUnlocked ? 'cursor-not-allowed border-border bg-bg-secondary text-text-muted' : isCurrentDay ? 'border-primary bg-primary-light text-primary ring-2 ring-primary/20' : 'border-border bg-surface text-text-body hover:border-primary'}`}
+            >
+              {dayDone ? <IconCheck className="h-4 w-4" /> : !dayUnlocked ? <IconLock className="h-3.5 w-3.5" /> : tasks.some(task => !completedSet.has(task.id)) ? <span className="h-2 w-2" style={{ background: accent }} /> : day.day}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
-    <div className={`transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-[max-height,opacity] overflow-hidden ${stateClasses[cardState]}`}>
-      {isComplete && (
-        <div className="absolute top-3 right-3 w-6 h-6 flex items-center justify-center rounded-full" style={{ background: 'var(--success)', color: 'var(--cta-text)' }}>
-          <IconCheck className="w-4 h-4" />
-        </div>
-      )}
-      {cardState === 'locked' && (
-        <div className="absolute top-0 right-0 px-3 py-1 rounded-bl-md text-[10px] uppercase font-bold tracking-widest flex items-center gap-1" style={{ background: 'rgba(138,133,124,0.15)', color: 'var(--text-locked)' }}>
-          <IconLock className="w-3 h-3" /> Locked
-        </div>
-      )}
+    <article className={`weekly-module relative overflow-hidden ${state === 'active' ? 'border border-primary/25 border-l-4 border-l-primary bg-primary-light text-text-body shadow-db-card' : state === 'complete' ? 'border border-border border-l-4 border-l-success bg-success-light text-text-body' : 'border-l-4 border-l-border bg-bg-secondary text-text-body opacity-65'}`}>
+      {isComplete && <span className="absolute right-4 top-4 flex h-7 w-7 items-center justify-center bg-success text-white" aria-label="Completed"><IconCheck className="h-4 w-4" /></span>}
+      {!isUnlocked && <span className="absolute right-0 top-0 inline-flex items-center gap-1 bg-border px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-text-muted"><IconLock className="h-3 w-3" /> Locked</span>}
 
-      <div className="p-5">
-        <button onClick={handleToggle} className="w-full text-left">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className={`w-12 h-12 flex items-center justify-center text-lg font-bold rounded-[var(--radius-card)] transition-all ${
-                isComplete
-                  ? 'text-[var(--cta-text)]'
-                  : isUnlocked
-                    ? 'text-gold border border-gold/20 bg-gold/10'
-                    : 'text-[var(--text-locked)] bg-[var(--bg-secondary)]'
-              }`}>
-                {isComplete ? (
-                  <IconCheck className="w-6 h-6" />
-                ) : (
-                  <span>W{week.id}</span>
-                )}
-              </div>
-              <div>
-                <span className="eyebrow" style={{ color: isUnlocked ? 'var(--gold)' : 'var(--text-locked)' }}>Week {week.id}</span>
-                <h3 className="text-[22px] font-bold" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif", color: isUnlocked ? 'var(--text-on-dark)' : 'var(--text-dark)' }}>{englishTopicTitle(week.title)}</h3>
-                <p className="text-[14px] font-medium" style={{ color: isUnlocked ? 'var(--text-on-dark-muted)' : 'var(--text-muted)' }}>{week.theme}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold px-3 py-1.5 rounded-full" style={{
-                background: isUnlocked ? 'rgba(232,183,61,0.10)' : 'var(--bg-secondary)',
-                color: isUnlocked ? 'var(--gold)' : 'var(--text-locked)',
-                border: `1px solid ${isUnlocked ? 'rgba(232,183,61,0.20)' : 'var(--border-default)'}`
-              }}>
-                {isUnlocked ? `+${weekXP}/${totalWeekXP} XP` : `+${totalWeekXP} XP`}
+      <div className="p-5 sm:p-6">
+        <button type="button" onClick={handleToggle} disabled={!isUnlocked} aria-expanded={expanded} className="w-full text-left disabled:cursor-not-allowed">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-start gap-3">
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center text-sm font-bold ${isComplete ? 'bg-success text-white' : isUnlocked ? 'border border-primary/30 bg-surface text-primary' : 'bg-bg-secondary text-text-muted'}`}>
+                {isComplete ? <IconCheck className="h-5 w-5" /> : `W${week.id}`}
+              </span>
+              <span className="min-w-0">
+                <span className={`mb-1 block text-[10px] font-bold uppercase tracking-[1.5px] ${isComplete ? 'text-success' : isUnlocked ? 'text-primary' : 'text-text-muted'}`}>Week {week.id}</span>
+                <span className="block truncate font-display text-2xl font-bold text-text-dark">{englishTopicTitle(week.title)}</span>
+                <span className="mt-1 block truncate text-sm text-text-muted">{week.theme}</span>
               </span>
             </div>
+            <span className="flex shrink-0 items-center gap-2">
+              <span className="hidden text-xs font-bold text-text-muted sm:inline">{isUnlocked ? `${weekXP}/${totalWeekXP} XP` : `${totalWeekXP} XP`}</span>
+              <IconChevronDown className={`h-5 w-5 text-text-muted transition-transform ${expanded ? 'rotate-180' : ''}`} />
+            </span>
           </div>
-
-          <div className="mb-4">
-            <div className="flex justify-between text-[11px] mb-1.5 uppercase font-medium" style={{ color: isUnlocked ? 'var(--text-on-dark-muted)' : 'var(--text-muted)', letterSpacing: '0.5px' }}>
-              <span>Progress</span><span>{completion}%</span>
-            </div>
-            <div className="progress-bar">
-              <div className="progress-bar-fill" style={{ width: `${completion}%` }} />
-            </div>
+          <div className="mt-5">
+            <div className="mb-2 flex justify-between text-[11px] font-bold uppercase tracking-wider text-text-muted"><span>Progress</span><span className="tabular-nums">{completion}%</span></div>
+            <div className="progress-bar bg-border-light"><div className={`progress-bar-fill ${isComplete ? 'bg-success' : ''}`} style={{ width: `${completion}%` }} /></div>
           </div>
         </button>
-
-        {isUnlocked && !isComplete && expanded && (
-          <div className="relative flex justify-center gap-2 py-3 morph-expand">
-            <div className="absolute top-1/2 left-10 right-10 h-0.5 -translate-y-1/2" style={{ background: 'rgba(232,163,61,0.15)' }} />
-            {safeDays.map((day) => {
-              const tasks = day?.tasks || [];
-              const dayDone = tasks.length > 0 && tasks.every(t => completedSet.has(t.id));
-              const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
-              const dayHasIncomplete = tasks.length > 0 && !tasks.every(t => completedSet.has(t.id));
-              const dayUnlocked = isDayUnlocked(day);
-              const shaking = shakeDay === day.day && !dayUnlocked;
-
-              return (
-                <button key={day.day} onClick={() => handleDayClick(day)}
-                  aria-disabled={!dayUnlocked}
-                  className={`relative z-10 day-circle w-9 md:w-12 h-9 md:h-12 rounded-full shrink-0 text-sm md:text-base transition-all active:scale-90 ${
-                    shaking ? 'shake' : ''
-                  } ${
-                    dayDone
-                      ? 'day-circle-completed'
-                      : !dayUnlocked
-                        ? 'day-circle-locked'
-                        : isCurrentDay
-                          ? 'day-circle-current ring-2 ring-gold-light/40'
-                          : 'day-circle'
-                  }`}>
-                  {dayDone ? (
-                    <IconCheck className="w-4 h-4" />
-                  ) : !dayUnlocked ? (
-                    <IconLock className="w-3 h-3" />
-                  ) : dayHasIncomplete ? (
-                    <span className="w-2 h-2 rounded-full" style={{ background: accentColor }} />
-                  ) : (
-                    day.day
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {isUnlocked && !isComplete && !expanded && (
-          <div className="relative flex justify-center gap-2 py-2">
-            <div className="absolute top-1/2 left-10 right-10 h-0.5 -translate-y-1/2" style={{ background: 'rgba(232,163,61,0.15)' }} />
-            {safeDays.map((day) => {
-              const tasks = day?.tasks || [];
-              const dayDone = tasks.length > 0 && tasks.every(t => completedSet.has(t.id));
-              const isCurrentDay = selectedDay?.day === day.day && selectedDay?.weekId === week.id;
-              const dayUnlocked = isDayUnlocked(day);
-              const shaking = shakeDay === day.day && !dayUnlocked;
-
-              return (
-                <button key={day.day} onClick={() => handleDayClick(day)}
-                  aria-disabled={!dayUnlocked}
-                  className={`relative z-10 day-circle w-9 md:w-12 h-9 md:h-12 rounded-full shrink-0 text-sm md:text-base ${
-                    shaking ? 'shake' : ''
-                  } ${
-                    dayDone
-                      ? 'day-circle-completed'
-                      : !dayUnlocked
-                        ? 'day-circle-locked'
-                        : isCurrentDay
-                          ? 'day-circle-current ring-2 ring-gold-light/40'
-                          : 'day-circle'
-                  } active:scale-90 transition-transform`}>
-                  {dayDone ? <IconCheck className="w-4 h-4" /> : !dayUnlocked ? <IconLock className="w-3 h-3" /> : day.day}
-                </button>
-              );
-            })}
-          </div>
-        )}
+        {isUnlocked && !isComplete && (expanded ? renderDays() : <div className="mt-2">{renderDays()}</div>)}
       </div>
-    </div>
+    </article>
   );
 });
 

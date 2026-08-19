@@ -1,107 +1,30 @@
 import { Link } from 'react-router-dom';
-import { IconChart, IconTarget, IconCalendar, IconX, IconSearch, IconZap, IconImage, IconTrophy } from './Icons';
+import { IconChart, IconTarget, IconCalendar, IconX, IconSearch, IconZap, IconImage, IconTrophy, IconChevronRight } from './Icons';
 
 const progressSections = [
-  { id: 'progress-statistics', label: 'Learning Statistics', icon: IconChart },
-  { id: 'progress-skills', label: 'Skill Breakdown', icon: IconTarget },
-  { id: 'progress-calendar', label: 'Activity Calendar', icon: IconCalendar },
+  { id: 'progress-statistics', label: 'Learning statistics', icon: IconChart },
+  { id: 'progress-skills', label: 'Skill breakdown', icon: IconTarget },
+  { id: 'progress-calendar', label: 'Activity calendar', icon: IconCalendar },
 ];
 
-export default function MobileSidebar({
-  isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange,
-  onVerbLookup, onOpenSpeedBlitz, onOpenGenderDungeon, onOpenPictureMatch
-}) {
-
-  function handleNav(view) {
-    onViewChange(view);
-    onClose();
-  }
-
-  function handleOpenGame(openFn) {
-    openFn();
-    onClose();
-  }
-
+export default function MobileSidebar({ isOpen, onClose, activeView, onViewChange, activeLevel, onLevelChange, onVerbLookup, onOpenSpeedBlitz, onOpenGenderDungeon, onOpenPictureMatch }) {
   if (!isOpen) return null;
-
+  function handleNav(view) { onViewChange(view); onClose(); }
+  function handleTool(open) { open(); onClose(); }
   return (
-    <div className="fixed inset-0 z-50 lg:hidden" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] shadow-2xl slide-in overflow-y-auto bg-bg-dark border-r border-border/30 pb-20" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-4 border-b border-border">
-          <Link to="/" onClick={() => { onViewChange('dashboard'); onClose(); }}
-            className="flex items-center gap-2">
-            <span className="text-base font-extrabold text-text-on-dark" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Deutsch</span>
-            <span className="text-base font-extrabold text-gold italic" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>Buddy</span>
-          </Link>
-          <button onClick={onClose} className="w-8 h-8 bg-bg-dark-mid/50 hover:bg-bg-dark-mid flex items-center justify-center text-text-on-dark-muted transition"><IconX className="w-4 h-4" /></button>
-        </div>
-
-        {/* Level Toggle — TOP */}
-        <div className="p-3 pt-4 pb-2">
-          <div className="flex gap-2 px-3 min-w-0">
-            {['A1', 'A2'].map(lvl => (
-              <button key={lvl} onClick={() => { onLevelChange(lvl); onClose(); }}
-                className={`flex-1 py-2.5 text-[13px] transition-all active:scale-95 truncate min-w-0 ${
-                  activeLevel === lvl
-                    ? 'bg-gold text-text-on-dark shadow-sm font-bold underline underline-offset-4'
-                    : 'bg-bg-dark-mid text-text-on-dark-muted border border-gold/20 hover:text-text-on-dark font-medium'
-                }`}>
-                {lvl}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Progress Sections */}
-        <div className="p-3 pt-2 border-t border-gold/20">
-          <p className="text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest px-3 mb-2">Progress</p>
-          {progressSections.map(item => (
-            <button key={item.id} onClick={() => handleNav(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] mb-0.5 ${
-                activeView === item.id
-                  ? 'text-text-on-dark bg-gold shadow-sm'
-                  : 'text-text-on-dark-muted hover:text-text-on-dark hover:bg-bg-dark-mid/50'
-              }`}>
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </div>
-
-        {/* Verb Lookup */}
-        <div className="p-3 pt-2 border-t border-gold/20">
-          <p className="text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest px-3 mb-2">Tools</p>
-          <button onClick={() => { onVerbLookup(); }}
-            className="w-full flex items-center gap-3 px-3 py-3.5 text-sm font-semibold transition-all active:scale-[0.98] text-text-on-dark-muted hover:text-text-on-dark hover:bg-bg-dark-mid/50">
-            <IconSearch className="w-5 h-5 flex-shrink-0" />
-            <span>Verb Lookup</span>
-          </button>
-        </div>
-
-        {/* Games */}
-        <div className="p-3 pt-2 border-t border-gold/20">
-          <p className="text-[10px] font-bold text-text-on-dark-muted uppercase tracking-widest px-3 mb-2">Games</p>
-          <div className="grid grid-cols-3 gap-2 px-3">
-            <button onClick={() => handleOpenGame(onOpenSpeedBlitz)}
-              className="aspect-square flex flex-col items-center justify-center gap-1.5 p-2 bg-bg-dark-mid border border-gold/20 text-text-on-dark-muted hover:text-text-on-dark hover:bg-gold/10 hover:border-gold/40 transition active:scale-[0.98]">
-              <IconZap className="w-6 h-6 text-gold-light" />
-              <span className="text-[10px] font-semibold leading-tight text-center">Wortblitz</span>
-            </button>
-            <button onClick={() => handleOpenGame(onOpenGenderDungeon)}
-              className="aspect-square flex flex-col items-center justify-center gap-1.5 p-2 bg-bg-dark-mid border border-gold/20 text-text-on-dark-muted hover:text-text-on-dark hover:bg-gold/10 hover:border-gold/40 transition active:scale-[0.98]">
-              <IconTrophy className="w-6 h-6 text-gold-light" />
-              <span className="text-[10px] font-semibold leading-tight text-center">Der Die Das Dungeon</span>
-            </button>
-            <button onClick={() => handleOpenGame(onOpenPictureMatch)}
-              className="aspect-square flex flex-col items-center justify-center gap-1.5 p-2 bg-bg-dark-mid border border-gold/20 text-text-on-dark-muted hover:text-text-on-dark hover:bg-gold/10 hover:border-gold/40 transition active:scale-[0.98]">
-              <IconImage className="w-6 h-6 text-gold-light" />
-              <span className="text-[10px] font-semibold leading-tight text-center">Bild Memory</span>
-            </button>
-          </div>
-        </div>
-
-      </div>
+    <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Navigation" onClick={onClose}>
+      <div className="absolute inset-0 bg-primary-dark/40" aria-hidden="true" />
+      <aside className="absolute bottom-0 left-0 top-0 w-80 max-w-[calc(100vw-32px)] overflow-y-auto border-r border-border bg-surface p-4 shadow-2xl" onClick={event => event.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-border pb-4"><Link to="/" onClick={() => handleNav('dashboard')} className="db-wordmark text-2xl">Deutsch<em>Buddy</em></Link><button type="button" onClick={onClose} className="flex h-10 w-10 items-center justify-center text-text-muted hover:bg-bg-secondary hover:text-primary" aria-label="Close navigation"><IconX className="h-5 w-5" /></button></div>
+        <div className="border-b border-border py-5"><p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Course level</p><div className="grid grid-cols-2 border border-border">{['A1', 'A2'].map(level => <button key={level} type="button" onClick={() => { onLevelChange(level); onClose(); }} className={`min-h-11 text-sm font-bold ${activeLevel === level ? 'bg-primary text-white underline decoration-2 underline-offset-4' : 'bg-surface text-text-muted hover:bg-bg-secondary'}`}>{level}</button>)}</div></div>
+        <div className="border-b border-border py-5"><p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Progress</p>{progressSections.map(item => <button key={item.id} type="button" onClick={() => handleNav(item.id)} className={`flex min-h-12 w-full items-center gap-3 px-3 text-left text-sm font-semibold ${activeView === item.id ? 'bg-primary-light text-primary' : 'text-text-body hover:bg-bg-secondary'}`}><item.icon className="h-5 w-5 shrink-0" /><span>{item.label}</span><IconChevronRight className="ml-auto h-4 w-4 text-text-muted" /></button>)}</div>
+        <div className="border-b border-border py-5"><p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Tools</p><button type="button" onClick={onVerbLookup} className="flex min-h-12 w-full items-center gap-3 px-3 text-left text-sm font-semibold text-text-body hover:bg-bg-secondary"><IconSearch className="h-5 w-5 text-primary" /> Verb lookup <IconChevronRight className="ml-auto h-4 w-4 text-text-muted" /></button></div>
+        <div className="py-5"><p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Quick practice</p><div className="grid grid-cols-3 gap-2"><ToolButton label="Speed" icon={IconZap} onClick={() => handleTool(onOpenSpeedBlitz)} /><ToolButton label="Gender" icon={IconTrophy} onClick={() => handleTool(onOpenGenderDungeon)} /><ToolButton label="Pictures" icon={IconImage} onClick={() => handleTool(onOpenPictureMatch)} /></div></div>
+      </aside>
     </div>
   );
+}
+
+function ToolButton({ label, icon: Icon, onClick }) {
+  return <button type="button" onClick={onClick} className="flex aspect-square min-h-16 flex-col items-center justify-center gap-1 border border-border bg-bg-secondary p-2 text-xs font-bold text-text-body hover:border-primary hover:bg-primary-light"><Icon className="h-5 w-5 text-primary" />{label}</button>;
 }

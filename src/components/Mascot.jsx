@@ -14,8 +14,8 @@ export default function Mascot() {
   return (
     <div className="paper-card p-4">
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style={{ background: 'rgba(232,163,61,0.15)' }}>
-          <IconLeaf className="w-7 h-7 text-gold" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary-light text-2xl">
+          <IconLeaf className="h-7 w-7 text-primary" />
         </div>
         <div>
           <div className="text-sm font-bold text-text-body" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
@@ -28,7 +28,7 @@ export default function Mascot() {
       </div>
       <div className="flex gap-2 text-sm">
         {moods.map((mood) => (
-          <div key={mood.label} className="px-3 py-1 rounded-full text-xs text-text-muted border border-gold-light/20 hover:border-gold-light/40 transition-all duration-200 flex items-center gap-1">
+          <div key={mood.label} className="flex items-center gap-1 rounded-full border border-primary/20 px-3 py-1 text-xs text-text-muted transition-all duration-200 hover:border-primary/40">
             <mood.icon className="w-3 h-3" /> {mood.label}
           </div>
         ))}

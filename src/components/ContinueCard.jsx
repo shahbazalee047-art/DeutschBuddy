@@ -1,150 +1,92 @@
 import { useNavigate } from 'react-router-dom';
-import { IconBookOpen, IconSparkles, IconGamepad } from './Icons';
+import { IconArrowRight, IconBookOpen, IconGamepad, IconSparkles } from './Icons';
 import { englishTopicTitle } from '../utils/topicTitle';
 
 const DAILY_TASK_TARGET = 5;
 
 export default function ContinueCard({ progress, activeLevel, levelData, onContinue, onStartPractice }) {
   const navigate = useNavigate();
-
   const weeks = levelData?.weeks || [];
   const completed = new Set(progress?.completedTasks || []);
-
   let resumeTarget = null;
+
   for (const week of weeks) {
     for (const day of week.days || []) {
-      for (const task of day.tasks || []) {
-        if (!completed.has(task.id)) {
-          resumeTarget = { weekId: week.id, day: day.day, task, weekTitle: week.title };
-          break;
-        }
+      const task = (day.tasks || []).find(item => !completed.has(item.id));
+      if (task) {
+        resumeTarget = { weekId: week.id, day: day.day, task, weekTitle: week.title };
+        break;
       }
-      if (resumeTarget) break;
     }
     if (resumeTarget) break;
   }
 
-  const totalTasks = weeks.reduce((sum, w) => sum + (w.days || []).reduce((s, d) => s + (d.tasks || []).length, 0), 0);
+  const totalTasks = weeks.reduce((sum, week) => sum + (week.days || []).reduce((daySum, day) => daySum + (day.tasks || []).length, 0), 0);
   const completedCount = progress?.completedTasks?.length || 0;
   const pct = totalTasks > 0 ? Math.round((completedCount / totalTasks) * 100) : 0;
   const circumference = 2 * Math.PI * 50;
   const offset = circumference * (1 - pct / 100);
-
   const isAllComplete = !resumeTarget;
   const hasMetDailyTarget = completedCount >= DAILY_TASK_TARGET;
   const showFreePractice = isAllComplete || (hasMetDailyTarget && !resumeTarget);
 
   function handleContinue() {
-    if (resumeTarget && onContinue) {
-      onContinue(resumeTarget.weekId, resumeTarget.day);
-    } else if (showFreePractice && onStartPractice) {
-      onStartPractice();
-    } else {
-      navigate('/dashboard', { replace: true });
-    }
-  }
-
-  function handleFreePractice() {
-    if (onStartPractice) {
-      onStartPractice();
-    } else {
-      navigate('/dashboard', { replace: true });
-    }
+    if (resumeTarget && onContinue) onContinue(resumeTarget.weekId, resumeTarget.day);
+    else if (showFreePractice && onStartPractice) onStartPractice();
+    else navigate('/dashboard', { replace: true });
   }
 
   return (
-    <div
-      className="relative overflow-hidden rounded-[var(--radius-card)] text-text-on-dark p-6 mb-6 shadow-[0_12px_40px_rgba(232,163,61,0.15)]"
-      style={{ background: 'var(--bg-dark)' }}
-    >
-      <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-gold/5 -translate-y-1/2 translate-x-1/2" />
-
-      <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
-        <div className="flex-1">
-          <div className="inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-[1.5px] text-gold mb-3">
-            <span className="w-6 h-[1px] bg-gold" />
-            {isAllComplete ? 'Track Complete' : hasMetDailyTarget ? 'Daily Target Met!' : 'Continue Learning'}
-          </div>
-
-          <h2
-            className="text-[28px] lg:text-[32px] font-bold leading-tight mb-2"
-            style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}
-          >
+    <section className="db-hero p-5 sm:p-7" aria-labelledby="continue-heading">
+      <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto]">
+        <div className="min-w-0">
+          <p className="db-section-label mb-3">{isAllComplete ? 'Track complete' : hasMetDailyTarget ? 'Daily target met' : 'Next step'}</p>
+          <h2 id="continue-heading" className="mb-2 text-3xl font-bold sm:text-4xl">
             {resumeTarget
               ? `${activeLevel}, Week ${resumeTarget.weekId} · Day ${resumeTarget.day}`
               : isAllComplete
-                ? `${activeLevel} Track Complete!`
-                : `${activeLevel} Daily Goal Achieved!`}
+                ? `${activeLevel} track complete`
+                : `${activeLevel} daily goal achieved`}
           </h2>
-
-          <p className="text-[15px] leading-relaxed" style={{ color: 'var(--text-on-dark-muted)' }}>
+          <p className="max-w-xl text-sm leading-relaxed text-text-on-dark-muted sm:text-base">
             {resumeTarget
-              ? `Next up: ${resumeTarget.task.title} · ${englishTopicTitle(resumeTarget.weekTitle)}`
+              ? <><span className="font-bold text-text-on-dark">Next:</span> {resumeTarget.task.title} · {englishTopicTitle(resumeTarget.weekTitle)}</>
               : isAllComplete
-                ? 'Outstanding! You have completed all available tasks. Explore free practice to reinforce what you have learned.'
-                : `You have met your daily goal of ${DAILY_TASK_TARGET} tasks! Continue practicing or take a well-deserved break.`}
+                ? 'You have completed the available lessons. Keep your German active with a focused practice session.'
+                : `You have completed ${DAILY_TASK_TARGET} tasks today. A short review keeps the habit moving.`}
           </p>
+          <div className="hero-actions mt-5 flex flex-wrap gap-3">
+            <button type="button" onClick={handleContinue} data-coachmark="start-lesson" className="btn-primary inline-flex items-center gap-2 bg-white text-primary hover:bg-bg-cream">
+              {showFreePractice ? <IconGamepad className="h-4 w-4" /> : <IconBookOpen className="h-4 w-4" />}
+              {showFreePractice ? 'Start practice' : 'Continue learning'} <IconArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
-        <div className="flex items-center gap-5">
-          <div className="relative w-[100px] h-[100px] flex-shrink-0">
-            <svg width="100" height="100" className="-rotate-90">
-              <circle cx="50" cy="50" r="50" fill="none" stroke="rgba(245,240,232,0.12)" strokeWidth="8" />
-              <circle
-                cx="50" cy="50" r="50" fill="none"
-                stroke={isAllComplete ? 'var(--success)' : hasMetDailyTarget ? 'var(--a1-blue)' : 'var(--gold)'}
-                strokeWidth="8"
-                strokeDasharray={circumference}
-                strokeDashoffset={offset}
-                strokeLinecap="round"
-                style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.23, 1, 0.32, 1)' }}
-              />
+        <div className="flex items-center gap-4 lg:flex-col lg:items-center">
+          <div className="relative h-28 w-28 shrink-0" aria-label={`${pct}% course progress`} role="img">
+            <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" aria-hidden="true">
+              <circle cx="60" cy="60" r="50" fill="none" strokeWidth="8" className="db-progress-ring-track" />
+              <circle cx="60" cy="60" r="50" fill="none" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} className="db-progress-ring-value" />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-lg font-bold tabular-nums" style={{ fontFamily: "'Cormorant Garamond', Georgia, serif" }}>
-                {pct}%
-              </span>
+              <span className="font-display text-3xl font-bold tabular-nums">{pct}%</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-text-on-dark-muted">complete</span>
             </div>
           </div>
-
-          <div className="flex flex-col gap-3">
-            {showFreePractice ? (
-              <>
-                <button
-                  onClick={handleFreePractice}
-                  data-coachmark="start-lesson"
-                  className="btn-primary rounded-[var(--radius-button)] flex items-center gap-2"
-                  style={{ background: 'var(--a1-blue)', color: '#F0EAE0' }}
-                >
-                  <IconGamepad className="w-4 h-4" />
-                  Free Practice →
-                </button>
-                <button
-                  onClick={handleContinue}
-                  className="btn-secondary rounded-[var(--radius-button)] flex items-center gap-2"
-                >
-                  <IconBookOpen className="w-4 h-4" />
-                  Keep Going
-                </button>
-              </>
-            ) : (
-              <button onClick={handleContinue} data-coachmark="start-lesson" className="btn-primary rounded-[var(--radius-button)] flex items-center gap-2">
-                <IconBookOpen className="w-4 h-4" />
-                Continue →
-              </button>
-            )}
+          <div className="text-sm text-text-on-dark-muted lg:text-center">
+            <p className="font-bold text-text-on-dark">{completedCount} of {totalTasks} tasks</p>
+            <p className="mt-1">Small steps, steady progress.</p>
           </div>
         </div>
       </div>
 
       {isAllComplete && (
-        <div className="mt-4 pt-4 border-t border-gold/10 flex items-center gap-2">
-          <IconSparkles className="w-4 h-4 text-gold" />
-          <span className="text-[12px]" style={{ color: 'var(--text-on-dark-muted)' }}>
-            All {totalTasks} tasks completed! Consider visiting the Community to help others or review in Flashcards.
-          </span>
+        <div className="mt-6 flex items-center gap-2 border-t border-white/15 pt-4 text-xs text-text-on-dark-muted">
+          <IconSparkles className="h-4 w-4 text-success" />
+          <span>All {totalTasks} tasks completed. Try a review session or help someone in Community.</span>
         </div>
       )}
-    </div>
+    </section>
   );
 }

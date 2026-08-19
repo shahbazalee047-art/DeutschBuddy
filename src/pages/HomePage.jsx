@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useDashboard } from '../contexts/DashboardContext';
 import { BuddyAvatar, BuddySpeechBubble, pickPhrase, getGreetingByTime } from '../components/buddy';
-import { IconFire, IconStar, IconTrophy, IconClock } from '../components/Icons';
+import { IconArrowRight, IconBookOpen, IconClock, IconFire, IconStar, IconTrophy } from '../components/Icons';
 import ReviseCard from '../components/ReviseCard';
 import ContinueCard from '../components/ContinueCard';
 import BannerAd from '../components/BannerAd';
@@ -11,11 +11,9 @@ function getNextLesson(levelData, progress) {
   if (!levelData?.weeks) return null;
   const completed = new Set(progress?.completedTasks || []);
   for (const week of levelData.weeks) {
-    for (const day of week.days) {
-      const remaining = day.tasks?.filter(t => !completed.has(t.id));
-      if (remaining?.length > 0) {
-        return { week, day, task: remaining[0], remainingCount: remaining.length };
-      }
+    for (const day of week.days || []) {
+      const task = (day.tasks || []).find(item => !completed.has(item.id));
+      if (task) return { week, day, task };
     }
   }
   return null;
@@ -23,83 +21,47 @@ function getNextLesson(levelData, progress) {
 
 export default function HomePage({ onViewJourney }) {
   const { user, profile, progress, levelData, handleSelectDay, handleSelectTask, unlockedWeeks, startPractice, activeLevel } = useDashboard();
-
   const nextLesson = useMemo(() => getNextLesson(levelData, progress), [levelData, progress]);
   const greeting = useMemo(() => pickPhrase(getGreetingByTime()), []);
-  const streak = progress?.streak || 0;
-  const xp = progress?.xp || 0;
+  const completedSet = useMemo(() => new Set(progress?.completedTasks || []), [progress?.completedTasks]);
   const dailyGoal = useMemo(() => {
     const stored = Number(getUserValue(user?.id, 'daily_goal', 20));
     return stored > 0 ? stored : 20;
   }, [user?.id]);
-  const dailyProgress = Math.min((progress?.todayXP || 0) / dailyGoal, 1);
+  const todayXP = progress?.todayXP || 0;
+  const dailyProgress = Math.min(todayXP / dailyGoal, 1);
 
-  const completedSet = new Set(progress?.completedTasks || []);
-  const handleWeekClick = (week) => {
+  function handleWeekClick(week) {
     if (!unlockedWeeks?.includes(week.id)) return;
-    // Jump straight into the week's next incomplete lesson (or first task if the
-    // week is fully complete, so the learner can review).
-    const firstIncompleteDay = (week.days || []).find(d =>
-      (d.tasks || []).some(t => !completedSet.has(t.id))
-    ) || week.days?.[0];
-    if (!firstIncompleteDay) return;
-    const firstTask = (firstIncompleteDay.tasks || []).find(t => !completedSet.has(t.id))
-      || firstIncompleteDay.tasks?.[0];
-    handleSelectDay(week.id, firstIncompleteDay.day);
-    if (firstTask) handleSelectTask(firstTask);
-  };
+    const day = (week.days || []).find(item => (item.tasks || []).some(task => !completedSet.has(task.id))) || week.days?.[0];
+    if (!day) return;
+    const task = (day.tasks || []).find(item => !completedSet.has(item.id)) || day.tasks?.[0];
+    handleSelectDay(week.id, day.day);
+    if (task) handleSelectTask(task);
+  }
 
-  // Open a task from the Revise list directly in the lesson player.
-  const handleRetryRevise = ({ task, weekId, dayNumber }) => {
+  function handleRetryRevise({ task, weekId, dayNumber }) {
     handleSelectDay(weekId, dayNumber);
     handleSelectTask(task);
-  };
+  }
 
   return (
-    <div className="min-h-full bg-bg-base px-4 py-6 pb-24 lg:pb-6">
-      <div className="max-w-3xl mx-auto space-y-6">
-        {/* Header greeting */}
-        <div className="flex items-center gap-4">
-          <div className="relative">
+    <div className="db-page min-h-full px-4 py-6 pb-24 lg:py-8 lg:pb-8">
+      <div className="mx-auto max-w-5xl space-y-6">
+        <header className="flex items-center gap-4">
+          <div className="relative shrink-0">
             <BuddyAvatar state="waving" size={72} />
-            <div className="absolute -top-1 -right-1">
-              <BuddySpeechBubble position="right" tone="neutral" className="hidden sm:block">
-                {greeting}
-              </BuddySpeechBubble>
-            </div>
+            <BuddySpeechBubble position="right" tone="neutral" className="hidden sm:block">{greeting}</BuddySpeechBubble>
           </div>
-          <div>
-            <p className="text-text-muted text-sm font-medium">{pickPhrase(getGreetingByTime())}</p>
-            <h1 className="text-2xl font-bold text-text-dark">
-              Hallo, <span className="text-primary">{profile?.full_name?.split(' ')[0] || 'Learner'}</span>!
+          <div className="min-w-0">
+            <p className="db-section-label mb-2">{activeLevel} learning workspace</p>
+            <h1 className="text-3xl font-bold text-text-dark sm:text-4xl">
+              Hallo, <span className="text-primary">{profile?.full_name?.split(' ')[0] || 'Learner'}</span>.
             </h1>
+            <p className="mt-1 text-sm text-text-muted">{pickPhrase(getGreetingByTime())}</p>
           </div>
-        </div>
+        </header>
 
-        {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3">
-          <StatCard icon={<IconFire className="w-5 h-5 text-gold" />} value={streak} label="Streak" />
-          <StatCard icon={<IconStar className="w-5 h-5 text-gold" />} value={xp} label="XP" />
-          <StatCard icon={<IconTrophy className="w-5 h-5 text-primary" />} value={progress?.badges?.length || 0} label="Badges" />
-        </div>
-
-        {/* Daily goal */}
-        <div className="db-card p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <IconClock className="w-5 h-5 text-primary" />
-              <span className="font-semibold text-text-dark">Daily Goal</span>
-            </div>
-            <span className="text-sm text-text-muted">{progress?.todayXP || 0} / {dailyGoal} XP</span>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-bar-fill" style={{ width: `${dailyProgress * 100}%` }} />
-          </div>
-        </div>
-
-        {/* Main CTA — resumes the track, or offers Free Practice when the track
-            is complete or the daily target is met. data-coachmark anchors the
-            first-run Start Here hint. */}
         <ContinueCard
           progress={progress}
           activeLevel={activeLevel}
@@ -108,47 +70,67 @@ export default function HomePage({ onViewJourney }) {
           onStartPractice={startPractice}
         />
 
-        {/* Revise list — tasks answered wrong, surfaced for retry */}
-        <ReviseCard
-          reviseTasks={progress?.reviseTasks || []}
-          levelData={levelData}
-          onRetry={handleRetryRevise}
-        />
+        <section aria-labelledby="today-heading" className="space-y-3">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="db-section-label mb-2">Today</p>
+              <h2 id="today-heading" className="db-section-title">A focused session is enough.</h2>
+            </div>
+            <span className="shrink-0 text-sm font-semibold tabular-nums text-text-muted">{todayXP} / {dailyGoal} XP</span>
+          </div>
+          <div className="db-surface-list p-4 sm:p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <span className="flex items-center gap-2 text-sm font-bold text-text-dark"><IconClock className="h-4 w-4 text-primary" /> Daily goal</span>
+              <span className="text-xs font-semibold text-text-muted">{Math.round(dailyProgress * 100)}% complete</span>
+            </div>
+            <div className="progress-bar" aria-label={`${Math.round(dailyProgress * 100)} percent of today's goal`} role="progressbar" aria-valuenow={Math.round(dailyProgress * 100)} aria-valuemin="0" aria-valuemax="100">
+              <div className="progress-bar-fill" style={{ width: `${dailyProgress * 100}%` }} />
+            </div>
+          </div>
+        </section>
 
-        {/* Journey preview */}
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard icon={<IconFire className="h-5 w-5 text-accent" />} value={progress?.streak || 0} label="Day streak" />
+          <StatCard icon={<IconStar className="h-5 w-5 text-primary" />} value={progress?.xp || 0} label="Total XP" />
+          <StatCard icon={<IconTrophy className="h-5 w-5 text-success" />} value={progress?.badges?.length || 0} label="Badges" />
+          <StatCard icon={<IconBookOpen className="h-5 w-5 text-accent" />} value={progress?.completedTasks?.length || 0} label="Tasks done" />
+        </div>
+
+        <ReviseCard reviseTasks={progress?.reviseTasks || []} levelData={levelData} onRetry={handleRetryRevise} />
+
         {levelData?.weeks && (
-          <div className="db-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-bold text-text-dark">Your Journey</h3>
-              <button onClick={onViewJourney} className="text-sm font-semibold text-primary hover:underline">
-                View Map
+          <section className="db-surface-list p-4 sm:p-5" aria-labelledby="journey-preview-heading">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="db-section-label mb-2">Course roadmap</p>
+                <h2 id="journey-preview-heading" className="db-section-title text-2xl">Your learning journey</h2>
+              </div>
+              <button type="button" onClick={onViewJourney} className="inline-flex min-h-10 shrink-0 items-center gap-1 text-sm font-bold text-primary hover:underline">
+                View all <IconArrowRight className="h-4 w-4" />
               </button>
             </div>
-            <div className="flex items-center gap-2 overflow-x-auto pb-2">
-              {levelData.weeks.slice(0, 6).map((week, i) => {
-                const isCompleted = progress?.completedTasks?.length > 0 && week.days.every(d =>
-                  d.tasks.every(t => completedSet.has(t.id))
-                );
+            <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
+              {levelData.weeks.slice(0, 6).map((week, index) => {
+                const isCompleted = (week.days || []).every(day => (day.tasks || []).every(task => completedSet.has(task.id)));
                 const isCurrent = nextLesson?.week.id === week.id;
                 const isLocked = !unlockedWeeks?.includes(week.id);
                 return (
                   <button
                     key={week.id}
+                    type="button"
                     onClick={() => handleWeekClick(week)}
                     disabled={isLocked}
                     aria-label={`Week ${week.id}: ${week.title}${isLocked ? ' (locked)' : isCompleted ? ' (completed)' : ''}`}
-                    className={`
-                      flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-sm font-bold transition-transform
-                      ${isLocked ? 'cursor-not-allowed' : 'hover:scale-110 active:scale-95 cursor-pointer'}
-                      ${isCompleted ? 'bg-success text-white' : isCurrent ? 'bg-primary text-white ring-4 ring-primary/20' : isLocked ? 'bg-bg-secondary text-text-muted opacity-50' : 'bg-bg-secondary text-text-dark hover:text-primary'}
-                    `}
+                    className={`min-h-20 border p-2 text-left transition-[background-color,border-color,transform] active:scale-[0.96] ${isCompleted ? 'border-success bg-success-light' : isCurrent ? 'border-primary bg-primary-light' : isLocked ? 'border-border bg-bg-secondary text-text-muted opacity-60' : 'border-border bg-surface hover:border-primary'}`}
                   >
-                    {isCompleted ? '✓' : i + 1}
+                    <span className={`mb-2 flex h-7 w-7 items-center justify-center text-xs font-bold ${isCompleted ? 'bg-success text-white' : isCurrent ? 'bg-primary text-white' : 'bg-bg-secondary text-text-body'}`}>{isCompleted ? '✓' : index + 1}</span>
+                    <span className="block truncate text-xs font-bold text-text-dark">Week {week.id}</span>
+                    <span className="mt-0.5 block truncate text-[11px] text-text-muted">{week.title}</span>
                   </button>
                 );
               })}
             </div>
-          </div>
+          </section>
         )}
         <BannerAd />
       </div>
@@ -158,10 +140,10 @@ export default function HomePage({ onViewJourney }) {
 
 function StatCard({ icon, value, label }) {
   return (
-    <div className="db-card p-3 flex flex-col items-center text-center">
-      <div className="mb-1">{icon}</div>
-      <div className="text-xl font-bold text-text-dark tabular-nums">{value}</div>
-      <div className="text-xs text-text-muted font-medium">{label}</div>
+    <div className="db-stat-card">
+      <span>{icon}</span>
+      <span className="stat-value">{value}</span>
+      <span className="stat-label">{label}</span>
     </div>
   );
 }

@@ -82,7 +82,7 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
         >
           {/* Backdrop + spotlight ring (pointer-events-none so the target stays clickable) */}
           <div
-            className="fixed pointer-events-none rounded-[var(--radius-card)] ring-4 ring-gold"
+            className="pointer-events-none fixed rounded-[var(--radius-card)] ring-4 ring-primary"
             style={{
               left: rect.left - PADDING,
               top: rect.top - PADDING,
@@ -110,7 +110,7 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
                   : { bottom: -8, left: Math.min(Math.max(rect.left + rect.width / 2 - tooltipLeft - 8, 16), TOOLTIP_WIDTH - 32), borderBottom: '1px solid var(--border-default)', borderRight: '1px solid var(--border-default)' }
               }
             />
-            <p className="text-[10px] font-bold uppercase tracking-[1.5px] text-gold mb-1.5">{title}</p>
+            <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[1.5px] text-primary">{title}</p>
             <p className="text-sm leading-relaxed text-text-body mb-3.5">{body}</p>
             <div className="flex justify-end">
               <button

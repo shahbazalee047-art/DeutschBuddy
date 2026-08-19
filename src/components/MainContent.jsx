@@ -11,14 +11,14 @@ const ProfilePage = lazy(() => import('./ProfilePage'));
 const SettingsPage = lazy(() => import('./SettingsPage'));
 
 function ViewLoader() {
-  return <div className="min-h-[16rem] flex items-center justify-center"><div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" /></div>;
+  return <div className="flex min-h-64 items-center justify-center"><div className="h-8 w-8 animate-spin rounded-full border-4 border-primary/20 border-t-primary" role="status" aria-label="Loading" /></div>;
 }
 
 const MainContent = memo(function MainContent({
   activeView, activeLevel, selectedDay, selectedTask, currentWeek,
   progress, levelData, visibleWeeks, unlockedWeeks,
   profile, user, onSignOut,
-  onSelectDay, onSelectTask, onCompleteTask, onBackToWeek
+  onSelectDay, onSelectTask, onCompleteTask, onBackToWeek,
 }) {
   if (activeView === 'community') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><CommunitySection user={user} /></div></Suspense>;
   if (activeView === 'profile') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProfilePage activeLevel={activeLevel} /></div></Suspense>;
@@ -30,43 +30,35 @@ const MainContent = memo(function MainContent({
   if (activeView === 'badges') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><BadgeGallery badges={progress.badges || []} /></div></Suspense>;
   if (activeView === 'resources') {
     const weeks = levelData?.weeks || [];
-    const unique = [...new Map(weeks.flatMap(w => w.resources || []).map(r => [r.name, r])).values()];
+    const unique = [...new Map(weeks.flatMap(week => week.resources || []).map(resource => [resource.name, resource])).values()];
     return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ResourceLibrary resources={unique} /></div></Suspense>;
   }
+
   if (selectedTask) {
     if (!selectedTask.type || !selectedTask.content) {
-      return (
-        <div className="view-enter text-center py-12">
-          <p className="text-text-muted mb-4">This task could not be loaded.</p>
-          <button onClick={() => onSelectTask(null)} className="btn-primary px-6">Go Back</button>
-        </div>
-      );
+      return <div className="view-enter py-12 text-center"><p className="mb-4 text-text-muted">This task could not be loaded.</p><button type="button" onClick={() => onSelectTask(null)} className="btn-primary px-6">Go back</button></div>;
     }
     return (
-      <div className="view-enter">
-        <button onClick={() => onSelectTask(null)} className="btn-text mb-4">
-          <span className="text-base font-bold">&larr;</span> Back to Day {selectedDay.day}
-        </button>
-        <div className="paper-card p-6">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] font-bold text-gold bg-gold/10 px-2.5 py-1 rounded-full uppercase tracking-wider border border-gold/20">{selectedTask.type}</span>
-            <span className="text-xs font-bold text-gold">+{selectedTask.xp} XP</span>
+      <div className="exercise-content view-enter">
+        <button type="button" onClick={() => onSelectTask(null)} className="btn-text mb-5 inline-flex items-center gap-2"><span aria-hidden="true">←</span> Back to Day {selectedDay?.day}</button>
+        <section className="db-surface-list mb-5 p-5 sm:p-6" aria-labelledby="task-title">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center border border-primary/30 bg-primary-light px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-primary">{selectedTask.type}</span>
+            <span className="text-xs font-bold text-text-muted">+{selectedTask.xp} XP</span>
           </div>
-          <h2 className="text-lg font-bold text-text-dark mb-1 editorial-heading">{selectedTask.title}</h2>
-          <p className="text-sm text-text-muted mb-5">{selectedTask.description}</p>
-          <Suspense fallback={<ViewLoader />}><TaskRenderer task={selectedTask} onComplete={onCompleteTask} /></Suspense>
-        </div>
+          <h2 id="task-title" className="text-3xl font-bold text-text-dark">{selectedTask.title}</h2>
+          <p className="mt-1 text-sm text-text-muted">{selectedTask.description}</p>
+        </section>
+        <Suspense fallback={<ViewLoader />}><TaskRenderer task={selectedTask} onComplete={onCompleteTask} /></Suspense>
       </div>
     );
   }
-  if (selectedDay && currentWeek) {
-    return <div className="view-enter"><DailyTasks week={currentWeek} day={selectedDay.day} completedTasks={progress.completedTasks} onSelectTask={onSelectTask} onBack={onBackToWeek} /></div>;
-  }
+
+  if (selectedDay && currentWeek) return <div className="view-enter"><DailyTasks week={currentWeek} day={selectedDay.day} completedTasks={progress.completedTasks} onSelectTask={onSelectTask} onBack={onBackToWeek} activeLevel={activeLevel} /></div>;
+
   return (
     <div className="space-y-4">
-      {visibleWeeks.map(week => (
-        <WeeklyModule key={week.id} week={week} completedTasks={progress.completedTasks} onSelectDay={onSelectDay} selectedDay={selectedDay} isUnlocked={unlockedWeeks.includes(week.id)} />
-      ))}
+      {visibleWeeks.map(week => <WeeklyModule key={week.id} week={week} completedTasks={progress.completedTasks} onSelectDay={onSelectDay} selectedDay={selectedDay} isUnlocked={unlockedWeeks.includes(week.id)} activeLevel={activeLevel} />)}
     </div>
   );
 });

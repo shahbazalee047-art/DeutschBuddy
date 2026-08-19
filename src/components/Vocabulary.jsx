@@ -5,8 +5,7 @@ import { IconBookOpen, IconSpeaker, IconCheck, IconSquare, IconSparkles } from '
 const gc = {
   der: {
     label: 'der',
-    color: '#1B3A35',
-    border: 'var(--gold)',
+    border: 'var(--db-primary)',
     align: 'flex-start',
     cardClass: 'vocab-card-der',
     genderTagClass: 'gender-tag-der'
@@ -47,7 +46,7 @@ export default function Vocabulary({ content, onComplete }) {
     <div className="fade-in reading-body focus-col">
       <div className="flex justify-between items-center mb-4">
         <h3 className="font-bold text-text-dark text-lg flex items-center gap-2">
-          <IconBookOpen className="w-5 h-5 text-gold" /> Vocabulary
+          <IconBookOpen className="w-5 h-5 text-primary" /> Vocabulary
         </h3>
         <span className="text-sm text-text-muted">{studied.size}/{items.length}</span>
       </div>
@@ -63,11 +62,11 @@ export default function Vocabulary({ content, onComplete }) {
               tabIndex={0}
               onClick={() => toggle(i)}
               onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(i); } }}
-              className={`w-full text-left paper-card p-4 transition-all duration-300 hover:border-gold/20 active:scale-[0.99] ${g ? g.cardClass : ''} ${
-                studied.has(i) ? 'border-gold/20' : ''
+              className={`w-full text-left paper-card p-4 transition-all duration-300 hover:border-primary/20 active:scale-[0.99] ${g ? g.cardClass : ''} ${
+                studied.has(i) ? 'border-success/30' : ''
               }`}
               style={{
-                background: studied.has(i) ? 'rgba(232,163,61,0.05)' : undefined,
+                background: studied.has(i) ? 'var(--db-success-light)' : undefined,
                 borderLeftWidth: g ? '3px' : undefined,
                 borderLeftColor: g ? g.border : undefined,
                 textAlign: g ? 'left' : undefined,
@@ -86,7 +85,6 @@ export default function Vocabulary({ content, onComplete }) {
                     {item.gender && g && (
                       <span
                         className={`gender-tag ${g.genderTagClass}`}
-                        style={{ color: g.color }}
                       >
                         [{g.label}]
                       </span>

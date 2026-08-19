@@ -1,285 +1,160 @@
 import { memo, useMemo } from 'react';
 import {
-  IconFire, IconCheckCircle, IconCalendar, IconTrendingUp,
-  IconZap, IconTarget, IconClock, IconActivity
+  IconActivity, IconCalendar, IconCheckCircle, IconClock, IconFire,
+  IconTarget, IconTrendingUp, IconZap,
 } from './Icons';
-import { getLocalDateString, addDaysDateString } from '../utils/date';
+import { addDaysDateString, getLocalDateString } from '../utils/date';
 
-function formatNumber(n) {
-  return Number(n || 0).toLocaleString();
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString();
 }
 
-const ProgressRing = memo(function ProgressRing({ value, max, size = 88, stroke = 8, label, sublabel }) {
-  const radius = (size - stroke) / 2;
+function getTotals(levelData, completedTasks = []) {
+  const allTasks = (levelData?.weeks || []).flatMap(week => (week.days || []).flatMap(day => day.tasks || []));
+  const completed = new Set(completedTasks);
+  return { total: allTasks.length, done: allTasks.filter(task => completed.has(task.id)).length };
+}
+
+const ProgressRing = memo(function ProgressRing({ value, max, label, size = 128 }) {
+  const radius = 50;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - Math.min(value / max, 1) * circumference;
-
+  const ratio = max > 0 ? Math.min(value / max, 1) : 0;
+  const offset = circumference * (1 - ratio);
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="relative" style={{ width: size, height: size }}>
-        <svg className="transform -rotate-90" width={size} height={size}>
-          <circle
-            cx={size / 2} cy={size / 2} r={radius}
-            stroke="currentColor" strokeWidth={stroke} fill="transparent"
-            className="text-border/40"
-          />
-          <circle
-            cx={size / 2} cy={size / 2} r={radius}
-            stroke="currentColor" strokeWidth={stroke} fill="transparent"
-            strokeDasharray={circumference} strokeDashoffset={offset}
-            className="text-gold transition-all duration-1000 ease-out"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold text-text-dark">{formatNumber(value)}</span>
-          <span className="text-[10px] font-semibold text-text-muted uppercase tracking-wider">{label}</span>
-        </div>
+    <div className="relative shrink-0" style={{ width: size, height: size }} role="img" aria-label={`${label}: ${Math.round(ratio * 100)} percent`}>
+      <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90" aria-hidden="true">
+        <circle cx="60" cy="60" r={radius} fill="none" stroke="var(--db-border-light)" strokeWidth="8" />
+        <circle cx="60" cy="60" r={radius} fill="none" stroke="var(--db-accent)" strokeWidth="8" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={offset} style={{ transition: 'stroke-dasharray 1.2s cubic-bezier(0.23,1,0.32,1), stroke-dashoffset 1.2s cubic-bezier(0.23,1,0.32,1)' }} />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+        <span className="font-display text-3xl font-bold tabular-nums text-text-dark">{formatNumber(value)}</span>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-text-muted">{label}</span>
       </div>
-      {sublabel && <p className="text-xs text-text-muted mt-2">{sublabel}</p>}
     </div>
   );
 });
 
-const StatCard = memo(function StatCard({ icon: Icon, value, label, sublabel, tone = 'gold' }) {
-  const toneClasses = {
-    gold: 'bg-gold/10 text-gold border-gold/20',
-    success: 'bg-success/10 text-success border-success/20',
-    info: 'bg-info/10 text-info border-info/20',
-    warning: 'bg-warning/10 text-warning border-warning/20',
-  }[tone] || toneClasses.gold;
-
+function Metric({ label, value, detail, icon: Icon, tone = 'primary' }) {
+  const toneClass = tone === 'success' ? 'bg-success-light text-success' : tone === 'blue' ? 'bg-accent-light text-accent' : 'bg-primary-light text-primary';
   return (
-    <div className="paper-card p-5 flex flex-col items-center justify-center text-center">
-      <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 border ${toneClasses}`}>
-        <Icon className="w-6 h-6" />
-      </div>
-      <span className="text-3xl font-bold text-text-dark">{formatNumber(value)}</span>
-      <p className="text-[11px] font-semibold text-text-muted uppercase tracking-wider mt-1">{label}</p>
-      {sublabel && <p className="text-xs text-text-muted mt-1">{sublabel}</p>}
+    <div className="db-stat-card">
+      <span className={`flex h-9 w-9 items-center justify-center ${toneClass}`}><Icon className="h-4 w-4" /></span>
+      <span className="stat-value">{formatNumber(value)}</span>
+      <span className="stat-label">{label}</span>
+      {detail && <span className="text-xs text-text-muted">{detail}</span>}
     </div>
   );
-});
-
-function computeCalendarDays(lastStudyDate, streak) {
-  const today = getLocalDateString();
-  const days = [];
-  // Build a 4-week grid; mark today active if studied today, and previous days based on streak.
-  for (let i = 27; i >= 0; i--) {
-    const date = addDaysDateString(today, -i);
-    let active = false;
-    if (lastStudyDate) {
-      if (date === lastStudyDate) active = true;
-      else if (streak > 1 && date < lastStudyDate) {
-        const diff = Math.floor((new Date(lastStudyDate + 'T00:00:00') - new Date(date + 'T00:00:00')) / (86400000));
-        if (diff > 0 && diff < streak) active = true;
-      }
-    }
-    days.push({ date, active });
-  }
-  return days;
 }
+
+function getRecentActivity(lastStudyDate, streak) {
+  const today = getLocalDateString();
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = addDaysDateString(today, index - 6);
+    const diff = lastStudyDate ? Math.floor((new Date(lastStudyDate + 'T00:00:00') - new Date(date + 'T00:00:00')) / 86400000) : -1;
+    return { date, active: diff >= 0 && diff < Math.max(streak, 1), value: diff >= 0 && diff < Math.max(streak, 1) ? Math.min(80, 24 + (streak - diff) * 12) : 8 };
+  });
+}
+
+const WeeklyAnalytics = memo(function WeeklyAnalytics({ progress }) {
+  const days = useMemo(() => getRecentActivity(progress?.lastStudyDate, progress?.streak || 0), [progress?.lastStudyDate, progress?.streak]);
+  return (
+    <section className="db-surface-list p-5 sm:p-6" aria-labelledby="weekly-activity-heading">
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div><p className="db-section-label mb-2">Consistency</p><h3 id="weekly-activity-heading" className="text-2xl font-bold text-text-dark">This week</h3></div>
+        <IconActivity className="h-5 w-5 text-primary" />
+      </div>
+      <div className="analytics-chart items-end border-b border-border pb-2">
+        {days.map(day => <div key={day.date} className="flex h-full flex-col items-center justify-end gap-2"><div className="analytics-bar" data-active={day.active} style={{ height: `${day.value}px` }} title={day.date} /><span className="text-[10px] font-bold uppercase text-text-muted">{new Date(day.date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 2)}</span></div>)}
+      </div>
+      <p className="mt-4 text-sm text-text-muted">{progress?.streak ? `You have a ${progress.streak}-day streak. Keep the next session short and focused.` : 'Complete one task today to begin your study rhythm.'}</p>
+    </section>
+  );
+});
 
 const ActivityCalendar = memo(function ActivityCalendar({ lastStudyDate, streak }) {
-  const days = useMemo(() => computeCalendarDays(lastStudyDate, streak), [lastStudyDate, streak]);
-
-  return (
-    <div className="paper-card p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <IconCalendar className="w-5 h-5 text-gold" />
-        <h3 className="text-lg font-semibold text-text-dark">Last 28 Days</h3>
-      </div>
-      <div className="grid grid-cols-7 gap-2">
-        {days.map((d, idx) => (
-          <div
-            key={idx}
-            className={`aspect-square rounded-md flex items-center justify-center text-[10px] font-medium transition-colors ${
-              d.active ? 'bg-gold text-cta-text' : 'bg-bg-dark-mid text-text-muted'
-            }`}
-            title={d.date}
-          >
-            {d.date.slice(8)}
-          </div>
-        ))}
-      </div>
-      <p className="text-xs text-text-muted mt-3">
-        {streak > 0 ? `You're on a ${streak}-day streak. Keep it up!` : 'Complete a task today to start a streak.'}
-      </p>
-    </div>
-  );
-});
-
-const WeeklyBreakdown = memo(function WeeklyBreakdown({ weeklyXP, visibleWeeks }) {
-  const weeks = useMemo(() => {
-    if (!visibleWeeks) return [];
-    return visibleWeeks.map(w => ({
-      id: w.id,
-      title: w.title,
-      xp: weeklyXP?.[`W${w.id}`] || 0,
-    }));
-  }, [weeklyXP, visibleWeeks]);
-
-  const max = Math.max(...weeks.map(w => w.xp), 1);
-
-  return (
-    <div className="paper-card p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <IconActivity className="w-5 h-5 text-gold" />
-        <h3 className="text-lg font-semibold text-text-dark">XP by Week</h3>
-      </div>
-      <div className="space-y-3">
-        {weeks.map(w => (
-          <div key={w.id}>
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-text-body truncate">Week {w.id}: {w.title}</span>
-              <span className="text-text-muted">{w.xp} XP</span>
-            </div>
-            <div className="progress-bar">
-              <div
-                className="progress-bar-fill"
-                style={{ width: `${Math.min((w.xp / max) * 100, 100)}%` }}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-});
-
-const SkillsBreakdown = memo(function SkillsBreakdown({ completedTasks, levelData }) {
-  const stats = useMemo(() => {
-    if (!levelData?.weeks || !completedTasks) {
-      return { listening: 0, speaking: 0, reading: 0, writing: 0, grammar: 0, vocab: 0 };
-    }
-    const counts = { listening: 0, speaking: 0, reading: 0, writing: 0, grammar: 0, vocab: 0 };
-    levelData.weeks.forEach(w => {
-      w.days.forEach(d => {
-        d.tasks.forEach(t => {
-          if (!completedTasks.includes(t.id)) return;
-          if (t.type === 'listening') counts.listening++;
-          else if (t.type === 'speaking' || t.type === 'roleplay') counts.speaking++;
-          else if (t.type === 'writing') counts.writing++;
-          else if (t.type === 'grammar') counts.grammar++;
-          else if (t.type === 'vocabulary' || t.type === 'flashcards') counts.vocab++;
-          else counts.reading++;
-        });
-      });
+  const days = useMemo(() => {
+    const today = getLocalDateString();
+    return Array.from({ length: 28 }, (_, index) => {
+      const date = addDaysDateString(today, index - 27);
+      const diff = lastStudyDate ? Math.floor((new Date(lastStudyDate + 'T00:00:00') - new Date(date + 'T00:00:00')) / 86400000) : -1;
+      return { date, active: diff >= 0 && diff < Math.max(streak, 1) };
     });
-    return counts;
+  }, [lastStudyDate, streak]);
+  return (
+    <section className="db-surface-list p-5 sm:p-6" aria-labelledby="calendar-heading">
+      <div className="mb-5 flex items-center gap-2"><IconCalendar className="h-5 w-5 text-primary" /><h3 id="calendar-heading" className="text-2xl font-bold text-text-dark">Study calendar</h3></div>
+      <div className="grid grid-cols-7 gap-2">{days.map(day => <div key={day.date} className={`flex aspect-square items-center justify-center text-[10px] font-bold ${day.active ? 'bg-success text-white' : 'bg-bg-secondary text-text-muted'}`} title={day.date}>{day.date.slice(8)}</div>)}</div>
+      <p className="mt-4 text-sm text-text-muted">Green squares show days included in your current streak.</p>
+    </section>
+  );
+});
+
+function SkillsBreakdown({ completedTasks, levelData }) {
+  const skills = useMemo(() => {
+    const counts = { vocabulary: 0, grammar: 0, listening: 0, speaking: 0, writing: 0, reading: 0 };
+    const completed = new Set(completedTasks || []);
+    (levelData?.weeks || []).forEach(week => (week.days || []).forEach(day => (day.tasks || []).forEach(task => {
+      if (!completed.has(task.id)) return;
+      if (task.type === 'listening') counts.listening++;
+      else if (task.type === 'speaking' || task.type === 'roleplay') counts.speaking++;
+      else if (task.type === 'writing') counts.writing++;
+      else if (task.type === 'grammar') counts.grammar++;
+      else if (task.type === 'vocabulary' || task.type === 'flashcards') counts.vocabulary++;
+      else counts.reading++;
+    })));
+    return Object.entries(counts).map(([id, value]) => ({ id, label: id[0].toUpperCase() + id.slice(1), value }));
   }, [completedTasks, levelData]);
-
-  const skills = [
-    { id: 'vocab', label: 'Vocabulary', value: stats.vocab },
-    { id: 'grammar', label: 'Grammar', value: stats.grammar },
-    { id: 'listening', label: 'Listening', value: stats.listening },
-    { id: 'speaking', label: 'Speaking', value: stats.speaking },
-    { id: 'reading', label: 'Reading', value: stats.reading },
-    { id: 'writing', label: 'Writing', value: stats.writing },
-  ];
-  const max = Math.max(...skills.map(s => s.value), 1);
-
+  const max = Math.max(...skills.map(skill => skill.value), 1);
   return (
-    <div className="paper-card p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <IconTarget className="w-5 h-5 text-gold" />
-        <h3 className="text-lg font-semibold text-text-dark">Skill Breakdown</h3>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {skills.map(s => (
-          <div key={s.id} className="bg-bg-dark-mid p-3 rounded-md">
-            <div className="flex justify-between text-xs mb-1">
-              <span className="text-text-body">{s.label}</span>
-              <span className="text-text-muted">{s.value}</span>
-            </div>
-            <div className="progress-bar">
-              <div className="progress-bar-fill" style={{ width: `${Math.min((s.value / max) * 100, 100)}%` }} />
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+    <section className="db-surface-list p-5 sm:p-6" aria-labelledby="skills-heading">
+      <div className="mb-5 flex items-center gap-2"><IconTarget className="h-5 w-5 text-primary" /><h3 id="skills-heading" className="text-2xl font-bold text-text-dark">Skill breakdown</h3></div>
+      <div className="grid gap-4 sm:grid-cols-2">{skills.map(skill => <div key={skill.id}><div className="mb-2 flex justify-between text-sm"><span className="font-bold text-text-body">{skill.label}</span><span className="tabular-nums text-text-muted">{skill.value}</span></div><div className="progress-bar"><div className="progress-bar-fill" style={{ width: `${Math.min((skill.value / max) * 100, 100)}%` }} /></div></div>)}</div>
+    </section>
   );
-});
+}
 
-const StatisticsPanel = memo(function StatisticsPanel({ progress, levelData, visibleWeeks }) {
-  const totalTasks = useMemo(() => {
-    if (!levelData?.weeks) return 0;
-    return levelData.weeks.reduce((sum, w) => sum + w.days.reduce((dSum, d) => dSum + d.tasks.length, 0), 0);
-  }, [levelData]);
-
-  const completedCount = progress?.completedTasks?.length || 0;
-  const weeksComplete = useMemo(() => {
-    if (!levelData?.weeks || !progress?.completedTasks) return 0;
-    return levelData.weeks.filter(w =>
-      w.days.every(d => d.tasks.every(t => progress.completedTasks.includes(t.id)))
-    ).length;
-  }, [levelData, progress]);
-
-  const nextLevelXP = Math.max((progress?.xp || 0) + 100, 500);
-  const xpRemaining = Math.max(nextLevelXP - (progress?.xp || 0), 0);
-
+function WeekProgress({ visibleWeeks, weeklyXP }) {
+  const weeks = visibleWeeks || [];
+  const max = Math.max(...weeks.map(week => weeklyXP?.[`W${week.id}`] || 0), 1);
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <ProgressRing
-          value={progress?.xp || 0}
-          max={nextLevelXP}
-          label="XP"
-          sublabel={`${xpRemaining} XP to next milestone`}
-        />
-        <StatCard icon={IconFire} value={progress?.streak || 0} label="Day Streak" tone="warning" />
-        <StatCard icon={IconCheckCircle} value={completedCount} label="Tasks Done" sublabel={`of ${totalTasks} total`} tone="success" />
-        <StatCard icon={IconCalendar} value={weeksComplete} label="Weeks Complete" sublabel={`of ${visibleWeeks?.length || 8} weeks`} tone="info" />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <WeeklyBreakdown weeklyXP={progress?.weeklyXP} visibleWeeks={visibleWeeks} />
-        <ActivityCalendar lastStudyDate={progress?.lastStudyDate} streak={progress?.streak || 0} />
-      </div>
-    </div>
+    <section className="db-surface-list p-5 sm:p-6" aria-labelledby="week-progress-heading">
+      <div className="mb-5 flex items-center gap-2"><IconZap className="h-5 w-5 text-primary" /><h3 id="week-progress-heading" className="text-2xl font-bold text-text-dark">Course progress</h3></div>
+      <div className="space-y-4">{weeks.map(week => { const value = weeklyXP?.[`W${week.id}`] || 0; const percent = Math.min((value / max) * 100, 100); return <div key={week.id} className="flex items-center gap-3"><div className="relative flex h-9 w-9 shrink-0 items-center justify-center"><svg viewBox="0 0 40 40" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true"><circle cx="20" cy="20" r="16" fill="none" stroke="var(--db-border-light)" strokeWidth="3" /><circle cx="20" cy="20" r="16" fill="none" stroke="var(--db-accent)" strokeWidth="3" strokeLinecap="round" strokeDasharray={2 * Math.PI * 16} strokeDashoffset={2 * Math.PI * 16 * (1 - percent / 100)} /></svg><span className="text-[10px] font-bold text-text-dark">W{week.id}</span></div><div className="min-w-0 flex-1"><div className="mb-1 flex justify-between gap-2 text-xs"><span className="truncate font-bold text-text-body">{week.title}</span><span className="shrink-0 text-text-muted">{value} XP</span></div><div className="progress-bar h-1.5"><div className="progress-bar-fill" style={{ width: `${percent}%` }} /></div></div></div>; })}</div>
+    </section>
   );
-});
+}
 
 export default function ProgressDashboard({ progress, levelData, visibleWeeks, activeLevel, mode = 'statistics' }) {
-  const title = mode === 'skills'
-    ? 'Skill Breakdown'
-    : mode === 'calendar'
-      ? 'Study Calendar'
-      : 'Progress Statistics';
+  const { total, done } = useMemo(() => getTotals(levelData, progress?.completedTasks), [levelData, progress?.completedTasks]);
+  const title = mode === 'skills' ? 'Your skill balance' : mode === 'calendar' ? 'Your study rhythm' : 'Your learning progress';
+  const percent = total > 0 ? Math.round((done / total) * 100) : 0;
 
   return (
-    <div className="view-enter space-y-4">
-      <div className="flex items-center gap-2 mb-2">
-        <IconTrendingUp className="w-5 h-5 text-gold" />
-        <span className="eyebrow mb-0">{activeLevel}</span>
-        <h2 className="text-2xl font-semibold text-text-dark editorial-heading">{title}</h2>
+    <div className="progress-dashboard view-enter">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div><p className="db-section-label mb-2">{activeLevel} · Progress</p><h1 className="text-4xl font-bold text-text-dark">{title}</h1><p className="mt-1 text-sm text-text-muted">See the language skills behind the numbers.</p></div>
+        <div className="text-right"><span className="font-display text-3xl font-bold tabular-nums text-primary">{percent}%</span><p className="text-xs font-bold uppercase tracking-wider text-text-muted">course complete</p></div>
+      </header>
+
+      <section className="db-surface-list flex flex-col items-center gap-6 p-5 sm:flex-row sm:p-6">
+        <ProgressRing value={done} max={Math.max(total, 1)} label="lessons" />
+        <div className="min-w-0 flex-1 text-center sm:text-left"><p className="text-sm font-bold uppercase tracking-wider text-primary">Actual learning progress</p><h2 className="mt-2 text-3xl font-bold text-text-dark">{done} lessons completed</h2><p className="mt-2 max-w-xl text-sm leading-relaxed text-text-muted">Keep the focus on the next useful German skill. XP and streaks are here to support the habit, not compete with it.</p></div>
+      </section>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Metric icon={IconCheckCircle} value={done} label="Lessons done" detail={`of ${total}`} tone="success" />
+        <Metric icon={IconFire} value={progress?.streak || 0} label="Day streak" detail="keep it steady" tone="blue" />
+        <Metric icon={IconClock} value={progress?.todayXP || 0} label="Today" detail="XP earned" tone="blue" />
+        <Metric icon={IconTrendingUp} value={progress?.xp || 0} label="Total XP" detail="secondary metric" tone="primary" />
       </div>
 
       {mode === 'skills' && <SkillsBreakdown completedTasks={progress?.completedTasks} levelData={levelData} />}
       {mode === 'calendar' && <ActivityCalendar lastStudyDate={progress?.lastStudyDate} streak={progress?.streak || 0} />}
-      {(mode === 'statistics' || !mode) && (
-        <StatisticsPanel progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} />
-      )}
+      {(mode === 'statistics' || !mode) && <div className="grid gap-5 lg:grid-cols-2"><WeeklyAnalytics progress={progress} /><WeekProgress visibleWeeks={visibleWeeks} weeklyXP={progress?.weeklyXP} /></div>}
+      {mode === 'skills' && <div className="grid gap-5 lg:grid-cols-2"><WeeklyAnalytics progress={progress} /><WeekProgress visibleWeeks={visibleWeeks} weeklyXP={progress?.weeklyXP} /></div>}
+      {mode === 'calendar' && <WeekProgress visibleWeeks={visibleWeeks} weeklyXP={progress?.weeklyXP} />}
 
-      <div className="paper-card p-5">
-        <div className="flex items-center gap-2 mb-2">
-          <IconZap className="w-5 h-5 text-gold" />
-          <h3 className="text-lg font-semibold text-text-dark">Learning Insights</h3>
-        </div>
-        <ul className="space-y-2 text-sm text-text-body">
-          <li className="flex items-start gap-2">
-            <IconClock className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
-            <span>Last studied: {progress?.lastStudyDate ? new Date(progress.lastStudyDate + 'T00:00:00').toLocaleDateString() : 'Not yet'}</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <IconCheckCircle className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
-            <span>Completed tasks: {progress?.completedTasks?.length || 0}</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <IconTrendingUp className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
-            <span>Total XP: {progress?.xp || 0}</span>
-          </li>
-        </ul>
-      </div>
+      <section className="db-surface-list p-5 sm:p-6"><div className="mb-4 flex items-center gap-2"><IconZap className="h-5 w-5 text-primary" /><h3 className="text-2xl font-bold text-text-dark">A useful read on your progress</h3></div><ul className="space-y-3 text-sm text-text-body"><li className="flex gap-3"><IconClock className="mt-0.5 h-4 w-4 shrink-0 text-primary" /><span>Last studied: <strong>{progress?.lastStudyDate ? new Date(progress.lastStudyDate + 'T00:00:00').toLocaleDateString() : 'Not yet'}</strong></span></li><li className="flex gap-3"><IconCheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-success" /><span>Completed lessons: <strong>{done}</strong> of {total}</span></li><li className="flex gap-3"><IconTrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-accent" /><span>Next focus: <strong>{done < total ? 'one more lesson' : 'review and practice'}</strong></span></li></ul></section>
     </div>
   );
 }
