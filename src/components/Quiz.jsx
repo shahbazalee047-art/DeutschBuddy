@@ -71,7 +71,7 @@ export default function Quiz({ content, onComplete }) {
   const [errorInfo, setErrorInfo] = useState(null);
 
   const qs = useMemo(() => (content.questions || []).filter(
-    q => q && Array.isArray(q.options) && q.options.length > 0 && typeof q.correct === 'number' && q.correct < q.options.length
+    q => q && Array.isArray(q.options) && q.options.length > 0 && Number.isInteger(q.correct) && q.correct >= 0 && q.correct < q.options.length
   ), [content.questions]);
 
   const q = useMemo(() => qs[cur] || { question: '', options: [], correct: 0, metadata: {} }, [qs, cur]);

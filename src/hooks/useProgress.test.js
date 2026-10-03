@@ -152,11 +152,15 @@ describe('useProgress failed-upsert resilience', () => {
     const { result } = renderHook(() => useProgress('A1'));
     await waitFor(() => expect(result.current.loading).toBe(false));
 
+    let firstAwarded;
+    let secondAwarded;
     await act(async () => {
-      await result.current.completeTask('a1m1d1t1', 6, 1, 1, { score: 2, maxScore: 4 }, 'quiz');
-      await result.current.completeTask('a1m1d1t1', 6, 1, 1, { score: 4, maxScore: 4 }, 'quiz');
+      firstAwarded = await result.current.completeTask('a1m1d1t1', 6, 1, 1, { score: 2, maxScore: 4 }, 'quiz');
+      secondAwarded = await result.current.completeTask('a1m1d1t1', 6, 1, 1, { score: 4, maxScore: 4 }, 'quiz');
     });
 
+    expect(firstAwarded).toBe(true);
+    expect(secondAwarded).toBe(false);
     expect(result.current.progress.xp).toBe(6);
     expect(mocks.insert).toHaveBeenCalledTimes(2);
     expect(mocks.insert).toHaveBeenNthCalledWith(1, expect.objectContaining({

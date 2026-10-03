@@ -383,11 +383,11 @@ export function useProgress(level) {
     fetchProgress();
   }, [user, level, fetchProgress]);
 
-  const completeTask = useCallback(async (taskId, xpAmount, weekId, dayNumber = 0, result = null, taskType = 'task') => {
+  const completeTask = useCallback((taskId, xpAmount, weekId, dayNumber = 0, result = null, taskType = 'task') => {
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
 
-    if (!currentUser || !currentLevel) return;
+    if (!currentUser || !currentLevel) return false;
 
     // Snapshot current state outside the updater to avoid stale closures
     const prev = progressRef.current;
@@ -477,7 +477,10 @@ export function useProgress(level) {
     const rawScore = result && typeof result.score === 'number' ? result.score : xpAmount;
     const maxScore = Math.max(0, Math.round(rawMaxScore));
     const score = Math.min(maxScore, Math.max(0, Math.round(rawScore)));
-    const exercisePromise = supabase.from('exercise_results').insert({
+    // Completion state is committed synchronously above. Recording an attempt
+    // is useful but must not delay the UI, and callers need the immediate
+    // boolean below to avoid showing XP for a task that was already completed.
+    void supabase.from('exercise_results').insert({
       user_id: currentUser.id,
       level: currentLevel,
       week_id: weekId,
@@ -489,13 +492,11 @@ export function useProgress(level) {
       completed: true,
     }).then(({ error }) => {
       if (error) console.error('Exercise result save error:', error);
+    }).catch((err) => {
+      console.error('Exercise result save error:', err);
     });
 
-    try {
-      await exercisePromise;
-    } catch (err) {
-      console.error('Exercise result save error:', err);
-    }
+    return !alreadyCompleted;
   }, [queueSync]);
 
   const unlockWeek = useCallback(async (weekId) => {

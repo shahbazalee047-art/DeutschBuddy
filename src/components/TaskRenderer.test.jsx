@@ -51,4 +51,15 @@ describe('TaskRenderer', () => {
     render(<TaskRenderer task={task} onComplete={onComplete} />);
     expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
   });
+
+  it('ignores malformed quiz answer indexes instead of rendering a broken question', () => {
+    const task = {
+      type: 'quiz',
+      content: {
+        questions: [{ question: 'Broken', options: ['a', 'b'], correct: -1 }],
+      },
+    };
+    render(<TaskRenderer task={task} onComplete={() => {}} />);
+    expect(screen.getByText(/coming soon/i)).toBeInTheDocument();
+  });
 });

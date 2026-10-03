@@ -14,6 +14,9 @@ const RATING_LABELS = [
 
 export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }) {
   const { dueCards, stats, rateCard, resetDeck } = useSpacedRepetition(levelData, level, userId);
+  // `dueCards` changes as soon as a rating schedules the current card for a
+  // future day. Always render its first remaining item; retaining an index
+  // here skipped every other card as the derived list shrank.
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [buddyState, setBuddyState] = useState('idle');
@@ -24,7 +27,7 @@ export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }
   const isComplete = index >= dueCards.length;
   // Double-tap on a rating button must not rate/advance the card twice
   // (rateCard would re-schedule a card that already left the queue).
-  const lastRatedRef = useRef(-1);
+  const lastRatedRef = useRef(null);
   const bubbleTimerRef = useRef(null);
 
   useEffect(() => () => clearTimeout(bubbleTimerRef.current), []);
@@ -32,7 +35,7 @@ export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }
   useEffect(() => {
     setIndex(0);
     setFlipped(false);
-    lastRatedRef.current = -1;
+    lastRatedRef.current = null;
   }, [levelData, level, userId]);
 
   const showBuddyReaction = useCallback((state, text, duration = 1500) => {
@@ -45,8 +48,8 @@ export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }
 
   const handleRate = useCallback((quality) => {
     if (!currentCard) return;
-    if (lastRatedRef.current === index) return;
-    lastRatedRef.current = index;
+    if (lastRatedRef.current === currentCard.id) return;
+    lastRatedRef.current = currentCard.id;
     rateCard(currentCard.id, quality);
 
     if (quality >= 4) {
@@ -58,8 +61,8 @@ export default function ReviewDeck({ levelData, level = 'A1', userId = 'guest' }
     }
 
     setFlipped(false);
-    setIndex(prev => prev + 1);
-  }, [currentCard, index, rateCard, showBuddyReaction]);
+    setIndex(0);
+  }, [currentCard, rateCard, showBuddyReaction]);
 
   if (dueCards.length === 0) {
     return (

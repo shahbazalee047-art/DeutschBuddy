@@ -183,7 +183,7 @@ const BuddyAvatar = memo(function BuddyAvatar({
   if (!BUDDY_STATES.includes(state)) state = 'idle';
 
   const prefersReducedMotion = useMemo(() => {
-    if (typeof window === 'undefined') return false;
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return false;
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   }, []);
   const animationClass = (reducedMotion ?? prefersReducedMotion) ? '' : stateAnimations[state];

@@ -20,7 +20,7 @@ function getNextLesson(levelData, progress) {
 }
 
 export default function HomePage({ onViewJourney }) {
-  const { user, profile, progress, levelData, handleSelectDay, handleSelectTask, unlockedWeeks, startPractice, activeLevel } = useDashboard();
+  const { user, profile, progress, todayXP, levelData, handleSelectDay, handleSelectTask, unlockedWeeks, startPractice, activeLevel } = useDashboard();
   const nextLesson = useMemo(() => getNextLesson(levelData, progress), [levelData, progress]);
   const greeting = useMemo(() => pickPhrase(getGreetingByTime()), []);
   const completedSet = useMemo(() => new Set(progress?.completedTasks || []), [progress?.completedTasks]);
@@ -28,7 +28,6 @@ export default function HomePage({ onViewJourney }) {
     const stored = Number(getUserValue(user?.id, 'daily_goal', 20));
     return stored > 0 ? stored : 20;
   }, [user?.id]);
-  const todayXP = progress?.todayXP || 0;
   const dailyProgress = Math.min(todayXP / dailyGoal, 1);
 
   function handleWeekClick(week) {

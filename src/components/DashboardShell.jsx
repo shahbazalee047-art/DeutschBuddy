@@ -161,11 +161,11 @@ export default function DashboardShell() {
 
   const mainContentProps = useMemo(() => ({
     activeView, activeLevel, selectedDay, selectedTask, currentWeek,
-    progress, levelData, visibleWeeks, unlockedWeeks,
+    progress, todayXP, levelData, visibleWeeks, unlockedWeeks,
     profile, user, onSignOut: handleSignOutFromApp,
     onSelectDay: handleSelectDay, onSelectTask: handleSelectTask,
     onCompleteTask: handleCompleteTask, onBackToWeek: handleBackToWeek
-  }), [activeView, activeLevel, selectedDay, selectedTask, currentWeek, progress, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
+  }), [activeView, activeLevel, selectedDay, selectedTask, currentWeek, progress, todayXP, levelData, visibleWeeks, unlockedWeeks, profile, user, handleSelectDay, handleSelectTask, handleCompleteTask, handleBackToWeek, handleSignOutFromApp]);
 
   // Stabilized handlers so memoized children (Navbar, BottomNav, MobileSidebar,
   // GamePanel, NotificationPanel) don't re-render on every DashboardShell render.

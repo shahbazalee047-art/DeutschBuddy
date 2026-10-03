@@ -16,17 +16,17 @@ function ViewLoader() {
 
 const MainContent = memo(function MainContent({
   activeView, activeLevel, selectedDay, selectedTask, currentWeek,
-  progress, levelData, visibleWeeks, unlockedWeeks,
+  progress, todayXP, levelData, visibleWeeks, unlockedWeeks,
   profile, user, onSignOut,
   onSelectDay, onSelectTask, onCompleteTask, onBackToWeek,
 }) {
   if (activeView === 'community') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><CommunitySection user={user} /></div></Suspense>;
   if (activeView === 'profile') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProfilePage activeLevel={activeLevel} /></div></Suspense>;
   if (activeView === 'settings') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><SettingsPage profile={profile} user={user} onSignOut={onSignOut} /></div></Suspense>;
-  if (activeView === 'progress') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} activeLevel={activeLevel} /></div></Suspense>;
-  if (activeView === 'progress-statistics') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" activeLevel={activeLevel} /></div></Suspense>;
-  if (activeView === 'progress-skills') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" activeLevel={activeLevel} /></div></Suspense>;
-  if (activeView === 'progress-calendar') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'progress') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} todayXP={todayXP} levelData={levelData} visibleWeeks={visibleWeeks} activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'progress-statistics') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} todayXP={todayXP} levelData={levelData} visibleWeeks={visibleWeeks} mode="statistics" activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'progress-skills') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} todayXP={todayXP} levelData={levelData} visibleWeeks={visibleWeeks} mode="skills" activeLevel={activeLevel} /></div></Suspense>;
+  if (activeView === 'progress-calendar') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><ProgressDashboard progress={progress} todayXP={todayXP} levelData={levelData} visibleWeeks={visibleWeeks} mode="calendar" activeLevel={activeLevel} /></div></Suspense>;
   if (activeView === 'badges') return <Suspense fallback={<ViewLoader />}><div className="view-enter"><BadgeGallery badges={progress.badges || []} /></div></Suspense>;
   if (activeView === 'resources') {
     const weeks = levelData?.weeks || [];

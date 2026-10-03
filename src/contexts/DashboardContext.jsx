@@ -228,20 +228,24 @@ export function DashboardProvider({ children }) {
       const earnedXP = result && typeof result.score === 'number' && result.maxScore > 0
         ? Math.max(1, Math.round(selectedTask.xp * (result.score / result.maxScore)))
         : selectedTask.xp;
-      completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day, result, selectedTask.type);
+      const awardedXP = completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day, result, selectedTask.type);
       trackLessonCompleted(
         selectedTask.id,
         activeLevel,
         result && typeof result.score === 'number' ? result.score : 0,
         result?.maxScore || 0,
-        earnedXP
+        awardedXP ? earnedXP : 0
       );
-      setTodayXP(prev => prev + earnedXP);
-      setXpToast(earnedXP);
+      // Retrying a completed lesson records a new exercise attempt, but must
+      // not make the session XP counter/toast claim another reward.
+      if (awardedXP) {
+        setTodayXP(prev => prev + earnedXP);
+        setXpToast(earnedXP);
+      }
       // In practice mode a random task finishing must not trigger the week
       // unlock / day-complete celebration — just advance the queue instead.
       const currentWeekData = practiceMode ? null : levelData?.weeks.find(w => w.id === selectedDay.weekId);
-      if (currentWeekData) {
+      if (awardedXP && currentWeekData) {
         // Project the next completed set so the check is robust against batched updates
         // and doesn't rely on closure state that may be one render behind.
         const projectedCompleted = new Set([...progress.completedTasks, selectedTask.id]);
@@ -283,7 +287,8 @@ export function DashboardProvider({ children }) {
     if (xp <= 0) return;
     const today = getLocalDateString();
     const taskId = `game-${game}-${today}`;
-    completeTask(taskId, xp, 1, 1, { score, maxScore: score }, `game:${game}`);
+    const awardedXP = completeTask(taskId, xp, 1, 1, { score, maxScore: score }, `game:${game}`);
+    if (!awardedXP) return;
     setTodayXP(prev => prev + xp);
     setXpToast(xp);
   }, [completeTask]);

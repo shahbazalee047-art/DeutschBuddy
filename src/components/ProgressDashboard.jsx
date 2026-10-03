@@ -124,7 +124,7 @@ function WeekProgress({ visibleWeeks, weeklyXP }) {
   );
 }
 
-export default function ProgressDashboard({ progress, levelData, visibleWeeks, activeLevel, mode = 'statistics' }) {
+export default function ProgressDashboard({ progress, todayXP = 0, levelData, visibleWeeks, activeLevel, mode = 'statistics' }) {
   const { total, done } = useMemo(() => getTotals(levelData, progress?.completedTasks), [levelData, progress?.completedTasks]);
   const title = mode === 'skills' ? 'Your skill balance' : mode === 'calendar' ? 'Your study rhythm' : 'Your learning progress';
   const percent = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -144,7 +144,7 @@ export default function ProgressDashboard({ progress, levelData, visibleWeeks, a
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Metric icon={IconCheckCircle} value={done} label="Lessons done" detail={`of ${total}`} tone="success" />
         <Metric icon={IconFire} value={progress?.streak || 0} label="Day streak" detail="keep it steady" tone="blue" />
-        <Metric icon={IconClock} value={progress?.todayXP || 0} label="Today" detail="XP earned" tone="blue" />
+        <Metric icon={IconClock} value={todayXP} label="Today" detail="XP earned" tone="blue" />
         <Metric icon={IconTrendingUp} value={progress?.xp || 0} label="Total XP" detail="secondary metric" tone="primary" />
       </div>
 
