@@ -20,7 +20,7 @@
 
 ## ✨ What is DeutschBuddy?
 
-DeutschBuddy is a **full-stack, gamified language learning platform** built to help students master German at CEFR levels **A1 (Beginner)** and **A2 (Elementary)**. It features a structured 8-week curriculum, interactive exercises, spaced repetition flashcards, real-time progress tracking, and a premium dark-mode cyberglow UI.
+DeutschBuddy is a **full-stack, gamified language learning platform** built to help students master German at CEFR levels **A1 (Beginner)** and **A2 (Elementary)**. It features a structured, module-based curriculum (A1: 10 modules / 20 days, A2: 8 modules / 56 days), interactive exercises, spaced repetition flashcards, real-time progress tracking, and a premium dark-mode cyberglow UI.
 
 Whether you're a complete beginner or brushing up on grammar, DeutschBuddy provides a structured, engaging, and visually stunning learning experience.
 
@@ -29,9 +29,9 @@ Whether you're a complete beginner or brushing up on grammar, DeutschBuddy provi
 ## 🎯 Key Features
 
 ### 📚 Structured Curriculum
-- **A1 (Beginner)**: 8 weeks covering alphabet, greetings, numbers, verb conjugation, noun genders, daily routines, shopping, travel, modal verbs, and a mock Goethe-style exam
-- **A2 (Elementary)**: 8 weeks covering Perfekt tense, Präteritum, complex sentences, dative prepositions, workplace vocabulary, travel, weather, health, and a mock exam
-- **A1 Fast Track**: 4-6 week compressed option that merges review days
+- **A1 (Beginner)**: 10 modules / 20 days — a life-first week (meeting people), the alphabet, numbers 0–12 / 13–19 / 20–100, family, colors, days & months, hobbies & professions, and a pronunciation deep-dive
+- **A2 (Elementary)**: 8 modules / 56 days covering Perfekt tense, Präteritum, complex sentences, dative prepositions, workplace vocabulary, travel, weather, health, and a mock exam
+- **A1 Fast Track**: 6-week compressed option (24 days) that merges review days
 
 ### 🎮 Gamification Engine
 - **XP System**: Earn experience points for every completed task
@@ -74,7 +74,7 @@ Whether you're a complete beginner or brushing up on grammar, DeutschBuddy provi
 | **Routing** | React Router v7 |
 | **PWA** | Service Worker, Web App Manifest |
 | **Deployment** | Vercel (auto-deploy from GitHub) |
-| **Icons** | Lucide React, React Icons |
+| **Icons** | Hand-rolled inline SVGs (`src/components/Icons.jsx`) |
 
 ---
 
@@ -83,62 +83,118 @@ Whether you're a complete beginner or brushing up on grammar, DeutschBuddy provi
 ```
 DeutschBuddy/
 ├── public/
-│   ├── manifest.json          # PWA manifest
-│   ├── sw.js                  # Service worker
-│   ├── icon-192.png           # App icon (192x192)
-│   └── icon-512.png           # App icon (512x512)
+│   ├── manifest.json              # PWA manifest
+│   ├── sw.js                      # Service worker (CACHE_VERSION bump flow)
+│   ├── buddy-icon-192.png         # App icon (192x192)
+│   ├── buddy-icon-512.png         # App icon (512x512)
+│   └── buddy/                     # Mascot variants (generated via scripts/process-buddy.mjs)
 ├── src/
 │   ├── components/
-│   │   ├── Navbar.jsx         # Top navigation with glowing level switchers
-│   │   ├── RightPanel.jsx     # Verb lookup + stats + tips sidebar
-│   │   ├── QuickGermanTool.jsx # Verb conjugation lookup (inline + modal)
-│   │   ├── BadgeGallery.jsx   # Badge collection with 15 achievements
-│   │   ├── ConfettiEffect.jsx # Celebration animations
-│   │   ├── Footer.jsx         # Site footer
-│   │   ├── JourneyMap.jsx     # Visual learning path
-│   │   ├── WeeklyModule.jsx   # Week card with day stepping stones
-│   │   ├── DailyTasks.jsx     # Task list with gradient icons
-│   │   ├── TaskRenderer.jsx   # Dynamic task type router
-│   │   ├── Vocabulary.jsx     # Noun gender color-coded lists
-│   │   ├── Flashcards.jsx     # Flip-card flashcard system
-│   │   ├── Quiz.jsx           # Multiple choice quizzes
-│   │   ├── FillBlank.jsx      # Fill-in-the-blank exercises
-│   │   ├── Matching.jsx       # German-English matching game
-│   │   ├── Scramble.jsx       # Word unscramble game
-│   │   ├── Grammar.jsx        # Grammar lessons with examples
-│   │   ├── Speaking.jsx       # Speaking practice prompts
-│   │   ├── Writing.jsx        # Writing exercises
-│   │   ├── ListeningTask.jsx  # Audio comprehension tasks
-│   │   ├── ProgressDashboard.jsx # Stats and progress charts
-│   │   ├── TrackToggle.jsx    # Standard/Fast track switcher
-│   │   ├── SpeakerButton.jsx  # Audio pronunciation button
-│   │   ├── ProtectedRoute.jsx # Auth guard
+│   │   ├── DashboardShell.jsx     # Post-login shell (view switcher + overlays)
+│   │   ├── MainContent.jsx        # Internal view dispatcher
+│   │   ├── TaskRenderer.jsx       # Task-type dispatcher (14 types)
+│   │   ├── lesson/
+│   │   │   └── LessonPlayer.jsx   # Full-screen lesson session player
+│   │   ├── buddy/                 # BuddyAvatar, speech bubbles, empty states
+│   │   ├── Navbar.jsx             # Top navigation with level switchers
+│   │   ├── MobileSidebar.jsx      # Mobile drawer
+│   │   ├── BottomNav.jsx          # Mobile bottom navigation
+│   │   ├── QuickGermanTool.jsx    # Verb conjugation lookup (inline + modal)
+│   │   ├── BadgeGallery.jsx       # Badge collection with 15 achievements
+│   │   ├── ConfettiEffect.jsx     # Celebration animations
+│   │   ├── Footer.jsx             # Site footer
+│   │   ├── JourneyMap.jsx         # Visual learning path
+│   │   ├── WeeklyModule.jsx       # Module card with day stepping stones
+│   │   ├── DailyTasks.jsx         # Task list with gradient icons
+│   │   ├── Vocabulary.jsx         # Noun gender color-coded lists
+│   │   ├── Flashcards.jsx         # Flip-card flashcard system
+│   │   ├── Quiz.jsx               # Multiple choice quizzes
+│   │   ├── FillBlank.jsx          # Fill-in-the-blank exercises
+│   │   ├── Matching.jsx           # German-English matching game
+│   │   ├── Scramble.jsx           # Word unscramble game
+│   │   ├── Grammar.jsx            # Grammar lessons with examples
+│   │   ├── Speaking.jsx           # Speaking practice prompts
+│   │   ├── Writing.jsx            # Writing exercises
+│   │   ├── ListeningTask.jsx      # Audio comprehension tasks
+│   │   ├── ProgressDashboard.jsx  # Stats and progress charts
+│   │   ├── SpeakerButton.jsx      # Audio pronunciation button
+│   │   ├── SpeedBlitz.jsx         # Timed vocabulary arcade
+│   │   ├── GenderDungeon.jsx      # Der/Die/Das falling-bar game
+│   │   ├── PictureMatch.jsx       # Emoji picture matching game
+│   │   ├── StreakGuardian.jsx     # Streak recovery quiz
+│   │   ├── ReviewDeck.jsx         # Spaced-repetition review session
+│   │   ├── CommunitySection.jsx   # Q&A forum
+│   │   ├── ResourceLibrary.jsx    # External resources
+│   │   ├── ProfilePage.jsx        # User profile & settings
+│   │   ├── SettingsPage.jsx       # App settings
+│   │   ├── NotificationPanel.jsx  # Slide-in notifications
+│   │   ├── GamePanel.jsx          # Games launcher
+│   │   ├── Coachmark.jsx          # Spotlight tooltip
+│   │   ├── WelcomeTutorial.jsx    # First-run Buddy tour
+│   │   ├── UpdateToast.jsx        # PWA update prompt
+│   │   ├── XpToast.jsx            # XP celebration toast
+│   │   ├── ConfettiEffect.jsx
+│   │   ├── Certificate.jsx
+│   │   ├── ContinueCard.jsx
+│   │   ├── RightPanel.jsx         # Verb lookup + stats + tips sidebar
+│   │   ├── BannerAd.jsx
+│   │   ├── ErrorBoundary.jsx
+│   │   ├── TaskErrorBoundary.jsx
+│   │   ├── Icons.jsx              # Hand-rolled inline SVGs
 │   │   └── ...
 │   ├── contexts/
-│   │   └── AuthContext.jsx    # Supabase auth provider
+│   │   ├── AuthContext.jsx        # Supabase auth provider (Google OAuth, recovery)
+│   │   ├── DashboardContext.jsx   # Post-login app state core (~400 lines)
+│   │   └── ThemeContext.jsx       # Light/dark theme provider
 │   ├── hooks/
-│   │   └── useProgress.js     # Progress state management
+│   │   ├── useProgress.js         # Progress engine + Supabase sync (idempotent)
+│   │   ├── useSpacedRepetition.js # SM-2 flashcard deck state
+│   │   └── useSpeech.js           # TTS orchestration (Edge TTS + Web Speech fallback)
 │   ├── pages/
-│   │   ├── LoginPage.jsx      # Split-screen login
-│   │   ├── SignupPage.jsx     # Split-screen signup
+│   │   ├── LoginPage.jsx          # Split-screen login
+│   │   ├── SignupPage.jsx         # Split-screen signup
 │   │   ├── ForgotPasswordPage.jsx
-│   │   └── ResetPasswordPage.jsx
+│   │   ├── ResetPasswordPage.jsx
+│   │   ├── VerifyEmailPage.jsx    # Email verification / resend
+│   │   └── OnboardingPage.jsx     # 6-step pre-signup flow
 │   ├── data/
-│   │   ├── a1Data.js          # A1 curriculum (8 weeks)
-│   │   ├── a2Data.js          # A2 curriculum (8 weeks)
-│   │   └── a1FastTrackData.js # A1 fast track (6 weeks)
+│   │   ├── a1SpoonfedModules.js   # A1 curriculum (10 modules / 20 days)
+│   │   ├── a1FastTrackData.js     # A1 fast track (6 weeks / 24 days)
+│   │   ├── a2Data.js              # A2 curriculum (8 modules / 56 days)
+│   │   ├── genderWords.js         # GenderDungeon nouns (217)
+│   │   ├── pictureWords.js        # PictureMatch cards (205)
+│   │   └── speedBlitzWords.js     # SpeedBlitz words (149 per level)
 │   ├── utils/
-│   │   ├── progress.js        # Progress utility functions
-│   │   └── speech.js          # Text-to-speech for pronunciation
+│   │   ├── progress.js            # Progress helpers
+│   │   ├── edgeSpeech.js          # Edge TTS client
+│   │   ├── speech.js              # Web Speech fallback
+│   │   ├── srs.js                 # Spaced-repetition math (SM-2)
+│   │   ├── topicTitle.js          # DE/EN topic title splitting
+│   │   ├── vocabExtractor.js      # Curriculum → flashcard items
+│   │   ├── date.js                # Local-timezone calendar helpers
+│   │   ├── analytics.js           # Event tracking
+│   │   ├── badges.js              # Badge catalog
+│   │   ├── referral.js            # Referral code helpers
+│   │   ├── authErrors.js          # Friendly auth error messages
+│   │   └── userStorage.js         # Per-user localStorage scoping
+│   ├── services/
+│   │   ├── ads.js                 # AdMob/AdSense abstraction (no-op when unconfigured)
+│   │   └── referralService.js     # Referral sync (never blocks auth)
 │   ├── lib/
-│   │   └── supabase.js        # Supabase client configuration
-│   ├── App.jsx                # Main app with routing
-│   ├── main.jsx               # Entry point
-│   └── index.css              # Global styles + glassmorphism
+│   │   └── supabase.js            # Supabase client (placeholder-safe)
+│   ├── App.jsx                    # Router (auth/onboarding only)
+│   ├── main.jsx                   # Entry point + ErrorBoundary
+│   └── index.css                  # Tailwind v4 @theme + design system
+├── api/
+│   └── tts.js                     # Vercel serverless Edge TTS endpoint
 ├── supabase/
-│   ├── schema.sql             # Database schema
-│   └── fix-rls.sql            # RLS policy fixes
-├── vercel.json                # Vercel rewrites for SPA
+│   ├── schema.sql                 # Database schema (canonical)
+│   ├── fix-rls.sql                # RLS policy repairs
+│   ├── community-schema.sql       # Community tables + triggers
+│   ├── referral-schema.sql        # Referral tables + RPCs
+│   └── migrations/                # One-off SQL migrations
+├── vercel.json                    # SPA rewrites + /api isolation
+├── capacitor.config.json          # Android shell (webDir: dist)
 └── package.json
 ```
 
@@ -207,10 +263,10 @@ npm run build
 
 ## 🎓 Curriculum Overview
 
-### A1 — Beginner (10 Weeks standard / 6 Weeks fast track)
+### A1 — Beginner (10 Modules / 20 Days standard · 6 Weeks fast track)
 
-| Week | Topic | Key Grammar |
-|------|-------|-------------|
+| Module | Topic | Key Grammar |
+|--------|-------|-------------|
 | 1 | Meeting People | Greetings, formal/informal address |
 | 2 | The Alphabet | Pronunciation and spelling |
 | 3 | Numbers 0–12 | Counting and phone numbers |
@@ -222,10 +278,10 @@ npm run build
 | 9 | Hobbies & Professions | Everyday activities and jobs |
 | 10 | Pronunciation Deep-Dive | German sounds and speaking confidence |
 
-### A2 — Elementary (8 Weeks)
+### A2 — Elementary (8 Modules / 56 Days)
 
-| Week | Topic | Key Grammar |
-|------|-------|-------------|
+| Module | Topic | Key Grammar |
+|--------|-------|-------------|
 | 1 | Perfekt Tense with haben/sein | Past participle formation |
 | 2 | Präteritum Basics | Regular/irregular past tense |
 | 3 | Family & Social Life | Expanded modal verbs |
@@ -278,7 +334,7 @@ DeutschBuddy integrates with these curated German learning resources:
 
 ### Tables
 - **profiles**: User name, email, joined date, pacing preference, referral metadata
-- **progress**: XP, streak, completed tasks, badges, unlocked weeks (per user per level)
+- **progress**: XP, streak, completed tasks, revise tasks, badges, unlocked weeks, weekly XP (per user per level)
 - **exercise_results**: Task completion logs with scores
 - **exam_scores**: Mock exam results (Lesen, Hören, Schreiben, Sprechen)
 - **community_posts/comments/upvotes**: Authenticated learner community

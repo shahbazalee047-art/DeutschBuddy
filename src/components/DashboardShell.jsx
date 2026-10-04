@@ -254,7 +254,7 @@ export default function DashboardShell() {
   }
 
   return (
-    <div className="db-page min-h-dvh">
+    <div className="db-page min-h-[100svh]">
       <SkipLink targetId="main-content" />
       {showTutorial && (
         <Suspense fallback={null}>
@@ -354,7 +354,7 @@ export default function DashboardShell() {
 
       {/* Mobile Header */}
       <div className="db-mobile-header lg:hidden sticky top-0 z-40">
-        <div className="flex items-center justify-between h-16 px-4">
+        <div className="flex items-center justify-between min-h-[56px] px-4">
           <div className="flex items-center gap-1 min-w-0">
             <button onClick={() => setShowSidebar(true)}
               className="flex h-10 w-10 flex-shrink-0 items-center justify-center text-text-muted transition-colors hover:bg-bg-secondary hover:text-primary">
@@ -401,16 +401,17 @@ export default function DashboardShell() {
       {/* Non-blocking sync status indicator: shown only while a progress
           write is queued locally (offline / transient server issue). */}
       {syncStatus !== 'synced' && (
-        <div className="lg:hidden sticky top-16 z-30 flex justify-center">
+        <div className="lg:hidden sticky top-[56px] z-30 flex justify-center px-4">
           <SyncPill syncStatus={syncStatus} syncPendingSince={syncPendingSince} />
         </div>
       )}
 
       {/* Main Content Area */}
-      <main id="main-content" className="min-h-0 flex-1 overflow-y-auto" tabIndex={-1}>
+      <main id="main-content" className="min-h-0 flex-1 overflow-y-auto pb-nav" tabIndex={-1}>
         {selectedTask ? (
           <Suspense fallback={<LoadingScreen />}>
             <LessonPlayer
+              key={selectedTask.id}
               task={selectedTask}
               tasks={practiceMode && practiceQueue.length
                 ? practiceQueue.map(q => q.task)

@@ -144,19 +144,20 @@ export default function OnboardingPage() {
   const usedEnglish = WIN_PAIRS.filter(p => winMatched.includes(p.de)).map(p => p.en);
 
   return (
-    <div className="onboarding-page db-page min-h-dvh flex overflow-y-auto">
-      <div className="onboarding-panel m-auto w-full max-w-md px-6 py-8">
-        {/* Step progress dots */}
-        <div className="flex items-center justify-center gap-1.5 mb-6" aria-hidden>
-          {STEPS.map((s, i) => (
-            <div
-              key={s}
-              className={`h-1.5 transition-all duration-300 ${i === stepIdx ? 'w-7 bg-primary' : i < stepIdx ? 'w-1.5 bg-primary/40' : 'w-1.5 bg-border'}`}
-            />
-          ))}
-        </div>
+    <div className="onboarding-page db-page min-h-[100svh] flex flex-col">
+      <div className="onboarding-panel flex-1 flex flex-col w-full max-w-md mx-auto px-4 py-6 sm:px-6 sm:py-8">
+        <div className="flex-1 overflow-y-auto pr-1">
+          {/* Step progress dots */}
+          <div className="flex items-center justify-center gap-1.5 mb-6" aria-hidden>
+            {STEPS.map((s, i) => (
+              <div
+                key={s}
+                className={`h-1.5 transition-all duration-300 ${i === stepIdx ? 'w-7 bg-primary' : i < stepIdx ? 'w-1.5 bg-primary/40' : 'w-1.5 bg-border'}`}
+              />
+            ))}
+          </div>
 
-        <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait">
           {step === 'intro' && (
             <motion.div
               key="intro"
@@ -426,24 +427,28 @@ export default function OnboardingPage() {
               >
                 Start my account <IconArrowRight className="w-4 h-4" />
               </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {stepIdx > 0 && step !== 'intro' && !(step === 'win' && winDone) && step !== 'route' && (
-          <button
-            onClick={goBack}
-            className="mt-5 mx-auto flex items-center gap-1 text-[12px] text-text-muted transition-colors hover:text-primary"
-          >
-            <IconArrowLeft className="w-3.5 h-3.5" /> Back
-          </button>
+</motion.div>
         )}
-
-        <p className="text-center text-[12px] text-text-muted mt-6">
-          Already have an account?{' '}
-          <button onClick={() => navigate('/login')} className="font-semibold text-primary hover:underline">Log in</button>
-        </p>
-      </div>
+      </AnimatePresence>
     </div>
-  );
+
+    {/* Fixed bottom area with safe area padding */}
+    <div className="sticky bottom-0 bg-bg-base/95 backdrop-blur supports-[backdrop-filter]:backdrop-blur pb-safe pt-4">
+      {stepIdx > 0 && step !== 'intro' && !(step === 'win' && winDone) && step !== 'route' && (
+        <button
+          onClick={goBack}
+          className="mx-auto flex items-center gap-1 text-[12px] text-text-muted transition-colors hover:text-primary touch-target"
+        >
+          <IconArrowLeft className="w-3.5 h-3.5" /> Back
+        </button>
+      )}
+
+      <p className="text-center text-[12px] text-text-muted mt-4 pb-safe">
+        Already have an account?{' '}
+        <button onClick={() => navigate('/login')} className="font-semibold text-primary hover:underline">Log in</button>
+      </p>
+    </div>
+  </div>
+</div>
+);
 }

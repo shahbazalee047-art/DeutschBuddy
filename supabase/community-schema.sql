@@ -42,55 +42,47 @@ create table if not exists public.community_upvotes (
 -- on the same tables — running both defined two triggers per row change and
 -- DOUBLE-COUNTED every upvote/comment. The legacy triggers are dropped below
 -- so this file is safe to (re)apply on any database.
-drop trigger if exists on_upvote_change on public.community_upvotes;
-drop trigger if exists on_comment_change on public.community_comments;
-drop function if exists public.update_upvotes_count();
-drop function if exists public.update_comment_count();
+-- FIXED: Do NOT drop the canonical triggers from schema.sql/fix-rls.sql.
+-- This file only creates tables + RLS; it must not drop triggers.
+-- drop trigger if exists on_upvote_change on public.community_upvotes;
+-- drop trigger if exists on_comment_change on public.community_comments;
+-- drop function if exists public.update_upvotes_count();
+-- drop function if exists public.update_comment_count();
 
 -- Row Level Security
 alter table public.community_posts enable row level security;
 alter table public.community_comments enable row level security;
 alter table public.community_upvotes enable row level security;
 
--- Posts: all authenticated users can read, author can update/delete
-create policy "Anyone authenticated can view posts"
-  on public.community_posts for select
-  using (auth.role() = 'authenticated');
+-- Posts: anyone can read (public community)
+create policy "Anyone can view community posts"
+  on public.community_posts for select using (true);
 
-create policy "Users can create posts"
-  on public.community_posts for insert
-  with check (auth.uid() = user_id);
+create policy "Users can create community posts"
+  on public.community_posts for insert with check (auth.uid() = user_id);
 
-create policy "Authors can update their posts"
-  on public.community_posts for update
-  using (auth.uid() = user_id);
+create policy "Users can update own community posts"
+  on public.community_posts for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
-create policy "Authors can delete their posts"
-  on public.community_posts for delete
-  using (auth.uid() = user_id);
+create policy "Users can delete own community posts"
+  on public.community_posts for delete using (auth.uid() = user_id);
 
--- Comments: all authenticated can read, author can manage
-create policy "Anyone authenticated can view comments"
-  on public.community_comments for select
-  using (auth.role() = 'authenticated');
+-- Comments: anyone can read
+create policy "Anyone can view comments"
+  on public.community_comments for select using (true);
 
-create policy "Users can comment"
-  on public.community_comments for insert
-  with check (auth.uid() = user_id);
+create policy "Users can create comments"
+  on public.community_comments for insert with check (auth.uid() = user_id);
 
-create policy "Authors can delete their comments"
-  on public.community_comments for delete
-  using (auth.uid() = user_id);
+create policy "Users can update own comments"
+  on public.community_comments for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
--- Upvotes: all authenticated can read, one per user per post
-create policy "Anyone authenticated can view upvotes"
-  on public.community_upvotes for select
-  using (auth.role() = 'authenticated');
+create policy "Users can delete own comments"
+  on public.community_comments for delete using (auth.uid() = user_id);
 
-create policy "Users can upvote"
-  on public.community_upvotes for insert
-  with check (auth.uid() = user_id);
+-- Upvotes: anyone can read, users manage own
+create policy "Anyone can view upvotes"
+  on public.community_upvotes for select using (true);
 
-create policy "Users can remove their upvote"
-  on public.community_upvotes for delete
-  using (auth.uid() = user_id);
+create policy "Users can manage own upvotes"
+  on public.community_upvotes for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

@@ -94,8 +94,8 @@ export default function WelcomeTutorial({ onClose }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [close, next, back]);
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-primary-dark/55 p-4 safe-area-top safe-area-bottom">
+return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 safe-area-top safe-area-bottom">
       <AnimatePresence mode="wait">
         <motion.div
           key={step}
@@ -103,7 +103,7 @@ export default function WelcomeTutorial({ onClose }) {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -16, scale: 0.98 }}
           transition={{ duration: 0.28, ease: [0.25, 1, 0.5, 1] }}
-          className="relative w-full max-w-md db-card overflow-hidden"
+          className="relative w-full max-w-md max-h-[85svh] overflow-y-auto db-card overflow-hidden"
           role="dialog"
           aria-labelledby="tutorial-title"
         >
@@ -112,7 +112,7 @@ export default function WelcomeTutorial({ onClose }) {
             <button
               onClick={close}
               aria-label="Skip tutorial"
-              className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center text-text-muted hover:text-text-dark hover:bg-bg-secondary transition-colors"
+              className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full flex items-center justify-center text-text-muted hover:text-text-dark hover:bg-bg-secondary transition-colors touch-target"
             >
               <IconX className="w-5 h-5" />
             </button>
@@ -150,7 +150,7 @@ export default function WelcomeTutorial({ onClose }) {
                   key={i}
                   onClick={() => setStep(i)}
                   aria-label={`Go to step ${i + 1}`}
-                  className="rounded-full transition-all duration-300"
+                  className="rounded-full transition-all duration-300 min-w-[44px] min-h-[44px]"
                   style={{
                     width: i === step ? 22 : 7,
                     height: 7,
@@ -161,11 +161,11 @@ export default function WelcomeTutorial({ onClose }) {
             </div>
 
             {/* Controls */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
               {!isFirst && (
                 <button
                   onClick={back}
-                  className="db-btn db-btn-secondary flex items-center gap-1.5 px-4 py-3 text-sm"
+                  className="db-btn db-btn-secondary flex-1 sm:flex-auto flex items-center justify-center gap-1.5 px-4 py-3 text-sm"
                 >
                   <IconArrowLeft className="w-4 h-4" /> Back
                 </button>

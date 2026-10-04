@@ -45,6 +45,8 @@ create table if not exists public.referrals (
   unique (referred_user_id)
 );
 
+create index if not exists idx_referrals_referrer on public.referrals(referrer_id);
+
 -- Progress table per user per level
 create table if not exists public.progress (
   id uuid default uuid_generate_v4() primary key,
@@ -58,6 +60,9 @@ create table if not exists public.progress (
   badges jsonb default '[]' not null,
   unlocked_weeks integer[] default '{1}' not null,
   weekly_xp jsonb default '{}' not null,
+  -- Repair marker for migration 20260904_fix_game_weekly_xp.sql
+  -- (game XP no longer accumulates in the W1 bucket — see useProgress.js).
+  weekly_xp_game_repaired boolean default false not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null,
   unique(user_id, level)
@@ -534,3 +539,37 @@ grant execute on function public.set_my_referral_info(text, text, text) to authe
 grant execute on function public.record_referral(text, uuid) to authenticated;
 grant execute on function public.get_my_referral_info() to authenticated;
 notify pgrst, 'reload schema';
+
+-- ---------------------------------------------------------------------------
+-- Automatic updated_at maintenance
+-- ---------------------------------------------------------------------------
+create or replace function public.set_updated_at()
+returns trigger language plpgsql security definer set search_path = '' as $$
+begin
+  new.updated_at = timezone('utc'::text, now());
+  return new;
+end $$;
+
+create trigger trigger_set_updated_at before update on public.profiles
+  for each row execute function public.set_updated_at();
+create trigger trigger_set_updated_at before update on public.progress
+  for each row execute function public.set_updated_at();
+create trigger trigger_set_updated_at before update on public.exercise_results
+  for each row execute function public.set_updated_at();
+create trigger trigger_set_updated_at before update on public.exam_scores
+  for each row execute function public.set_updated_at();
+create trigger trigger_set_updated_at before update on public.community_posts
+  for each row execute function public.set_updated_at();
+create trigger trigger_set_updated_at before update on public.community_comments
+  for each row execute function public.set_updated_at();
+
+-- ---------------------------------------------------------------------------
+-- exercise_results: add updated_at column and FK to progress
+-- ---------------------------------------------------------------------------
+alter table public.exercise_results
+  add column if not exists updated_at timestamp with time zone default timezone('utc'::text, now()) not null;
+
+alter table public.exercise_results
+  add constraint if not exists fk_exercise_results_progress
+  foreign key (user_id, level) references public.progress(user_id, level)
+  on delete cascade;

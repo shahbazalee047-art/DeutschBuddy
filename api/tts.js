@@ -1,5 +1,6 @@
 import { Buffer } from 'node:buffer';
 import { UniversalEdgeTTS } from 'edge-tts-universal';
+import { createClient } from '@supabase/supabase-js';
 
 const DEFAULT_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -13,9 +14,6 @@ const DEFAULT_HEADERS = {
 // server-side Edge TTS round trip for repeat taps within a session.
 const synthCache = new Map();
 const SYNTH_CACHE_MAX = 200;
-const requestBuckets = new Map();
-const RATE_LIMIT_WINDOW_MS = 60_000;
-const RATE_LIMIT_MAX = 60;
 const VALID_VOICES = new Set([
   'de-DE-KatjaNeural',
   'de-DE-ConradNeural',
@@ -26,6 +24,11 @@ const VALID_VOICES = new Set([
 const RATE_PATTERN = /^[+-]\d{1,3}%$/;
 const PITCH_PATTERN = /^[+-]\d{1,3}Hz$/;
 
+const supabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+);
+
 function getClientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
   return (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null)
@@ -33,24 +36,14 @@ function getClientIp(req) {
     || 'unknown';
 }
 
-function takeRateLimit(req) {
-  const now = Date.now();
+async function takeRateLimit(req) {
   const ip = getClientIp(req);
-  const bucket = requestBuckets.get(ip);
-  if (!bucket || now - bucket.startedAt >= RATE_LIMIT_WINDOW_MS) {
-    requestBuckets.set(ip, { startedAt: now, count: 1 });
-  } else if (bucket.count >= RATE_LIMIT_MAX) {
-    return false;
-  } else {
-    bucket.count += 1;
-  }
-
-  // Prevent a long-lived serverless instance from retaining one entry per IP.
-  if (requestBuckets.size > 10_000) {
-    for (const [key, value] of requestBuckets) {
-      if (now - value.startedAt >= RATE_LIMIT_WINDOW_MS) requestBuckets.delete(key);
-    }
-  }
+  const windowStart = new Date(Date.now() - 60_000).toISOString();
+  const { data: count, error } = await supabase.rpc('increment_tts_rate', {
+    p_ip: ip,
+    p_window_start: windowStart,
+  });
+  if (error || (count ?? 0) > 60) return false;
   return true;
 }
 

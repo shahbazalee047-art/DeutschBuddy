@@ -29,6 +29,12 @@ export default defineConfig([
     },
   },
   {
+    files: ['api/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: { ...globals.node, ...globals.browser },
+    },
+  },
+  {
     files: ['**/*.test.{js,jsx}', 'src/test/**/*.{js,jsx}'],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },

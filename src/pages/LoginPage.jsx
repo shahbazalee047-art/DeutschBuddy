@@ -5,8 +5,9 @@ import { BuddyAvatar } from '../components/buddy';
 import { GoogleIcon, IconCheck, IconEye, IconEyeOff } from '../components/Icons';
 import { applyPendingReferral } from '../services/referralService';
 import { scopeLocalStateForUser } from '../utils/userStorage';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-export default function LoginPage() {
+function LoginPageContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -97,7 +98,7 @@ export default function LoginPage() {
   const resendVisible = alreadyResent || errors.form?.includes('verify your email');
 
   return (
-    <div className="auth-layout">
+    <div className="auth-layout min-h-[100svh]">
       <aside className="auth-brand-panel">
         <div>
           <p className="db-wordmark text-[0.72rem] text-bg-cream">DeutschBuddy</p>
@@ -260,5 +261,13 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <ErrorBoundary>
+      <LoginPageContent />
+    </ErrorBoundary>
   );
 }

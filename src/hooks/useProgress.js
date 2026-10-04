@@ -100,7 +100,31 @@ function savePendingQueue(userId, level, queue) {
 }
 
 function snapshotsEqual(left, right) {
-  return JSON.stringify(left) === JSON.stringify(right);
+  // Shallow comparison of primitives + array length + first differing element
+  if (left.xp !== right.xp) return false;
+  if (left.streak !== right.streak) return false;
+  if (left.last_study_date !== right.last_study_date) return false;
+  if (left.completed_tasks.length !== right.completed_tasks.length) return false;
+  for (let i = 0; i < left.completed_tasks.length; i++) {
+    if (left.completed_tasks[i] !== right.completed_tasks[i]) return false;
+  }
+  if (left.revise_tasks.length !== right.revise_tasks.length) return false;
+  for (let i = 0; i < left.revise_tasks.length; i++) {
+    if (left.revise_tasks[i] !== right.revise_tasks[i]) return false;
+  }
+  if (JSON.stringify(left.badges) !== JSON.stringify(right.badges)) return false; // small array
+  if (left.unlocked_weeks.length !== right.unlocked_weeks.length) return false;
+  for (let i = 0; i < left.unlocked_weeks.length; i++) {
+    if (left.unlocked_weeks[i] !== right.unlocked_weeks[i]) return false;
+  }
+  // weekly_xp object comparison
+  const lw = Object.keys(left.weekly_xp).sort();
+  const rw = Object.keys(right.weekly_xp).sort();
+  if (lw.length !== rw.length) return false;
+  for (let i = 0; i < lw.length; i++) {
+    if (lw[i] !== rw[i] || left.weekly_xp[lw[i]] !== right.weekly_xp[rw[i]]) return false;
+  }
+  return true;
 }
 
 function clearPendingQueue(userId, level) {
@@ -156,6 +180,12 @@ export function useProgress(level) {
   const userRef = useRef(user);
   const levelRef = useRef(level);
   const [syncStatus, setSyncStatus] = useState('synced');
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
 
   useEffect(() => { progressRef.current = progress; }, [progress]);
   useEffect(() => { userRef.current = user; }, [user]);
@@ -193,6 +223,7 @@ export function useProgress(level) {
   }, []);
 
   const performSync = useCallback(async () => {
+    if (!mountedRef.current) return;
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
     if (!currentUser || !currentLevel) return;
@@ -375,7 +406,7 @@ export function useProgress(level) {
       const local = loadLocalProgress(currentUser?.id, currentLevel);
       if (local) setProgress(local);
     } finally {
-      if (requestId === fetchIdRef.current) setLoading(false);
+      if (requestId === fetchIdRef.current && mountedRef.current) setLoading(false);
     }
   }, []);
 
@@ -383,7 +414,7 @@ export function useProgress(level) {
     fetchProgress();
   }, [user, level, fetchProgress]);
 
-  const completeTask = useCallback((taskId, xpAmount, weekId, dayNumber = 0, result = null, taskType = 'task') => {
+  const completeTask = useCallback((taskId, xpAmount, weekId, dayNumber = 0, result = null, taskType = 'task', weekTasks = null, onWeekComplete = null) => {
     const currentUser = userRef.current;
     const currentLevel = levelRef.current;
 
@@ -411,7 +442,11 @@ export function useProgress(level) {
       ? prev.completedTasks
       : [...new Set([...prev.completedTasks, taskId])];
     const weekKey = `W${weekId}`;
-    const newWeeklyXP = alreadyCompleted
+    // Games are synthetic tasks (`game-<name>-<date>`, type `game:<name>`)
+    // mapped to week 1 so they count toward daily stats and total XP, but
+    // they must not inflate the curriculum's per-week XP chart.
+    const isGameTask = typeof taskType === 'string' && taskType.startsWith('game:');
+    const newWeeklyXP = alreadyCompleted || isGameTask
       ? prev.weeklyXP
       : { ...prev.weeklyXP, [weekKey]: (prev.weeklyXP[weekKey] || 0) + xpAmount };
 
@@ -421,15 +456,18 @@ export function useProgress(level) {
     // ({ score: 1, maxScore: 1 }) so they are treated as mastered and never revise.
     // This runs inside the same atomic update so there is no stale-state race.
     let nextReviseTasks = Array.isArray(prev.reviseTasks) ? prev.reviseTasks : [];
-    if (result && typeof result.score === 'number' && result.maxScore > 0) {
-      if (result.score < result.maxScore) {
-        if (!nextReviseTasks.includes(taskId)) {
-          nextReviseTasks = [...nextReviseTasks, taskId];
-        }
-      } else if (nextReviseTasks.includes(taskId)) {
-        nextReviseTasks = nextReviseTasks.filter(id => id !== taskId);
+    const isScored = result && typeof result.score === 'number' && result.maxScore > 0;
+    const isPerfect = isScored && result.score >= result.maxScore;
+    const isFailed = isScored && result.score < result.maxScore;
+
+    if (isFailed) {
+      if (!nextReviseTasks.includes(taskId)) {
+        nextReviseTasks = [...nextReviseTasks, taskId];
       }
+    } else if (isPerfect && nextReviseTasks.includes(taskId)) {
+      nextReviseTasks = nextReviseTasks.filter(id => id !== taskId);
     }
+    // Unscored tasks (isScored === false) do nothing — never revise
 
     const nextBadges = checkBadges({
       xp: newXP,
@@ -462,6 +500,18 @@ export function useProgress(level) {
     setProgress(next);
     saveLocalProgress(currentUser.id, currentLevel, next);
 
+    // Week completion check: if weekTasks provided, check if all tasks in the week
+    // are now complete. If so, call onWeekComplete with the next week ID.
+    // This runs AFTER progressRef is updated, so it uses the latest state.
+    // This eliminates the race condition where two tasks completing near-simultaneously
+    // both read stale progress.completedTasks.
+    if (weekTasks && !alreadyCompleted && onWeekComplete) {
+      const allDone = weekTasks.every(t => next.completedTasks.includes(t.id));
+      if (allDone) {
+        onWeekComplete(weekId + 1);
+      }
+    }
+
     // Queue the full snapshot for the server. On failure the local state is
     // kept (source of truth) and the write retries with backoff — a failed
     // save must NEVER roll back or discard local progress.
@@ -471,12 +521,18 @@ export function useProgress(level) {
     // run it in parallel to halve the latency the user feels on completion.
     // A repeated task is still a useful exercise attempt, but idempotency
     // above ensures it cannot award XP a second time.
-    const rawMaxScore = result && typeof result.maxScore === 'number' && result.maxScore > 0
-      ? result.maxScore
-      : xpAmount;
-    const rawScore = result && typeof result.score === 'number' ? result.score : xpAmount;
+    // Defensive: validate result object; if invalid, treat as unscored full credit
+    const isValidResult = result &&
+      typeof result.score === 'number' &&
+      typeof result.maxScore === 'number' &&
+      result.maxScore > 0;
+    const rawMaxScore = isValidResult ? result.maxScore : xpAmount;
+    const rawScore = isValidResult ? result.score : xpAmount;
     const maxScore = Math.max(0, Math.round(rawMaxScore));
     const score = Math.min(maxScore, Math.max(0, Math.round(rawScore)));
+    if (!isValidResult) {
+      console.warn('completeTask called with invalid result:', result, '— treating as unscored full credit');
+    }
     // Completion state is committed synchronously above. Recording an attempt
     // is useful but must not delay the UI, and callers need the immediate
     // boolean below to avoid showing XP for a task that was already completed.

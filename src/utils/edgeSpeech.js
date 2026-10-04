@@ -22,8 +22,14 @@ const ENGLISH_MARKERS = new Set([
   'and','or','but','so','because','if','when','where','what','who','which','how','this','that','these','those'
 ]);
 
+const langCache = new Map();
+const LANG_CACHE_MAX = 1000;
+
 export function detectLanguage(text) {
   if (!text || typeof text !== 'string') return 'de-DE';
+  const cached = langCache.get(text);
+  if (cached) return cached;
+
   const normalized = text.toLowerCase().replace(/[^\p{L}\p{N}']+/gu, ' ').trim();
   const tokens = normalized.split(/\s+/).filter(Boolean);
 
@@ -41,8 +47,10 @@ export function detectLanguage(text) {
   }
 
   // Favour German for this app unless English is clearly dominant.
-  if (englishScore > germanScore && englishScore >= 2) return 'en-US';
-  return 'de-DE';
+  const result = (englishScore > germanScore && englishScore >= 2) ? 'en-US' : 'de-DE';
+  if (langCache.size >= LANG_CACHE_MAX) langCache.clear();
+  langCache.set(text, result);
+  return result;
 }
 
 export function toEdgeRate(rate) {

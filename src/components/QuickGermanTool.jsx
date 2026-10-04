@@ -120,12 +120,12 @@ export default function QuickGermanTool({ onClose }) {
     setQuery('');
   }
 
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center" onClick={onClose}>
+return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 safe-area-top safe-area-bottom" onClick={onClose}>
       <div className="absolute inset-0 bg-primary-dark/55" />
-      <div className="relative mx-4 max-h-[85vh] w-full max-w-[calc(100vw-32px)] overflow-y-auto p-6" onClick={e => e.stopPropagation()}>
+      <div className="relative mx-4 max-h-[85svh] w-full max-w-[calc(100vw-32px)] overflow-y-auto" onClick={e => e.stopPropagation()}>
         {!selectedVerb ? (
-          <div className="glass-card">
+          <div className="glass-card max-h-[85svh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border p-4 sm:p-5">
               <div className="flex items-center gap-2">
                 <IconSearch className="h-5 w-5 text-primary" />
@@ -133,7 +133,7 @@ export default function QuickGermanTool({ onClose }) {
                   Verb Lookup
                 </h3>
               </div>
-              <button onClick={onClose} className="flex h-10 w-10 items-center justify-center text-text-muted transition hover:bg-bg-secondary hover:text-text-dark focus-visible:ring-2 focus-visible:ring-primary">
+              <button onClick={onClose} className="flex h-10 w-10 items-center justify-center text-text-muted transition hover:bg-bg-secondary hover:text-text-dark focus-visible:ring-2 focus-visible:ring-primary touch-target">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
@@ -151,7 +151,7 @@ export default function QuickGermanTool({ onClose }) {
                   <button
                     key={v.german}
                     onClick={() => handleSelect(v)}
-                    className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition hover:bg-bg-secondary"
+                    className="flex w-full items-center justify-between px-4 py-2.5 text-left text-sm transition hover:bg-bg-secondary touch-target"
                   >
                     <span className="font-medium text-primary">{v.german}</span>
                     <span className="text-text-muted">{v.english}</span>
@@ -164,10 +164,10 @@ export default function QuickGermanTool({ onClose }) {
             </div>
           </div>
         ) : (
-          <div className="glass-card">
+          <div className="glass-card max-h-[85svh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border p-4 sm:p-5">
               <div className="flex items-center gap-2">
-                <button onClick={handleBack} className="flex h-10 w-10 items-center justify-center text-text-muted transition hover:bg-bg-secondary hover:text-text-dark focus-visible:ring-2 focus-visible:ring-primary">
+                <button onClick={handleBack} className="flex h-10 w-10 items-center justify-center text-text-muted transition hover:bg-bg-secondary hover:text-text-dark focus-visible:ring-2 focus-visible:ring-primary touch-target">
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                 </button>
                 <div>
@@ -177,12 +177,12 @@ export default function QuickGermanTool({ onClose }) {
                   <p className="text-xs text-text-muted">{selectedVerb.english}</p>
                 </div>
               </div>
-              <button onClick={onClose} className="flex h-10 w-10 items-center justify-center text-text-muted transition hover:bg-bg-secondary hover:text-text-dark focus-visible:ring-2 focus-visible:ring-primary">
+              <button onClick={onClose} className="flex h-10 w-10 items-center justify-center text-text-muted transition hover:bg-bg-secondary hover:text-text-dark focus-visible:ring-2 focus-visible:ring-primary touch-target">
                 <IconX className="w-4 h-4" />
               </button>
             </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+            <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
+              <table className="w-full text-sm min-w-[500px]">
                 <thead>
                   <tr className="border-b border-border">
                     <th className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-text-muted sm:px-5">Pronoun</th>

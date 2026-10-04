@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { BuddyAvatar } from '../components/buddy';
 import { IconMail, IconRefresh } from '../components/Icons';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 const RESEND_COOLDOWN = 60;
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordPageContent() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -96,8 +97,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="db-page min-h-dvh flex overflow-y-auto">
-      <div className="m-auto w-full max-w-md px-6 py-8">
+    <div className="db-page min-h-[100svh] flex flex-col">
+      <div className="flex-1 flex items-center justify-center w-full max-w-md mx-auto px-4 py-6 sm:px-6 sm:py-8 pb-safe">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="thinking" size={88} />
@@ -149,5 +150,13 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <ErrorBoundary>
+      <ForgotPasswordPageContent />
+    </ErrorBoundary>
   );
 }

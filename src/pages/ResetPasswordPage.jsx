@@ -3,8 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { BuddyAvatar } from '../components/buddy';
 import { IconCheck, IconEye, IconEyeOff } from '../components/Icons';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-export default function ResetPasswordPage() {
+function ResetPasswordPageContent() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -67,8 +68,8 @@ export default function ResetPasswordPage() {
   const linkExpired = error.includes('expired') || error.includes('request a new one');
 
   return (
-    <div className="db-page min-h-dvh flex overflow-y-auto">
-      <div className="m-auto w-full max-w-md px-6 py-8">
+    <div className="db-page min-h-[100svh] flex flex-col">
+      <div className="flex-1 flex items-center justify-center w-full max-w-md mx-auto px-4 py-6 sm:px-6 sm:py-8 pb-safe">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="happy" size={88} />
@@ -160,5 +161,13 @@ export default function ResetPasswordPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <ErrorBoundary>
+      <ResetPasswordPageContent />
+    </ErrorBoundary>
   );
 }

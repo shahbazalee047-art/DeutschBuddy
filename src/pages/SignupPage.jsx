@@ -7,8 +7,9 @@ import { stashReferralCode, isValidReferralCode } from '../utils/referral';
 import { applyPendingReferral } from '../services/referralService';
 import { trackSignupCompleted } from '../utils/analytics';
 import { getUserValue, scopeLocalStateForUser } from '../utils/userStorage';
+import ErrorBoundary from '../components/ErrorBoundary';
 
-export default function SignupPage() {
+function SignupPageContent() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -103,7 +104,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="auth-layout">
+    <div className="auth-layout min-h-[100svh]">
       <aside className="auth-brand-panel">
         <div>
           <p className="db-wordmark text-[0.72rem] text-bg-cream">DeutschBuddy</p>
@@ -260,5 +261,13 @@ export default function SignupPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <ErrorBoundary>
+      <SignupPageContent />
+    </ErrorBoundary>
   );
 }

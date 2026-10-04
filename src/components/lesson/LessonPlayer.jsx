@@ -47,7 +47,7 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
   useEffect(() => { containerRef.current?.focus(); }, []);
 
   return (
-    <div ref={containerRef} tabIndex={-1} className="fixed inset-0 z-[60] flex flex-col bg-bg-base outline-none" role="dialog" aria-label={task?.title || 'German lesson'}>
+    <div ref={containerRef} tabIndex={-1} className="fixed inset-0 z-[60] flex flex-col h-[100svh] bg-bg-base outline-none" role="dialog" aria-label={task?.title || 'German lesson'}>
       <header className="flex shrink-0 items-center justify-between border-b border-border bg-surface px-4 py-3 safe-area-top sm:px-6">
         <button type="button" onClick={onExit} className="flex h-10 w-10 items-center justify-center text-text-muted transition-colors hover:bg-bg-secondary hover:text-primary" aria-label="Exit lesson">
           <IconArrowLeft className="h-5 w-5" />
@@ -69,7 +69,7 @@ export default function LessonPlayer({ task, tasks, currentIndex, topicTitle, on
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8">
+      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 sm:py-8 pb-safe">
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={task?.id || currentIndex} initial={{ opacity: 0, y: 12, filter: 'blur(4px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} exit={{ opacity: 0, y: -12, filter: 'blur(4px)' }} transition={{ duration: 0.22 }} className="exercise-content mx-auto w-full max-w-3xl">
             <TaskRenderer task={task} onComplete={handleTaskResult} />

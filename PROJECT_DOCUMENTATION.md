@@ -453,9 +453,9 @@ progress (
 )
 
 #### `weekly_xp` semantics
-`weekly_xp` is a JSON object keyed `"W<weekId>"` (e.g. `"W1"`, `"W3"`). It accumulates **XP earned from first-time task completions in that curriculum week**. Repeats do **not** inflate it — `useProgress.completeTask` short-circuits via an `alreadyCompleted` guard. `ProgressDashboard` renders it as the "XP by Week" bar chart.
+`weekly_xp` is a JSON object keyed `"W<weekId>"` (e.g. `"W1"`, `"W3"`). It accumulates **XP earned from first-time curriculum task completions in that week**. Repeats do **not** inflate it — `useProgress.completeTask` short-circuits via an `alreadyCompleted` guard. Game sessions (`SpeedBlitz`, `GenderDungeon`, `PictureMatch`) earn total XP and log exercise attempts but are **excluded from the weekly chart** (see `completeTask` game-type guard). `ProgressDashboard` renders it as the "XP by Week" bar chart.
 
-Known minor caveat: bonus game XP (`SpeedBlitz`, `GenderDungeon`, `PictureMatch`) is attributed to week 1 via `handleGameScore → completeTask(..., weekId=1)`, so heavy game play can inflate the week-1 bar. Total XP is unaffected.
+Historical note: before the Sep 2026 fix, game XP was attributed to week 1 via `handleGameScore → completeTask(..., weekId=1)`, inflating the week-1 bar. A migration (`supabase/migrations/20260904_fix_game_weekly_xp.sql`) subtracts game-derived XP from W1 for existing rows. Total XP was always unaffected.
 
 -- Exercise results (with FK to progress for referential integrity)
 exercise_results (
@@ -586,7 +586,6 @@ VITE_SUPABASE_ANON_KEY=eyJhbGci...
 ### Remaining Known Issues
 - Notification items could be more dynamically routable
 - Community section falls back to mock/sample data when the Supabase request fails (it reads the live `community_posts`/`comments`/`upvotes` tables when available)
-- Bonus game XP (SpeedBlitz, GenderDungeon, PictureMatch) inflates the week-1 bar in ProgressDashboard (see `weekly_xp` semantics) — total XP unaffected
 
 ### Important Notes for New Sessions
 - **Node.js**: Must load via nvm: `export NVM_DIR="$HOME/.nvm" && [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"`

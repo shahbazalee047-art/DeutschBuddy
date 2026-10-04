@@ -1149,3 +1149,269 @@ img {
   .dashboard-modal-card,
   .modal-card { max-width: calc(100vw - 32px); padding: 24px; }
 }
+
+/* ============================================
+   MOBILE-FIRST VIEWPORT UTILITIES
+   ============================================ */
+
+:root {
+  /* Standardized spacing for mobile */
+  --space-safe-top: env(safe-area-inset-top, 0px);
+  --space-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --header-height: 56px;
+  --bottom-nav-height: 64px;
+}
+
+/* Viewport height utilities - prefer svh/dvh */
+.min-h-screen { min-height: 100vh; }
+.min-h-dvh { min-height: 100dvh; }
+.min-h-svh { min-height: 100svh; }
+.h-dvh { height: 100dvh; }
+.h-svh { height: 100svh; }
+
+/* Safe area padding */
+.pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.p-safe { padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+
+/* Touch target minimums - 44px minimum per WCAG */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+.touch-target-lg {
+  min-height: 48px;
+  min-width: 48px;
+}
+.touch-target-xl {
+  min-height: 56px;
+  min-width: 56px;
+}
+
+/* Mobile-first modal/card */
+.mobile-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  padding-top: env(safe-area-inset-top, 1rem);
+  padding-bottom: env(safe-area-inset-bottom, 1rem);
+}
+
+.mobile-modal-content {
+  width: 100%;
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100svh - 2rem);
+  overflow-y: auto;
+  border-radius: var(--radius-modal);
+}
+
+/* Responsive card radius */
+.card-responsive {
+  border-radius: var(--radius-card);
+}
+@media (min-width: 768px) {
+  .card-responsive.desktop-sharp {
+    border-radius: var(--radius-none);
+  }
+}
+
+/* Full viewport height for modals/lessons */
+.full-viewport {
+  min-height: 100svh;
+  height: 100svh;
+}
+
+/* Header-aware content */
+.content-below-header {
+  padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+}
+@media (min-width: 768px) {
+  .content-below-header {
+    padding-top: 0;
+  }
+}
+
+/* Bottom-nav aware content */
+.content-above-bottom-nav {
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 768px) {
+  .content-above-bottom-nav {
+    padding-bottom: 0;
+  }
+}
+
+/* Touch target utilities for buttons */
+.btn-touch {
+  min-height: 44px;
+  min-width: 44px;
+}
+.btn-touch-lg {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* Prevent horizontal overflow */
+.no-h-scroll {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+/* Text clamp utilities for mobile */
+.text-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+.text-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.text-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Centering utility for modals/slides */
+.center-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+}
+
+/* ============================================
+   MOBILE-FIRST AUTH FORMS
+   ============================================ */
+
+/* Mobile-first auth form card - rounded on mobile, sharp on desktop */
+.auth-form-card {
+  width: min(100%, 480px);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: var(--db-surface);
+  border: 1px solid var(--db-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--db-shadow-card);
+}
+
+@media (min-width: 768px) {
+  .auth-form-card {
+    border-radius: var(--radius-none);
+  }
+}
+
+/* Auth layout - mobile-first stacked, desktop side-by-side */
+.auth-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--db-bg-base);
+}
+
+@media (min-width: 768px) {
+  .auth-layout {
+    flex-direction: row;
+  }
+  .auth-brand-panel {
+    min-height: 100dvh;
+    width: 50%;
+  }
+  .auth-form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Ensure form panel fills viewport on mobile */
+.auth-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: clamp(1.5rem, 6vw, 3rem) 1rem;
+  min-height: calc(100dvh - 120px);
+}
+
+/* Mobile-first modal cards */
+@media (max-width: 640px) {
+  .dashboard-modal-card,
+  .modal-card {
+    max-width: calc(100vw - 32px);
+    padding: 24px;
+    border-radius: var(--radius-modal);
+    max-height: calc(100svh - 2rem);
+    overflow-y: auto;
+  }
+}
+
+/* Ensure db-page uses svh on mobile */
+.db-page {
+  min-height: 100%;
+  min-height: 100svh;
+  background: var(--db-bg-base);
+  color: var(--db-text-body);
+}
+
+/* Exercise content mobile scrolling */
+@media (max-width: 640px) {
+  .exercise-content {
+    max-height: calc(100svh - 200px);
+    overflow-y: auto;
+  }
+  
+  /* Touch targets for mobile */
+  .quiz-option,
+  .matching-tile,
+  .fill-blank-input,
+  .task-item,
+  .db-btn,
+  .btn-primary,
+  .btn-secondary,
+  .exercise-content button {
+    min-height: 48px;
+    min-width: 44px;
+  }
+  
+  /* Form inputs - prevent iOS zoom */
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  /* Modal cards responsive */
+  .dashboard-modal-card,
+  .modal-card {
+    max-width: calc(100vw - 32px);
+    padding: 24px;
+    max-height: calc(100svh - 2rem);
+    overflow-y: auto;
+  }
+  
+  /* Center content on mobile */
+  .center-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100svh;
+  }
+  
+  /* Progress dots touch targets */
+  .onboarding-panel button[aria-label^="Go to step"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Tutorial progress dots */
+  .welcome-tutorial button[aria-label^="Go to step"] {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* WelcomeTutorial controls full width on mobile */
+  .welcome-tutorial .flex.gap-3 {
+    flex-direction: column;
+  }
+  .welcome-tutorial .flex.gap-3 > button {
+    width: 100%;
+  }
+  
+  /* Coachmark responsive */
+  .coachmark-tooltip {
+    max-width: calc(100vw - 32px);
+  }
+}

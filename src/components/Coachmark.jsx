@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // responsible for not re-showing it (e.g. via a localStorage flag).
 
 const PADDING = 8;
-const TOOLTIP_WIDTH = 300;
+const TOOLTIP_WIDTH = 280; // Reduced from 300 for mobile
 const GAP = 14;
 const AUTO_DISMISS_MS = 14000;
 
@@ -64,11 +64,13 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
   const belowSpace = vh - rect.bottom;
   const placeBelow = belowSpace >= 180;
 
+  const responsiveTooltipWidth = Math.min(TOOLTIP_WIDTH, vw - 24);
+
   const tooltipLeft = Math.max(
     12,
-    Math.min(rect.left + rect.width / 2 - TOOLTIP_WIDTH / 2, vw - TOOLTIP_WIDTH - 12)
+    Math.min(rect.left + rect.width / 2 - responsiveTooltipWidth / 2, vw - responsiveTooltipWidth - 12)
   );
-  const tooltipTop = placeBelow ? rect.bottom + GAP : Math.max(12, rect.top - GAP - 180);
+  const tooltipTop = placeBelow ? rect.bottom + GAP : Math.max(12, rect.top - GAP - 160);
 
   return createPortal(
     <AnimatePresence>
@@ -98,7 +100,7 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: 0.1 }}
             className="fixed db-card p-4"
-            style={{ left: tooltipLeft, top: tooltipTop, width: TOOLTIP_WIDTH }}
+            style={{ left: tooltipLeft, top: tooltipTop, width: responsiveTooltipWidth }}
             onClick={e => e.stopPropagation()}
           >
             {/* Arrow */}
@@ -106,8 +108,8 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
               className="absolute w-4 h-4 rotate-45 bg-bg-white border-border"
               style={
                 placeBelow
-                  ? { top: -8, left: Math.min(Math.max(rect.left + rect.width / 2 - tooltipLeft - 8, 16), TOOLTIP_WIDTH - 32), borderTop: '1px solid var(--border-default)', borderLeft: '1px solid var(--border-default)' }
-                  : { bottom: -8, left: Math.min(Math.max(rect.left + rect.width / 2 - tooltipLeft - 8, 16), TOOLTIP_WIDTH - 32), borderBottom: '1px solid var(--border-default)', borderRight: '1px solid var(--border-default)' }
+                  ? { top: -8, left: Math.min(Math.max(rect.left + rect.width / 2 - tooltipLeft - 8, 16), responsiveTooltipWidth - 32), borderTop: '1px solid var(--border-default)', borderLeft: '1px solid var(--border-default)' }
+                  : { bottom: -8, left: Math.min(Math.max(rect.left + rect.width / 2 - tooltipLeft - 8, 16), responsiveTooltipWidth - 32), borderBottom: '1px solid var(--border-default)', borderRight: '1px solid var(--border-default)' }
               }
             />
             <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[1.5px] text-primary">{title}</p>
@@ -115,7 +117,7 @@ export default function Coachmark({ targetSelector, title, body, cta = 'Got it',
             <div className="flex justify-end">
               <button
                 onClick={dismiss}
-                className="db-btn db-btn-primary px-5 py-2 text-xs"
+                className="db-btn db-btn-primary px-5 py-2 text-xs touch-target"
               >
                 {cta}
               </button>

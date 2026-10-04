@@ -3,13 +3,14 @@ import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { BuddyAvatar } from '../components/buddy';
 import { IconMail, IconRefresh } from '../components/Icons';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 // Shown right after signup when the Supabase project requires email
 // confirmation. Replaces the old "passive banner on the login page" dead-end:
 // gives the learner the email used, a resend button (with a cooldown, because
 // Supabase rate-limits auth emails) and a clear path once verified. The email
 // travels in the URL (?email=) so the page survives refresh/deep links.
-export default function VerifyEmailPage() {
+function VerifyEmailPageContent() {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const email = searchParams.get('email') || location.state?.email || '';
@@ -50,8 +51,8 @@ export default function VerifyEmailPage() {
   }
 
   return (
-    <div className="db-page min-h-dvh flex overflow-y-auto">
-      <div className="m-auto w-full max-w-md px-6 py-8">
+    <div className="db-page min-h-[100svh] flex flex-col">
+      <div className="flex-1 flex items-center justify-center w-full max-w-md mx-auto px-4 py-6 sm:px-6 sm:py-8 pb-safe">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-3">
             <BuddyAvatar state="happy" size={96} />
@@ -112,5 +113,13 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <ErrorBoundary>
+      <VerifyEmailPageContent />
+    </ErrorBoundary>
   );
 }

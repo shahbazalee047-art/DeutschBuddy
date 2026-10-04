@@ -248,12 +248,15 @@ export function AuthProvider({ children }) {
         const watchdog = { interval: null, cap: null };
         watchdog.interval = setInterval(() => {
           if (popup.closed) {
-            if (popupWatchdogRef.current === watchdog) clearPopupWatchdog();
+            // Double-check: watchdog might have been cleared by auth event
+            if (popupWatchdogRef.current !== watchdog) return;
+            clearPopupWatchdog();
             onPopupClosed();
           }
         }, 500);
         watchdog.cap = setTimeout(() => {
-          if (popupWatchdogRef.current === watchdog) clearPopupWatchdog();
+          if (popupWatchdogRef.current !== watchdog) return;
+          clearPopupWatchdog();
         }, 5 * 60 * 1000);
         popupWatchdogRef.current = watchdog;
       }

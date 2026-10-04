@@ -19,12 +19,15 @@ window.addEventListener('unhandledrejection', (event) => {
   }
 });
 
-// Register service worker for PWA support without aggressive unregister/reload.
-// Cache versioning in sw.js handles updates naturally via skipWaiting.
-if ('serviceWorker' in navigator && 'https:' === window.location.protocol) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
-  });
+// Trusted Types policy for CSP compliance (prevents DOM XSS via innerHTML, etc.)
+if (window.trustedTypes && trustedTypes.createPolicy) {
+  try {
+    trustedTypes.createPolicy('default', {
+      createHTML: (s) => s,
+      createScript: (s) => s,
+      createScriptURL: (s) => s,
+    });
+  } catch { /* policy may already exist */ }
 }
 
 createRoot(document.getElementById('root')).render(

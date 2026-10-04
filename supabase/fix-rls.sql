@@ -189,7 +189,9 @@ create policy "Users can delete own comments" on public.community_comments
 
 -- Grant necessary permissions (safe, does not drop objects)
 grant usage on schema public to anon, authenticated;
-grant select on public.profiles to anon, authenticated;
+-- NOTE: Do NOT grant full-table SELECT on profiles. The column-level grant
+-- below (lines 221-223) is the only grant needed. A full-table grant would
+-- expose the protected `email` column until the REVOKE runs.
 grant insert, update, delete on public.profiles to authenticated;
 grant select on public.progress to anon, authenticated;
 grant insert, update, delete on public.progress to authenticated;

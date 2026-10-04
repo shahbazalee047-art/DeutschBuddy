@@ -174,4 +174,24 @@ describe('useProgress failed-upsert resilience', () => {
       max_score: 4,
     }));
   });
+
+  it('excludes game XP from the weekly XP chart', async () => {
+    const { result } = renderHook(() => useProgress('A1'));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.completeTask(
+        'game-speedblitz-2026-01-01', 25, 1, 1,
+        { score: 50, maxScore: 50 }, 'game:speedblitz'
+      );
+    });
+
+    // Games still earn total XP and log an exercise attempt…
+    expect(result.current.progress.xp).toBe(25);
+    expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({
+      task_type: 'game:speedblitz',
+    }));
+    // …but the W1 chart bucket stays empty.
+    expect(result.current.progress.weeklyXP).toEqual({});
+  });
 });

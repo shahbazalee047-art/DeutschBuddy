@@ -46,7 +46,7 @@ export function DashboardProvider({ children }) {
   const [hasUnreadNotifications, setHasUnreadNotifications] = useState(false);
 
   const profileMenuRef = useRef(null);
-  const isProcessingBack = useRef(false);
+  const processingBackCount = useRef(0);
   const prevTaskRef = useRef(null);
   const activeViewRef = useRef(activeView);
   const selectedTaskRef = useRef(selectedTask);
@@ -122,6 +122,8 @@ export function DashboardProvider({ children }) {
     setUserValue(user?.id, 'selected_track', mode);
   }, [setTrackMode, user?.id]);
 
+  const [loadAttempts, setLoadAttempts] = useState(0);
+
   // Load curriculum data
   useEffect(() => {
     let cancelled = false;
@@ -142,17 +144,30 @@ export function DashboardProvider({ children }) {
         }
         if (!cancelled) {
           setLevelData(module.default || module);
+          setLoadAttempts(0);
         }
       } catch (err) {
         console.error('Failed to load curriculum data:', err);
-        if (!cancelled) { setLevelData(null); setLoadError(true); }
+        if (!cancelled) {
+          if (loadAttempts < 3) {
+            const delay = 1000 * 2 ** loadAttempts;
+            setTimeout(() => {
+              if (!cancelled) {
+                setLoadAttempts(a => a + 1);
+              }
+            }, delay);
+            return;
+          }
+          setLevelData(null);
+          setLoadError(true);
+        }
       } finally {
         if (!cancelled) setDataLoading(false);
       }
     }
     loadData();
     return () => { cancelled = true; };
-  }, [activeLevel, trackMode, retryKey]);
+  }, [activeLevel, trackMode, retryKey, loadAttempts]);
 
   const visibleWeeks = useMemo(() => levelData?.weeks || [], [levelData]);
   const unlockedWeeks = useMemo(() =>
@@ -228,7 +243,24 @@ export function DashboardProvider({ children }) {
       const earnedXP = result && typeof result.score === 'number' && result.maxScore > 0
         ? Math.max(1, Math.round(selectedTask.xp * (result.score / result.maxScore)))
         : selectedTask.xp;
-      const awardedXP = completeTask(selectedTask.id, earnedXP, selectedDay.weekId, selectedDay.day, result, selectedTask.type);
+      const currentWeekData = practiceMode ? null : levelData?.weeks.find(w => w.id === selectedDay.weekId);
+      const weekTasks = currentWeekData?.days.flatMap(d => d.tasks) ?? [];
+      const awardedXP = completeTask(
+        selectedTask.id,
+        earnedXP,
+        selectedDay.weekId,
+        selectedDay.day,
+        result,
+        selectedTask.type,
+        weekTasks,
+        () => {
+          // Find the next actual week from visibleWeeks (handles non-sequential week IDs)
+          const nextWeek = visibleWeeks.find(w => w.id > selectedDay.weekId && !unlockedWeeks.includes(w.id));
+          if (nextWeek) {
+            unlockWeek(nextWeek.id);
+          }
+        }
+      );
       trackLessonCompleted(
         selectedTask.id,
         activeLevel,
@@ -244,19 +276,13 @@ export function DashboardProvider({ children }) {
       }
       // In practice mode a random task finishing must not trigger the week
       // unlock / day-complete celebration — just advance the queue instead.
-      const currentWeekData = practiceMode ? null : levelData?.weeks.find(w => w.id === selectedDay.weekId);
       if (awardedXP && currentWeekData) {
-        // Project the next completed set so the check is robust against batched updates
-        // and doesn't rely on closure state that may be one render behind.
-        const projectedCompleted = new Set([...progress.completedTasks, selectedTask.id]);
-        const allDone = currentWeekData.days.every(day =>
-          day.tasks.every(t => projectedCompleted.has(t.id))
-        );
+        // Week completion is now handled inside completeTask via onWeekComplete callback.
+        // Here we just trigger the celebration and interstitial if the week was completed.
+        const weekTasksFlat = currentWeekData.days.flatMap(d => d.tasks);
+        const allDone = weekTasksFlat.every(t => progress.completedTasks.includes(t.id) || t.id === selectedTask.id);
         if (allDone) {
           setShowCelebration(true);
-          if (!unlockedWeeks.includes(selectedDay.weekId + 1)) {
-            unlockWeek(selectedDay.weekId + 1);
-          }
           showInterstitial();
         }
       }
@@ -274,7 +300,7 @@ export function DashboardProvider({ children }) {
       return;
     }
     setSelectedTask(null);
-  }, [selectedTask, selectedDay, completeTask, levelData, progress.completedTasks, unlockedWeeks, unlockWeek, practiceMode, practiceQueue, practiceIndex, exitPractice, activeLevel]);
+  }, [selectedTask, selectedDay, completeTask, levelData, progress.completedTasks, unlockedWeeks, unlockWeek, practiceMode, practiceQueue, practiceIndex, exitPractice, activeLevel, visibleWeeks]);
 
   const handleBackToWeek = useCallback(() => {
     setSelectedDay(null);
@@ -287,11 +313,12 @@ export function DashboardProvider({ children }) {
     if (xp <= 0) return;
     const today = getLocalDateString();
     const taskId = `game-${game}-${today}`;
-    const awardedXP = completeTask(taskId, xp, 1, 1, { score, maxScore: score }, `game:${game}`);
+    const firstWeekId = levelData?.weeks?.[0]?.id ?? 1;
+    const awardedXP = completeTask(taskId, xp, firstWeekId, 1, { score, maxScore: score }, `game:${game}`);
     if (!awardedXP) return;
     setTodayXP(prev => prev + xp);
     setXpToast(xp);
-  }, [completeTask]);
+  }, [completeTask, levelData]);
 
   const handleViewChange = useCallback((view) => {
     // Tapping the nav item of the view you are already on should close the
@@ -351,13 +378,13 @@ export function DashboardProvider({ children }) {
   // Browser back navigation
   useEffect(() => {
     const handlePopState = (event) => {
-      if (isProcessingBack.current) return;
+      if (processingBackCount.current > 0) return;
 
       const closeAndReturn = (setter, returnToSidebar = false) => {
-        isProcessingBack.current = true;
+        processingBackCount.current++;
         setter(false);
         if (returnToSidebar) setShowSidebar(true);
-        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        setTimeout(() => { processingBackCount.current = Math.max(0, processingBackCount.current - 1); }, 300);
       };
 
       if (showSidebarVerbLookupRef.current) { closeAndReturn(setShowSidebarVerbLookup, true); return; }
@@ -367,28 +394,28 @@ export function DashboardProvider({ children }) {
       if (showQuickToolRef.current) { closeAndReturn(setShowQuickTool); return; }
 
       if (event.state?.activeView) {
-        isProcessingBack.current = true;
+        processingBackCount.current++;
         setActiveView(event.state.activeView);
         setSelectedDay(event.state.selectedDay || null);
         setSelectedTask(event.state.selectedTask || null);
         if (event.state.activeLevel) setActiveLevel(event.state.activeLevel);
-        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        setTimeout(() => { processingBackCount.current = Math.max(0, processingBackCount.current - 1); }, 300);
         return;
       }
 
       if (activeViewRef.current !== 'dashboard') {
-        isProcessingBack.current = true;
+        processingBackCount.current++;
         setActiveView('dashboard');
         setSelectedDay(null);
         setSelectedTask(null);
-        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        setTimeout(() => { processingBackCount.current = Math.max(0, processingBackCount.current - 1); }, 300);
         return;
       }
 
       if (selectedTaskRef.current || selectedDayRef.current || historyRef.current.length > 0) {
-        isProcessingBack.current = true;
+        processingBackCount.current++;
         handleBackNavRef.current();
-        setTimeout(() => { isProcessingBack.current = false; }, 300);
+        setTimeout(() => { processingBackCount.current = Math.max(0, processingBackCount.current - 1); }, 300);
       }
     };
     window.addEventListener('popstate', handlePopState);
@@ -397,7 +424,7 @@ export function DashboardProvider({ children }) {
 
   // Push browser history state on view changes
   useEffect(() => {
-    if (isProcessingBack.current) return;
+    if (processingBackCount.current > 0) return;
     if (practiceMode) return; // practice queue advances via state, not history
     if (activeView === 'dashboard' && !selectedDay && !selectedTask) return;
     window.history.pushState(
@@ -415,13 +442,13 @@ export function DashboardProvider({ children }) {
         const { App } = await import('@capacitor/core');
         if (App && typeof App.addListener === 'function') {
           capacitorBackHandler = await App.addListener('backButton', () => {
-            if (isProcessingBack.current) return;
+            if (processingBackCount.current > 0) return;
 
             const closeAndReturn = (setter, returnToSidebar = false) => {
-              isProcessingBack.current = true;
+              processingBackCount.current++;
               setter(false);
               if (returnToSidebar) setShowSidebar(true);
-              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              setTimeout(() => { processingBackCount.current = Math.max(0, processingBackCount.current - 1); }, 300);
             };
 
             if (showSidebarVerbLookupRef.current) { closeAndReturn(setShowSidebarVerbLookup, true); return; }
@@ -431,18 +458,18 @@ export function DashboardProvider({ children }) {
             if (showQuickToolRef.current) { closeAndReturn(setShowQuickTool); return; }
 
             if (selectedTaskRef.current || selectedDayRef.current || historyRef.current.length > 0) {
-              isProcessingBack.current = true;
+              processingBackCount.current++;
               handleBackNavRef.current();
-              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              setTimeout(() => { processingBackCount.current = Math.max(0, processingBackCount.current - 1); }, 300);
               return;
             }
 
             if (activeViewRef.current !== 'dashboard') {
-              isProcessingBack.current = true;
+              processingBackCount.current++;
               setActiveView('dashboard');
               setSelectedDay(null);
               setSelectedTask(null);
-              setTimeout(() => { isProcessingBack.current = false; }, 300);
+              setTimeout(() => { processingBackCount.current = Math.max(0, processingBackCount.current - 1); }, 300);
             }
           });
         }
